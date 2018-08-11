@@ -3,7 +3,7 @@
 
 ### 重新替换Jar包
 
-> 包目录在 [fixed-libs]()
+> 包目录在 [fixed-libs](http://115.29.47.72:8082/acmedback/acmedcare-im/tree/master/fixed-libs)
 
 * remoting-android-jarlib-nio-Oceania.SR1.jar       `Nio Socket 底层包`
 * remoting-android-library-jre-core-Oceania.SR1.jar   `Android SDK Jar包`
