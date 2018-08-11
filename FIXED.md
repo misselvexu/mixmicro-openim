@@ -12,6 +12,14 @@
 
 ### 服务器部署重启
 
+#### 测试服务器`root`账号
+
+```bash
+ ssh root@192.168.1.4
+ # 密码: acmed123
+
+```
+
 ```bash
   
   cd /opt/remoting-server-Europe.RC1
