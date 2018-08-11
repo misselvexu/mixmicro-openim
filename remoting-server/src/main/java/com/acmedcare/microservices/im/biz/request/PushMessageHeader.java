@@ -1,6 +1,7 @@
 package com.acmedcare.microservices.im.biz.request;
 
 import com.acmedcare.tiffany.framework.remoting.CommandCustomHeader;
+import com.acmedcare.tiffany.framework.remoting.annotation.CFNotNull;
 import com.acmedcare.tiffany.framework.remoting.exception.RemotingCommandException;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,9 +17,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class PushMessageHeader implements CommandCustomHeader {
+public class PushMessageHeader extends BaseHeader implements CommandCustomHeader {
 
-  private String messageType;
+  /** username for client */
+  @CFNotNull private String username;
+
+  @CFNotNull private String messageType;
 
   @Builder
   public PushMessageHeader(String messageType) {

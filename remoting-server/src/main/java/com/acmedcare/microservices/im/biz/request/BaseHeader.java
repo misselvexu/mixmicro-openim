@@ -1,7 +1,6 @@
 package com.acmedcare.microservices.im.biz.request;
 
-import com.acmedcare.tiffany.framework.remoting.CommandCustomHeader;
-import com.acmedcare.tiffany.framework.remoting.exception.RemotingCommandException;
+import java.io.Serializable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,15 +14,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class BaseHeader implements CommandCustomHeader {
+public class BaseHeader implements Serializable {
 
-  /** username for client */
-  private String username;
+  private static final long serialVersionUID = 4276005619857794603L;
 
-  @Override
-  public void checkFields() throws RemotingCommandException {}
-
-  public BaseHeader(String username) {
-    this.username = username;
-  }
 }

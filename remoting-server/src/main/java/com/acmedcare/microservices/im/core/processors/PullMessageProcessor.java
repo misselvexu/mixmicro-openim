@@ -4,10 +4,10 @@ import com.acmedcare.microservices.im.RemotingApplication.Datas;
 import com.acmedcare.microservices.im.biz.BizResult;
 import com.acmedcare.microservices.im.biz.BizResult.ExceptionWrapper;
 import com.acmedcare.microservices.im.biz.bean.Message;
-import com.acmedcare.microservices.im.biz.body.MessageBody;
 import com.acmedcare.microservices.im.biz.request.PullMessageHeader;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRequestProcessor;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
+import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
 import java.util.List;
 
@@ -56,10 +56,12 @@ public class PullMessageProcessor implements NettyRequestProcessor {
               pullMessageHeader.getLeastMessageId(),
               pullMessageHeader.getLimit());
 
+      System.out.println("客户端拉取消息返回值:" + JSON.toJSONString(list));
       response.setBody(
           BizResult.builder()
               .code(0)
-              .data(MessageBody.builder().messages(list).build())
+//              .data(MessageBody.builder().messages(list).build())
+              .data(list)
               .build()
               .bytes());
 

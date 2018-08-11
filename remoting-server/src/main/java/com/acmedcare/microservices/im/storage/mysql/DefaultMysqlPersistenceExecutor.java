@@ -13,12 +13,15 @@ import com.acmedcare.microservices.im.exception.DataAccessException;
 import com.acmedcare.microservices.im.storage.IPersistenceExecutor;
 import com.google.common.collect.Lists;
 import java.nio.charset.Charset;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
@@ -46,7 +49,7 @@ public class DefaultMysqlPersistenceExecutor implements IPersistenceExecutor {
 
   @Override
   public void saveMessage(
-      List<Object[]> messages, List<Object[]> messageSenders, List<Object[]> messageReceivers) {
+      final List<Object[]> messages, final List<Object[]> messageSenders, final List<Object[]> messageReceivers) {
 
     transactionTemplate.execute(
         (TransactionCallback<Void>)
@@ -111,96 +114,115 @@ public class DefaultMysqlPersistenceExecutor implements IPersistenceExecutor {
       String username, String sender, int type, long leastMessageId, long limit)
       throws DataAccessException {
 
-    limit = (limit <= 0 ? 20 : limit);
+    try {
 
-    if (type == 0) {
-      // 单聊消息
-      if (leastMessageId <= 0) {
-        // 无最新消息 ID, 获取最新的消息
-        String sql =
-            "select t2.* from im_refs_group_member t1 left join im_message_record t2 on t1.message_id = t2.message_id where t1.receiver = ? and t1.sender = ? order by t2.send_timestamp desc limit ?";
+      limit = (limit <= 0 ? 20 : limit);
 
-        return this.jdbcTemplate.query(
-            sql,
-            new Object[] {username, sender, limit},
-            (rs, rowNum) ->
-                SingleMessage.builder()
-                    .receiver(rs.getString("receiver"))
-                    .body(rs.getString("message_content").getBytes(Charset.defaultCharset()))
-                    .mid(rs.getLong("message_id"))
-                    .messageType(MessageType.SINGLE)
-                    .sendTimestamp(rs.getLong("send_timestamp"))
-                    .innerType(
-                        rs.getInt("message_type") == 0 ? InnerType.NORMAL : InnerType.COMMAND)
-                    .sender(rs.getString("sender"))
-                    .build());
+      if (type == 0) {
+        // 单聊消息
+        if (leastMessageId <= 0) {
+          // 无最新消息 ID, 获取最新的消息
+          String sql =
+              "select t2.* from im_message_receive t1 left join im_message_record t2 on t1.message_id = t2.message_id where t1.receiver = ? and t2.sender = ? order by t2.send_timestamp desc limit ?";
 
-      } else {
-        // 查历史
-        String sql =
-            "select t2.* from im_refs_group_member t1 left join im_message_record t2 on t1.message_id = t2.message_id where t1.receiver = ? and t1.sender = ? and t1.message_id < ? order by t2.send_timestamp desc limit ?";
+          return this.jdbcTemplate.query(
+              sql,
+              new Object[] {username, sender, limit},
+              new RowMapper<Message>() {
+                @Override
+                public Message mapRow(ResultSet rs, int rowNum) throws SQLException {
+                  return SingleMessage.builder()
+                      .receiver(rs.getString("receiver"))
+                      .body(rs.getString("message_content").getBytes(Charset.defaultCharset()))
+                      .mid(rs.getLong("message_id"))
+                      .messageType(MessageType.SINGLE)
+                      .sendTimestamp(rs.getLong("send_timestamp"))
+                      .innerType(
+                          rs.getInt("message_type") == 0 ? InnerType.NORMAL : InnerType.COMMAND)
+                      .sender(rs.getString("sender"))
+                      .build();
+                }
+              });
 
-        return this.jdbcTemplate.query(
-            sql,
-            new Object[] {username, sender, leastMessageId, limit},
-            (rs, rowNum) ->
-                SingleMessage.builder()
-                    .receiver(rs.getString("receiver"))
-                    .body(rs.getString("message_content").getBytes(Charset.defaultCharset()))
-                    .mid(rs.getLong("message_id"))
-                    .messageType(MessageType.SINGLE)
-                    .sendTimestamp(rs.getLong("send_timestamp"))
-                    .innerType(
-                        rs.getInt("message_type") == 0 ? InnerType.NORMAL : InnerType.COMMAND)
-                    .sender(rs.getString("sender"))
-                    .build());
+        } else {
+          // 查历史
+          String sql =
+              "select t2.* from im_message_receive t1 left join im_message_record t2 on t1.message_id = t2.message_id where t1.receiver = ? and t2.sender = ? and t2.message_id < ? order by t2.send_timestamp desc limit ?";
+
+          return this.jdbcTemplate.query(
+              sql,
+              new Object[] {username, sender, leastMessageId, limit},
+              new RowMapper<Message>() {
+                @Override
+                public Message mapRow(ResultSet rs, int rowNum) throws SQLException {
+                  return SingleMessage.builder()
+                      .receiver(rs.getString("receiver"))
+                      .body(rs.getString("message_content").getBytes(Charset.defaultCharset()))
+                      .mid(rs.getLong("message_id"))
+                      .messageType(MessageType.SINGLE)
+                      .sendTimestamp(rs.getLong("send_timestamp"))
+                      .innerType(
+                          rs.getInt("message_type") == 0 ? InnerType.NORMAL : InnerType.COMMAND)
+                      .sender(rs.getString("sender"))
+                      .build();
+                }
+              });
+        }
       }
-    }
 
-    if (type == 1) {
-      // 群组消息
+      if (type == 1) {
+        // 群组消息
+        if (leastMessageId <= 0) {
+          // 无最新消息 ID, 获取最新的消息
+          String sql =
+              "select t2.* from im_message_receive t1 left join im_message_record t2 on t1.message_id = t2.message_id where t1.receiver = ? and t2.receiver_group = ? order by t2.send_timestamp desc limit ?";
 
-      // 单聊消息
-      if (leastMessageId <= 0) {
-        // 无最新消息 ID, 获取最新的消息
-        String sql =
-            "select t2.* from im_refs_group_member t1 left join im_message_record t2 on t1.message_id = t2.message_id where t1.receiver = ? and t1.group_id = ? order by t2.send_timestamp desc limit ?";
+          return this.jdbcTemplate.query(
+              sql,
+              new Object[] {username, sender, limit},
+              new RowMapper<Message>() {
+                @Override
+                public GroupMessage mapRow(ResultSet rs, int rowNum) throws SQLException {
+                  return GroupMessage.builder()
+                      .group(rs.getString("receiver_group"))
+                      .body(rs.getString("message_content").getBytes(Charset.defaultCharset()))
+                      .mid(rs.getLong("message_id"))
+                      .messageType(MessageType.GROUP)
+                      .sendTimestamp(rs.getLong("send_timestamp"))
+                      .innerType(
+                          rs.getInt("message_type") == 0 ? InnerType.NORMAL : InnerType.COMMAND)
+                      .sender(rs.getString("sender"))
+                      .build();
+                }
+              });
 
-        return this.jdbcTemplate.query(
-            sql,
-            new Object[] {username, sender, limit},
-            (rs, rowNum) ->
-                GroupMessage.builder()
-                    .group(rs.getString("group_id"))
-                    .body(rs.getString("message_content").getBytes(Charset.defaultCharset()))
-                    .mid(rs.getLong("message_id"))
-                    .messageType(MessageType.GROUP)
-                    .sendTimestamp(rs.getLong("send_timestamp"))
-                    .innerType(
-                        rs.getInt("message_type") == 0 ? InnerType.NORMAL : InnerType.COMMAND)
-                    .sender(rs.getString("sender"))
-                    .build());
+        } else {
+          // 查历史
+          String sql =
+              "select t2.* from im_message_receive t1 left join im_message_record t2 on t1.message_id = t2.message_id where t1.receiver = ? and t2.receiver_group = ? and t2.message_id < ? order by t2.send_timestamp desc limit ?";
 
-      } else {
-        // 查历史
-        String sql =
-            "select t2.* from im_refs_group_member t1 left join im_message_record t2 on t1.message_id = t2.message_id where t1.receiver = ? and t1.group_id = ? and t1.message_id < ? order by t2.send_timestamp desc limit ?";
-
-        return this.jdbcTemplate.query(
-            sql,
-            new Object[] {username, sender, leastMessageId, limit},
-            (rs, rowNum) ->
-                GroupMessage.builder()
-                    .group(rs.getString("group_id"))
-                    .body(rs.getString("message_content").getBytes(Charset.defaultCharset()))
-                    .mid(rs.getLong("message_id"))
-                    .messageType(MessageType.GROUP)
-                    .sendTimestamp(rs.getLong("send_timestamp"))
-                    .innerType(
-                        rs.getInt("message_type") == 0 ? InnerType.NORMAL : InnerType.COMMAND)
-                    .sender(rs.getString("sender"))
-                    .build());
+          return this.jdbcTemplate.query(
+              sql,
+              new Object[] {username, sender, leastMessageId, limit},
+              new RowMapper<Message>() {
+                @Override
+                public GroupMessage mapRow(ResultSet rs, int rowNum) throws SQLException {
+                  return GroupMessage.builder()
+                      .group(rs.getString("receiver_group"))
+                      .body(rs.getString("message_content").getBytes(Charset.defaultCharset()))
+                      .mid(rs.getLong("message_id"))
+                      .messageType(MessageType.GROUP)
+                      .sendTimestamp(rs.getLong("send_timestamp"))
+                      .innerType(
+                          rs.getInt("message_type") == 0 ? InnerType.NORMAL : InnerType.COMMAND)
+                      .sender(rs.getString("sender"))
+                      .build();
+                }
+              });
+        }
       }
+    } catch (Exception e) {
+      e.printStackTrace();
     }
     throw new DataAccessException("无效的消息类型字段,expect type is [0,1]");
   }
@@ -396,7 +418,7 @@ public class DefaultMysqlPersistenceExecutor implements IPersistenceExecutor {
   @Override
   public List<Session> queryAccountSessions(String username) {
 
-    String sql = "select receiver,group_name,session_type from im_session_records where sender = ?";
+    String sql = "select receiver,group_name,session_type from im_session_records where receiver = ?";
 
     return this.jdbcTemplate.query(
         sql,

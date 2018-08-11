@@ -1,6 +1,9 @@
 package com.acmedcare.microservices.im.biz.request;
 
 import com.acmedcare.microservices.im.biz.bean.Message;
+import com.acmedcare.tiffany.framework.remoting.CommandCustomHeader;
+import com.acmedcare.tiffany.framework.remoting.annotation.CFNotNull;
+import com.acmedcare.tiffany.framework.remoting.exception.RemotingCommandException;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,13 +18,16 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ClientPushMessageHeader extends BaseHeader {
+public class ClientPushMessageHeader extends BaseHeader implements CommandCustomHeader {
 
-  private String messageType;
+  /** username for client */
+  @CFNotNull private String username;
+
+  @CFNotNull private String messageType;
 
   @Builder
   public ClientPushMessageHeader(String username, String messageType) {
-    super(username);
+    this.username = username;
     this.messageType = messageType;
   }
 
@@ -33,4 +39,7 @@ public class ClientPushMessageHeader extends BaseHeader {
   public Message.MessageType decodeType() {
     return Message.MessageType.valueOf(messageType);
   }
+
+  @Override
+  public void checkFields() throws RemotingCommandException {}
 }

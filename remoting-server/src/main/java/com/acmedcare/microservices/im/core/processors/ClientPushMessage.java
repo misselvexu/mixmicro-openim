@@ -91,10 +91,7 @@ public class ClientPushMessage implements NettyRequestProcessor {
           BizResult.builder()
               .code(-1)
               .exception(
-                  ExceptionWrapper.builder()
-                      .message(e.getMessage())
-                      .type(e.getCause().getClass())
-                      .build())
+                  ExceptionWrapper.builder().message(e.getMessage()).type(e.getClass()).build())
               .build()
               .bytes());
     }

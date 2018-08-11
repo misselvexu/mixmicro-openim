@@ -1,8 +1,8 @@
 package com.acmedcare.microservices.im.biz.bean;
 
 import java.io.Serializable;
+import java.util.Objects;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,7 +16,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@EqualsAndHashCode
 public class Account implements Serializable {
 
   private static final long serialVersionUID = 6959404976377383795L;
@@ -27,5 +26,22 @@ public class Account implements Serializable {
   @Builder
   public Account(String username) {
     this.username = username;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Account)) {
+      return false;
+    }
+    Account account = (Account) o;
+    return Objects.equals(getUsername(), account.getUsername());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getUsername());
   }
 }

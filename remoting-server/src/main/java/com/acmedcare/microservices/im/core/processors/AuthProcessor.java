@@ -3,13 +3,11 @@ package com.acmedcare.microservices.im.core.processors;
 import com.acmedcare.microservices.im.biz.BizCode;
 import com.acmedcare.microservices.im.biz.BizResult;
 import com.acmedcare.microservices.im.biz.BizResult.ExceptionWrapper;
-import com.acmedcare.microservices.im.biz.bean.Account;
 import com.acmedcare.microservices.im.biz.request.AuthHeader;
-import com.acmedcare.microservices.im.core.ClientChannel;
 import com.acmedcare.microservices.im.core.ServerFacade;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRequestProcessor;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
-import com.google.common.collect.Lists;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.commons.lang3.StringUtils;
 
@@ -50,24 +48,25 @@ public class AuthProcessor implements NettyRequestProcessor {
 
       // process auth
       String username = authHeader.getUsername();
-      Account account = Account.builder().username(username).build();
 
-      if (ServerFacade.channelsMapping().containsKey(account)) {
-        // exist ,append new channel
-        ServerFacade.channelsMapping()
-            .get(account)
-            .add(ClientChannel.builder().channel(channelHandlerContext.channel()).build());
+      if (ServerFacade.channelsMapping().containsKey(username)) {
+        //       exist ,append new channel
+        Channel channel =
+            ServerFacade.channelsMapping().put(username, channelHandlerContext.channel());
+        try {
+          if (channel != null) {
+            channel.close();
+          }
+        } catch (Exception ignored) {
+        }
 
       } else {
 
         // no exist, add new
-        ServerFacade.channelsMapping()
-            .put(
-                account,
-                Lists.newArrayList(
-                    ClientChannel.builder().channel(channelHandlerContext.channel()).build()));
+        ServerFacade.channelsMapping().put(username, channelHandlerContext.channel());
       }
 
+      System.out.println("客户端用户授权登录成功:" + username);
       // success processed
       response.setBody(BizResult.SUCCESS.bytes());
 

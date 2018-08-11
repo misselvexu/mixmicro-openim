@@ -26,6 +26,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.AbortPolicy;
 import java.util.concurrent.TimeUnit;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +43,7 @@ public final class TiffanySocketServer {
   /** running flag * */
   private static volatile boolean running = false;
   /** Socket Server Instance * */
-  private NettyRemotingSocketServer server;
+  @Getter private NettyRemotingSocketServer server;
 
   private NettyServerConfig nettyServerConfig;
   /** Default Executor */
@@ -63,6 +64,8 @@ public final class TiffanySocketServer {
       nettyServerConfig = new NettyServerConfig();
     }
     this.nettyServerConfig = nettyServerConfig;
+
+    ServerFacade.init(TiffanySocketServer.this);
   }
 
   /** Start run Server */
@@ -127,7 +130,7 @@ public final class TiffanySocketServer {
             RemotingCommand response =
                 RemotingCommand.createResponseCommand(remotingCommand.getCode(), "PONG");
 
-            LOGGER.trace(
+            LOGGER.debug(
                 "remote ack heartbeat , address :{}",
                 RemotingHelper.parseChannelRemoteAddr(channelHandlerContext.channel()));
 

@@ -317,19 +317,20 @@ public class HttpEndpoint {
               content = contentJson.getString("Data");
             }
 
-            SingleMessage message =
-                SingleMessage.builder()
-                    .mid(Ids.idHelper.nextId())
-                    .sender(fromAccount)
-                    .sendTimestamp(System.currentTimeMillis())
-                    .body(content.getBytes(Charset.defaultCharset()))
-                    .messageType(MessageType.SINGLE)
-                    .innerType(innerType)
-                    .build();
+
 
             // 批量发送单人消息
-            for (String member : members) {
-              message.setReceiver(member);
+            for (String temp : members) {
+              SingleMessage message =
+                  SingleMessage.builder()
+                      .mid(Ids.idHelper.nextId())
+                      .sender(fromAccount)
+                      .sendTimestamp(System.currentTimeMillis())
+                      .body(content.getBytes(Charset.defaultCharset()))
+                      .messageType(MessageType.SINGLE)
+                      .innerType(innerType)
+                      .receiver(temp)
+                      .build();
               messages.add(message);
             }
           }

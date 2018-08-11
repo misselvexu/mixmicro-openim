@@ -4,7 +4,6 @@ import com.acmedcare.microservices.im.RemotingApplication.Datas;
 import com.acmedcare.microservices.im.biz.BizResult;
 import com.acmedcare.microservices.im.biz.BizResult.ExceptionWrapper;
 import com.acmedcare.microservices.im.biz.bean.Group;
-import com.acmedcare.microservices.im.biz.body.GroupBody;
 import com.acmedcare.microservices.im.biz.request.PullGroupHeader;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRequestProcessor;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
@@ -51,8 +50,7 @@ public class PullGroupProcessor implements NettyRequestProcessor {
       List<Group> list =
           Datas.persistenceExecutor.queryAccountGroups(pullGroupHeader.getUsername());
 
-      GroupBody body = GroupBody.builder().groups(list).build();
-      response.setBody(BizResult.builder().code(0).data(body).build().bytes());
+      response.setBody(BizResult.builder().code(0).data(list).build().bytes());
 
     } catch (Exception e) {
       // set error response
