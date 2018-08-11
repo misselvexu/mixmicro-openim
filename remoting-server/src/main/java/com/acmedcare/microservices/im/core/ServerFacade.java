@@ -150,6 +150,7 @@ public final class ServerFacade {
 
                   // save params
                   List<Object[]> saveMessageParams = Lists.newArrayList();
+                  Set<Long> batchMessageBugIds = Sets.newHashSet();
                   List<Object[]> saveMessageSendParams = Lists.newArrayList();
                   List<Object[]> saveMessageReceiveParams = Lists.newArrayList();
 
@@ -180,6 +181,7 @@ public final class ServerFacade {
                         if (InnerType.COMMAND.equals(groupMessage.getInnerType())) {
                           continue;
                         }
+
                         // 群组
                         // message_id,message_content,sender,message_type,receive_type,send_timestamp,receiver,receiver_group
                         saveMessageParams.add(
@@ -224,16 +226,19 @@ public final class ServerFacade {
                           continue;
                         }
 
-                        saveMessageParams.add(
-                            new Object[] {
-                              singleMessage.getMid(),
-                              new String(singleMessage.getBody()),
-                              singleMessage.getSender(),
-                              0,
-                              singleMessage.getMessageType().name(),
-                              singleMessage.getReceiver(),
-                              null
-                            });
+                        if (batchMessageBugIds.add(singleMessage.getMid())) {
+
+                          saveMessageParams.add(
+                              new Object[] {
+                                singleMessage.getMid(),
+                                new String(singleMessage.getBody()),
+                                singleMessage.getSender(),
+                                0,
+                                singleMessage.getMessageType().name(),
+                                singleMessage.getReceiver(),
+                                null
+                              });
+                        }
 
                         saveMessageSendParams.add(
                             new Object[] {
@@ -263,6 +268,7 @@ public final class ServerFacade {
 
                   // push
                   if (groupMessageList.size() > 0) {
+                    System.out.println("当前在线数:" + channelsMapping().size());
                     //
                     List<Account> groupReceivers =
                         Datas.persistenceExecutor.queryGroupMembers(groupName);
@@ -310,6 +316,7 @@ public final class ServerFacade {
 
                   if (singleMessageList.size() > 0) {
 
+                    System.out.println("当前在线数:" + channelsMapping().size());
                     List<ClientChannel> channels = Lists.newArrayList();
                     for (String singleReceiver : singleReceivers) {
                       Account rtemp = Account.builder().username(singleReceiver).build();

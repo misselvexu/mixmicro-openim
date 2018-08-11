@@ -11,10 +11,12 @@ import com.acmedcare.microservices.im.core.ServerFacade;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -274,7 +276,7 @@ public class HttpEndpoint {
 
       JSONObject object = JSONObject.parseObject(body);
 
-      List<String> members = Lists.newArrayList();
+      Set<String> members = Sets.newHashSet();
 
       List<Message> messages = Lists.newLinkedList();
 
