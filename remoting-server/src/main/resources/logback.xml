@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<configuration>
+  <include resource="org/springframework/boot/logging/logback/base.xml"/>
+  <jmxConfigurator/>
+  <logger name="com.acmedcare.microservices" level="DEBUG"/>
+  <!--<logger name="org.springframework.jdbc" level="DEBUG"/>-->
+</configuration>

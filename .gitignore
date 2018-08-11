@@ -1,0 +1,45 @@
+# Created by .ignore support plugin (hsz.mobi)
+# maven ignore
+target/
+*/target
+*.jar
+*.war
+*.zip
+*.tar
+*.ipa
+dependency.txt
+*/dependency.txt
+catalina.home_IS_UNDEFINED
+.tempshell
+
+
+# eclipse ignore
+.settings/
+*/.settings
+.project
+.classpath
+
+# idea ignore
+.idea/
+*.ipr
+*.iml
+*.iws
+
+# temp ignore
+logs/
+*.doc
+*.log
+*.cache
+*.diff
+*.patch
+*.tmp
+
+# system ignore
+.DS_Store
+Thumbs.db
+pom.xml.versionsBackup
+
+# c++ build file
+cmake-build-debug
+*.o
+libtiffany.a
