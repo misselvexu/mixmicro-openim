@@ -7,6 +7,7 @@ import com.acmedcare.microservices.im.biz.bean.Session;
 import com.acmedcare.microservices.im.biz.request.PullSessionHeader;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRequestProcessor;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
+import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
 import java.util.List;
 
@@ -50,6 +51,8 @@ public class PullSessionProcessor implements NettyRequestProcessor {
       // 查询当前用户名下的会话信息
       List<Session> list =
           Datas.persistenceExecutor.queryAccountSessions(pullSessionHeader.getUsername());
+
+      System.out.println("查询会话列表返回值:" + JSON.toJSONString(list));
 
       response.setBody(BizResult.builder().code(0).data(list).build().bytes());
 

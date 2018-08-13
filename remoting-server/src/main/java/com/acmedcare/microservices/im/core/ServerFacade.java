@@ -18,6 +18,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
+import java.io.Serializable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -26,6 +28,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,20 +64,24 @@ public final class ServerFacade {
    *
    * @return channel map
    */
-  public static Map<String, Channel> channelsMapping() {
+  public static Map<String, List<Channel>> channelsMapping() {
     return ChannelCaches.DEFAULT_CHANNELS_MAPPING;
   }
 
   /** Clear Caches Channels */
   public static void scheduleCleanCaches() {
-    for (Entry<String, Channel> entry : channelsMapping().entrySet()) {
-      Channel clientChannel = entry.getValue();
-      if (clientChannel != null) {
-        System.out.println(
-            entry.getKey() + " -> " + RemotingHelper.parseChannelRemoteAddr(clientChannel));
-        if (!clientChannel.isWritable()) {
-          channelsMapping().remove(entry.getKey());
-          System.out.println("移除 channel: " + RemotingHelper.parseChannelRemoteAddr(clientChannel));
+    for (Entry<String, List<Channel>> entry : channelsMapping().entrySet()) {
+      List<Channel> clientChannels = entry.getValue();
+      Iterator<Channel> channelIterator = clientChannels.iterator();
+      while (channelIterator.hasNext()) {
+        Channel channel = channelIterator.next();
+        if (channel != null) {
+          System.out.println(
+              entry.getKey() + " -> " + RemotingHelper.parseChannelRemoteAddr(channel));
+          if (!channel.isWritable()) {
+            channelIterator.remove();
+            System.out.println("移除 channel: " + RemotingHelper.parseChannelRemoteAddr(channel));
+          }
         }
       }
     }
@@ -93,13 +104,34 @@ public final class ServerFacade {
   public static class ChannelCaches {
 
     /** DEFAULT username-channel holder */
-    private static final Map<String, Channel> DEFAULT_CHANNELS_MAPPING = Maps.newConcurrentMap();
+    private static final Map<String, List<Channel>> DEFAULT_CHANNELS_MAPPING =
+        Maps.newConcurrentMap();
+  }
+
+  @Getter
+  @Setter
+  @NoArgsConstructor
+  @EqualsAndHashCode
+  public static class MessageNotify implements Serializable {
+    private static final long serialVersionUID = -6310126114617861063L;
+    private String sender;
+    private String receiver;
+
+    @Builder
+    public MessageNotify(String sender, String receiver) {
+      this.sender = sender;
+      this.receiver = receiver;
+    }
   }
 
   /** Executor for other service , like http */
   public static class Executor {
 
     static void processSession(final List<Message> messages) {
+
+      final List<MessageNotify> singleNotifies = Lists.newArrayList();
+      final List<MessageNotify> groupNotifies = Lists.newArrayList();
+
       if (messages.size() > 0) {
 
         // 此处消息处理量不是特别大,循环处理
@@ -111,6 +143,12 @@ public final class ServerFacade {
               if (InnerType.COMMAND.equals(singleMessage.getInnerType())) {
                 continue;
               }
+
+              singleNotifies.add(
+                  MessageNotify.builder()
+                      .sender(singleMessage.getSender())
+                      .receiver(singleMessage.getReceiver())
+                      .build());
               //
               Datas.persistenceExecutor.saveOrUpdateSingleSessionRecord(
                   singleMessage.getSender(), singleMessage.getReceiver(), singleMessage.getMid());
@@ -126,10 +164,29 @@ public final class ServerFacade {
               List<Account> groupReceivers =
                   Datas.persistenceExecutor.queryGroupMembers(groupMessage.getGroup());
 
+              for (Account groupReceiver : groupReceivers) {
+                groupNotifies.add(
+                    MessageNotify.builder()
+                        .sender(groupMessage.getGroup())
+                        .receiver(groupReceiver.getUsername())
+                        .build());
+              }
+
               Datas.persistenceExecutor.saveOrUpdateGroupSessionRecord(
                   groupMessage.getGroup(), groupMessage.getMid(), groupReceivers);
               break;
           }
+
+          // sync update notify
+          submitTask(
+              new WrapExceptionRunnable(
+                  new Runnable() {
+                    @Override
+                    public void run() {
+                      Datas.persistenceExecutor.batchUpdateMessageNotify(
+                          singleNotifies, groupNotifies);
+                    }
+                  }));
         }
       }
     }
@@ -271,7 +328,7 @@ public final class ServerFacade {
 
                   // push
                   if (groupMessageList.size() > 0) {
-                    System.out.println("当前在线数:" + channelsMapping().size());
+                    System.out.println("当前在线用户数:" + channelsMapping().size());
                     //
                     List<Account> groupReceivers =
                         Datas.persistenceExecutor.queryGroupMembers(groupName);
@@ -281,7 +338,7 @@ public final class ServerFacade {
                       for (Account groupReceiver : groupReceivers) {
                         if (channelsMapping().containsKey(groupReceiver.getUsername())) {
 
-                          channels.add(channelsMapping().get(groupReceiver.getUsername()));
+                          channels.addAll(channelsMapping().get(groupReceiver.getUsername()));
                           System.out.println("[群发]获取:" + groupReceiver.getUsername() + " ,的远程端口连接");
                         }
                       }
@@ -325,7 +382,7 @@ public final class ServerFacade {
 
                   if (singleMessageList.size() > 0) {
 
-                    System.out.println("当前在线数:" + channelsMapping().size());
+                    System.out.println("当前在线用户数:" + channelsMapping().size());
 
                     ServerPushMessageHeader pushMessageHeader =
                         ServerPushMessageHeader.builder()
@@ -352,18 +409,20 @@ public final class ServerFacade {
                             RemotingCommand.createRequestCommand(
                                 BizCode.SERVER_PUSH_MESSAGE, pushMessageHeader);
                         command.setBody(message.bytes());
-                        Channel channel = channelsMapping().get(receiver);
-                        if (channel != null && channel.isWritable()) {
-                          try {
-                            channel.writeAndFlush(command);
-                            // ServerFacade.server.getServer().invokeOneway(channel, command,
-                            // 100000);
-                            System.out.println(
-                                "[单聊]推送消息给客户端:" + RemotingHelper.parseChannelRemoteAddr(channel));
-                          } catch (Exception e) {
-                            LOGGER.error(
-                                "Send Message To Remote:[{}] Failed;",
-                                RemotingHelper.parseChannelRemoteAddr(channel));
+                        List<Channel> channels = channelsMapping().get(receiver);
+                        for (Channel channel : channels) {
+                          if (channel != null && channel.isWritable()) {
+                            try {
+                              channel.writeAndFlush(command);
+                              // ServerFacade.server.getServer().invokeOneway(channel, command,
+                              // 100000);
+                              System.out.println(
+                                  "[单聊]推送消息给客户端:" + RemotingHelper.parseChannelRemoteAddr(channel));
+                            } catch (Exception e) {
+                              LOGGER.error(
+                                  "Send Message To Remote:[{}] Failed;",
+                                  RemotingHelper.parseChannelRemoteAddr(channel));
+                            }
                           }
                         }
                       } catch (Exception e) {

@@ -5,8 +5,10 @@ import com.acmedcare.microservices.im.biz.bean.Group;
 import com.acmedcare.microservices.im.biz.bean.Message;
 import com.acmedcare.microservices.im.biz.bean.Session;
 import com.acmedcare.microservices.im.biz.request.PushMessageStatusHeader.PMT;
+import com.acmedcare.microservices.im.core.ServerFacade.MessageNotify;
 import com.acmedcare.microservices.im.exception.DataAccessException;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Persistence Handler
@@ -63,9 +65,9 @@ public interface IPersistenceExecutor {
    * @param groupName
    * @param members
    */
-  void newGroup(String groupId,String groupName, String owner, List<String> members);
+  void newGroup(String groupId,String groupName, String owner, Set<String> members);
 
-  void addGroupMember(String groupId, List<String> members) throws DataAccessException;
+  void addGroupMember(String groupId, Set<String> members) throws DataAccessException;
 
   void deleteGroupMember(String groupId, List<String> members);
 
@@ -85,4 +87,5 @@ public interface IPersistenceExecutor {
 
   void saveOrUpdateGroupSessionRecord(String group, Long mid, List<Account> groupReceivers);
 
+  void batchUpdateMessageNotify(List<MessageNotify> singleNotifies, List<MessageNotify> groupNotifies);
 }

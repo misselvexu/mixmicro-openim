@@ -9,6 +9,7 @@ import com.acmedcare.microservices.im.biz.bean.Message.MessageType;
 import com.acmedcare.microservices.im.biz.bean.Message.SingleMessage;
 import com.acmedcare.microservices.im.biz.bean.Session;
 import com.acmedcare.microservices.im.biz.request.PushMessageStatusHeader.PMT;
+import com.acmedcare.microservices.im.core.ServerFacade.MessageNotify;
 import com.acmedcare.microservices.im.exception.DataAccessException;
 import com.acmedcare.microservices.im.storage.IPersistenceExecutor;
 import com.google.common.collect.Lists;
@@ -17,6 +18,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +51,9 @@ public class DefaultMysqlPersistenceExecutor implements IPersistenceExecutor {
 
   @Override
   public void saveMessage(
-      final List<Object[]> messages, final List<Object[]> messageSenders, final List<Object[]> messageReceivers) {
+      final List<Object[]> messages,
+      final List<Object[]> messageSenders,
+      final List<Object[]> messageReceivers) {
 
     transactionTemplate.execute(
         (TransactionCallback<Void>)
@@ -136,7 +140,7 @@ public class DefaultMysqlPersistenceExecutor implements IPersistenceExecutor {
                       .body(rs.getString("message_content").getBytes(Charset.defaultCharset()))
                       .mid(rs.getLong("message_id"))
                       .messageType(MessageType.SINGLE)
-                      .sendTimestamp(rs.getLong("send_timestamp"))
+                      .sendTimestamp(rs.getTimestamp("send_timestamp"))
                       .innerType(
                           rs.getInt("message_type") == 0 ? InnerType.NORMAL : InnerType.COMMAND)
                       .sender(rs.getString("sender"))
@@ -160,7 +164,7 @@ public class DefaultMysqlPersistenceExecutor implements IPersistenceExecutor {
                       .body(rs.getString("message_content").getBytes(Charset.defaultCharset()))
                       .mid(rs.getLong("message_id"))
                       .messageType(MessageType.SINGLE)
-                      .sendTimestamp(rs.getLong("send_timestamp"))
+                      .sendTimestamp(rs.getTimestamp("send_timestamp"))
                       .innerType(
                           rs.getInt("message_type") == 0 ? InnerType.NORMAL : InnerType.COMMAND)
                       .sender(rs.getString("sender"))
@@ -188,7 +192,7 @@ public class DefaultMysqlPersistenceExecutor implements IPersistenceExecutor {
                       .body(rs.getString("message_content").getBytes(Charset.defaultCharset()))
                       .mid(rs.getLong("message_id"))
                       .messageType(MessageType.GROUP)
-                      .sendTimestamp(rs.getLong("send_timestamp"))
+                      .sendTimestamp(rs.getTimestamp("send_timestamp"))
                       .innerType(
                           rs.getInt("message_type") == 0 ? InnerType.NORMAL : InnerType.COMMAND)
                       .sender(rs.getString("sender"))
@@ -212,7 +216,7 @@ public class DefaultMysqlPersistenceExecutor implements IPersistenceExecutor {
                       .body(rs.getString("message_content").getBytes(Charset.defaultCharset()))
                       .mid(rs.getLong("message_id"))
                       .messageType(MessageType.GROUP)
-                      .sendTimestamp(rs.getLong("send_timestamp"))
+                      .sendTimestamp(rs.getTimestamp("send_timestamp"))
                       .innerType(
                           rs.getInt("message_type") == 0 ? InnerType.NORMAL : InnerType.COMMAND)
                       .sender(rs.getString("sender"))
@@ -249,6 +253,11 @@ public class DefaultMysqlPersistenceExecutor implements IPersistenceExecutor {
 
         int row = this.jdbcTemplate.update(sql, sender, username, leastMessageId);
 
+        sql =
+            "update im_session_records set has_new_message = 0 , least_message_id = ? where sender = ?  and receiver = ?";
+
+        row = this.jdbcTemplate.update(sql, leastMessageId, sender, username);
+
         return true;
 
         // 群聊消息已读上报
@@ -271,6 +280,11 @@ public class DefaultMysqlPersistenceExecutor implements IPersistenceExecutor {
 
                       jdbcTemplate.update(sql, sender, username, leastMessageId);
 
+                      sql =
+                          "update im_session_records set has_new_message = 0 , least_message_id = ? where group_name = ?  and receiver = ?";
+
+                      jdbcTemplate.update(sql, leastMessageId, sender, username);
+
                     } catch (Exception e) {
                       transactionStatus.setRollbackOnly();
                       return false;
@@ -291,7 +305,7 @@ public class DefaultMysqlPersistenceExecutor implements IPersistenceExecutor {
 
   /** Create New Room */
   @Override
-  public void newGroup(final String groupId, String groupName, String owner, List<String> members) {
+  public void newGroup(final String groupId, String groupName, String owner, Set<String> members) {
 
     this.transactionTemplate.execute(
         (TransactionCallback<Void>)
@@ -339,7 +353,7 @@ public class DefaultMysqlPersistenceExecutor implements IPersistenceExecutor {
   }
 
   @Override
-  public void addGroupMember(String groupId, List<String> members) throws DataAccessException {
+  public void addGroupMember(String groupId, Set<String> members) throws DataAccessException {
 
     this.transactionTemplate.execute(
         (TransactionCallback<Void>)
@@ -418,7 +432,8 @@ public class DefaultMysqlPersistenceExecutor implements IPersistenceExecutor {
   @Override
   public List<Session> queryAccountSessions(String username) {
 
-    String sql = "select receiver,group_name,session_type from im_session_records where receiver = ?";
+    String sql =
+        "select receiver,group_name,session_type,session_name,sender,has_new_message from im_session_records where receiver = ?";
 
     return this.jdbcTemplate.query(
         sql,
@@ -426,8 +441,9 @@ public class DefaultMysqlPersistenceExecutor implements IPersistenceExecutor {
         (rs, rowNum) ->
             Session.builder()
                 .type(rs.getInt("session_type"))
-                .name(rs.getString("receiver"))
+                .name(rs.getString("sender"))
                 .groupName(rs.getString("group_name"))
+                .unreadSize(rs.getInt("has_new_message"))
                 .build());
   }
 
@@ -486,7 +502,7 @@ public class DefaultMysqlPersistenceExecutor implements IPersistenceExecutor {
                               rs.getInt("message_type") == 0 ? InnerType.NORMAL : InnerType.COMMAND)
                           .messageType(MessageType.SINGLE)
                           .sender(rs.getString("sender"))
-                          .sendTimestamp(rs.getLong("send_timestamp"))
+                          .sendTimestamp(rs.getTimestamp("send_timestamp"))
                           .mid(rs.getLong("message_id"))
                           .body(rs.getString("message_content").getBytes(Charset.defaultCharset()))
                           .receiver(rs.getString("receiver"))
@@ -534,7 +550,7 @@ public class DefaultMysqlPersistenceExecutor implements IPersistenceExecutor {
                               rs.getInt("message_type") == 0 ? InnerType.NORMAL : InnerType.COMMAND)
                           .messageType(MessageType.GROUP)
                           .sender(rs.getString("sender"))
-                          .sendTimestamp(rs.getLong("send_timestamp"))
+                          .sendTimestamp(rs.getTimestamp("send_timestamp"))
                           .mid(rs.getLong("message_id"))
                           .body(rs.getString("message_content").getBytes(Charset.defaultCharset()))
                           .group(rs.getString("receiver_group"))
@@ -605,7 +621,7 @@ public class DefaultMysqlPersistenceExecutor implements IPersistenceExecutor {
       String insertSQL =
           "insert into im_session_records(session_name,create_time,session_type,sender,receiver,least_message_id) values (?,NOW(),?,?,?,?)";
 
-      this.jdbcTemplate.update(insertSQL, receiver, 0, sender, receiver, messageId);
+      this.jdbcTemplate.update(insertSQL, sender, 0, sender, receiver, messageId);
     }
 
     // 判断反向存在不存在
@@ -618,7 +634,36 @@ public class DefaultMysqlPersistenceExecutor implements IPersistenceExecutor {
       String insertSQL =
           "insert into im_session_records(session_name,create_time,session_type,sender,receiver,least_message_id) values (?,NOW(),?,?,?,?)";
 
-      this.jdbcTemplate.update(insertSQL, sender, 0, receiver, sender, messageId);
+      this.jdbcTemplate.update(insertSQL, receiver, 0, receiver, sender, messageId);
+    }
+  }
+
+  @Override
+  public void batchUpdateMessageNotify(
+      List<MessageNotify> singleNotifies, List<MessageNotify> groupNotifies) {
+    if (singleNotifies.size() > 0) {
+
+      String sql =
+          "update im_session_records set has_new_message = 1 where sender = ? and receiver = ? ";
+
+      List<Object[]> params = Lists.newArrayList();
+      for (MessageNotify singleNotify : singleNotifies) {
+        params.add(new Object[] {singleNotify.getSender(), singleNotify.getReceiver()});
+      }
+
+      this.jdbcTemplate.batchUpdate(sql, params);
+    }
+
+    if (groupNotifies.size() > 0) {
+      String sql =
+          "update im_session_records set has_new_message = 1 where group_name = ? and receiver = ? ";
+
+      List<Object[]> params = Lists.newArrayList();
+      for (MessageNotify notify : groupNotifies) {
+        params.add(new Object[] {notify.getSender(), notify.getReceiver()});
+      }
+
+      this.jdbcTemplate.batchUpdate(sql, params);
     }
   }
 }

@@ -3,6 +3,7 @@ package com.acmedcare.microservices.im.biz.bean;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,7 +41,8 @@ public class Message implements Serializable {
   private byte[] body;
 
   /** Send Timestamp */
-  private long sendTimestamp = System.currentTimeMillis();
+  @JSONField(format = "yyyy-MM-dd HH:mm:ss")
+  private Date sendTimestamp;
 
   public byte[] bytes() {
     return JSON.toJSONBytes(this);
@@ -82,7 +84,7 @@ public class Message implements Serializable {
         String sender,
         MessageType messageType,
         byte[] body,
-        long sendTimestamp,
+        Date sendTimestamp,
         String receiver,
         boolean readFlag) {
       super(mid, innerType, sender, messageType, body, sendTimestamp);
@@ -110,7 +112,7 @@ public class Message implements Serializable {
         String sender,
         MessageType messageType,
         byte[] body,
-        long sendTimestamp,
+        Date sendTimestamp,
         String group,
         List<String> receivers) {
       super(mid, innerType, sender, messageType, body, sendTimestamp);

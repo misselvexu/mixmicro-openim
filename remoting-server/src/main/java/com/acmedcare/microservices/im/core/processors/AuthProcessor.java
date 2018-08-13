@@ -7,7 +7,7 @@ import com.acmedcare.microservices.im.biz.request.AuthHeader;
 import com.acmedcare.microservices.im.core.ServerFacade;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRequestProcessor;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
-import io.netty.channel.Channel;
+import com.google.common.collect.Lists;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.commons.lang3.StringUtils;
 
@@ -51,19 +51,12 @@ public class AuthProcessor implements NettyRequestProcessor {
 
       if (ServerFacade.channelsMapping().containsKey(username)) {
         //       exist ,append new channel
-        Channel channel =
-            ServerFacade.channelsMapping().put(username, channelHandlerContext.channel());
-        try {
-          if (channel != null) {
-            channel.close();
-          }
-        } catch (Exception ignored) {
-        }
+        ServerFacade.channelsMapping().get(username).add(channelHandlerContext.channel());
 
       } else {
-
         // no exist, add new
-        ServerFacade.channelsMapping().put(username, channelHandlerContext.channel());
+        ServerFacade.channelsMapping()
+            .put(username, Lists.newArrayList(channelHandlerContext.channel()));
       }
 
       System.out.println("客户端用户授权登录成功:" + username);

@@ -15,6 +15,7 @@ import com.google.common.collect.Sets;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.nio.charset.Charset;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
@@ -50,7 +51,7 @@ public class HttpEndpoint {
 
       JSONObject object = JSONObject.parseObject(body);
 
-      List<String> members = Lists.newArrayList();
+      Set<String> members = Sets.newHashSet();
 
       String groupId = object.getString("GroupId");
       // 解析群成员
@@ -78,7 +79,7 @@ public class HttpEndpoint {
       String groupName = object.getString("Name");
 
       // do
-      Datas.persistenceExecutor.newGroup(groupId,groupName, owner, members);
+      Datas.persistenceExecutor.newGroup(groupId, groupName, owner, members);
 
       return TencentResult.SUCCESS;
 
@@ -108,7 +109,7 @@ public class HttpEndpoint {
       JSONObject object = JSONObject.parseObject(body);
 
       // 新增群成员
-      List<String> members = Lists.newArrayList();
+      Set<String> members = Sets.newHashSet();
 
       // 解析 group ID
       String groupId = object.getString("GroupId");
@@ -231,7 +232,7 @@ public class HttpEndpoint {
                 SingleMessage.builder()
                     .mid(Ids.idHelper.nextId())
                     .sender(fromAccount)
-                    .sendTimestamp(System.currentTimeMillis())
+                    .sendTimestamp(new Date())
                     .body(content.getBytes(Charset.defaultCharset()))
                     .messageType(MessageType.SINGLE)
                     .innerType(innerType)
@@ -317,15 +318,13 @@ public class HttpEndpoint {
               content = contentJson.getString("Data");
             }
 
-
-
             // 批量发送单人消息
             for (String temp : members) {
               SingleMessage message =
                   SingleMessage.builder()
                       .mid(Ids.idHelper.nextId())
                       .sender(fromAccount)
-                      .sendTimestamp(System.currentTimeMillis())
+                      .sendTimestamp(new Date())
                       .body(content.getBytes(Charset.defaultCharset()))
                       .messageType(MessageType.SINGLE)
                       .innerType(innerType)
@@ -411,7 +410,7 @@ public class HttpEndpoint {
                   GroupMessage.builder()
                       .mid(Ids.idHelper.nextId())
                       .sender(fromAccount)
-                      .sendTimestamp(System.currentTimeMillis())
+                      .sendTimestamp(new Date())
                       .body(content.getBytes(Charset.defaultCharset()))
                       .messageType(MessageType.GROUP)
                       .innerType(innerType)
