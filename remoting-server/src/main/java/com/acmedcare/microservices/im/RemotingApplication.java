@@ -49,6 +49,8 @@ public class RemotingApplication extends AbstractTiffanyApplication {
     // start server
     NettyServerConfig nettyServerConfig = new NettyServerConfig();
     nettyServerConfig.setListenPort(Configurations.serverConfig.getPort());
+    nettyServerConfig.setServerChannelMaxIdleTimeSeconds(20);
+
     tiffanySocketServer = new TiffanySocketServer(nettyServerConfig);
     tiffanySocketServer.start();
   }

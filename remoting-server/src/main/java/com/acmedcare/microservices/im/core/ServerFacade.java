@@ -18,6 +18,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
@@ -78,9 +80,13 @@ public final class ServerFacade {
         if (channel != null) {
           System.out.println(
               entry.getKey() + " -> " + RemotingHelper.parseChannelRemoteAddr(channel));
-          if (!channel.isWritable()) {
+          if (!channel.isOpen() || !channel.isActive() || !channel.isWritable()) {
             channelIterator.remove();
             System.out.println("移除 channel: " + RemotingHelper.parseChannelRemoteAddr(channel));
+            try {
+              channel.close();
+            } catch (Exception ignore) {
+            }
           }
         }
       }
@@ -360,7 +366,18 @@ public final class ServerFacade {
                             if (channel.isWritable()) {
                               try {
 
-                                channel.writeAndFlush(command);
+                                channel
+                                    .writeAndFlush(command)
+                                    .addListener(
+                                        new ChannelFutureListener() {
+                                          @Override
+                                          public void operationComplete(ChannelFuture future)
+                                              throws Exception {
+                                            if (!future.isSuccess()) {
+                                              channel.close();
+                                            }
+                                          }
+                                        });
                                 //                                ServerFacade.server
                                 //                                    .getServer()
                                 //                                    .invokeOneway(channel,
@@ -410,18 +427,32 @@ public final class ServerFacade {
                                 BizCode.SERVER_PUSH_MESSAGE, pushMessageHeader);
                         command.setBody(message.bytes());
                         List<Channel> channels = channelsMapping().get(receiver);
-                        for (Channel channel : channels) {
-                          if (channel != null && channel.isWritable()) {
-                            try {
-                              channel.writeAndFlush(command);
-                              // ServerFacade.server.getServer().invokeOneway(channel, command,
-                              // 100000);
-                              System.out.println(
-                                  "[单聊]推送消息给客户端:" + RemotingHelper.parseChannelRemoteAddr(channel));
-                            } catch (Exception e) {
-                              LOGGER.error(
-                                  "Send Message To Remote:[{}] Failed;",
-                                  RemotingHelper.parseChannelRemoteAddr(channel));
+                        if (channels != null) {
+                          for (Channel channel : channels) {
+                            if (channel != null && channel.isWritable()) {
+                              try {
+                                channel
+                                    .writeAndFlush(command)
+                                    .addListener(
+                                        new ChannelFutureListener() {
+                                          @Override
+                                          public void operationComplete(ChannelFuture future)
+                                              throws Exception {
+                                            if (!future.isSuccess()) {
+                                              channel.close();
+                                            }
+                                          }
+                                        });
+                                // ServerFacade.server.getServer().invokeOneway(channel, command,
+                                // 100000);
+                                System.out.println(
+                                    "[单聊]推送消息给客户端:"
+                                        + RemotingHelper.parseChannelRemoteAddr(channel));
+                              } catch (Exception e) {
+                                LOGGER.error(
+                                    "Send Message To Remote:[{}] Failed;",
+                                    RemotingHelper.parseChannelRemoteAddr(channel));
+                              }
                             }
                           }
                         }
