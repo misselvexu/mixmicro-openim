@@ -50,7 +50,7 @@ public final class ServerFacade {
   private static final ExecutorService DEFAULT_ASYNC_EXECUTOR =
       new ThreadPoolExecutor(
           8,
-          16,
+          32,
           60L,
           TimeUnit.SECONDS,
           new SynchronousQueue<Runnable>(),

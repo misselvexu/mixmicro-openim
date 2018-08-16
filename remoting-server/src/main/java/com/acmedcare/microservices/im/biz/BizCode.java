@@ -71,7 +71,6 @@ public class BizCode {
    */
   public static final int CLIENT_PULL_SESSION_STATUS = 0x3005;
 
-
   /**
    * 客户端发消息
    *
@@ -79,7 +78,6 @@ public class BizCode {
    *
    *
    * </pre>
-   *
    */
   public static final int CLIENT_PUSH_MESSAGE = 0x3006;
 
@@ -91,4 +89,13 @@ public class BizCode {
    * </pre>
    */
   public static final int SERVER_PUSH_MESSAGE = 0x4001;
+
+  /**
+   * 服务端通知客户端下线通知
+   *
+   * <pre>
+   *
+   * </pre>
+   */
+  public static final int SERVER_PUSH_FOCUS_LOGOUT = 0x4002;
 }
