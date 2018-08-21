@@ -11,6 +11,7 @@ import com.acmedcare.microservices.im.biz.bean.Session;
 import com.acmedcare.microservices.im.biz.request.PushMessageStatusHeader.PMT;
 import com.acmedcare.microservices.im.core.ServerFacade.MessageNotify;
 import com.acmedcare.microservices.im.exception.DataAccessException;
+import com.acmedcare.microservices.im.kits.Charsets;
 import com.acmedcare.microservices.im.storage.IPersistenceExecutor;
 import com.google.common.collect.Lists;
 import java.nio.charset.Charset;
@@ -137,7 +138,7 @@ public class DefaultMysqlPersistenceExecutor implements IPersistenceExecutor {
                 public Message mapRow(ResultSet rs, int rowNum) throws SQLException {
                   return SingleMessage.builder()
                       .receiver(rs.getString("receiver"))
-                      .body(rs.getString("message_content").getBytes(Charset.defaultCharset()))
+                      .body(Charsets.bytes(rs.getString("message_content")))
                       .mid(rs.getLong("message_id"))
                       .messageType(MessageType.SINGLE)
                       .sendTimestamp(rs.getTimestamp("send_timestamp"))
@@ -161,7 +162,7 @@ public class DefaultMysqlPersistenceExecutor implements IPersistenceExecutor {
                 public Message mapRow(ResultSet rs, int rowNum) throws SQLException {
                   return SingleMessage.builder()
                       .receiver(rs.getString("receiver"))
-                      .body(rs.getString("message_content").getBytes(Charset.defaultCharset()))
+                      .body(Charsets.bytes(rs.getString("message_content")))
                       .mid(rs.getLong("message_id"))
                       .messageType(MessageType.SINGLE)
                       .sendTimestamp(rs.getTimestamp("send_timestamp"))
@@ -189,7 +190,7 @@ public class DefaultMysqlPersistenceExecutor implements IPersistenceExecutor {
                 public GroupMessage mapRow(ResultSet rs, int rowNum) throws SQLException {
                   return GroupMessage.builder()
                       .group(rs.getString("receiver_group"))
-                      .body(rs.getString("message_content").getBytes(Charset.defaultCharset()))
+                      .body(Charsets.bytes(rs.getString("message_content")))
                       .mid(rs.getLong("message_id"))
                       .messageType(MessageType.GROUP)
                       .sendTimestamp(rs.getTimestamp("send_timestamp"))
@@ -213,7 +214,7 @@ public class DefaultMysqlPersistenceExecutor implements IPersistenceExecutor {
                 public GroupMessage mapRow(ResultSet rs, int rowNum) throws SQLException {
                   return GroupMessage.builder()
                       .group(rs.getString("receiver_group"))
-                      .body(rs.getString("message_content").getBytes(Charset.defaultCharset()))
+                      .body(Charsets.bytes(rs.getString("message_content")))
                       .mid(rs.getLong("message_id"))
                       .messageType(MessageType.GROUP)
                       .sendTimestamp(rs.getTimestamp("send_timestamp"))
@@ -504,7 +505,7 @@ public class DefaultMysqlPersistenceExecutor implements IPersistenceExecutor {
                           .sender(rs.getString("sender"))
                           .sendTimestamp(rs.getTimestamp("send_timestamp"))
                           .mid(rs.getLong("message_id"))
-                          .body(rs.getString("message_content").getBytes(Charset.defaultCharset()))
+                          .body(Charsets.bytes(rs.getString("message_content")))
                           .receiver(rs.getString("receiver"))
                           .build())
                   .build());
@@ -552,7 +553,7 @@ public class DefaultMysqlPersistenceExecutor implements IPersistenceExecutor {
                           .sender(rs.getString("sender"))
                           .sendTimestamp(rs.getTimestamp("send_timestamp"))
                           .mid(rs.getLong("message_id"))
-                          .body(rs.getString("message_content").getBytes(Charset.defaultCharset()))
+                          .body(Charsets.bytes(rs.getString("message_content")))
                           .group(rs.getString("receiver_group"))
                           .build())
                   .build());

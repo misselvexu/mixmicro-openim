@@ -8,13 +8,13 @@ import com.acmedcare.microservices.im.biz.bean.Message.InnerType;
 import com.acmedcare.microservices.im.biz.bean.Message.MessageType;
 import com.acmedcare.microservices.im.biz.bean.Message.SingleMessage;
 import com.acmedcare.microservices.im.core.ServerFacade;
+import com.acmedcare.microservices.im.kits.Charsets;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -233,7 +233,7 @@ public class HttpEndpoint {
                     .mid(Ids.idHelper.nextId())
                     .sender(fromAccount)
                     .sendTimestamp(new Date())
-                    .body(content.getBytes(Charset.defaultCharset()))
+                    .body(Charsets.bytes(content))
                     .messageType(MessageType.SINGLE)
                     .innerType(innerType)
                     .receiver(members.get(0))
@@ -325,7 +325,7 @@ public class HttpEndpoint {
                       .mid(Ids.idHelper.nextId())
                       .sender(fromAccount)
                       .sendTimestamp(new Date())
-                      .body(content.getBytes(Charset.defaultCharset()))
+                      .body(Charsets.bytes(content))
                       .messageType(MessageType.SINGLE)
                       .innerType(innerType)
                       .receiver(temp)
@@ -411,7 +411,7 @@ public class HttpEndpoint {
                       .mid(Ids.idHelper.nextId())
                       .sender(fromAccount)
                       .sendTimestamp(new Date())
-                      .body(content.getBytes(Charset.defaultCharset()))
+                      .body(Charsets.bytes(content))
                       .messageType(MessageType.GROUP)
                       .innerType(innerType)
                       .group(groupId)
