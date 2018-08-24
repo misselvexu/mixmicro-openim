@@ -37,7 +37,17 @@ public class Message implements Serializable {
   /** 接收人类型 */
   private MessageType messageType = MessageType.GROUP;
 
-  /** Message body */
+  /**
+   * Message body
+   *
+   * <pre>
+   *   <li>普通消息/指令消息 -> 转换成 JSON String 字符串直接处理</li>
+   *   <li>媒体消息 -> 转换成具体的对象处理</li>
+   * </pre>
+   *
+   * @see AudioBody audio body object
+   * @see VideoBody video body object
+   */
   private byte[] body;
 
   /** Send Timestamp */
@@ -54,7 +64,20 @@ public class Message implements Serializable {
     NORMAL,
 
     /** 指令消息 */
-    COMMAND
+    COMMAND,
+
+    /** 媒体消息 */
+    MEDIA
+  }
+
+  /** 多媒体消息类型 */
+  public enum MediaType {
+
+    /** 音频 */
+    AUDIO,
+
+    /** 视频 */
+    VIDEO
   }
 
   /** 消息本身的类型 */
@@ -119,5 +142,41 @@ public class Message implements Serializable {
       this.group = group;
       this.receivers = receivers;
     }
+  }
+
+  /** 音频消息体 */
+  @Getter
+  @Setter
+  @NoArgsConstructor
+  public static class AudioBody implements Serializable {
+    private static final long serialVersionUID = 127359264023544212L;
+
+    /** 音频远程资源地址 */
+    private String voiceResourceRemotingUrl;
+
+    /** 语音的长度 */
+    private int voiceResourceLength;
+
+    /** 语音文件 checksum */
+    private String voiceResourceChecksum;
+  }
+
+  @Getter
+  @Setter
+  @NoArgsConstructor
+  public static class VideoBody implements Serializable {
+    private static final long serialVersionUID = 127359264023544212L;
+
+    /** 视频远程资源地址 */
+    private String videoResourceRemotingUrl;
+
+    /** 视频的长度 */
+    private int videoResourceSize;
+
+    /** 视频文件 checksum */
+    private String videoResourceChecksum;
+
+    /** 视频第一帧截图 */
+    private String videoResourceFirstFrameUrl;
   }
 }
