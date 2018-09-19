@@ -42,9 +42,10 @@ Acmedcare Bass System IM Server & Develop Client SDK Support.
 | 客户端拉取群组列表 | CLIENT_PULL_OWNER_GROUPS | 0x3002 |
 | 客户端拉取会话列表 | CLIENT_PULL_OWNER_SESSIONS | 0x3003 |
 | 客户端推送消息已读状态 | CLIENT_PUSH_MESSAGE_READ_STATUS | 0x3004 |
-| 客户端拉取会话状态 | CLIENT_PULL_SESSION_STATUS | 0x3004 |
-| 客户端发消息 | CLIENT_PUSH_MESSAGE | 0x3005 |
-| 客户端接收服务端消息 | SERVER_PUSH_MESSAGE | 0x3006 |
+| 客户端拉取会话状态 | CLIENT_PULL_SESSION_STATUS | 0x3005 |
+| 客户端发消息 | CLIENT_PUSH_MESSAGE | 0x3006 |
+| 客户端接收服务端消息 | SERVER_PUSH_MESSAGE | 0x4001 |
+| 服务端通知客户端下线通知 | SERVER_PUSH_FOCUS_LOGOUT | 0x4002 |
 
 > 系统编码
 
