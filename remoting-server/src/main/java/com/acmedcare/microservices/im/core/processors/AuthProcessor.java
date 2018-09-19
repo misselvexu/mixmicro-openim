@@ -29,7 +29,7 @@ public class AuthProcessor implements NettyRequestProcessor {
       ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand)
       throws Exception {
 
-    RemotingCommand response = RemotingCommand.createResponseCommand(BizCode.HEARTBEAT, null);
+    RemotingCommand response = RemotingCommand.createResponseCommand(BizCode.AUTH, null);
 
     try {
 

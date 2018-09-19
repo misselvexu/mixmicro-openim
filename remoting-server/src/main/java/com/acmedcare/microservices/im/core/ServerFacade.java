@@ -80,7 +80,7 @@ public final class ServerFacade {
         if (channel != null) {
           System.out.println(
               entry.getKey() + " -> " + RemotingHelper.parseChannelRemoteAddr(channel));
-          if (!channel.isOpen() || !channel.isActive() || !channel.isWritable()) {
+          if (!channel.isOpen() || !channel.isActive()) {
             channelIterator.remove();
             System.out.println("移除 channel: " + RemotingHelper.parseChannelRemoteAddr(channel));
             try {
