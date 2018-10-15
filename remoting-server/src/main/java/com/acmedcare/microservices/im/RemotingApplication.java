@@ -43,6 +43,8 @@ public class RemotingApplication extends AbstractTiffanyApplication {
    */
   @Override
   public void start(String[] args) throws Exception {
+
+    System.setProperty("tiffany.quantum.encrypt.enable", "true");
     SpringApplication.run(RemotingApplication.class, args);
     System.out.println("Start Application....");
 
