@@ -15,8 +15,8 @@ Acmedcare Bass System IM Server & Develop Client SDK Support.
 ### How to Start Server
 ```bash
     
-    tar -zxvf remoting-server-Europe.RC1-assembly.tar.gz
-    cd remoting-server-Europe.RC1
+    tar -zxvf remoting-server-2.1.0-RC1-assembly.tar.gz
+    cd remoting-server-2.1.0-RC1
     
     # start server
     ./bin/start.sh
