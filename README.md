@@ -1,88 +1,56 @@
-## Acmedcare+ IM System
+# Acmedcare+ NewIM System
 
-Acmedcare Bass System IM Server & Develop Client SDK Support.
+Acmedcare NewIM System , Support Some New Features
 
-### How to Build
+## RoadMap
 
+> IM Server
+- Protocol Support
+    * [x] TCP
+    * [x] R-UDP
+    * [ ] WebSocket
+    
+- Develop Kit
+    * [x] JDK SDK Kit
+    * [x] Android SDK Kit
+    * [ ] NodeJS SDK Kit
+    
+> Push Server
+- Protocol Support
+    * [ ] (R)UDP
+
+- Develop Kit
+    * [ ] JDK SDK Kit
+    * [ ] Android SDK Kit
+
+
+## Quick-start
+> building
+
+## Core Library
+
+### Storage Component
+
+#### MongoDB
+Document storage database;
+> Docker Running
 ```bash
-    # clone source code
-    git clone git@115.29.47.72:acmedback/acmedcare-im.git
-    cd acmedcare-im
-    # run package
-    mvn clean package
-
-```
-### How to Start Server
-```bash
-    
-    tar -zxvf remoting-server-2.1.0-RC1-assembly.tar.gz
-    cd remoting-server-2.1.0-RC1
-    
-    # start server
-    ./bin/start.sh
-    
-    # stop server
-    ./bin/stop.sh
-    
-    # restart server
-    ./bin/restart.sh
-    
-    # cat log
-    tail -f logs/stdout.log 
+  # pull images
+  docker pull mongo
+  
+  # start container
+  docker run -p 27017:27017 -v /acmedcare/data/mongo:/data/db --name docker_mongodb -d mongo
+  
 ```
 
-### `Protocol` Biz Code
-
-> 业务编码
-
-| 协议说明 | Code | Value |
-| --- | --- | --- |
-| 授权认证 | AUTH | 0x2001 |
-| 客户端拉取消息 | CLIENT_PULL_MESSAGE | 0x3001 |
-| 客户端拉取群组列表 | CLIENT_PULL_OWNER_GROUPS | 0x3002 |
-| 客户端拉取会话列表 | CLIENT_PULL_OWNER_SESSIONS | 0x3003 |
-| 客户端推送消息已读状态 | CLIENT_PUSH_MESSAGE_READ_STATUS | 0x3004 |
-| 客户端拉取会话状态 | CLIENT_PULL_SESSION_STATUS | 0x3004 |
-| 客户端发消息 | CLIENT_PUSH_MESSAGE | 0x3005 |
-| 客户端接收服务端消息 | SERVER_PUSH_MESSAGE | 0x3006 |
-
-> 系统编码
-
-| 协议说明 | Code | Value |
-| --- | --- | --- |
-| 心跳协议 | HEARTBEAT | 0x1001 |
-| ACK(default) | PONG | 0x0000 |
-
-### Development SDK
-
-#### Android
-
-* JDK 1.7+
-* Android Studio 3.0+ [`optional`]
-
-> Android SDK Source [Acmedcare Gitlab](http://115.29.47.72:8082/acmedback/tiffany-quantum/tree/Oceania.SR1/remoting-android-library-jre-core)
+#### MySQL
+The MySQL v1 component currently is only tested with MySQL 5.6-7. It is designed to be easy to understand, and get started with. For example, it deconstructs spans into columns, so you can perform ad-hoc queries using SQL. However, this component has known performance issues: queries will eventually take seconds to return if you put a lot of data into it.
 
 
-##### Android SDK Dependencies
 
-| 依赖库名 | 地址 | 版本 |
-| --- | --- | --- |
-| remoting-android-jarlib-nio | [Acmedcare Gitlab](http://115.29.47.72:8082/acmedback/tiffany-quantum/tree/Oceania.SR1/remoting-android-jarlib-nio) | Oceania.SR1 |
-| fastjson | - | 1.1.68.android |
-| slf4j | - | 1.7.25 |
-
-#### iOS
-
-> coming soon
-
-#### C++
-
-> coming soon
-
-### 依赖库
-
-| 依赖库名 | 地址 | 版本 |
-| --- | --- | --- |
-| tiffany-quantum | [Acmedcare Gitlab](http://115.29.47.72:8082/acmedback/tiffany-quantum) | Oceania.SR1 |
+### Running the server from source
+> building
 
 
+## Artifacts
+> building

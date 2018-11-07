@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 
 /**
@@ -19,10 +20,8 @@ import org.springframework.core.env.Environment;
 @Getter
 @Setter
 @Configuration
-@ConfigurationProperties(
-    prefix = "master",
-    ignoreInvalidFields = true,
-    value = "classpath:master.properties")
+@ConfigurationProperties(prefix = "master", ignoreInvalidFields = true)
+@PropertySource(value = "classpath:master.properties")
 public class MasterConfig implements Serializable, EnvironmentAware {
 
   private static final long serialVersionUID = -6963594195541525813L;
@@ -56,17 +55,12 @@ public class MasterConfig implements Serializable, EnvironmentAware {
 
   @Getter
   @Setter
-  @Configuration
-  @ConfigurationProperties(
-      prefix = "master.cluster",
-      ignoreInvalidFields = true,
-      value = "classpath:master.properties")
   public static class Cluster implements Serializable {
 
     private static final long serialVersionUID = -602633671198547053L;
 
-    /** master nodes list */
-    private List<String> nodes = Lists.newArrayList();
+    /** master node */
+    private String nodeAddress;
 
     /**
      * Master clusters communicate heartbeat period

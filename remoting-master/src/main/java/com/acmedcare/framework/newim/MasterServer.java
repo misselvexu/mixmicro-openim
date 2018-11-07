@@ -29,8 +29,4 @@ public class MasterServer {
             .web(WebApplicationType.SERVLET)
             .run(args);
   }
-
-
-
-
 }
