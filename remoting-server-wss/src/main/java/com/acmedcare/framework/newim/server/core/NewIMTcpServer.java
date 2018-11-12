@@ -1,5 +1,6 @@
 package com.acmedcare.framework.newim.server.core;
 
+import com.acmedcare.framework.kits.thread.ThreadKit;
 import com.acmedcare.framework.newim.protocol.Command.ClusterClientCommand;
 import com.acmedcare.framework.newim.server.config.IMProperties;
 import com.acmedcare.framework.newim.server.processor.DefaultIMProcessor;
@@ -20,6 +21,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
@@ -48,6 +50,8 @@ public class NewIMTcpServer {
   /** Master Connector Instance */
   private MasterConnector masterConnector;
 
+  private CLusterConnector cLusterConnector;
+
   /** Default Executor */
   private ExecutorService defaultExecutor =
       new ThreadPoolExecutor(
@@ -75,6 +79,8 @@ public class NewIMTcpServer {
       LOG.warn("[NEW-IM] imServer already startup ~, ignore.");
       return;
     }
+
+    cLusterConnector = new CLusterConnector();
 
     LOG.info("[NEW-IM] Startup IM Server Instance listen on port :{}", imProperties.getPort());
     startupImServer(delay);
@@ -161,6 +167,8 @@ public class NewIMTcpServer {
     // start up
     masterConnector.startup(delay);
   }
+
+
 }
 
 /**
@@ -178,6 +186,15 @@ class MasterConnector {
   private Map<String, RemotingSocketClient> masterConnectorCache = Maps.newHashMap();
 
   private Map<String, NettyClientConfig> masterConfigCache = Maps.newHashMap();
+
+  /** 同步客户端链接定时线程池 */
+  private ScheduledExecutorService syncSessionExecutor =
+      new ScheduledThreadPoolExecutor(1, new DefaultThreadFactory("SYNC-SESSION-THREAD-POOL"));
+
+  /** 拉取节点列表对象线程池 */
+  private ScheduledExecutorService pullClusterNodesExecutor =
+      new ScheduledThreadPoolExecutor(
+          1, new DefaultThreadFactory("PULL-CLUSTER-NODES-THREAD-POOL"));
 
   public MasterConnector(IMProperties properties) {
     this.properties = properties;
@@ -250,6 +267,35 @@ class MasterConnector {
       clientConnectLatch.await(60, TimeUnit.SECONDS);
       // goon...
       LOG.info("[NEW-IM] Master Connector(s) 全部启动完成.");
+      LOG.info("[NEW-IM] 启动Session同步定时线程,参数:[5-10-S]");
+      syncSessionExecutor.scheduleAtFixedRate(
+          () -> {
+            try {
+              LOG.info("[NEW-IN-SYNC-SESSION] 同步SESSION操作");
+              // TODO 同步 SESSION 操作
+
+            } catch (Exception e) {
+              LOG.error("[NEW-IN-SYNC-SESSION] 同步SESSION操作异常,等待再次同步", e);
+            }
+          },
+          5,
+          10,
+          TimeUnit.SECONDS);
+
+      LOG.info("[NEW-IM] 启动拉取通讯节点列表定时线程,参数:[10-30-S]");
+      pullClusterNodesExecutor.scheduleAtFixedRate(
+          () -> {
+            try {
+              LOG.info("[NEW-IM-PULL-CLUSTER-NODES] 拉取通讯节点操作");
+              // TODO 拉取通讯节点
+
+            } catch (Exception e) {
+              LOG.error("[NEW-IM-PULL-CLUSTER-NODES] 拉取通讯节点操作异常,等待再次拉取", e);
+            }
+          },
+          10,
+          30,
+          TimeUnit.SECONDS);
 
     } catch (InterruptedException e) {
       LOG.error("[NEW-IM] 异步启动Master Connector异常", e);
@@ -260,6 +306,11 @@ class MasterConnector {
 
     // TODO shutdown master connector
 
+    // shutdown pool
+    LOG.info("[NEW-IM] 停止所有的定时线程.");
+    ThreadKit.gracefulShutdown(syncSessionExecutor, 20, 20, TimeUnit.SECONDS);
+    ThreadKit.gracefulShutdown(pullClusterNodesExecutor, 20, 20, TimeUnit.SECONDS);
+    LOG.info("[NEW-IM] Shutdown-ed.");
   }
 
   /**
@@ -274,21 +325,32 @@ class MasterConnector {
   /**
    * 拉取 CLuster Nodes列表
    *
-   * <p>
+   * @param masterServer Master服务器链接对象
+   *     <p>
    */
-  public void pullClusterNodesList() {
+  public void pullClusterNodesList(NettyRemotingSocketClient masterServer) {
     // TODO 拉取通讯节点列表
+
+
   }
 }
 
 /**
  * Cluster Connector(s) For Clusters
  *
- * @see MasterConnector#pullClusterNodesList() dynamic connector list
+ * @see MasterConnector#pullClusterNodesList(NettyRemotingSocketClient) dynamic connector list
  */
 class CLusterConnector {
 
+  private Map<String, RemotingSocketClient> clusterConnectorCache = Maps.newHashMap();
+  private Map<String, NettyClientConfig> clusterConfigCache = Maps.newHashMap();
 
-
-
+  /**
+   * 链接通讯服务器节点
+   *
+   * @param clusterAddr 通讯服务器地址
+   */
+  void connectCluster(String clusterAddr) {
+    // TODO
+  }
 }

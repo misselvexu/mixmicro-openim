@@ -82,6 +82,12 @@
             <version>2.1.0-RC1</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.acmedcare.framework.kits</groupId>
+            <artifactId>common-kits</artifactId>
+            <version>Antarctica.RC1</version>
+        </dependency>
+
 
     </dependencies>
 
