@@ -24,7 +24,7 @@ public class RemotingAuthService {
   /**
    * 校验Token是否合法
    *
-   * @param token token
+   * @param token accessToken
    * @return true/false
    */
   public boolean auth(String token) {

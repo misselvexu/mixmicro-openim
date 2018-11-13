@@ -17,7 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 @Setter
 public class PushMessageStatusHeader extends BaseHeader implements CommandCustomHeader {
 
-  /** username for client */
+  /** passport for client */
   @CFNotNull private String username;
 
   /**

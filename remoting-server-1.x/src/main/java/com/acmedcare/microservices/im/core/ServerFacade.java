@@ -109,7 +109,7 @@ public final class ServerFacade {
   /** Channel Caches Local */
   public static class ChannelCaches {
 
-    /** DEFAULT username-channel holder */
+    /** DEFAULT passport-channel holder */
     private static final Map<String, List<Channel>> DEFAULT_CHANNELS_MAPPING =
         Maps.newConcurrentMap();
   }

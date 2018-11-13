@@ -19,7 +19,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class PushMessageHeader extends BaseHeader implements CommandCustomHeader {
 
-  /** username for client */
+  /** passport for client */
   @CFNotNull private String username;
 
   @CFNotNull private String messageType;

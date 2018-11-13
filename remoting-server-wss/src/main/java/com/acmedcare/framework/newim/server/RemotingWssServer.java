@@ -1,11 +1,15 @@
 package com.acmedcare.framework.newim.server;
 
+import com.acmedcare.framework.boot.snowflake.EnableSnowflake;
+import com.acmedcare.framework.boot.snowflake.Snowflake;
 import com.acmedcare.framework.boot.web.socket.standard.ServerEndpointExporter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -15,6 +19,7 @@ import org.springframework.context.annotation.Configuration;
  * @version ${project.version} - 08/11/2018.
  */
 @SpringBootApplication
+@ComponentScan("com.acmedcare.framework.newim")
 public class RemotingWssServer {
 
   /** Spring Context Instance of {@link org.springframework.context.ApplicationContext} */
@@ -33,6 +38,18 @@ public class RemotingWssServer {
     @Bean
     public ServerEndpointExporter serverEndpointExporter() {
       return new ServerEndpointExporter();
+    }
+  }
+
+  @Configuration
+  @EnableSnowflake(
+      dataCenterId = "${snowflake.data-center-id:1}",
+      workerId = "${snowflake.worker-id:1}")
+  public static class Ids {
+    public static Snowflake snowflake;
+    @Autowired
+    public void setSnowflake(Snowflake snowflake) {
+      Ids.snowflake = snowflake;
     }
   }
 }

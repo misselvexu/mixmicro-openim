@@ -16,7 +16,7 @@ import lombok.Setter;
 @Setter
 public class PullSessionStatusHeader extends BaseHeader implements CommandCustomHeader {
 
-  /** username for client */
+  /** passport for client */
   @CFNotNull private String username;
 
   /**

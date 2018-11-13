@@ -18,7 +18,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class PullMessageHeader extends BaseHeader implements CommandCustomHeader {
 
-  /** username for client */
+  /** passport for client */
   @CFNotNull private String username;
 
   @CFNotNull private String sender;

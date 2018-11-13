@@ -16,4 +16,12 @@
 
     <name>remoting-storage-api</name>
 
+
+    <dependencies>
+        <dependency>
+            <groupId>com.acmedcare.microservices.im</groupId>
+            <artifactId>remoting-biz</artifactId>
+        </dependency>
+    </dependencies>
+
 </project>

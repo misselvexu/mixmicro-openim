@@ -20,7 +20,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ClientPushMessageHeader extends BaseHeader implements CommandCustomHeader {
 
-  /** username for client */
+  /** passport for client */
   @CFNotNull private String username;
 
   @CFNotNull private String messageType;

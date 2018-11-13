@@ -29,7 +29,7 @@ public interface IPersistenceExecutor {
   /**
    * Query Account Groups
    *
-   * @param username username
+   * @param username passport
    * @return list
    */
   List<Group> queryAccountGroups(String username);
@@ -37,7 +37,7 @@ public interface IPersistenceExecutor {
   /**
    * Query Account Group Message List
    *
-   * @param username username
+   * @param username passport
    * @param sender group flag
    * @param leastMessageId least message sender
    * @param limit limit size
@@ -50,9 +50,9 @@ public interface IPersistenceExecutor {
   /**
    * save or update message read status
    *
-   * @param username username
+   * @param username passport
    * @param pmt push message innerType
-   * @param sender group code or username
+   * @param sender group code or passport
    * @param leastMessageId least message sender
    * @return result
    */

@@ -16,7 +16,7 @@ import lombok.Setter;
 @Setter
 public class PullGroupHeader extends BaseHeader implements CommandCustomHeader {
 
-  /** username for client */
+  /** passport for client */
   @CFNotNull private String username;
 
   @Override

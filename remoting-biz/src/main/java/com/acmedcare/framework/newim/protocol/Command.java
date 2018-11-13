@@ -27,6 +27,28 @@ public final class Command {
   }
 
   /**
+   * Cluster Server With Cluster Command
+   * <li>{@link #CLUSTER_REGISTER}
+   * <li>{@link #CLUSTER_SHUTDOWN}
+   * <li>{@link #CLUSTER_HEARTBEAT}
+   * <li>{@link #CLUSTER_FORWARD_MESSAGE}
+   */
+  public static class ClusterWithClusterCommand {
+
+    /** 通讯服务器注册链接 */
+    public static final int CLUSTER_REGISTER = 0x11001;
+
+    /** 通讯服务器停止 */
+    public static final int CLUSTER_SHUTDOWN = 0x11002;
+
+    /** 通讯服务器心跳 */
+    public static final int CLUSTER_HEARTBEAT = 0x11003;
+
+    /** 通讯服务器之间转发客户端的消息 */
+    public static final int CLUSTER_FORWARD_MESSAGE = 0x11004;
+  }
+
+  /**
    * Master Server And Cluster Node Command
    * <li>{@link #CLUSTER_HEARTBEAT}
    * <li>{@link #CLUSTER_PUSH_CLIENT_CHANNELS}
