@@ -66,9 +66,28 @@
             <artifactId>remoting-core</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.acmedcare.microservices.im</groupId>
+            <artifactId>remoting-biz</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.acmedcare.framework.kits</groupId>
+            <artifactId>common-kits</artifactId>
+            <version>Antarctica.RC1</version>
+        </dependency>
+
     </dependencies>
 
     <build>
+        <extensions>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>1.4.0.Final</version>
+            </extension>
+        </extensions>
+
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

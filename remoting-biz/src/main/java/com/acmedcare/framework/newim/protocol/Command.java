@@ -24,6 +24,9 @@ public final class Command {
 
     /** Master Heartbeat */
     public static final int MASTER_HEARTBEAT = 0x10003;
+
+    /** Master 节点之间同步 Cluster Sessions 数据 */
+    public static final int SYNC_SESSIONS = 0x10004;
   }
 
   /**

@@ -70,9 +70,9 @@ public class NewIMServerBootstrap {
   /** Default Executor */
   private ExecutorService defaultExecutor =
       new ThreadPoolExecutor(
-          4,
-          16,
-          5000L,
+          1,
+          1,
+          0,
           TimeUnit.MILLISECONDS,
           new LinkedBlockingQueue<Runnable>(64),
           new DefaultThreadFactory("new-im-netty-default-processor-executor-"),

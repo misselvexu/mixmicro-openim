@@ -51,11 +51,10 @@ public class MasterConnector {
 
   }
 
-  public static void downloadClusterConnectedClientSessions() {
-
-  }
+  public static void downloadClusterConnectedClientSessions() {}
 
   public void startup(long delay) {
+
     LOG.info("[NEW-IM] [MASTER-CONNECTOR] begin to init master connectors.");
     List<String> nodes = properties.getMasterNodes();
 
@@ -65,51 +64,9 @@ public class MasterConnector {
     for (String node : nodes) {
 
       final Connector connector = new Connector(node);
-      // init config
-      NettyClientConfig nettyClientConfig = new NettyClientConfig();
-      nettyClientConfig.setEnableHeartbeat(true);
-      nettyClientConfig.setClientChannelMaxIdleTimeSeconds(60); // 60秒空闲
 
-      // init client
-      NettyRemotingSocketClient nettyRemotingSocketClient =
-          new NettyRemotingSocketClient(
-              nettyClientConfig,
-              new ChannelEventListener() {
-                @Override
-                public void onChannelConnect(String remoteAddr, Channel channel) {
-                  LOG.debug("Master Connector[{}] is connected", remoteAddr);
-                  clientConnectLatch.countDown();
-                  connector.startupTask();
-                }
-
-                @Override
-                public void onChannelClose(String remoteAddr, Channel channel) {
-                  LOG.debug("Master Connector[{}] is closed", remoteAddr);
-                }
-
-                @Override
-                public void onChannelException(String remoteAddr, Channel channel) {
-                  LOG.debug("Master Connector[{}] is exception ,closing ..", remoteAddr);
-                  try {
-                    channel.close();
-                  } catch (Exception ignore) {
-                  } finally {
-                    masterConnectorCache.remove(remoteAddr);
-                  }
-                }
-
-                @Override
-                public void onChannelIdle(String remoteAddr, Channel channel) {
-                  LOG.debug("Master Connector[{}] is idle", remoteAddr);
-                }
-              });
-      // update target master address
-      nettyRemotingSocketClient.updateNameServerAddressList(Lists.newArrayList(node));
-      // TODO register processor
-
-      connector.setConfig(nettyClientConfig);
-      connector.setClient(nettyRemotingSocketClient);
-      masterConnectorCache.put(node, connector);
+      // connect
+      connect(connector, clientConnectLatch);
     }
 
     // start
@@ -125,7 +82,61 @@ public class MasterConnector {
     }
   }
 
-  private void connect() {}
+  /**
+   * Connect Master Server
+   *
+   * @param connector connector instance
+   * @param countDownLatch wait lock
+   */
+  private void connect(Connector connector, CountDownLatch countDownLatch) {
+    // init config
+    NettyClientConfig nettyClientConfig = new NettyClientConfig();
+    nettyClientConfig.setEnableHeartbeat(true);
+    nettyClientConfig.setClientChannelMaxIdleTimeSeconds(60); // 60秒空闲
+
+    // init client
+    NettyRemotingSocketClient nettyRemotingSocketClient =
+        new NettyRemotingSocketClient(
+            nettyClientConfig,
+            new ChannelEventListener() {
+              @Override
+              public void onChannelConnect(String remoteAddr, Channel channel) {
+                LOG.debug("Master Connector[{}] is connected", remoteAddr);
+                countDownLatch.countDown();
+                connector.startupTask();
+              }
+
+              @Override
+              public void onChannelClose(String remoteAddr, Channel channel) {
+                LOG.debug("Master Connector[{}] is closed", remoteAddr);
+              }
+
+              @Override
+              public void onChannelException(String remoteAddr, Channel channel) {
+                LOG.debug("Master Connector[{}] is exception ,closing ..", remoteAddr);
+                try {
+                  channel.close();
+                } catch (Exception ignore) {
+                } finally {
+                  masterConnectorCache.remove(remoteAddr);
+                }
+              }
+
+              @Override
+              public void onChannelIdle(String remoteAddr, Channel channel) {
+                LOG.debug("Master Connector[{}] is idle", remoteAddr);
+              }
+            });
+    // update target master address
+    nettyRemotingSocketClient.updateNameServerAddressList(
+        Lists.newArrayList(connector.getRemoteAddress()));
+    // TODO register processor
+
+    connector.setConfig(nettyClientConfig);
+    connector.setClient(nettyRemotingSocketClient);
+    // cache
+    masterConnectorCache.put(connector.getRemoteAddress(), connector);
+  }
 
   public void shutdown(boolean immediately) {
 
@@ -198,7 +209,6 @@ public class MasterConnector {
             try {
               LOG.info("[NEW-IM-PULL-CLUSTER-NODES] 拉取通讯节点操作");
               // TODO 拉取通讯节点
-
 
             } catch (Exception e) {
               LOG.error("[NEW-IM-PULL-CLUSTER-NODES] 拉取通讯节点操作异常,等待再次拉取", e);
