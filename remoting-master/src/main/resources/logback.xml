@@ -25,12 +25,12 @@
         </encoder>
     </appender>
 
-    <appender name="master-server"
+    <appender name="master-replica-client"
        class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/master-server.log</file>
+        <file>logs/master-replica-client.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/master-server.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
+            <fileNamePattern>logs/master-replica-client.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
             <maxFileSize>2GB</maxFileSize>
             <MaxHistory>15</MaxHistory>
             <totalSizeCap>7GB</totalSizeCap>
@@ -99,9 +99,9 @@
         <appender-ref ref="start-log"/>
     </logger>
 
-    <logger name="com.acmedcare.framework.newim.masterServerLog" additivity="false">
+    <logger name="com.acmedcare.framework.newim.masterReplicaClientLog" additivity="false">
         <level value="INFO"/>
-        <appender-ref ref="master-server"/>
+        <appender-ref ref="master-replica-client"/>
     </logger>
 
     <logger name="com.acmedcare.framework.newim.masterClusterAcceptorLog" additivity="false">

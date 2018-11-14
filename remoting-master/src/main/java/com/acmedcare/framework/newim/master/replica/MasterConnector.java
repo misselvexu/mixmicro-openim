@@ -41,6 +41,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Replica Connector For {@link
@@ -151,6 +154,8 @@ public class MasterConnector {
                 @Override
                 public void onChannelClose(String remoteAddr, Channel channel) {
                   masterReplicaLog.debug("Master Replica Remoting[{}] is closed", remoteAddr);
+                  // 移除本地副本实例
+                  masterReplicaSession.revokeReplica(remoteAddr);
                 }
 
                 @Override
@@ -260,16 +265,17 @@ public class MasterConnector {
 
     private static final AttributeKey<InstanceNode> INSTANCE_NODE_ATTRIBUTE_KEY =
         AttributeKey.newInstance("INSTANCE_NODE_ATTRIBUTE_KEY");
-
     private static Map<InstanceNode, RemoteReplicaConnectorInstance> connectedReplicas =
         Maps.newConcurrentMap();
     private static Map<InstanceNode, ScheduledExecutorService> connectionKeeper = Maps.newHashMap();
-
+    private static Map<InstanceNode, RetryDelay> connectionKeeperDelay = Maps.newHashMap();
     private final MasterConfig masterConfig;
 
     public MasterReplicaClient(MasterConfig masterConfig) {
       this.masterConfig = masterConfig;
+    }
 
+    public void start() {
       List<Replica> replicas = this.masterConfig.getReplicas();
       if (replicas != null && replicas.size() > 0) {
         List<RemoteReplicaConnectorInstance> replicaConnectorInstances = Lists.newArrayList();
@@ -305,14 +311,32 @@ public class MasterConnector {
                     return;
                   }
 
+                  if (connectionKeeperDelay.containsKey(node)) {
+                    // 延迟处理
+                    ThreadKit.sleep(connectionKeeperDelay.get(node).getDelay());
+                  }
+
                   // retry
                   masterReplicaClientLog.info("[Timer] retry replica client connecting ... ");
                   RemoteReplicaConnectorInstance instance = newReplicaConnectorInstance(address);
 
                   instance.start(); // start
 
+                  // put
+                  connectedReplicas.put(node, instance);
+                  connectionKeeperDelay.remove(node);
+
                 } catch (Exception e) {
                   masterReplicaClientLog.warn("Connection keeper connect failed", e);
+
+                  // update retry delay time
+                  RetryDelay temp = connectionKeeperDelay.get(node);
+                  if (temp == null) {
+                    temp = RetryDelay.builder().build();
+                  }
+                  temp.retry(); // 每失败一次,时间就加一倍, 减少服务器资源消耗
+
+                  connectionKeeperDelay.put(node, temp);
                 }
               },
               20,
@@ -417,6 +441,19 @@ public class MasterConnector {
       instance.setNettyClientConfig(config);
       instance.setNettyRemotingSocketClient(client);
       return instance;
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    private static class RetryDelay {
+      @Default private int times = 1;
+      private long delay;
+
+      public void retry() {
+        this.times++;
+        this.delay = delay * times;
+      }
     }
   }
 }
