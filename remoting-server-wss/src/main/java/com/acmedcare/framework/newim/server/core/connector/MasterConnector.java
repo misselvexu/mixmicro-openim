@@ -190,7 +190,7 @@ public class MasterConnector {
     public void startupTask() {
       LOG.info("[NEW-IM] Master Connector(s) 全部启动完成.");
       LOG.info("[NEW-IM] 启动Session同步定时线程,参数:[5-10-S]");
-      uploadSessionExecutor.scheduleAtFixedRate(
+      uploadSessionExecutor.scheduleWithFixedDelay(
           () -> {
             try {
               LOG.info("[NEW-IN-SYNC-SESSION] 同步SESSION操作");
@@ -204,7 +204,7 @@ public class MasterConnector {
           TimeUnit.SECONDS);
 
       LOG.info("[NEW-IM] 启动拉取通讯节点列表定时线程,参数:[10-30-S]");
-      pullClusterNodesExecutor.scheduleAtFixedRate(
+      pullClusterNodesExecutor.scheduleWithFixedDelay(
           () -> {
             try {
               LOG.info("[NEW-IM-PULL-CLUSTER-NODES] 拉取通讯节点操作");

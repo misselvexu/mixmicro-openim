@@ -9,6 +9,7 @@ import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketClient;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import lombok.Builder;
@@ -32,23 +33,30 @@ public class MasterSession {
    *     com.acmedcare.framework.newim.master.processor.header.MasterSyncClusterSessionHeader#dataVersion
    */
   private static Map<InstanceNode, Integer> syncVersions = Maps.newConcurrentMap();
+
   /**
    * 用户链接节点缓存
    *
-   * <p>passportId -> List[]
+   * <p>key-value
+   *
+   * <p>Master-Replica-Node: (passportId -> Set[])
    *
    * @see com.acmedcare.framework.newim.InstanceNode.NodeType#CLUSTER
    */
-  private static Map<String, Set<InstanceNode>> passportsConnections = Maps.newConcurrentMap();
+  private static Map<InstanceNode, Map<String, Set<InstanceNode>>> passportsConnections =
+      Maps.newConcurrentMap();
 
   /**
    * 设备链接节点缓存
    *
-   * <p>deviceId -> List[]
+   * <p>key-value
+   *
+   * <p>Master-Replica-Node: (deviceId -> Set[])
    *
    * @see com.acmedcare.framework.newim.InstanceNode.NodeType#CLUSTER
    */
-  private static Map<String, Set<InstanceNode>> devicesConnections = Maps.newConcurrentMap();
+  private static Map<InstanceNode, Map<String, Set<InstanceNode>>> devicesConnections =
+      Maps.newConcurrentMap();
 
   /**
    * 校验同步的数据版本
@@ -65,7 +73,7 @@ public class MasterSession {
   }
 
   /**
-   * 合并数据
+   * 合并覆盖数据
    *
    * @param node 节点实例
    * @param data 数据
@@ -73,21 +81,21 @@ public class MasterSession {
   public void merge(InstanceNode node, MasterSyncClusterSessionBody data, Integer dataVersion) {
     // merge
     if (data.getDeviceIds() != null) {
-      for (String deviceId : data.getDeviceIds()) {
-        if (devicesConnections.containsKey(deviceId)) {
-          devicesConnections.get(deviceId).add(node);
-        } else {
-          devicesConnections.put(deviceId, Sets.newHashSet(node));
+      for (Map.Entry<InstanceNode, List<String>> entry : data.getDeviceIds().entrySet()) {
+        for (String deviceId : entry.getValue()) {
+          Map<String, Set<InstanceNode>> temp = Maps.newConcurrentMap();
+          temp.put(deviceId, Sets.newHashSet(entry.getKey()));
+          devicesConnections.put(node, temp);
         }
       }
     }
 
     if (data.getPassportIds() != null) {
-      for (String passportId : data.getPassportIds()) {
-        if (passportsConnections.containsKey(passportId)) {
-          passportsConnections.get(passportId).add(node);
-        } else {
-          passportsConnections.put(passportId, Sets.newHashSet(node));
+      for (Map.Entry<InstanceNode, List<String>> entry : data.getPassportIds().entrySet()) {
+        for (String passportId : entry.getValue()) {
+          Map<String, Set<InstanceNode>> temp = Maps.newConcurrentMap();
+          temp.put(passportId, Sets.newHashSet(entry.getKey()));
+          passportsConnections.put(node, temp);
         }
       }
     }
@@ -131,7 +139,7 @@ public class MasterSession {
   }
 
   /**
-   * Master Cluster Client Session
+   * Master Replica Client Session
    *
    * <p>
    */
@@ -166,10 +174,24 @@ public class MasterSession {
   @Getter
   @Setter
   public static class RemoteReplicaConnectorInstance {
+
+    private InstanceNode connectorNode;
     /** 副本配置 */
     private NettyClientConfig nettyClientConfig;
     /** 副本客户端对象 */
     private NettyRemotingSocketClient nettyRemotingSocketClient;
+
+    public void start() {
+      if (nettyRemotingSocketClient != null) {
+        nettyRemotingSocketClient.start();
+      }
+    }
+
+    public void shutdown() {
+      if (nettyRemotingSocketClient != null) {
+        nettyRemotingSocketClient.shutdown();
+      }
+    }
   }
 
   /**

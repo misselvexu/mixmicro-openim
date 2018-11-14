@@ -32,11 +32,11 @@ public class MasterConfig implements Serializable, EnvironmentAware {
   private int port = 13111;
 
   /**
-   * Master Cluster Nodes List
+   * Master Replica Nodes List
    *
    * <p>ip:port
    */
-  private List<Cluster> clusters = Lists.newArrayList();
+  private List<Replica> replicas = Lists.newArrayList();
 
   /** Spring Application Context Environment */
   private Environment environment;
@@ -55,7 +55,7 @@ public class MasterConfig implements Serializable, EnvironmentAware {
 
   @Getter
   @Setter
-  public static class Cluster implements Serializable {
+  public static class Replica implements Serializable {
 
     private static final long serialVersionUID = -602633671198547053L;
 
@@ -63,7 +63,7 @@ public class MasterConfig implements Serializable, EnvironmentAware {
     private String nodeAddress;
 
     /**
-     * Master clusters communicate heartbeat period
+     * Master replicas communicate heartbeat period
      *
      * <p>Unit: ts ,Default : 10s
      */

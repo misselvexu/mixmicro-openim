@@ -15,12 +15,12 @@ public class MasterLogger {
   public static final Logger masterReplicaLog =
       LoggerFactory.getLogger("com.acmedcare.framework.newim.masterReplicaLog");
 
-  /** Cluster Logger Client */
+  /** Replica Logger Client */
   public static final Logger masterClusterAcceptorLog =
       LoggerFactory.getLogger("com.acmedcare.framework.newim.masterClusterAcceptorLog");
 
-  public static final Logger masterServerLog =
-      LoggerFactory.getLogger("com.acmedcare.framework.newim.masterServerLog");
+  public static final Logger masterReplicaClientLog =
+      LoggerFactory.getLogger("com.acmedcare.framework.newim.masterReplicaClientLog");
 
   public static final Logger startLog =
       LoggerFactory.getLogger("com.acmedcare.framework.newim.startLog");

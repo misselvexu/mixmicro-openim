@@ -1,8 +1,9 @@
 package com.acmedcare.framework.newim.master.processor.body;
 
-import com.google.common.collect.Lists;
+import com.acmedcare.framework.newim.InstanceNode;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,7 +20,7 @@ public class MasterSyncClusterSessionBody implements Serializable {
   private static final long serialVersionUID = -5706666156157170632L;
 
   /** 同步登陆的通行证数据 */
-  private List<String> passportIds = Lists.newArrayList();
+  private Map<InstanceNode, List<String>> passportIds;
   /** 同步登陆的设备数据 */
-  private List<String> deviceIds = Lists.newArrayList();
+  private Map<InstanceNode, List<String>> deviceIds;
 }
