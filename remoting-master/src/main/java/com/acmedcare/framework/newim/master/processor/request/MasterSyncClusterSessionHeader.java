@@ -1,4 +1,4 @@
-package com.acmedcare.framework.newim.master.processor.header;
+package com.acmedcare.framework.newim.master.processor.request;
 
 import com.acmedcare.tiffany.framework.remoting.CommandCustomHeader;
 import com.acmedcare.tiffany.framework.remoting.exception.RemotingCommandException;

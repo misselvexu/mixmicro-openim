@@ -1,4 +1,4 @@
-package com.acmedcare.framework.newim.master.processor.body;
+package com.acmedcare.framework.newim.master.processor.request;
 
 import com.acmedcare.framework.newim.InstanceNode;
 import java.io.Serializable;

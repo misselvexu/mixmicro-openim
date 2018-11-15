@@ -1,9 +1,12 @@
 package com.acmedcare.framework.newim.master.replica;
 
+import static com.acmedcare.framework.newim.MasterLogger.masterClusterAcceptorLog;
 import static com.acmedcare.framework.newim.MasterLogger.masterReplicaLog;
 
 import com.acmedcare.framework.newim.InstanceNode;
-import com.acmedcare.framework.newim.master.processor.body.MasterSyncClusterSessionBody;
+import com.acmedcare.framework.newim.master.processor.request.MasterSyncClusterSessionHeader;
+import com.acmedcare.framework.newim.protocol.request.ClusterPushSessionDataBody;
+import com.acmedcare.framework.newim.master.processor.request.MasterSyncClusterSessionBody;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyClientConfig;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketClient;
 import com.google.common.collect.Maps;
@@ -30,7 +33,7 @@ public class MasterSession {
    * <p>
    *
    * @see
-   *     com.acmedcare.framework.newim.master.processor.header.MasterSyncClusterSessionHeader#dataVersion
+   *     MasterSyncClusterSessionHeader#dataVersion
    */
   private static Map<InstanceNode, Integer> syncVersions = Maps.newConcurrentMap();
 
@@ -146,12 +149,61 @@ public class MasterSession {
   public static class MasterClusterSession {
 
     /**
+     * 通行证登录连接
+     *
+     * <p>
+     */
+    private static Map<InstanceNode, Set<String>> passportsConnections = Maps.newConcurrentMap();
+
+    /**
+     * 设备登录连接
+     *
+     * <p>
+     */
+    private static Map<InstanceNode, Set<String>> devicesConnections = Maps.newConcurrentMap();
+
+    /**
      * 通讯服务器客户端链接对象池
      *
      * <p>
      */
     private static Map<String, RemoteClusterClientInstance> clusterClientInstances =
         Maps.newConcurrentMap();
+
+    public void registerClusterInstance(String clusterAddress, Channel channel) {
+      RemoteClusterClientInstance original =
+          clusterClientInstances.put(
+              clusterAddress,
+              RemoteClusterClientInstance.builder().clusterClientChannel(channel).build());
+      if (original != null) {
+        masterClusterAcceptorLog.info(
+            "Cluster:{} registered, Auto-release original old instance", clusterAddress);
+        // close
+        try {
+          original.getClusterClientChannel().close();
+        } catch (Exception ignore) {
+        }
+      }
+    }
+
+    public void revokeClusterInstance(String clusterAddress) {
+      RemoteClusterClientInstance preInstance = clusterClientInstances.remove(clusterAddress);
+      if (preInstance != null) {
+        masterClusterAcceptorLog.info("Revoke Cluster:{}", clusterAddress);
+        // close
+        try {
+          preInstance.getClusterClientChannel().close();
+        } catch (Exception ignore) {
+        }
+      }
+    }
+
+    public void merge(InstanceNode node, ClusterPushSessionDataBody data) {
+      if (data != null) {
+        passportsConnections.put(node, Sets.newHashSet(data.getPassportIds()));
+        devicesConnections.put(node, Sets.newHashSet(data.getDeviceIds()));
+      }
+    }
   }
 
   /**
@@ -201,6 +253,7 @@ public class MasterSession {
    */
   @Getter
   @Setter
+  @Builder
   public static class RemoteClusterClientInstance {
 
     /** 客户端 Channel对象 */
