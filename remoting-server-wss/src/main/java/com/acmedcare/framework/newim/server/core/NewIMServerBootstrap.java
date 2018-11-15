@@ -3,8 +3,6 @@ package com.acmedcare.framework.newim.server.core;
 import com.acmedcare.framework.newim.protocol.Command.ClusterClientCommand;
 import com.acmedcare.framework.newim.protocol.Command.ClusterWithClusterCommand;
 import com.acmedcare.framework.newim.server.config.IMProperties;
-import com.acmedcare.framework.newim.server.core.connector.ClusterConnector;
-import com.acmedcare.framework.newim.server.core.connector.MasterConnector;
 import com.acmedcare.framework.newim.server.processor.ClusterForwardMessageRequestProcessor;
 import com.acmedcare.framework.newim.server.processor.ClusterRegisterRequestProcessor;
 import com.acmedcare.framework.newim.server.processor.DefaultIMProcessor;
@@ -18,7 +16,6 @@ import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketServer;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyServerConfig;
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
@@ -59,14 +56,6 @@ public class NewIMServerBootstrap {
   private IMSession imSession;
   // ======================== Local Properties =============================//
 
-  // ============================= Connector Handler ==========================================
-  /** Master Connector Instance */
-  private MasterConnector masterConnector;
-
-  /** Cluster Connector Instance */
-  private ClusterConnector clusterConnector;
-  // ============================= Connector Handler ==========================================//
-
   /** Default Executor */
   private ExecutorService defaultExecutor =
       new ThreadPoolExecutor(
@@ -100,8 +89,6 @@ public class NewIMServerBootstrap {
       return;
     }
 
-    clusterConnector = new ClusterConnector();
-
     LOG.info("[NEW-IM] Startup IM Server listen on port :{}", imProperties.getPort());
     startupIMMainServer(delay);
 
@@ -109,9 +96,6 @@ public class NewIMServerBootstrap {
         "[NEW-IM] Startup IM Inner Cluster Server listen on port :{}",
         imProperties.getClusterPort());
     startupInnerClusterServer(delay);
-
-    LOG.info("[NEW-IM] Startup Master Connector Instance(s) ");
-    startupMasterConnector(delay);
 
     LOG.info("[NEW-IM] System Startup Finished~");
     running = true;
@@ -235,22 +219,6 @@ public class NewIMServerBootstrap {
     imServer.start();
 
     // TODO start imServer checker
-  }
-
-  /** start connector */
-  private void startupMasterConnector(long delay) {
-
-    // master connector instance
-    masterConnector = new MasterConnector(imProperties);
-
-    // check target master nodes config
-    List<String> masterNodes = imProperties.getMasterNodes();
-    if (masterNodes == null || masterNodes.size() == 0) {
-      LOG.info("[NEW-IM] Master(s) Address is not set.");
-    }
-
-    // start up
-    masterConnector.startup(delay);
   }
 }
 

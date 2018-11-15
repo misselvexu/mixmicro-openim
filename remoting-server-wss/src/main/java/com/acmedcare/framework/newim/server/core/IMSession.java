@@ -227,28 +227,4 @@ public class IMSession {
     // TODO
     return null;
   }
-
-  /**
-   * 合并集群客户端登录的通讯服务器关联
-   *
-   * <p>
-   */
-  public void mergeClusterConnectedClientSessionList() {
-    // TODO 合并集群客户端登录的通讯服务器关联
-
-  }
-
-  // ================================ Session Checker ========================================
-  /**
-   * Session Checker
-   *
-   * <p>
-   */
-  public static class Checker implements Runnable {
-
-    @Override
-    public void run() {
-      // TODO Session 定时校验处理
-    }
-  }
 }

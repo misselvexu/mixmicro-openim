@@ -11,16 +11,9 @@ import org.slf4j.LoggerFactory;
  */
 public class MasterLogger {
 
-  /** Master Replica Logger */
-  public static final Logger masterReplicaLog =
-      LoggerFactory.getLogger("com.acmedcare.framework.newim.masterReplicaLog");
-
   /** Replica Logger Client */
   public static final Logger masterClusterAcceptorLog =
       LoggerFactory.getLogger("com.acmedcare.framework.newim.masterClusterAcceptorLog");
-
-  public static final Logger masterReplicaClientLog =
-      LoggerFactory.getLogger("com.acmedcare.framework.newim.masterReplicaClientLog");
 
   public static final Logger startLog =
       LoggerFactory.getLogger("com.acmedcare.framework.newim.startLog");

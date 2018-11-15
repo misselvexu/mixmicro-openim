@@ -1,25 +1,33 @@
 package com.acmedcare.framework.newim.server.core.connector;
 
-import com.acmedcare.framework.kits.thread.DefaultThreadFactory;
+import static com.acmedcare.framework.newim.server.ClusterLogger.masterClusterLog;
+
 import com.acmedcare.framework.kits.thread.ThreadKit;
+import com.acmedcare.framework.newim.InstanceNode;
+import com.acmedcare.framework.newim.InstanceNode.NodeType;
+import com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand;
 import com.acmedcare.framework.newim.server.config.IMProperties;
+import com.acmedcare.framework.newim.server.core.IMSession;
+import com.acmedcare.framework.newim.server.processor.MasterNoticeClientChannelsRequestProcessor;
 import com.acmedcare.tiffany.framework.remoting.ChannelEventListener;
-import com.acmedcare.tiffany.framework.remoting.RemotingSocketClient;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyClientConfig;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketClient;
+import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.util.AttributeKey;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.Setter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Master Connector For IM Server Instance
@@ -31,192 +39,226 @@ import org.slf4j.LoggerFactory;
  */
 public class MasterConnector {
 
-  private static final Logger LOG = LoggerFactory.getLogger(MasterConnector.class);
-  /** Master Config Properties */
-  private IMProperties properties;
-  /** Master Connector Cache */
-  private Map<String, Connector> masterConnectorCache = Maps.newHashMap();
+  private static final AttributeKey<InstanceNode> INSTANCE_NODE_ATTRIBUTE_KEY =
+      AttributeKey.newInstance("INSTANCE_NODE_ATTRIBUTE_KEY");
+  private static Map<InstanceNode, RemoteMasterConnectorInstance> connectedReplicas =
+      Maps.newConcurrentMap();
+  private static Map<InstanceNode, ScheduledExecutorService> connectionKeeper = Maps.newHashMap();
+  private static Map<InstanceNode, RetryDelay> connectionKeeperDelay = Maps.newHashMap();
+  private final IMSession imSession;
+  private final IMProperties imProperties;
 
-  public MasterConnector(IMProperties properties) {
-    this.properties = properties;
+  public MasterConnector(IMProperties imProperties, IMSession imSession) {
+    this.imProperties = imProperties;
+    this.imSession = imSession;
   }
 
-  /**
-   * 上报本机连接的客户端数据(定时上报)
-   *
-   * <p>
-   */
-  public static void uploadConnectedClientSessions() {
-    // TODO 同步通信服务器链接数据
+  public void start() {
+    List<String> masterNodes = this.imProperties.getMasterNodes();
+    if (masterNodes != null && masterNodes.size() > 0) {
+      List<RemoteMasterConnectorInstance> replicaConnectorInstances = Lists.newArrayList();
+      for (String node : masterNodes) {
+        replicaConnectorInstances.add(newMasterConnectorInstance(node));
+      }
 
-  }
+      // foreach start
+      for (RemoteMasterConnectorInstance replicaConnectorInstance : replicaConnectorInstances) {
+        masterClusterLog.info("Ready master client connecting ...");
+        replicaConnectorInstance.start();
+        // wait 2s for init
+        ThreadKit.sleep(2000, TimeUnit.MILLISECONDS);
 
-  public static void downloadClusterConnectedClientSessions() {}
+        // timer thread
+        final String address = replicaConnectorInstance.getMasterNode().getHost();
+        final InstanceNode node = replicaConnectorInstance.getMasterNode();
+        String threadName = address.replace(".", "-").replace(":", "-") + "-Connection-Keeper";
+        masterClusterLog.info(
+            "Starting # master client:{} connection keeper thread ,thread name :{}",
+            address,
+            threadName);
+        ScheduledExecutorService scheduledExecutorService =
+            new ScheduledThreadPoolExecutor(1, new DefaultThreadFactory(threadName));
 
-  public void startup(long delay) {
+        connectionKeeper.put(replicaConnectorInstance.getMasterNode(), scheduledExecutorService);
 
-    LOG.info("[NEW-IM] [MASTER-CONNECTOR] begin to init master connectors.");
-    List<String> nodes = properties.getMasterNodes();
+        scheduledExecutorService.scheduleWithFixedDelay(
+            () -> {
+              try {
+                if (connectedReplicas.containsKey(node)) {
+                  return;
+                }
 
-    // async start client connect
-    final CountDownLatch clientConnectLatch = new CountDownLatch(nodes.size());
+                if (connectionKeeperDelay.containsKey(node)) {
+                  // 延迟处理
+                  ThreadKit.sleep(connectionKeeperDelay.get(node).getDelay());
+                }
 
-    for (String node : nodes) {
+                // retry
+                masterClusterLog.info("[Timer] retry master client connecting ... ");
+                RemoteMasterConnectorInstance instance = newMasterConnectorInstance(address);
 
-      final Connector connector = new Connector(node);
+                instance.start(); // start
 
-      // connect
-      connect(connector, clientConnectLatch);
+                // put
+                connectedReplicas.put(node, instance);
+                connectionKeeperDelay.remove(node);
+
+              } catch (Exception e) {
+                masterClusterLog.warn("Connection keeper connect failed", e);
+
+                // update retry delay time
+                RetryDelay temp = connectionKeeperDelay.get(node);
+                if (temp == null) {
+                  temp = RetryDelay.builder().build();
+                }
+                temp.retry(); // 每失败一次,时间就加一倍, 减少服务器资源消耗
+
+                connectionKeeperDelay.put(node, temp);
+              }
+            },
+            20,
+            10,
+            TimeUnit.SECONDS);
+        masterClusterLog.info(
+            "Started # master client:{} connection keeper thread ,thread name :{}",
+            address,
+            threadName);
+      }
     }
-
-    // start
-    masterConnectorCache.forEach((node, client) -> client.getClient().start());
-
-    try {
-      // 等待全部启动结束
-      LOG.info("[NEW-IM] Waiting master connector connecting..., Wait Timeout: {}", 60);
-      clientConnectLatch.await(60, TimeUnit.SECONDS);
-
-    } catch (InterruptedException e) {
-      LOG.error("[NEW-IM] 异步启动Master Connector异常", e);
-    }
   }
 
-  /**
-   * Connect Master Server
-   *
-   * @param connector connector instance
-   * @param countDownLatch wait lock
-   */
-  private void connect(Connector connector, CountDownLatch countDownLatch) {
-    // init config
-    NettyClientConfig nettyClientConfig = new NettyClientConfig();
-    nettyClientConfig.setEnableHeartbeat(true);
-    nettyClientConfig.setClientChannelMaxIdleTimeSeconds(60); // 60秒空闲
+  public void shutdown() {
 
-    // init client
-    NettyRemotingSocketClient nettyRemotingSocketClient =
+    masterClusterLog.info("shutdown connection keepers timer-threads.");
+    // shutdown threads
+    connectionKeeper.forEach(
+        (key, value) -> {
+          try {
+            ThreadKit.gracefulShutdown(value, 10, 10, TimeUnit.SECONDS);
+          } catch (Exception ignore) {
+          }
+        });
+
+    masterClusterLog.info("shutdown master client connections.");
+    connectedReplicas.forEach(
+        (key, value) -> {
+          try {
+            value.shutdown();
+          } catch (Exception ignore) {
+
+          }
+        });
+  }
+
+  private RemoteMasterConnectorInstance newMasterConnectorInstance(String nodeAddress) {
+    InstanceNode node = new InstanceNode(nodeAddress, NodeType.MASTER);
+    RemoteMasterConnectorInstance instance = new RemoteMasterConnectorInstance();
+    NettyClientConfig config = new NettyClientConfig();
+    config.setEnableHeartbeat(true);
+
+    NettyRemotingSocketClient client =
         new NettyRemotingSocketClient(
-            nettyClientConfig,
+            config,
             new ChannelEventListener() {
               @Override
               public void onChannelConnect(String remoteAddr, Channel channel) {
-                LOG.debug("Master Connector[{}] is connected", remoteAddr);
-                countDownLatch.countDown();
-                connector.startupTask();
+                masterClusterLog.debug("Master Cluster Client[{}] is connected", remoteAddr);
+
+                // send register command
+                RemotingCommand registerRequest =
+                    RemotingCommand.createRequestCommand(
+                        MasterClusterCommand.CLUSTER_REGISTER, null);
+
+                channel
+                    .writeAndFlush(registerRequest)
+                    .addListener(
+                        (ChannelFutureListener)
+                            future -> {
+                              if (future.isSuccess()) {
+                                connectedReplicas.put(node, instance);
+                                channel.attr(INSTANCE_NODE_ATTRIBUTE_KEY).set(node);
+                                masterClusterLog.info(
+                                    "Master-Cluster-Client:{} register succeed. ", nodeAddress);
+                              }
+                            });
               }
 
               @Override
               public void onChannelClose(String remoteAddr, Channel channel) {
-                LOG.debug("Master Connector[{}] is closed", remoteAddr);
+                masterClusterLog.debug("Master Cluster Client[{}] is closed", remoteAddr);
+                InstanceNode instanceNode = channel.attr(INSTANCE_NODE_ATTRIBUTE_KEY).get();
+                connectedReplicas.remove(instanceNode);
+                masterClusterLog.info("Master-Cluster-Client:{} revoked.", instanceNode.getHost());
               }
 
               @Override
               public void onChannelException(String remoteAddr, Channel channel) {
-                LOG.debug("Master Connector[{}] is exception ,closing ..", remoteAddr);
+                masterClusterLog.debug(
+                    "Master Cluster Client[{}] is exception ,closing ..", remoteAddr);
                 try {
                   channel.close();
                 } catch (Exception ignore) {
-                } finally {
-                  masterConnectorCache.remove(remoteAddr);
                 }
               }
 
               @Override
               public void onChannelIdle(String remoteAddr, Channel channel) {
-                LOG.debug("Master Connector[{}] is idle", remoteAddr);
+                masterClusterLog.debug("Master Cluster Client[{}] is idle", remoteAddr);
               }
             });
-    // update target master address
-    nettyRemotingSocketClient.updateNameServerAddressList(
-        Lists.newArrayList(connector.getRemoteAddress()));
-    // TODO register processor
 
-    connector.setConfig(nettyClientConfig);
-    connector.setClient(nettyRemotingSocketClient);
-    // cache
-    masterConnectorCache.put(connector.getRemoteAddress(), connector);
-  }
+    client.updateNameServerAddressList(Lists.newArrayList(nodeAddress));
 
-  public void shutdown(boolean immediately) {
+    client.registerProcessor(
+        MasterClusterCommand.MASTER_NOTICE_CLIENT_CHANNELS,
+        new MasterNoticeClientChannelsRequestProcessor(imSession),
+        null);
 
-    // TODO shutdown master connector
-  }
-
-  /**
-   * 拉取 CLuster Nodes列表
-   *
-   * @param masterServer Master服务器链接对象
-   *     <p>
-   */
-  public void pullClusterNodesList(NettyRemotingSocketClient masterServer) {
-    // TODO 拉取通讯节点列表
-
+    // set
+    instance.setMasterNode(node);
+    instance.setNettyClientConfig(config);
+    instance.setNettyRemotingSocketClient(client);
+    return instance;
   }
 
   @Getter
   @Setter
-  public static class Connector {
-    private String remoteAddress;
-    private RemotingSocketClient client;
-    private NettyClientConfig config;
-    private ScheduledExecutorService uploadSessionExecutor;
-    private ScheduledExecutorService pullClusterNodesExecutor;
+  @Builder
+  private static class RetryDelay {
+    @Default private int times = 1;
+    private long delay;
 
-    public Connector(String remoteAddress) {
-      this.remoteAddress = remoteAddress;
-      this.uploadSessionExecutor =
-          new ScheduledThreadPoolExecutor(1, new DefaultThreadFactory("SYNC-SESSION-THREAD-POOL"));
-      this.pullClusterNodesExecutor =
-          new ScheduledThreadPoolExecutor(
-              1, new DefaultThreadFactory("PULL-CLUSTER-NODES-THREAD-POOL"));
+    public void retry() {
+      this.times++;
+      this.delay = delay * times;
     }
+  }
 
-    public Connector(String remoteAddress, NettyClientConfig config, RemotingSocketClient client) {
-      this(remoteAddress);
-      this.config = config;
-      this.client = client;
-    }
+  /**
+   * 远程副本链接客户端
+   *
+   * <p>
+   */
+  @Getter
+  @Setter
+  public static class RemoteMasterConnectorInstance {
 
-    public void release() {
-      if (uploadSessionExecutor != null) {
-        ThreadKit.gracefulShutdown(uploadSessionExecutor, 10, 20, TimeUnit.SECONDS);
+    private InstanceNode masterNode;
+    /** 副本配置 */
+    private NettyClientConfig nettyClientConfig;
+    /** 副本客户端对象 */
+    private NettyRemotingSocketClient nettyRemotingSocketClient;
+
+    public void start() {
+      if (nettyRemotingSocketClient != null) {
+        nettyRemotingSocketClient.start();
       }
-      if (pullClusterNodesExecutor != null) {
-        ThreadKit.gracefulShutdown(pullClusterNodesExecutor, 10, 20, TimeUnit.SECONDS);
-      }
     }
 
-    public void startupTask() {
-      LOG.info("[NEW-IM] Master Connector(s) 全部启动完成.");
-      LOG.info("[NEW-IM] 启动Session同步定时线程,参数:[5-10-S]");
-      uploadSessionExecutor.scheduleWithFixedDelay(
-          () -> {
-            try {
-              LOG.info("[NEW-IN-SYNC-SESSION] 同步SESSION操作");
-              uploadConnectedClientSessions();
-            } catch (Exception e) {
-              LOG.error("[NEW-IN-SYNC-SESSION] 同步SESSION操作异常,等待再次同步", e);
-            }
-          },
-          5,
-          10,
-          TimeUnit.SECONDS);
-
-      LOG.info("[NEW-IM] 启动拉取通讯节点列表定时线程,参数:[10-30-S]");
-      pullClusterNodesExecutor.scheduleWithFixedDelay(
-          () -> {
-            try {
-              LOG.info("[NEW-IM-PULL-CLUSTER-NODES] 拉取通讯节点操作");
-              // TODO 拉取通讯节点
-
-            } catch (Exception e) {
-              LOG.error("[NEW-IM-PULL-CLUSTER-NODES] 拉取通讯节点操作异常,等待再次拉取", e);
-            }
-          },
-          10,
-          30,
-          TimeUnit.SECONDS);
+    public void shutdown() {
+      if (nettyRemotingSocketClient != null) {
+        nettyRemotingSocketClient.shutdown();
+      }
     }
   }
 }

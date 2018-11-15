@@ -1,4 +1,4 @@
-package com.acmedcare.framework.newim.master.replica;
+package com.acmedcare.framework.newim.master.core;
 
 import com.acmedcare.framework.newim.master.MasterConfig;
 

@@ -2,7 +2,9 @@ package com.acmedcare.framework.newim;
 
 import java.io.Serializable;
 import java.util.Objects;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -13,12 +15,14 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@NoArgsConstructor
 public class InstanceNode implements Serializable {
 
   private static final long serialVersionUID = -4560765383064351784L;
   private String host;
   private NodeType nodeType;
 
+  @Builder
   public InstanceNode(String host, NodeType nodeType) {
     this.host = host;
     this.nodeType = nodeType;

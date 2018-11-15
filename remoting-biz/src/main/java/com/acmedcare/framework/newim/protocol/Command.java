@@ -9,27 +9,6 @@ package com.acmedcare.framework.newim.protocol;
 public final class Command {
 
   /**
-   * Master Server With Master Server Command
-   * <li>{@link #MASTER_REGISTER}
-   * <li>{@link #MASTER_SHUTDOWN}
-   * <li>{@link #MASTER_HEARTBEAT}
-   */
-  public static class MasterWithMasterCommand {
-
-    /** Master Register Command */
-    public static final int MASTER_REGISTER = 0x10001;
-
-    /** Master Shutdown Command */
-    public static final int MASTER_SHUTDOWN = 0x10002;
-
-    /** Master Heartbeat */
-    public static final int MASTER_HEARTBEAT = 0x10003;
-
-    /** Master 节点之间同步 Cluster Sessions 数据 */
-    public static final int SYNC_SESSIONS = 0x10004;
-  }
-
-  /**
    * Cluster Server With Cluster Command
    * <li>{@link #CLUSTER_REGISTER}
    * <li>{@link #CLUSTER_SHUTDOWN}
