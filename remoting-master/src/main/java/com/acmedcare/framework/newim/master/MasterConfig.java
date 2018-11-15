@@ -1,8 +1,6 @@
 package com.acmedcare.framework.newim.master;
 
-import com.google.common.collect.Lists;
 import java.io.Serializable;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -31,13 +29,6 @@ public class MasterConfig implements Serializable, EnvironmentAware {
   /** Master Server <code>port</code> Properties */
   private int port = 13111;
 
-  /**
-   * Master Replica Nodes List
-   *
-   * <p>ip:port
-   */
-  private List<Replica> replicas = Lists.newArrayList();
-
   /** Spring Application Context Environment */
   private Environment environment;
 
@@ -51,22 +42,5 @@ public class MasterConfig implements Serializable, EnvironmentAware {
   @Override
   public void setEnvironment(Environment environment) {
     this.environment = environment;
-  }
-
-  @Getter
-  @Setter
-  public static class Replica implements Serializable {
-
-    private static final long serialVersionUID = -602633671198547053L;
-
-    /** master node */
-    private String nodeAddress;
-
-    /**
-     * Master replicas communicate heartbeat period
-     *
-     * <p>Unit: ts ,Default : 10s
-     */
-    private long heartbeat = 10000;
   }
 }
