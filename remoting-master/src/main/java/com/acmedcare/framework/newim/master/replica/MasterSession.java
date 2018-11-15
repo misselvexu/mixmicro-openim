@@ -3,18 +3,34 @@ package com.acmedcare.framework.newim.master.replica;
 import static com.acmedcare.framework.newim.MasterLogger.masterClusterAcceptorLog;
 import static com.acmedcare.framework.newim.MasterLogger.masterReplicaLog;
 
+import com.acmedcare.framework.kits.thread.DefaultThreadFactory;
+import com.acmedcare.framework.kits.thread.ThreadKit;
 import com.acmedcare.framework.newim.InstanceNode;
-import com.acmedcare.framework.newim.master.processor.request.MasterSyncClusterSessionHeader;
-import com.acmedcare.framework.newim.protocol.request.ClusterPushSessionDataBody;
 import com.acmedcare.framework.newim.master.processor.request.MasterSyncClusterSessionBody;
+import com.acmedcare.framework.newim.master.processor.request.MasterSyncClusterSessionHeader;
+import com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand;
+import com.acmedcare.framework.newim.protocol.request.ClusterPushSessionDataBody;
+import com.acmedcare.framework.newim.protocol.request.MasterNoticeSessionDataBody;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyClientConfig;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketClient;
+import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
+import java.util.concurrent.TimeUnit;
+import javax.annotation.PostConstruct;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,8 +48,7 @@ public class MasterSession {
    *
    * <p>
    *
-   * @see
-   *     MasterSyncClusterSessionHeader#dataVersion
+   * @see MasterSyncClusterSessionHeader#dataVersion
    */
   private static Map<InstanceNode, Integer> syncVersions = Maps.newConcurrentMap();
 
@@ -170,6 +185,9 @@ public class MasterSession {
     private static Map<String, RemoteClusterClientInstance> clusterClientInstances =
         Maps.newConcurrentMap();
 
+    private ScheduledExecutorService notifierExecutor;
+    private ExecutorService asyncNotifierExecutor;
+
     public void registerClusterInstance(String clusterAddress, Channel channel) {
       RemoteClusterClientInstance original =
           clusterClientInstances.put(
@@ -203,6 +221,82 @@ public class MasterSession {
         passportsConnections.put(node, Sets.newHashSet(data.getPassportIds()));
         devicesConnections.put(node, Sets.newHashSet(data.getDeviceIds()));
       }
+    }
+
+    @PostConstruct
+    public void notifier() {
+      notifierExecutor =
+          new ScheduledThreadPoolExecutor(
+              1, new DefaultThreadFactory("master-sessions-notifier-thread"));
+
+      asyncNotifierExecutor =
+          new ThreadPoolExecutor(
+              4,
+              16,
+              0L,
+              TimeUnit.MILLISECONDS,
+              new LinkedBlockingQueue<>(16),
+              new DefaultThreadFactory("notifier-executor"),
+              new CallerRunsPolicy());
+
+      notifierExecutor.scheduleWithFixedDelay(
+          () -> {
+            if (clusterClientInstances.size() > 0) {
+              CountDownLatch count = new CountDownLatch(clusterClientInstances.size());
+
+              RemotingCommand notifyRequest =
+                  RemotingCommand.createRequestCommand(
+                      MasterClusterCommand.MASTER_NOTICE_CLIENT_CHANNELS, null);
+              MasterNoticeSessionDataBody body = new MasterNoticeSessionDataBody();
+              body.setDevicesConnections(devicesConnections);
+              body.setPassportsConnections(passportsConnections);
+              notifyRequest.setBody(JSON.toJSONBytes(body));
+
+              clusterClientInstances.forEach(
+                  (key, value) ->
+                      asyncNotifierExecutor.execute(
+                          () -> {
+                            try {
+                              if (value.getClusterClientChannel().isWritable()) {
+                                value
+                                    .getClusterClientChannel()
+                                    .writeAndFlush(notifyRequest)
+                                    .addListener(
+                                        (ChannelFutureListener)
+                                            future -> {
+                                              if (future.isSuccess()) {
+                                                masterClusterAcceptorLog.info(
+                                                    "master notify push session data succeed.");
+                                              }
+                                            });
+                              } else {
+                                masterClusterAcceptorLog.warn(
+                                    "master notify push session data fail , cause by cluster client channel is un-writable");
+                              }
+                            } catch (Exception e) {
+                              masterClusterAcceptorLog.error(
+                                  "master notify push session data exception", e);
+                            } finally {
+                              // release
+                              count.countDown();
+                            }
+                          }));
+            }
+          },
+          10,
+          10,
+          TimeUnit.SECONDS);
+
+      // add shutdown hook
+      Runtime.getRuntime()
+          .addShutdownHook(
+              new Thread(
+                  () -> {
+                    masterClusterAcceptorLog.info("jvm hook , shutdown notifierExecutor .");
+                    ThreadKit.gracefulShutdown(notifierExecutor, 10, 10, TimeUnit.SECONDS);
+                    masterClusterAcceptorLog.info("jvm hook , shutdown asyncNotifierExecutor .");
+                    ThreadKit.gracefulShutdown(asyncNotifierExecutor, 10, 10, TimeUnit.SECONDS);
+                  }));
     }
   }
 

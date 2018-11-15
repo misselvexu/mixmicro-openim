@@ -75,12 +75,13 @@ public final class Command {
 
     /** Master服务器推送系统消息 */
     public static final int MASTER_PUSH_SYSTEM_MESSAGES = 0x20005;
+    /**
+     * WebSocket Client And Cluster Command
+     * <li>
+     */
+    public static final int MASTER_NOTICE_CLIENT_CHANNELS = 0x20006;
   }
 
-  /**
-   * WebSocket Client And Cluster Command
-   * <li>
-   */
   public static class WebSocketClusterCommand {
 
     /** 客户端注册协议 */
