@@ -25,46 +25,12 @@
         </encoder>
     </appender>
 
-    <appender name="master-replica-client"
-       class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/master-replica-client.log</file>
-        <append>true</append>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/master-replica-client.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
-            <maxFileSize>2GB</maxFileSize>
-            <MaxHistory>15</MaxHistory>
-            <totalSizeCap>7GB</totalSizeCap>
-            <cleanHistoryOnStart>true</cleanHistoryOnStart>
-        </rollingPolicy>
-        <encoder>
-            <Pattern>%date %level %msg%n</Pattern>
-            <charset>UTF-8</charset>
-        </encoder>
-    </appender>
-
     <appender name="master-cluster-acceptor"
        class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>logs/master-cluster-acceptor.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>logs/master-cluster-acceptor.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
-            <maxFileSize>2GB</maxFileSize>
-            <MaxHistory>15</MaxHistory>
-            <totalSizeCap>7GB</totalSizeCap>
-            <cleanHistoryOnStart>true</cleanHistoryOnStart>
-        </rollingPolicy>
-        <encoder>
-            <Pattern>%date %level %msg%n</Pattern>
-            <charset>UTF-8</charset>
-        </encoder>
-    </appender>
-
-    <appender name="master-replica"
-       class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/master-replica.log</file>
-        <append>true</append>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/master-replica.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
             <maxFileSize>2GB</maxFileSize>
             <MaxHistory>15</MaxHistory>
             <totalSizeCap>7GB</totalSizeCap>
@@ -99,19 +65,9 @@
         <appender-ref ref="start-log"/>
     </logger>
 
-    <logger name="com.acmedcare.framework.newim.masterReplicaClientLog" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="master-replica-client"/>
-    </logger>
-
     <logger name="com.acmedcare.framework.newim.masterClusterAcceptorLog" additivity="false">
-        <level value="INFO"/>
+        <level value="DEBUG"/>
         <appender-ref ref="master-cluster-acceptor"/>
-    </logger>
-
-    <logger name="com.acmedcare.framework.newim.masterReplicaLog" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="master-replica"/>
     </logger>
 
     <logger name="org.springframework">
@@ -120,6 +76,11 @@
     </logger>
 
     <logger name="io.undertow">
+        <appender-ref ref="CONSOLE"/>
+        <level value="INFO"/>
+    </logger>
+
+    <logger name="com.acmedcare.tiffany.framework.remoting">
         <appender-ref ref="CONSOLE"/>
         <level value="INFO"/>
     </logger>

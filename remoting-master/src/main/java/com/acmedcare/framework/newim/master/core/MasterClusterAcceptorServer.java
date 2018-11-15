@@ -1,6 +1,7 @@
 package com.acmedcare.framework.newim.master.core;
 
 import static com.acmedcare.framework.newim.MasterLogger.masterClusterAcceptorLog;
+import static com.acmedcare.framework.newim.MasterLogger.startLog;
 
 import com.acmedcare.framework.kits.Assert;
 import com.acmedcare.framework.newim.BizResult;
@@ -60,7 +61,6 @@ public class MasterClusterAcceptorServer {
     this.masterConfig = masterConfig;
     this.masterClusterConfig = new NettyServerConfig();
     this.masterClusterConfig.setListenPort(masterConfig.getPort());
-    masterClusterAcceptorLog.info("初始化Master-Replica-Server");
     masterClusterAcceptorServer =
         new NettyRemotingSocketServer(
             masterClusterConfig,
@@ -89,7 +89,7 @@ public class MasterClusterAcceptorServer {
 
               @Override
               public void onChannelIdle(String remoteAddr, Channel channel) {
-                masterClusterAcceptorLog.debug("Master Replica Remoting[{}] is idle", remoteAddr);
+                masterClusterAcceptorLog.debug("cluster Remoting[{}] is idle", remoteAddr);
               }
             });
 
@@ -112,6 +112,9 @@ public class MasterClusterAcceptorServer {
           public RemotingCommand processRequest(
               ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand)
               throws Exception {
+
+            masterClusterAcceptorLog.info("cluster request to register...");
+
             // 注册副本
             RemotingCommand response =
                 RemotingCommand.createResponseCommand(remotingCommand.getCode(), null);
@@ -120,6 +123,8 @@ public class MasterClusterAcceptorServer {
                 (ClusterRegisterHeader)
                     remotingCommand.decodeCommandCustomHeader(ClusterRegisterHeader.class);
             Assert.notNull(header, "cluster register header must not be null");
+
+            masterClusterAcceptorLog.info("cluster remote address:{}", header.getHost());
 
             InstanceNode node =
                 channelHandlerContext.channel().attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).get();
@@ -179,5 +184,7 @@ public class MasterClusterAcceptorServer {
 
     // 启动
     masterClusterAcceptorServer.start();
+    startLog.info(
+        "master cluster acceptor server startup , listen on : {}", masterConfig.getPort());
   }
 }

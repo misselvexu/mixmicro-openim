@@ -12,7 +12,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  * @version ${project.version} - 05/11/2018.
  */
 @SpringBootApplication
-public class MasterServer {
+public class MasterBootstrap {
 
   /** Spring Context Instance of {@link org.springframework.context.ApplicationContext} */
   private static ConfigurableApplicationContext context;
@@ -25,7 +25,7 @@ public class MasterServer {
   public static void main(String[] args) {
     context =
         new SpringApplicationBuilder()
-            .sources(MasterServer.class)
+            .sources(MasterBootstrap.class)
             .web(WebApplicationType.SERVLET)
             .run(args);
   }
