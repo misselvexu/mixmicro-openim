@@ -26,7 +26,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.PostConstruct;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -71,6 +70,10 @@ public class MasterSession {
     private ScheduledExecutorService notifierExecutor;
     private ExecutorService asyncNotifierExecutor;
 
+    public MasterClusterSession() {
+      notifier();
+    }
+
     public void registerClusterInstance(String clusterAddress, Channel channel) {
       RemoteClusterClientInstance original =
           clusterClientInstances.put(
@@ -106,7 +109,6 @@ public class MasterSession {
       }
     }
 
-    @PostConstruct
     public void notifier() {
       notifierExecutor =
           new ScheduledThreadPoolExecutor(
@@ -180,6 +182,18 @@ public class MasterSession {
                     masterClusterAcceptorLog.info("jvm hook , shutdown asyncNotifierExecutor .");
                     ThreadKit.gracefulShutdown(asyncNotifierExecutor, 10, 10, TimeUnit.SECONDS);
                   }));
+    }
+
+    public void shutdownAll() {
+      clusterClientInstances.forEach(
+          (key, value) -> {
+            try {
+              masterClusterAcceptorLog.info(
+                  "shutdown remote client channel:{}", value.getClusterClientChannel());
+              value.getClusterClientChannel().close();
+            } catch (Exception ignore) {
+            }
+          });
     }
   }
 

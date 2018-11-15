@@ -85,6 +85,11 @@
         <level value="INFO"/>
     </logger>
 
+    <logger name="TiffanyQuantumRemoting">
+        <appender-ref ref="CONSOLE"/>
+        <level value="INFO"/>
+    </logger>
+
     <root>
         <level value="INFO"/>
         <appender-ref ref="rootFile"/>

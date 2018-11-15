@@ -24,7 +24,6 @@ public class IMProperties {
   /** IM Server Port, Default: 23111 */
   private int port = 23111;
 
-  /** 通讯节点端口 */
   private int clusterPort = 33111;
 
   /** Master Server Nodes List */

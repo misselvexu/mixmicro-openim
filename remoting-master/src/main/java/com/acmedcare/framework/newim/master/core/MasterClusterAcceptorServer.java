@@ -61,25 +61,26 @@ public class MasterClusterAcceptorServer {
     this.masterConfig = masterConfig;
     this.masterClusterConfig = new NettyServerConfig();
     this.masterClusterConfig.setListenPort(masterConfig.getPort());
+    this.masterClusterConfig.setServerChannelMaxIdleTimeSeconds(60); // idle
     masterClusterAcceptorServer =
         new NettyRemotingSocketServer(
             masterClusterConfig,
             new ChannelEventListener() {
               @Override
               public void onChannelConnect(String remoteAddr, Channel channel) {
-                masterClusterAcceptorLog.debug("cluster Remoting[{}] is connected", remoteAddr);
+                masterClusterAcceptorLog.info("cluster Remoting[{}] is connected", remoteAddr);
               }
 
               @Override
               public void onChannelClose(String remoteAddr, Channel channel) {
-                masterClusterAcceptorLog.debug("cluster Remoting[{}] is closed", remoteAddr);
+                masterClusterAcceptorLog.info("cluster Remoting[{}] is closed", remoteAddr);
                 // 移除本地副本实例
                 masterClusterSession.revokeClusterInstance(remoteAddr);
               }
 
               @Override
               public void onChannelException(String remoteAddr, Channel channel) {
-                masterClusterAcceptorLog.debug(
+                masterClusterAcceptorLog.info(
                     "cluster Remoting[{}] is exception ,closing ..", remoteAddr);
                 try {
                   channel.close();
@@ -89,7 +90,7 @@ public class MasterClusterAcceptorServer {
 
               @Override
               public void onChannelIdle(String remoteAddr, Channel channel) {
-                masterClusterAcceptorLog.debug("cluster Remoting[{}] is idle", remoteAddr);
+                masterClusterAcceptorLog.info("cluster Remoting[{}] is idle", remoteAddr);
               }
             });
 
@@ -186,5 +187,16 @@ public class MasterClusterAcceptorServer {
     masterClusterAcceptorServer.start();
     startLog.info(
         "master cluster acceptor server startup , listen on : {}", masterConfig.getPort());
+
+    Runtime.getRuntime()
+        .addShutdownHook(
+            new Thread(
+                () -> {
+                  masterClusterAcceptorLog.info("jvm hook, shutdown all connected clients");
+                  try {
+                    masterClusterSession.shutdownAll();
+                  } catch (Exception ignore) {
+                  }
+                }));
   }
 }

@@ -6,10 +6,16 @@ import com.acmedcare.framework.kits.thread.ThreadKit;
 import com.acmedcare.framework.newim.InstanceNode;
 import com.acmedcare.framework.newim.InstanceNode.NodeType;
 import com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand;
+import com.acmedcare.framework.newim.protocol.request.ClusterRegisterHeader;
 import com.acmedcare.framework.newim.server.config.IMProperties;
 import com.acmedcare.framework.newim.server.core.IMSession;
 import com.acmedcare.framework.newim.server.processor.MasterNoticeClientChannelsRequestProcessor;
 import com.acmedcare.tiffany.framework.remoting.ChannelEventListener;
+import com.acmedcare.tiffany.framework.remoting.common.RemotingUtil;
+import com.acmedcare.tiffany.framework.remoting.exception.RemotingConnectException;
+import com.acmedcare.tiffany.framework.remoting.exception.RemotingSendRequestException;
+import com.acmedcare.tiffany.framework.remoting.exception.RemotingTimeoutException;
+import com.acmedcare.tiffany.framework.remoting.exception.RemotingTooMuchRequestException;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyClientConfig;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketClient;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
@@ -85,7 +91,12 @@ public class MasterConnector {
             () -> {
               try {
                 if (connectedReplicas.containsKey(node)) {
-                  return;
+                  if (connectedReplicas
+                      .get(node)
+                      .getNettyRemotingSocketClient()
+                      .isChannelWritable(node.getHost())) {
+                    return;
+                  }
                 }
 
                 if (connectionKeeperDelay.containsKey(node)) {
@@ -153,8 +164,13 @@ public class MasterConnector {
   private RemoteMasterConnectorInstance newMasterConnectorInstance(String nodeAddress) {
     InstanceNode node = new InstanceNode(nodeAddress, NodeType.MASTER);
     RemoteMasterConnectorInstance instance = new RemoteMasterConnectorInstance();
+    InstanceNode localNode =
+        new InstanceNode(
+            RemotingUtil.getLocalAddress() + ":" + imProperties.getPort(), NodeType.CLUSTER);
+    instance.setLocalNode(localNode);
     NettyClientConfig config = new NettyClientConfig();
     config.setEnableHeartbeat(true);
+    config.setClientChannelMaxIdleTimeSeconds(40); // idle
 
     NettyRemotingSocketClient client =
         new NettyRemotingSocketClient(
@@ -162,12 +178,15 @@ public class MasterConnector {
             new ChannelEventListener() {
               @Override
               public void onChannelConnect(String remoteAddr, Channel channel) {
-                masterClusterLog.debug("Master Cluster Client[{}] is connected", remoteAddr);
+                masterClusterLog.info("Master Cluster Client[{}] is connected", remoteAddr);
+
+                ClusterRegisterHeader header = new ClusterRegisterHeader();
+                header.setHost(localNode.getHost());
 
                 // send register command
                 RemotingCommand registerRequest =
                     RemotingCommand.createRequestCommand(
-                        MasterClusterCommand.CLUSTER_REGISTER, null);
+                        MasterClusterCommand.CLUSTER_REGISTER, header);
 
                 channel
                     .writeAndFlush(registerRequest)
@@ -185,15 +204,16 @@ public class MasterConnector {
 
               @Override
               public void onChannelClose(String remoteAddr, Channel channel) {
-                masterClusterLog.debug("Master Cluster Client[{}] is closed", remoteAddr);
                 InstanceNode instanceNode = channel.attr(INSTANCE_NODE_ATTRIBUTE_KEY).get();
+                masterClusterLog.info(
+                    "Master Cluster Client[{}] is closed", instanceNode.getHost());
                 connectedReplicas.remove(instanceNode);
                 masterClusterLog.info("Master-Cluster-Client:{} revoked.", instanceNode.getHost());
               }
 
               @Override
               public void onChannelException(String remoteAddr, Channel channel) {
-                masterClusterLog.debug(
+                masterClusterLog.info(
                     "Master Cluster Client[{}] is exception ,closing ..", remoteAddr);
                 try {
                   channel.close();
@@ -203,7 +223,7 @@ public class MasterConnector {
 
               @Override
               public void onChannelIdle(String remoteAddr, Channel channel) {
-                masterClusterLog.debug("Master Cluster Client[{}] is idle", remoteAddr);
+                masterClusterLog.info("Master Cluster Client[{}] is idle", remoteAddr);
               }
             });
 
@@ -244,6 +264,7 @@ public class MasterConnector {
   public static class RemoteMasterConnectorInstance {
 
     private InstanceNode masterNode;
+    private InstanceNode localNode;
     /** 副本配置 */
     private NettyClientConfig nettyClientConfig;
     /** 副本客户端对象 */
@@ -252,6 +273,25 @@ public class MasterConnector {
     public void start() {
       if (nettyRemotingSocketClient != null) {
         nettyRemotingSocketClient.start();
+
+        // send register command
+        RemotingCommand sharkHands =
+            RemotingCommand.createRequestCommand(MasterClusterCommand.CLUSTER_SHAKEHAND, null);
+
+        try {
+          System.out.println("握手请求");
+          nettyRemotingSocketClient.invokeOneway(masterNode.getHost(), sharkHands, 2000);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        } catch (RemotingConnectException e) {
+          e.printStackTrace();
+        } catch (RemotingSendRequestException e) {
+          e.printStackTrace();
+        } catch (RemotingTimeoutException e) {
+          e.printStackTrace();
+        } catch (RemotingTooMuchRequestException e) {
+          e.printStackTrace();
+        }
       }
     }
 

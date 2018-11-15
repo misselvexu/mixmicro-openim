@@ -32,7 +32,7 @@ public final class Command {
 
   /**
    * Master Server And Cluster Node Command
-   * <li>{@link #CLUSTER_HEARTBEAT}
+   * <li>{@link #CLUSTER_SHAKEHAND}
    * <li>{@link #CLUSTER_PUSH_CLIENT_CHANNELS}
    * <li>{@link #CLUSTER_REGISTER}
    * <li>{@link #CLUSTER_SHUTDOWN}
@@ -47,7 +47,7 @@ public final class Command {
     public static final int CLUSTER_SHUTDOWN = 0x20002;
 
     /** CLuster Node Heartbeat With Master Servers */
-    public static final int CLUSTER_HEARTBEAT = 0x20003;
+    public static final int CLUSTER_SHAKEHAND = 0x20003;
 
     /** 通讯节点同步推送本地客户端连接列表 */
     public static final int CLUSTER_PUSH_CLIENT_CHANNELS = 0x20004;
