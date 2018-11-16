@@ -29,6 +29,8 @@ public class MasterConfig implements Serializable, EnvironmentAware {
   /** Master Server <code>port</code> Properties */
   private int port = 13111;
 
+  private String host = "127.0.0.1";
+
   /** Spring Application Context Environment */
   private Environment environment;
 

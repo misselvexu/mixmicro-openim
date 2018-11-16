@@ -2,6 +2,7 @@ package com.acmedcare.framework.newim.master.core;
 
 import static com.acmedcare.framework.newim.MasterLogger.masterClusterAcceptorLog;
 import static com.acmedcare.framework.newim.MasterLogger.startLog;
+import static com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand.CLUSTER_PULL_REPLICAS;
 
 import com.acmedcare.framework.kits.Assert;
 import com.acmedcare.framework.newim.BizResult;
@@ -17,15 +18,18 @@ import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketServer;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRequestProcessor;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyServerConfig;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
+import com.alibaba.fastjson.JSON;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.DefaultThreadFactory;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
+import lombok.Getter;
 
 /**
  * Server Acceptor
@@ -40,7 +44,7 @@ public class MasterClusterAcceptorServer {
 
   private final MasterConfig masterConfig;
   private MasterSession masterSession = new MasterSession();
-  private MasterClusterSession masterClusterSession = new MasterClusterSession();
+  @Getter private MasterClusterSession masterClusterSession = new MasterClusterSession();
   /** 集群MServer配置 */
   private NettyServerConfig masterClusterConfig;
   /** 集群MServer 实例 */
@@ -74,8 +78,9 @@ public class MasterClusterAcceptorServer {
               @Override
               public void onChannelClose(String remoteAddr, Channel channel) {
                 masterClusterAcceptorLog.info("cluster Remoting[{}] is closed", remoteAddr);
+                InstanceNode node = channel.attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).get();
                 // 移除本地副本实例
-                masterClusterSession.revokeClusterInstance(remoteAddr);
+                masterClusterSession.revokeClusterInstance(node.getHost());
               }
 
               @Override
@@ -173,6 +178,29 @@ public class MasterClusterAcceptorServer {
                 "cluster remote:{} instance revoke succeed", node.getHost());
 
             response.setBody(BizResult.SUCCESS.bytes());
+            return response;
+          }
+
+          @Override
+          public boolean rejectRequest() {
+            return false;
+          }
+        },
+        null);
+
+    masterClusterAcceptorServer.registerProcessor(
+        CLUSTER_PULL_REPLICAS,
+        new NettyRequestProcessor() {
+          @Override
+          public RemotingCommand processRequest(
+              ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand)
+              throws Exception {
+            RemotingCommand response =
+                RemotingCommand.createResponseCommand(remotingCommand.getCode(), null);
+
+            Set<String> servers = masterClusterSession.clusterList();
+            response.setBody(JSON.toJSONBytes(servers));
+
             return response;
           }
 

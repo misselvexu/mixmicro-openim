@@ -36,8 +36,8 @@ public class InstanceNode implements Serializable {
     if (!(o instanceof InstanceNode)) {
       return false;
     }
-    InstanceNode that = (InstanceNode) o;
-    return Objects.equals(getHost(), that.getHost()) && getNodeType() == that.getNodeType();
+    InstanceNode node = (InstanceNode) o;
+    return Objects.equals(getHost(), node.getHost()) && getNodeType() == node.getNodeType();
   }
 
   @Override

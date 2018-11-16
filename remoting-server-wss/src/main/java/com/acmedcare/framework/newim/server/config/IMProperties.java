@@ -24,6 +24,8 @@ public class IMProperties {
   /** IM Server Port, Default: 23111 */
   private int port = 23111;
 
+  private String host = "127.0.0.1";
+
   private int clusterPort = 33111;
 
   /** Master Server Nodes List */

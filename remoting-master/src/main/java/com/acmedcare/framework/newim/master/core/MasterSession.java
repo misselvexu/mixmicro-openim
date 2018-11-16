@@ -74,6 +74,10 @@ public class MasterSession {
       notifier();
     }
 
+    public Set<String> clusterList() {
+      return clusterClientInstances.keySet();
+    }
+
     public void registerClusterInstance(String clusterAddress, Channel channel) {
       RemoteClusterClientInstance original =
           clusterClientInstances.put(
@@ -127,6 +131,11 @@ public class MasterSession {
       notifierExecutor.scheduleWithFixedDelay(
           () -> {
             if (clusterClientInstances.size() > 0) {
+
+              if (devicesConnections.size() == 0 && passportsConnections.size() == 0) {
+                return;
+              }
+
               CountDownLatch count = new CountDownLatch(clusterClientInstances.size());
 
               RemotingCommand notifyRequest =
