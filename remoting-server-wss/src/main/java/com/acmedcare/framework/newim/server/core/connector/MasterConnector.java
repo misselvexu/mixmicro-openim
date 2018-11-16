@@ -152,7 +152,7 @@ public class MasterConnector {
 
     private Long heartbeatTimeoutMillis = 5000L; // 心跳请求超时时间
 
-    public void start() {
+    void start() {
       if (nettyRemotingSocketClient != null) {
         nettyRemotingSocketClient.start();
         try {
@@ -171,7 +171,7 @@ public class MasterConnector {
       }
     }
 
-    public void register() throws Exception {
+    void register() throws Exception {
       ClusterRegisterHeader header = new ClusterRegisterHeader();
       header.setHost(localNode.getHost());
 

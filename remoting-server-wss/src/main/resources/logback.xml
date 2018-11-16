@@ -42,6 +42,57 @@
         </encoder>
     </appender>
 
+    <appender name="inner-replica-server"
+       class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/inner-replica-server.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/inner-replica-server.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
+            <maxFileSize>2GB</maxFileSize>
+            <MaxHistory>15</MaxHistory>
+            <totalSizeCap>7GB</totalSizeCap>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+        <encoder>
+            <Pattern>%date %level %msg%n</Pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <appender name="im-server"
+       class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/im-server.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/im-server.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
+            <maxFileSize>2GB</maxFileSize>
+            <MaxHistory>15</MaxHistory>
+            <totalSizeCap>7GB</totalSizeCap>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+        <encoder>
+            <Pattern>%date %level %msg%n</Pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <appender name="cluster-replica-connector"
+       class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/cluster-replica-connector.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/cluster-replica-connector.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
+            <maxFileSize>2GB</maxFileSize>
+            <MaxHistory>15</MaxHistory>
+            <totalSizeCap>7GB</totalSizeCap>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+        <encoder>
+            <Pattern>%date %level %msg%n</Pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
 
     <appender name="rootFile"
        class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -68,6 +119,21 @@
     <logger name="com.acmedcare.framework.newim.masterClusterLog" additivity="false">
         <level value="DEBUG"/>
         <appender-ref ref="master-cluster-connector"/>
+    </logger>
+
+    <logger name="com.acmedcare.framework.newim.clusterReplicaLog" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="cluster-replica-connector"/>
+    </logger>
+
+    <logger name="com.acmedcare.framework.newim.innerReplicaServerLog" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="inner-replica-server"/>
+    </logger>
+
+    <logger name="com.acmedcare.framework.newim.imServerLog" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="im-server"/>
     </logger>
 
     <logger name="org.springframework">

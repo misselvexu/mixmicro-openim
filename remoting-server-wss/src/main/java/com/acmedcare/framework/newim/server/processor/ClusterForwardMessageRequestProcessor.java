@@ -1,5 +1,7 @@
 package com.acmedcare.framework.newim.server.processor;
 
+import static com.acmedcare.framework.newim.server.ClusterLogger.innerReplicaServerLog;
+
 import com.acmedcare.framework.kits.Assert;
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
@@ -12,8 +14,6 @@ import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Cluster Forward Message Request Processor
@@ -22,9 +22,6 @@ import org.slf4j.LoggerFactory;
  * @version ${project.version} - 13/11/2018.
  */
 public class ClusterForwardMessageRequestProcessor extends AbstractClusterRequestProcessor {
-
-  private static final Logger LOG =
-      LoggerFactory.getLogger(ClusterForwardMessageRequestProcessor.class);
 
   private final IMSession imSession;
 
@@ -49,7 +46,7 @@ public class ClusterForwardMessageRequestProcessor extends AbstractClusterReques
       Assert.notNull(header, "转发消息请求对象不能为空");
       MessageType messageType = header.decodeType();
 
-      LOG.info("[CLUSTER-PROCESSOR] 通讯服务器接收到转发消息的请求, 消息类型:{}", messageType);
+      innerReplicaServerLog.info("[CLUSTER-PROCESSOR] 通讯服务器接收到转发消息的请求, 消息类型:{}", messageType);
 
       long start = System.currentTimeMillis();
       switch (messageType) {
@@ -57,24 +54,25 @@ public class ClusterForwardMessageRequestProcessor extends AbstractClusterReques
           SingleMessage singleMessage =
               JSON.parseObject(remotingCommand.getBody(), SingleMessage.class);
           String passportId = singleMessage.getReceiver();
-          this.imSession.sendMessageToPassport(passportId, messageType,singleMessage.bytes());
+          this.imSession.sendMessageToPassport(passportId, messageType, singleMessage.bytes());
 
           break;
         case SINGLE:
           GroupMessage groupMessage =
               JSON.parseObject(remotingCommand.getBody(), GroupMessage.class);
           List<String> passports = groupMessage.getReceivers();
-          this.imSession.sendMessageToPassport(passports, messageType,groupMessage.bytes());
+          this.imSession.sendMessageToPassport(passports, messageType, groupMessage.bytes());
           break;
       }
 
-      LOG.info("[CLUSTER-PROCESSOR] 通讯服务器转发消息完成,耗时:{} ms", (System.currentTimeMillis() - start));
+      innerReplicaServerLog.info(
+          "[CLUSTER-PROCESSOR] 通讯服务器转发消息完成,耗时:{} ms", (System.currentTimeMillis() - start));
 
       // response
       response.setBody(BizResult.builder().code(0).build().bytes());
 
     } catch (Exception e) {
-      LOG.error("[CLUSTER-PROCESSOR] 通讯服务器转发消息处理异常", e);
+      innerReplicaServerLog.error("[CLUSTER-PROCESSOR] 通讯服务器转发消息处理异常", e);
       // exception
       response.setBody(
           BizResult.builder()

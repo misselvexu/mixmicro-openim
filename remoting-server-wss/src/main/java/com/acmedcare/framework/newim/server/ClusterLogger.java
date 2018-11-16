@@ -15,8 +15,14 @@ public class ClusterLogger {
   public static final Logger masterClusterLog =
       LoggerFactory.getLogger("com.acmedcare.framework.newim.masterClusterLog");
 
-  public static final Logger masterReplicaClientLog =
-      LoggerFactory.getLogger("com.acmedcare.framework.newim.clientLog");
+  public static final Logger clusterReplicaLog =
+      LoggerFactory.getLogger("com.acmedcare.framework.newim.clusterReplicaLog");
+
+  public static final Logger imServerLog =
+      LoggerFactory.getLogger("com.acmedcare.framework.newim.imServerLog");
+
+  public static final Logger innerReplicaServerLog =
+      LoggerFactory.getLogger("com.acmedcare.framework.newim.innerReplicaServerLog");
 
   public static final Logger startLog =
       LoggerFactory.getLogger("com.acmedcare.framework.newim.startLog");

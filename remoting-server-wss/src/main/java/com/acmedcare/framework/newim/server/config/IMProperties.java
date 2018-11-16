@@ -27,6 +27,7 @@ public class IMProperties {
   private String host = "127.0.0.1";
 
   private int clusterPort = 33111;
+  private long clusterHeartbeat;
 
   /** Master Server Nodes List */
   private List<String> masterNodes = Lists.newArrayList();
