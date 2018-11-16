@@ -13,6 +13,7 @@
         <module>remoting-master</module>
         <module>remoting-server-1.x</module>
         <module>remoting-server-wss</module>
+        <module>remoting-clients</module>
     </modules>
 
     <packaging>pom</packaging>
