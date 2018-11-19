@@ -69,9 +69,9 @@ public class IMSession {
           new DefaultThreadFactory("new-im-send-async-executor-pool-"),
           new CallerRunsPolicy());
 
-  private final NettyRemotingSocketServer imServer;
+  private NettyRemotingSocketServer imServer;
 
-  public IMSession(NettyRemotingSocketServer imServer) {
+  public void registerNewIMServer(NettyRemotingSocketServer imServer) {
     this.imServer = imServer;
   }
 
@@ -171,7 +171,6 @@ public class IMSession {
    */
   public void sendMessageToPassport(
       List<String> passportIds, MessageType messageType, byte[] message) {
-    // TODO 批量发送
     if (passportIds != null && passportIds.size() > 0) {
       CountDownLatch countDownLatch = new CountDownLatch(passportIds.size());
 

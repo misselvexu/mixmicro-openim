@@ -1,5 +1,11 @@
 package com.acmedcare.framework.newim.protocol;
 
+import java.util.concurrent.TimeUnit;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Command Protocol
  *
@@ -28,6 +34,22 @@ public final class Command {
 
     /** 通讯服务器之间转发客户端的消息 */
     public static final int CLUSTER_FORWARD_MESSAGE = 0x11004;
+  }
+
+  @Getter
+  @Setter
+  @Builder
+  public static class Retriable {
+    @Default private final int maxCounts = 3; // 最大重试次数
+    @Default private boolean fastFail = false; // 快速失败
+    @Default private boolean retry = false; // 是否开启重试
+    @Default private int retryTimes = 0;
+    @Default private long period = 5; // 间隔
+    @Default private TimeUnit timeUnit = TimeUnit.SECONDS;
+
+    public void retry() {
+      retryTimes += 1;
+    }
   }
 
   /**

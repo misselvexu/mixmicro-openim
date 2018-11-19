@@ -21,6 +21,10 @@ public class ClusterLogger {
   public static final Logger imServerLog =
       LoggerFactory.getLogger("com.acmedcare.framework.newim.imServerLog");
 
+  public static final Logger wssServerLog =
+      LoggerFactory.getLogger("com.acmedcare.framework.newim.wssServerLog");
+
+
   public static final Logger innerReplicaServerLog =
       LoggerFactory.getLogger("com.acmedcare.framework.newim.innerReplicaServerLog");
 

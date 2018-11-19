@@ -130,7 +130,7 @@ public class MasterClusterAcceptorServer {
                     remotingCommand.decodeCommandCustomHeader(ClusterRegisterHeader.class);
             Assert.notNull(header, "cluster register header must not be null");
 
-            masterClusterAcceptorLog.info("cluster remote address:{}", header.getHost());
+            masterClusterAcceptorLog.info("cluster remote address:{}", header.getClusterServerHost());
 
             InstanceNode node =
                 channelHandlerContext.channel().attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).get();

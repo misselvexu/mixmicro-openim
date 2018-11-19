@@ -17,4 +17,12 @@
     <name>remoting-biz</name>
     <description>Remote Biz</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.acmedcare.tiffany.framework</groupId>
+            <artifactId>remoting-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
 </project>

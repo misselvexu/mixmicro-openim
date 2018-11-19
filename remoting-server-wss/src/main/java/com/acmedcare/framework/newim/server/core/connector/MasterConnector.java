@@ -46,7 +46,7 @@ public class MasterConnector {
 
   private final IMSession imSession;
   private final IMProperties imProperties;
-  private RemoteMasterConnectorInstance remoteMasterConnectorInstance;
+  @Getter private RemoteMasterConnectorInstance remoteMasterConnectorInstance;
 
   public MasterConnector(IMProperties imProperties, IMSession imSession) {
     this.imProperties = imProperties;
@@ -64,6 +64,7 @@ public class MasterConnector {
 
   public void shutdown() {
     masterClusterLog.info("shutdown master client connections.");
+    remoteMasterConnectorInstance.shutdown();
   }
 
   private RemoteMasterConnectorInstance newMasterConnectorInstance(List<String> nodeAddresses) {
@@ -89,7 +90,7 @@ public class MasterConnector {
                 masterClusterLog.info("Master Cluster Client[{}] is connected", remoteAddr);
 
                 try {
-                  instance.register();
+                  instance.register(imProperties);
                 } catch (Exception e) {
                   masterClusterLog.error("master client register exception", e);
                 }
@@ -171,9 +172,11 @@ public class MasterConnector {
       }
     }
 
-    void register() throws Exception {
+    void register(IMProperties imProperties) throws Exception {
       ClusterRegisterHeader header = new ClusterRegisterHeader();
-      header.setHost(localNode.getHost());
+      header.setClusterServerHost(localNode.getHost());
+      header.setWssHost(imProperties.getHost());
+      header.setWssPort(imProperties.getWssPort());
 
       // send register command
       RemotingCommand registerRequest =

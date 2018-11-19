@@ -25,7 +25,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * New IM Server Bootstrap Class
@@ -45,13 +44,11 @@ public class NewIMServerBootstrap {
   // ======================== Autowired Instance Properties =============================//
 
   // ======================== Local Properties =============================
-
+  private final IMSession imSession;
   private NettyRemotingSocketServer imServer;
   private NettyServerConfig imServerConfig;
-
   private NettyRemotingSocketServer clusterServer;
   private NettyServerConfig clusterServerConfig;
-  private IMSession imSession;
   private ClusterReplicaSession clusterReplicaSession;
   // ======================== Local Properties =============================//
 
@@ -68,14 +65,15 @@ public class NewIMServerBootstrap {
 
   private ScheduledExecutorService channelConnectionChecker;
 
-  @Autowired
   public NewIMServerBootstrap(
       IMProperties imProperties,
       RemotingAuthService remotingAuthService,
-      MessageService messageService) {
+      MessageService messageService,
+      IMSession imSession) {
     this.imProperties = imProperties;
     this.remotingAuthService = remotingAuthService;
     this.messageService = messageService;
+    this.imSession = imSession;
 
     // build imServer config
     this.imServerConfig = new NettyServerConfig();
@@ -188,7 +186,7 @@ public class NewIMServerBootstrap {
               });
     }
 
-    imSession = new IMSession(imServer);
+    imSession.registerNewIMServer(imServer);
 
     // bind processors
     // default processor
