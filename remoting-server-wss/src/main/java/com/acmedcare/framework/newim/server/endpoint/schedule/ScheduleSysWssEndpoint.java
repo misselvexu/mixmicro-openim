@@ -17,11 +17,11 @@ import com.acmedcare.framework.newim.server.service.RemotingAuthService;
 import com.acmedcare.framework.newim.wss.WssPayload.WssResponse;
 import com.acmedcare.tiffany.framework.remoting.common.RemotingHelper;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.timeout.IdleStateEvent;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -109,8 +109,14 @@ public class ScheduleSysWssEndpoint extends WssAdapter {
 
   @OnMessage
   public void onMessage(WssSession session, String message) {
+    if (StringUtils.isAnyBlank(message)) {
+      return;
+    }
     wssServerLog.info("[WSS] Receive remoting client message: {} ", message);
-    JSONObject receivedMessage = JSONObject.parseObject(message);
+
+    ScheduleCommand scheduleCommand = ScheduleCommand.parseCommand(message);
+
+    // TODO PROCESSOR
   }
 
   @OnEvent
