@@ -9,6 +9,7 @@ import com.acmedcare.framework.newim.server.service.MessageService;
 import com.acmedcare.framework.newim.server.service.RemotingAuthService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 /**
  * Cluster Server Auto Startup Configuration
@@ -20,6 +21,7 @@ import org.springframework.context.annotation.Configuration;
 public class ClusterServerAutoBootstrap {
 
   @Bean
+  @Primary
   public IMSession imSession() {
     return new IMSession();
   }
@@ -34,8 +36,9 @@ public class ClusterServerAutoBootstrap {
   }
 
   @Bean
-  public ClusterReplicaConnector clusterReplicaConnector(IMProperties imProperties) {
-    return new ClusterReplicaConnector(imProperties);
+  public ClusterReplicaConnector clusterReplicaConnector(
+      IMProperties imProperties, IMSession imSession) {
+    return new ClusterReplicaConnector(imProperties, imSession);
   }
 
   @Bean

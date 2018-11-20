@@ -88,6 +88,8 @@ public final class Command {
 
   public static class WebSocketClusterCommand {
 
+    public static final int WS_AUTH = 0x30000;
+    public static final int WS_ERROR = -0x3000;
     /** 客户端注册协议 */
     public static final int WS_REGISTER = 0x30001;
 

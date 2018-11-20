@@ -27,7 +27,6 @@ public class WssPayload {
   @Getter
   @Setter
   public static class WssRequest extends WssPayload {
-
     /**
      * Biz Code Request
      *
@@ -40,6 +39,13 @@ public class WssPayload {
   @Setter
   @Builder
   public static class WssResponse<T> extends WssPayload {
+
+    /**
+     * Biz Code Request
+     *
+     * @see com.acmedcare.framework.newim.protocol.Command.WebSocketClusterCommand
+     */
+    private int bizCode;
 
     /**
      * Processor Code
@@ -57,8 +63,16 @@ public class WssPayload {
      */
     private T data;
 
-    public static WssResponse authFailedPayload(String message) {
-      return WssResponse.<String>builder().code(-1).data(message).build();
+    public static WssResponse failResponse(int bizCode, String message) {
+      return WssResponse.<String>builder().bizCode(bizCode).code(-1).data(message).build();
+    }
+
+    public static WssResponse successResponse(int bizCode, java.lang.Object object) {
+      return WssResponse.<java.lang.Object>builder().bizCode(bizCode).code(0).data(object).build();
+    }
+
+    public static WssResponse successResponse(int bizCode) {
+      return WssResponse.<java.lang.Object>builder().bizCode(bizCode).code(0).build();
     }
   }
 }

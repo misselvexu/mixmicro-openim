@@ -4,6 +4,7 @@ import com.acmedcare.framework.aorp.beans.Principal;
 import com.google.common.collect.Maps;
 import java.io.Serializable;
 import java.util.Map;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,6 +16,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@Builder
 public class ScheduleWssClientAccountInstance implements Serializable {
 
   private static final long serialVersionUID = 5656706549940066729L;

@@ -5,8 +5,11 @@ import static com.acmedcare.framework.newim.protocol.Command.WebSocketClusterCom
 import static com.acmedcare.framework.newim.protocol.Command.WebSocketClusterCommand.WS_SHUTDOWN;
 import static com.acmedcare.framework.newim.server.ClusterLogger.wssServerLog;
 
+import com.acmedcare.framework.newim.server.core.IMSession;
 import com.acmedcare.framework.newim.server.endpoint.WssEndpointAutoConfiguration;
-import com.acmedcare.framework.newim.server.endpoint.schedule.processor.HeartbeanProcessor;
+import com.acmedcare.framework.newim.server.endpoint.schedule.processor.HeartbeatProcessor;
+import com.acmedcare.framework.newim.server.endpoint.schedule.processor.PullOnlineSubOrgsRequestProcessor;
+import com.acmedcare.framework.newim.server.endpoint.schedule.processor.PushOrderProcessor;
 import com.acmedcare.framework.newim.server.endpoint.schedule.processor.RegisterProcessor;
 import com.acmedcare.framework.newim.server.endpoint.schedule.processor.ShutdownProcessor;
 import org.springframework.beans.BeansException;
@@ -35,8 +38,8 @@ public class ScheduleWssEndpointAutoConfiguration
 
   @Bean
   @Primary
-  public ScheduleSysContext scheduleSysContext() {
-    return new ScheduleSysContext();
+  public ScheduleSysContext scheduleSysContext(IMSession imSession) {
+    return new ScheduleSysContext(imSession);
   }
 
   /**
@@ -67,7 +70,17 @@ public class ScheduleWssEndpointAutoConfiguration
     // 注销处理器
     endpoint.registerProcessor(WS_SHUTDOWN, new ShutdownProcessor(context), null);
     // 心跳处理器
-    endpoint.registerProcessor(WS_HEARTBEAT, new HeartbeanProcessor(context), null);
+    endpoint.registerProcessor(WS_HEARTBEAT, new HeartbeatProcessor(context), null);
+    // 拉取在线子机构列表
+    endpoint.registerProcessor(
+        ScheduleCommand.PULL_ONLINE_SUB_ORGS.getBizCode(),
+        new PullOnlineSubOrgsRequestProcessor(context),
+        null);
+
+    // 推送订单
+    endpoint.registerProcessor(
+        ScheduleCommand.PUSH_ORDER.getBizCode(), new PushOrderProcessor(context), null);
+
     wssServerLog.info("[WSS] wss message processors register-ed.");
   }
 

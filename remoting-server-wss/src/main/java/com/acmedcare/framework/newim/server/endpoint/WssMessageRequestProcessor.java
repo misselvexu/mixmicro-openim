@@ -1,7 +1,6 @@
 package com.acmedcare.framework.newim.server.endpoint;
 
 import com.acmedcare.framework.boot.web.socket.processor.WssSession;
-import com.acmedcare.framework.newim.wss.WssPayload.WssRequest;
 import com.acmedcare.framework.newim.wss.WssPayload.WssResponse;
 
 /**
@@ -20,5 +19,5 @@ public interface WssMessageRequestProcessor {
    * @return response
    * @throws Exception exception
    */
-  WssResponse processRequest(WssSession session, WssRequest request) throws Exception;
+  WssResponse processRequest(WssSession session, Object request) throws Exception;
 }

@@ -1,5 +1,7 @@
 package com.acmedcare.framework.newim.server.endpoint.schedule;
 
+import static com.acmedcare.framework.newim.protocol.Command.WebSocketClusterCommand.WS_AUTH;
+import static com.acmedcare.framework.newim.protocol.Command.WebSocketClusterCommand.WS_ERROR;
 import static com.acmedcare.framework.newim.server.ClusterLogger.wssServerLog;
 
 import com.acmedcare.framework.aorp.beans.Principal;
@@ -13,8 +15,10 @@ import com.acmedcare.framework.boot.web.socket.processor.WssSession;
 import com.acmedcare.framework.newim.server.core.IMSession;
 import com.acmedcare.framework.newim.server.endpoint.WssAdapter;
 import com.acmedcare.framework.newim.server.endpoint.WssMessageRequestProcessor;
+import com.acmedcare.framework.newim.server.exception.UnauthorizedException;
 import com.acmedcare.framework.newim.server.service.RemotingAuthService;
 import com.acmedcare.framework.newim.wss.WssPayload.WssResponse;
+import com.acmedcare.tiffany.framework.remoting.common.Pair;
 import com.acmedcare.tiffany.framework.remoting.common.RemotingHelper;
 import com.alibaba.fastjson.JSON;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -43,18 +47,6 @@ public class ScheduleSysWssEndpoint extends WssAdapter {
     super(scheduleSysContext, remotingAuthService, imSession);
   }
 
-  /**
-   * Register Processor
-   *
-   * @param bizCode biz code
-   * @param processor processor
-   * @param executorService executor
-   */
-  public void registerProcessor(
-      int bizCode, WssMessageRequestProcessor processor, ExecutorService executorService) {
-    ((ScheduleSysContext) wssSessionContext).registerProcessor(bizCode, processor, executorService);
-  }
-
   @OnOpen
   public void onOpen(WssSession session, HttpHeaders headers) throws IOException {
     wssServerLog.info(
@@ -74,11 +66,11 @@ public class ScheduleSysWssEndpoint extends WssAdapter {
               "[WSS] Remoting client:{} is connected with auth",
               RemotingHelper.parseChannelRemoteAddr(session.channel()));
         } else {
-          session.sendText(WssResponse.authFailedPayload("无效的登录凭证信息").json());
+          session.sendText(WssResponse.failResponse(WS_AUTH, "无效的登录凭证信息").json());
           session.close();
         }
       } else {
-        session.sendText(WssResponse.authFailedPayload("登录票据校验失败,无效凭证").json());
+        session.sendText(WssResponse.failResponse(WS_AUTH, "登录票据校验失败,无效凭证").json());
         session.close();
       }
     } catch (Exception e) {
@@ -87,7 +79,7 @@ public class ScheduleSysWssEndpoint extends WssAdapter {
           RemotingHelper.parseChannelRemoteAddr(session.channel()),
           e);
 
-      session.sendText(WssResponse.authFailedPayload(e.getMessage()).json());
+      session.sendText(WssResponse.failResponse(WS_AUTH, e.getMessage()).json());
       session.close();
     }
   }
@@ -109,31 +101,65 @@ public class ScheduleSysWssEndpoint extends WssAdapter {
 
   @OnMessage
   public void onMessage(WssSession session, String message) {
-    if (StringUtils.isAnyBlank(message)) {
-      return;
+
+    try {
+      wssSessionContext.auth(session);
+
+      if (StringUtils.isAnyBlank(message)) {
+        return;
+      }
+      wssServerLog.info("[WSS] Receive remoting client message: {} ", message);
+
+      ScheduleCommand scheduleCommand = ScheduleCommand.parseCommand(message);
+
+      Pair<WssMessageRequestProcessor, ExecutorService> processor =
+          getProcessor(scheduleCommand.getBizCode());
+      Object object = scheduleCommand.parseRequest(message);
+      wssServerLog.info("[WSS] Receive remoting client request: {} ", JSON.toJSONString(object));
+      processor
+          .getObject2()
+          .execute(
+              () -> {
+                try {
+                  WssResponse wssResponse = processor.getObject1().processRequest(session, object);
+                  wssServerLog.info(
+                      "[WSS] Biz:{} 处理成功,返回值:{}", scheduleCommand.getBizCode(), wssResponse.json());
+                  session.sendText(wssResponse.json());
+                } catch (Exception e) {
+                  session.sendText(WssResponse.failResponse(WS_ERROR, "请求处理失败,重试").json());
+                  wssServerLog.info("[WSS] Biz:{} 处理失败", scheduleCommand.getBizCode(), e);
+                }
+              });
+
+    } catch (UnauthorizedException e) {
+      wssServerLog.error("[WSS] Unauthorized Exception");
+      session.sendText(WssResponse.failResponse(WS_AUTH, "Unauthorized Exception").json());
+    } catch (Exception e) {
+      wssServerLog.error("[WSS] Process remoting message failed", e);
+      session.sendText(WssResponse.failResponse(WS_ERROR, e.getMessage()).json());
     }
-    wssServerLog.info("[WSS] Receive remoting client message: {} ", message);
-
-    ScheduleCommand scheduleCommand = ScheduleCommand.parseCommand(message);
-
-    // TODO PROCESSOR
   }
 
   @OnEvent
-  public void onEvent(WssSession session, Object evt) {
+  public void onEvent(WssSession session, java.lang.Object evt) {
     if (evt instanceof IdleStateEvent) {
       IdleStateEvent idleStateEvent = (IdleStateEvent) evt;
       switch (idleStateEvent.state()) {
         case READER_IDLE:
-          System.out.println("read idle");
+          wssServerLog.info(
+              "[WSS-EVENT] Session:{} is read idle",
+              RemotingHelper.parseChannelRemoteAddr(session.channel()));
           break;
         case WRITER_IDLE:
-          System.out.println("write idle");
+          wssServerLog.info(
+              "[WSS-EVENT] Session:{} is write idle",
+              RemotingHelper.parseChannelRemoteAddr(session.channel()));
           break;
         case ALL_IDLE:
-          System.out.println("all idle");
-          break;
-        default:
+          wssServerLog.info(
+              "[WSS-EVENT] Session:{} is all idle, server will close this remote session",
+              RemotingHelper.parseChannelRemoteAddr(session.channel()));
+          session.close();
           break;
       }
     }

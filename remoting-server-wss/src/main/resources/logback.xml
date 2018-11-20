@@ -42,6 +42,23 @@
         </encoder>
     </appender>
 
+    <appender name="im-convert"
+       class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/im-convert.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/im-convert.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
+            <maxFileSize>2GB</maxFileSize>
+            <MaxHistory>15</MaxHistory>
+            <totalSizeCap>7GB</totalSizeCap>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+        <encoder>
+            <Pattern>%date %level %msg%n</Pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
     <appender name="inner-replica-server"
        class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>logs/inner-replica-server.log</file>
@@ -124,6 +141,11 @@
     <logger name="com.acmedcare.framework.newim.clusterReplicaLog" additivity="false">
         <level value="DEBUG"/>
         <appender-ref ref="cluster-replica-connector"/>
+    </logger>
+
+    <logger name="com.acmedcare.framework.newim.convertLog" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="im-convert"/>
     </logger>
 
     <logger name="com.acmedcare.framework.newim.innerReplicaServerLog" additivity="false">

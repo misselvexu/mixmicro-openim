@@ -10,6 +10,7 @@ import com.acmedcare.framework.newim.protocol.Command.Retriable;
 import com.acmedcare.framework.newim.protocol.RetriableRemotingCommand;
 import com.acmedcare.framework.newim.server.config.IMProperties;
 import com.acmedcare.framework.newim.server.core.ClusterReplicaSession;
+import com.acmedcare.framework.newim.server.core.IMSession;
 import com.acmedcare.framework.newim.server.processor.header.ClusterForwardMessageHeader;
 import com.acmedcare.tiffany.framework.remoting.ChannelEventListener;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyClientConfig;
@@ -38,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 public class ClusterReplicaConnector {
 
   private final IMProperties properties;
+  private final IMSession imSession;
   private final NettyClientConfig nettyClientConfig;
 
   /** Replica Server List */
@@ -62,8 +64,9 @@ public class ClusterReplicaConnector {
   private HashedWheelTimer forwardRetryHashedWheelTimer =
       new HashedWheelTimer(60, TimeUnit.SECONDS);
 
-  public ClusterReplicaConnector(IMProperties properties) {
+  public ClusterReplicaConnector(IMProperties properties, IMSession imSession) {
     this.properties = properties;
+    this.imSession = imSession;
     this.nettyClientConfig = new NettyClientConfig();
     this.nettyClientConfig.setEnableHeartbeat(false);
     this.nettyClientConfig.setClientChannelMaxIdleTimeSeconds(40);
@@ -115,6 +118,8 @@ public class ClusterReplicaConnector {
 
     // startup
     nettyRemotingSocketClient.start();
+
+    imSession.registerClusterReplicasConnector(this);
 
     // startup schedule thread for keep-alive
     keepAliveExecutor.scheduleWithFixedDelay(

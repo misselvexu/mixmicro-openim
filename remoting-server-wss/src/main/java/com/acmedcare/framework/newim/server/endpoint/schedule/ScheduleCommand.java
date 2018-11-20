@@ -1,7 +1,11 @@
 package com.acmedcare.framework.newim.server.endpoint.schedule;
 
+import com.acmedcare.framework.newim.protocol.Command.WebSocketClusterCommand;
+import com.acmedcare.framework.newim.wss.WssPayload.WssRequest;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Schedule Command
@@ -17,16 +21,19 @@ public enum ScheduleCommand {
    *
    * <p>
    */
-  PULL_ONLINE_SUB_ORGS(0x31001, null, null);
+  PULL_ONLINE_SUB_ORGS(0x31001, PullOnlineSubOrgsRequest.class),
+  PUSH_ORDER(0x31002, PushOrderRequest.class),
+
+  WS_REGISTER(WebSocketClusterCommand.WS_REGISTER, RegisterRequest.class),
+  WS_SHUTDOWN(WebSocketClusterCommand.WS_HEARTBEAT, DefaultRequest.class),
+  WS_HEARTBEAT(WebSocketClusterCommand.WS_HEARTBEAT, DefaultRequest.class);
 
   private static final String BIZ_CODE = "bizCode";
   int bizCode;
-  Class<?> headerClass;
   Class<?> requestClass;
 
-  ScheduleCommand(int bizCode, Class<?> headerClass, Class<?> requestClass) {
+  ScheduleCommand(int bizCode, Class<?> requestClass) {
     this.bizCode = bizCode;
-    this.headerClass = headerClass;
     this.requestClass = requestClass;
   }
 
@@ -45,5 +52,45 @@ public enum ScheduleCommand {
       }
     }
     throw new IllegalArgumentException("[WSS] 无效的业务参数编码:" + bizCode);
+  }
+
+  public Object parseRequest(String message) {
+    return (Object) JSON.parseObject(message, getRequestClass());
+  }
+
+  @Getter
+  @Setter
+  public static class PullOnlineSubOrgsRequest extends DefaultRequest {}
+
+  @Getter
+  @Setter
+  public static class RegisterRequest extends DefaultRequest {
+
+    /** 机构名称 */
+    private String orgName;
+    /** 父机构编号 */
+    private String parentOrgId;
+  }
+
+  @Getter
+  @Setter
+  public static class DefaultRequest extends WssRequest {
+
+    /** 通行证编号 */
+    private String passportId;
+
+    private String areaNo;
+
+    private String orgId;
+  }
+
+  @Getter
+  @Setter
+  public static class PushOrderRequest extends DefaultRequest {
+
+    /** 订单详情信息 */
+    private String orderDetail;
+    /** 接受分站标识 */
+    private String subOrgId;
   }
 }

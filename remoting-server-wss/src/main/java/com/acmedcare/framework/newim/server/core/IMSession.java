@@ -1,9 +1,12 @@
 package com.acmedcare.framework.newim.server.core;
 
+import static com.acmedcare.framework.newim.server.ClusterLogger.imServerLog;
+
 import com.acmedcare.framework.kits.thread.DefaultThreadFactory;
 import com.acmedcare.framework.kits.thread.ThreadKit;
 import com.acmedcare.framework.newim.Message.MessageType;
 import com.acmedcare.framework.newim.protocol.Command.ClusterClientCommand;
+import com.acmedcare.framework.newim.server.core.connector.ClusterReplicaConnector;
 import com.acmedcare.framework.newim.server.exception.SessionBindException;
 import com.acmedcare.framework.newim.server.processor.header.ServerPushMessageHeader;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketClient;
@@ -22,8 +25,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.ThreadSafe;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * IM Client Session Context
@@ -34,7 +35,6 @@ import org.slf4j.LoggerFactory;
 @ThreadSafe
 public class IMSession {
 
-  private static final Logger LOG = LoggerFactory.getLogger(IMSession.class);
   /**
    * 设备->远程连接(TCPs)
    *
@@ -70,6 +70,7 @@ public class IMSession {
           new CallerRunsPolicy());
 
   private NettyRemotingSocketServer imServer;
+  private ClusterReplicaConnector clusterReplicaConnector;
 
   public void registerNewIMServer(NettyRemotingSocketServer imServer) {
     this.imServer = imServer;
@@ -94,7 +95,7 @@ public class IMSession {
    */
   public void bindTcpSession(String deviceId, String passportId, Channel channel) {
 
-    LOG.debug("[NEW-IM-SESSION] Bind Session , {} {} {}", deviceId, passportId, channel);
+    imServerLog.debug("[NEW-IM-SESSION] Bind Session , {} {} {}", deviceId, passportId, channel);
     if (devicesTcpChannelContainer.containsKey(deviceId)) {
       // yes
       boolean result = devicesTcpChannelContainer.get(deviceId).add(channel);
@@ -153,10 +154,10 @@ public class IMSession {
                             }
                           });
             } else {
-              LOG.warn("[IM-SESSION-SEND] 客户端:{}链接异常", channel);
+              imServerLog.warn("[IM-SESSION-SEND] 客户端:{}链接异常", channel);
             }
           } catch (Exception e) {
-            LOG.warn("[IM-SESSION-SEND] 发送消息给客户端:" + channel + "失败", e);
+            imServerLog.warn("[IM-SESSION-SEND] 发送消息给客户端:" + channel + "失败", e);
           }
         }
       }
@@ -174,14 +175,14 @@ public class IMSession {
     if (passportIds != null && passportIds.size() > 0) {
       CountDownLatch countDownLatch = new CountDownLatch(passportIds.size());
 
-      LOG.info("[NEW-IM-SEND] 批量提交异步发送任务");
+      imServerLog.info("[NEW-IM-SEND] 批量提交异步发送任务");
       for (String passportId : passportIds) {
         asyncExecutor.execute(
             () -> {
               try {
                 sendMessageToPassport(passportId, messageType, message);
               } catch (Exception e) {
-                LOG.error("[NEW-IM-SEND-TASK] 异步发送消息任务执行异常");
+                imServerLog.error("[NEW-IM-SEND-TASK] 异步发送消息任务执行异常");
               } finally {
                 countDownLatch.countDown();
               }
@@ -191,7 +192,7 @@ public class IMSession {
       try {
         countDownLatch.await();
       } catch (InterruptedException e) {
-        LOG.error("[NEW-IM-SEND] 多线程批量发送消息等待异常", e);
+        imServerLog.error("[NEW-IM-SEND] 多线程批量发送消息等待异常", e);
       }
     }
   }
@@ -212,7 +213,7 @@ public class IMSession {
    * @param receiverPassportId 接收人
    * @return true/false
    */
-  public boolean isPassportLoginLocalServer(String receiverPassportId) {
+  public boolean isPassportimServerLoginLocalServer(String receiverPassportId) {
     return passportsTcpChannelContainer.containsKey(receiverPassportId);
   }
 
@@ -225,5 +226,9 @@ public class IMSession {
   public NettyRemotingSocketClient findClientConnectedClusterConnector(String receiverPassportId) {
     // TODO
     return null;
+  }
+
+  public void registerClusterReplicasConnector(ClusterReplicaConnector clusterReplicaConnector) {
+    this.clusterReplicaConnector = clusterReplicaConnector;
   }
 }

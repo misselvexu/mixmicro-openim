@@ -17,16 +17,16 @@ import com.acmedcare.tiffany.framework.remoting.common.RemotingHelper;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Shutdown Processor
+ * Register Processor
  *
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version ${project.version} - 19/11/2018.
  */
-public class ShutdownProcessor implements WssMessageRequestProcessor {
+public class HeartbeatProcessor implements WssMessageRequestProcessor {
 
   private final ScheduleSysContext context;
 
-  public ShutdownProcessor(ScheduleSysContext context) {
+  public HeartbeatProcessor(ScheduleSysContext context) {
     this.context = context;
   }
 
@@ -52,25 +52,23 @@ public class ShutdownProcessor implements WssMessageRequestProcessor {
           throw new InvalidRequestParamsException("请求参数[orgId,areaNo,passportId]不能为空");
         }
 
-        wssServerLog.info("[WSS] Schedule web client shutdown params: {}", defaultRequest.json());
+        wssServerLog.info("[WSS] Schedule web client heartbeat params: {}", defaultRequest.json());
         Pair<Principal, WssSession> pair =
             context.getLocalSession(Long.parseLong(defaultRequest.getPassportId()));
 
         Assert.notNull(pair, "用户通行证编号不能为空");
 
-        context.revoke(pair.getObject1(), defaultRequest.getAreaNo(), defaultRequest.getOrgId());
-
         wssServerLog.info(
-            "[WSS] Schedule web client:{} shutdown succeed.",
+            "[WSS] Schedule web client:{} heartbeat succeed.",
             RemotingHelper.parseChannelRemoteAddr(session.channel()));
-        return WssResponse.successResponse(defaultRequest.getBizCode());
+        return WssResponse.successResponse();
 
       } else {
         throw new InvalidBizCodeException("无效的请求指令");
       }
     } catch (Exception e) {
-      wssServerLog.error("[WSS] Schedule web client shutdown failed ", e);
-      return WssResponse.failResponse(WebSocketClusterCommand.WS_SHUTDOWN, e.getMessage());
+      wssServerLog.error("[WSS] Schedule web client heartbeat failed ", e);
+      return WssResponse.failResponse(WebSocketClusterCommand.WS_HEARTBEAT, e.getMessage());
     }
   }
 }
