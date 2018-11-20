@@ -61,7 +61,7 @@ public class HeartbeatProcessor implements WssMessageRequestProcessor {
         wssServerLog.info(
             "[WSS] Schedule web client:{} heartbeat succeed.",
             RemotingHelper.parseChannelRemoteAddr(session.channel()));
-        return WssResponse.successResponse();
+        return WssResponse.successResponse(defaultRequest.getBizCode());
 
       } else {
         throw new InvalidBizCodeException("无效的请求指令");

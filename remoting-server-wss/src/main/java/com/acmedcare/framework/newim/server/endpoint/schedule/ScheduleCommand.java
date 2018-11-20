@@ -15,12 +15,7 @@ import lombok.Setter;
  */
 @Getter
 public enum ScheduleCommand {
-
-  /**
-   * 拉取在线子机构列表
-   *
-   * <p>
-   */
+  AUTH(0x30000, AuthRequest.class),
   PULL_ONLINE_SUB_ORGS(0x31001, PullOnlineSubOrgsRequest.class),
   PUSH_ORDER(0x31002, PushOrderRequest.class),
 
@@ -54,13 +49,20 @@ public enum ScheduleCommand {
     throw new IllegalArgumentException("[WSS] 无效的业务参数编码:" + bizCode);
   }
 
-  public Object parseRequest(String message) {
-    return (Object) JSON.parseObject(message, getRequestClass());
+  public WssRequest parseRequest(String message) {
+    return (WssRequest) JSON.parseObject(message, getRequestClass());
   }
 
   @Getter
   @Setter
   public static class PullOnlineSubOrgsRequest extends DefaultRequest {}
+
+  @Getter
+  @Setter
+  public static class AuthRequest extends WssRequest{
+    private String accessToken;
+    private String wssClientType;
+  }
 
   @Getter
   @Setter

@@ -45,7 +45,8 @@ public class MessageService {
     if (message instanceof SingleMessage) {
       // 单聊消息,校验是否接收者是否在本机
       SingleMessage singleMessage = (SingleMessage) message;
-      boolean localServer = imSession.isPassportLoginLocalServer(singleMessage.getReceiver());
+      // TODO
+      boolean localServer = false;
       if (localServer) {
         // 发送
         imSession.sendMessageToPassport(

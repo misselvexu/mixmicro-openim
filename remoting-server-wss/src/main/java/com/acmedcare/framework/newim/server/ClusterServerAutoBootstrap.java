@@ -9,7 +9,8 @@ import com.acmedcare.framework.newim.server.service.MessageService;
 import com.acmedcare.framework.newim.server.service.RemotingAuthService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 /**
  * Cluster Server Auto Startup Configuration
@@ -21,7 +22,7 @@ import org.springframework.context.annotation.Primary;
 public class ClusterServerAutoBootstrap {
 
   @Bean
-  @Primary
+  @Order(Ordered.HIGHEST_PRECEDENCE)
   public IMSession imSession() {
     return new IMSession();
   }

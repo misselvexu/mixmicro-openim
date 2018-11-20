@@ -93,6 +93,23 @@
         </encoder>
     </appender>
 
+    <appender name="wss-server"
+       class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/wss-server.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/wss-server.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
+            <maxFileSize>2GB</maxFileSize>
+            <MaxHistory>15</MaxHistory>
+            <totalSizeCap>7GB</totalSizeCap>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+        <encoder>
+            <Pattern>%date %level %msg%n</Pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
     <appender name="cluster-replica-connector"
        class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>logs/cluster-replica-connector.log</file>
@@ -156,6 +173,11 @@
     <logger name="com.acmedcare.framework.newim.imServerLog" additivity="false">
         <level value="DEBUG"/>
         <appender-ref ref="im-server"/>
+    </logger>
+
+    <logger name="com.acmedcare.framework.newim.wssServerLog" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="wss-server"/>
     </logger>
 
     <logger name="org.springframework">

@@ -3,12 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <!--<script src="../dist/reconnecting-websocket-iife.js" type="text/javascript"></script>-->
-    <script src="../sockjs.js"></script>
+    <script src="../wss.js" type="text/javascript"></script>
     <script>
         window.onload = function() {
-            let sock = new SockJS('ws://127.0.0.1:8888/schedule-sys');
-            //("AccessToken","eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiJmNTMyMGFmYWUwMDk0YmU5YTUxNjAyYmJmZTA3NTM3ZCIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NDAxNzQ5NDg4NzAsImV4cCI6MTU0MDc4NTcyODgzOSwiYXVkIjpudWxsfQ.HNUa9n1kyu_sJrGeQzImazJNvUAYEoAsF5Pj6Wfbpy8oJiPSdrhCY8MAOr7_07rKHji6JmS98MvLTvFwAlWzJfym0VjUENiB5ZuBQp6OkS_Yw3otupoGEQrVhjE7kDnJN_xcgMzp9K2QYYX8J6AZYKyFu9gU7phYfaQPBNHkoW5aC6llMafH3RuVDC-jbIarigO5vpIv22bsfKvrgNXD5MYw6eFt-UrPEcCwnBbxOyIdcvqR-V5GVSUc3KBs5O-qi0xXORq59tAdh1obAVPxodqIJew8nYMUdCdQWAhpVgg4-B-nyTod68519JfQC2ULkb9Wx31xY0K1FP9Cy-I9iQ");
+
+            // Known params
+            let accessToken = 'eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiJkY2I1OGE3MTU4MmI0MDYwYTcyZTAzMGI1ZjE5N2Q4ZCIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NDI3MDM2ODY2NDUsImV4cCI6MTU0MzMxMDY2MDY0NSwiYXVkIjpudWxsfQ.Mm4dLLeKEexAm_v6MdUulGXaAntwdDYgsoh663lolJ89VMm8ZQn_Ejn3rCxKxgJ2AdDnv-rG15LNMxPUWurVm8C6QMO-OYfJsq2jyKg2TafYUKFCsr73BKvc4PMXIt4TRLT1jqdV817_NRGfP-Ksqjb33nHskkP1-uZw5VEF1Fo-hHXSs5lw_ASWs6OpoNIx6U706hNvTauObmueU_yt3LI7KZ5YpmM8azWt7zTEApGGVHBeZ6Pt59PTOp1lXUS1XZ6GyoA2kqx0gb9rFmJKulihmiwwaHqWcFSWyeSNuWAJQh6qQesvA4pybmoeMD93VaUVYVCOyP4-Afa-Gbb97Q';
+            let areaNo = 1;
+            let orgId = 1;
+            let parentOrgId = null; // can be null
+            let passportId = 1;
+
+            var ws = new AcmedcareWss('ws://127.0.0.1:8888/schedule-sys', null, {debug: true, reconnectInterval: 3000});
+
+            // open listener
+            ws.addEventListener('open', function(event) {
+                console.log('1.connected');
+                ws.auth(accessToken,
+                    function(success, message) {
+                        console.log('Auth Callback Result: ' + success);
+                        console.log('Callback Tips : ' + message);
+
+                        if (success) {
+                            ws.registerClient(areaNo, orgId, passportId, parentOrgId, function(data) {
+                                console.log('Register-Callback:' + data);
+                            });
+                        }
+                    });
+            });
+
+            // pull online status
+            ws.pullOnlineSubOrgs(areaNo, orgId, passportId, function(data) {
+                console.log('Online Orgs: ' + data);
+            });
+
+            // receive order detail
+            ws.receiveOrder = function(data) {
+                console.log('Receive Order Info: ' + data);
+            };
+
         };
     </script>
 </head>

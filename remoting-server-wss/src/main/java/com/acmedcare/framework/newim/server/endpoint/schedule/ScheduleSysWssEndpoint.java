@@ -2,6 +2,9 @@ package com.acmedcare.framework.newim.server.endpoint.schedule;
 
 import static com.acmedcare.framework.newim.protocol.Command.WebSocketClusterCommand.WS_AUTH;
 import static com.acmedcare.framework.newim.protocol.Command.WebSocketClusterCommand.WS_ERROR;
+import static com.acmedcare.framework.newim.protocol.Command.WebSocketClusterCommand.WS_HEARTBEAT;
+import static com.acmedcare.framework.newim.protocol.Command.WebSocketClusterCommand.WS_REGISTER;
+import static com.acmedcare.framework.newim.protocol.Command.WebSocketClusterCommand.WS_SHUTDOWN;
 import static com.acmedcare.framework.newim.server.ClusterLogger.wssServerLog;
 
 import com.acmedcare.framework.aorp.beans.Principal;
@@ -12,11 +15,16 @@ import com.acmedcare.framework.boot.web.socket.annotation.OnMessage;
 import com.acmedcare.framework.boot.web.socket.annotation.OnOpen;
 import com.acmedcare.framework.boot.web.socket.annotation.ServerEndpoint;
 import com.acmedcare.framework.boot.web.socket.processor.WssSession;
-import com.acmedcare.framework.newim.server.core.IMSession;
 import com.acmedcare.framework.newim.server.endpoint.WssAdapter;
 import com.acmedcare.framework.newim.server.endpoint.WssMessageRequestProcessor;
+import com.acmedcare.framework.newim.server.endpoint.schedule.ScheduleCommand.AuthRequest;
+import com.acmedcare.framework.newim.server.endpoint.schedule.processor.HeartbeatProcessor;
+import com.acmedcare.framework.newim.server.endpoint.schedule.processor.PullOnlineSubOrgsRequestProcessor;
+import com.acmedcare.framework.newim.server.endpoint.schedule.processor.PushOrderProcessor;
+import com.acmedcare.framework.newim.server.endpoint.schedule.processor.RegisterProcessor;
+import com.acmedcare.framework.newim.server.endpoint.schedule.processor.ShutdownProcessor;
 import com.acmedcare.framework.newim.server.exception.UnauthorizedException;
-import com.acmedcare.framework.newim.server.service.RemotingAuthService;
+import com.acmedcare.framework.newim.wss.WssPayload.WssRequest;
 import com.acmedcare.framework.newim.wss.WssPayload.WssResponse;
 import com.acmedcare.tiffany.framework.remoting.common.Pair;
 import com.acmedcare.tiffany.framework.remoting.common.RemotingHelper;
@@ -26,7 +34,6 @@ import io.netty.handler.timeout.IdleStateEvent;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -39,26 +46,20 @@ import org.springframework.stereotype.Component;
 @ServerEndpoint(prefix = "schedule-sys")
 public class ScheduleSysWssEndpoint extends WssAdapter {
 
-  @Autowired
-  public ScheduleSysWssEndpoint(
-      RemotingAuthService remotingAuthService,
-      IMSession imSession,
-      ScheduleSysContext scheduleSysContext) {
-    super(scheduleSysContext, remotingAuthService, imSession);
-  }
-
   @OnOpen
   public void onOpen(WssSession session, HttpHeaders headers) throws IOException {
     wssServerLog.info(
         "[WSS] Wss Session Create, remoting client :{} ",
         RemotingHelper.parseChannelRemoteAddr(session.channel()));
+  }
+
+  private void doAuth(WssSession session, AuthRequest authRequest) {
     try {
-      boolean validResult = validateAuth(headers);
-      String wssClientType = headers.get(WSS_TYPE);
-      wssServerLog.info("[WSS] Remoting Client Type is :{} ", wssClientType);
+      boolean validResult = validateAuth(authRequest.getAccessToken());
+      wssServerLog.info("[WSS] Remoting Client Type is :{} ", authRequest.getWssClientType());
       if (validResult) {
         wssServerLog.info("[WSS] token is valid,then to get principal detail with token");
-        Principal principal = remotingAuthService.principal(parseWssHeaderToken(headers));
+        Principal principal = remotingAuthService.principal(authRequest.getAccessToken());
         wssServerLog.info("[WSS] principal detail : {}", JSON.toJSONString(principal));
         if (principal != null) {
           wssSessionContext.registerWssClient(principal, session);
@@ -103,18 +104,34 @@ public class ScheduleSysWssEndpoint extends WssAdapter {
   public void onMessage(WssSession session, String message) {
 
     try {
-      wssSessionContext.auth(session);
-
-      if (StringUtils.isAnyBlank(message)) {
-        return;
-      }
-      wssServerLog.info("[WSS] Receive remoting client message: {} ", message);
-
       ScheduleCommand scheduleCommand = ScheduleCommand.parseCommand(message);
+
+      try {
+        wssSessionContext.auth(session);
+      } catch (UnauthorizedException e) {
+        WssRequest request = scheduleCommand.parseRequest(message);
+        if (request instanceof AuthRequest) {
+          AuthRequest authRequest = (AuthRequest) request;
+          if (StringUtils.isAnyBlank(
+              authRequest.getAccessToken(), authRequest.getWssClientType())) {
+            session.sendText(
+                WssResponse.failResponse(WS_AUTH, "授权校验参数[accessToken,wssClientType]不能为空").json());
+            session.close();
+          } else {
+            doAuth(session, authRequest);
+            return;
+          }
+
+        } else {
+          throw e;
+        }
+      }
+
+      wssServerLog.info("[WSS] Receive remoting client message: {} ", message);
 
       Pair<WssMessageRequestProcessor, ExecutorService> processor =
           getProcessor(scheduleCommand.getBizCode());
-      Object object = scheduleCommand.parseRequest(message);
+      WssRequest object = scheduleCommand.parseRequest(message);
       wssServerLog.info("[WSS] Receive remoting client request: {} ", JSON.toJSONString(object));
       processor
           .getObject2()
@@ -163,5 +180,32 @@ public class ScheduleSysWssEndpoint extends WssAdapter {
           break;
       }
     }
+  }
+
+  @Override
+  public void afterPropertiesSet() throws Exception {
+
+    // 注册处理器
+    this.registerProcessor(
+        WS_REGISTER, new RegisterProcessor((ScheduleSysContext) wssSessionContext), null);
+    // 注销处理器
+    this.registerProcessor(
+        WS_SHUTDOWN, new ShutdownProcessor((ScheduleSysContext) wssSessionContext), null);
+    // 心跳处理器
+    this.registerProcessor(
+        WS_HEARTBEAT, new HeartbeatProcessor((ScheduleSysContext) wssSessionContext), null);
+    // 拉取在线子机构列表
+    this.registerProcessor(
+        ScheduleCommand.PULL_ONLINE_SUB_ORGS.getBizCode(),
+        new PullOnlineSubOrgsRequestProcessor((ScheduleSysContext) wssSessionContext),
+        null);
+
+    // 推送订单
+    this.registerProcessor(
+        ScheduleCommand.PUSH_ORDER.getBizCode(),
+        new PushOrderProcessor((ScheduleSysContext) wssSessionContext),
+        null);
+
+    wssServerLog.info("[WSS] wss message processors register-ed.");
   }
 }

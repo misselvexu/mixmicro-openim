@@ -18,6 +18,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * WebSocket & Socket Message Adapter
@@ -25,7 +27,7 @@ import org.springframework.beans.factory.DisposableBean;
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version ${project.version} - 08/11/2018.
  */
-public abstract class WssAdapter implements DisposableBean {
+public abstract class WssAdapter implements InitializingBean, DisposableBean {
 
   /**
    * Wss Client Type
@@ -40,9 +42,9 @@ public abstract class WssAdapter implements DisposableBean {
       Maps.newConcurrentMap();
 
   private static Pair<WssMessageRequestProcessor, ExecutorService> defaultProcessor;
-  protected final WssSessionContext wssSessionContext;
-  protected final RemotingAuthService remotingAuthService;
-  protected final IMSession imSession;
+  @Autowired protected WssSessionContext wssSessionContext;
+  @Autowired protected RemotingAuthService remotingAuthService;
+  @Autowired protected IMSession imSession;
   private ExecutorService publicExecutorService =
       new ThreadPoolExecutor(
           8,
@@ -53,14 +55,8 @@ public abstract class WssAdapter implements DisposableBean {
           new DefaultThreadFactory("wss-schedule-public-executor"),
           new CallerRunsPolicy());
 
-  public WssAdapter(
-      WssSessionContext wssSessionContext,
-      RemotingAuthService remotingAuthService,
-      IMSession imSession) {
-    this.wssSessionContext = wssSessionContext;
-    this.remotingAuthService = remotingAuthService;
-    this.imSession = imSession;
-  }
+  @Override
+  public void afterPropertiesSet() throws Exception {}
 
   public void registerDefaultProcessor(
       WssMessageRequestProcessor processor, ExecutorService executorService) {
@@ -109,12 +105,22 @@ public abstract class WssAdapter implements DisposableBean {
     }
   }
 
+  protected boolean validateAuth(String token) {
+    try {
+      wssServerLog.info("[WSS] Wss Client With Token: {}", token);
+      return remotingAuthService.auth(token);
+    } catch (Exception e) {
+      throw new UnauthorizedException("WebSocket请求授权校验失败");
+    }
+  }
+
   /**
    * Parse Web Socket Header Token
    *
    * @param headers request header instance of {@link HttpHeaders}
    * @return token value
    */
+  @Deprecated
   protected String parseWssHeaderToken(HttpHeaders headers) {
     if (headers != null) {
       if (headers.contains(AuthHeaders.AUTHORIZATION_TOKEN)) {
