@@ -24,7 +24,7 @@ public class InstanceNode implements Serializable {
   private NodeType nodeType;
 
   @Builder
-  public InstanceNode(String host, NodeType nodeType,String name) {
+  public InstanceNode(String host, NodeType nodeType, String name) {
     this.host = host;
     this.nodeType = nodeType;
     this.name = name;

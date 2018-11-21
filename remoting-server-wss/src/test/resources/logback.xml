@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="10 seconds">
 
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <appender class="ch.qos.logback.core.ConsoleAppender" name="CONSOLE">
         <encoder>
             <Pattern>%date %level %msg%n</Pattern>
             <charset>utf8</charset>
         </encoder>
     </appender>
 
-    <appender name="start-log"
-       class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender class="ch.qos.logback.core.rolling.RollingFileAppender"
+       name="start-log">
         <file>logs/start.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
@@ -25,8 +25,8 @@
         </encoder>
     </appender>
 
-    <appender name="master-cluster-connector"
-       class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender class="ch.qos.logback.core.rolling.RollingFileAppender"
+       name="master-cluster-connector">
         <file>logs/master-cluster-connector.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
@@ -43,8 +43,8 @@
     </appender>
 
 
-    <appender name="rootFile"
-       class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender class="ch.qos.logback.core.rolling.RollingFileAppender"
+       name="rootFile">
         <file>logs/cluster.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
@@ -60,12 +60,12 @@
         </encoder>
     </appender>
 
-    <logger name="com.acmedcare.framework.newim.startLog" additivity="false">
+    <logger additivity="false" name="com.acmedcare.framework.newim.startLog">
         <level value="INFO"/>
         <appender-ref ref="start-log"/>
     </logger>
 
-    <logger name="com.acmedcare.framework.newim.masterClusterLog" additivity="false">
+    <logger additivity="false" name="com.acmedcare.framework.newim.masterClusterLog">
         <level value="DEBUG"/>
         <appender-ref ref="master-cluster-connector"/>
     </logger>

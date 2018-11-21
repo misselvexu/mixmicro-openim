@@ -17,5 +17,4 @@ import lombok.Setter;
 public class BaseHeader implements Serializable {
 
   private static final long serialVersionUID = 4276005619857794603L;
-
 }

@@ -1,9 +1,7 @@
 package com.acmedcare.tiffany.framework.remoting.jlib.biz.request;
 
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Group;
-
 import java.util.List;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,6 +1,8 @@
 package com.acmedcare.framework.newim.master.services;
 
+import com.acmedcare.framework.newim.client.MessageAttribute;
 import com.acmedcare.framework.newim.storage.api.MessageRepository;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,5 +22,24 @@ public class MessageServices {
     this.messageRepository = messageRepository;
   }
 
+  public void sendMessage(
+      MessageAttribute attribute, String sender, String receiver, String type, String content) {
 
+    //
+  }
+
+  public void sendMessage(
+      MessageAttribute attribute,
+      String sender,
+      List<String> receiver,
+      String type,
+      String content) {
+
+    //
+  }
+
+  public void sendGroupMessage(
+      MessageAttribute attribute, String sender, String groupId, String type, String content) {
+    //
+  }
 }

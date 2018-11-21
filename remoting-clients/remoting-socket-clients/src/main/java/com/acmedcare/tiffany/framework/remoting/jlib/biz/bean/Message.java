@@ -56,7 +56,7 @@ public class Message implements Serializable {
     /** 指令消息 */
     COMMAND,
 
-    /** 多媒体消息, 图片/视频*/
+    /** 多媒体消息, 图片/视频 */
     MEDIA
   }
 

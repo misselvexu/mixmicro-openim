@@ -299,11 +299,11 @@ public class ClusterReplicaConnector {
       ThreadKit.gracefulShutdown(forwardMessageExecutor, 10, 20, TimeUnit.SECONDS);
     }
 
-    if(nettyRemotingSocketClient != null) {
+    if (nettyRemotingSocketClient != null) {
       nettyRemotingSocketClient.shutdown();
     }
 
-    if(forwardRetryHashedWheelTimer != null) {
+    if (forwardRetryHashedWheelTimer != null) {
       forwardRetryHashedWheelTimer.stop();
     }
   }

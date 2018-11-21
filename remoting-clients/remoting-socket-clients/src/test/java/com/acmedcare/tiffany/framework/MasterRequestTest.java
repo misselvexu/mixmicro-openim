@@ -13,7 +13,7 @@ public class MasterRequestTest {
   public static void main(String[] args) {
     String url = "http://127.0.0.1:13110/master/available-cluster-servers";
     HttpRequest request = HttpRequest.get(url);
-    if(request.ok()){
+    if (request.ok()) {
       String body = request.body("UTF-8");
       System.out.println(body);
     }

@@ -1,7 +1,6 @@
 package com.acmedcare.tiffany.framework.remoting.jlib.biz.bean;
 
 import java.io.Serializable;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

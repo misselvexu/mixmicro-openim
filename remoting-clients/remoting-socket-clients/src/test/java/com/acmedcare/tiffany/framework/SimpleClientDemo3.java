@@ -43,7 +43,6 @@ public class SimpleClientDemo3 {
                 })
             .build();
 
-
     AcmedcareRemoting.getInstance().init(null, temp);
 
     AcmedcareRemoting.getInstance()
@@ -62,32 +61,30 @@ public class SimpleClientDemo3 {
     try {
       AcmedcareRemoting.getInstance().run(1000);
 
-
     } catch (NoServerAddressException e) {
       e.printStackTrace();
     }
 
-
     new Thread(
-        new Runnable() {
-          @Override
-          public void run() {
+            new Runnable() {
+              @Override
+              public void run() {
 
-            for (; ; ) {
-              System.out.println(
-                  "当前服务器地址:" + AcmedcareRemoting.getInstance().getCurrentRemotingAddress());
+                for (; ; ) {
+                  System.out.println(
+                      "当前服务器地址:" + AcmedcareRemoting.getInstance().getCurrentRemotingAddress());
 
-              System.out.println(
-                  "当前登录用户:" + AcmedcareRemoting.getInstance().getCurrentLoginName());
+                  System.out.println(
+                      "当前登录用户:" + AcmedcareRemoting.getInstance().getCurrentLoginName());
 
-              try {
-                Thread.sleep(5000);
-              } catch (InterruptedException e) {
-                e.printStackTrace();
+                  try {
+                    Thread.sleep(5000);
+                  } catch (InterruptedException e) {
+                    e.printStackTrace();
+                  }
+                }
               }
-            }
-          }
-        })
+            })
         .start();
 
     System.out.println("....");

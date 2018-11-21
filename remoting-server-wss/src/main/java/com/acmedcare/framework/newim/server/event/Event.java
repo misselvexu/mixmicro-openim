@@ -13,16 +13,12 @@ public interface Event {
    *
    * <p>
    */
-  enum ClusterEvent implements Event {
-
-  }
+  enum ClusterEvent implements Event {}
 
   /**
    * Master事件
    *
    * <p>
    */
-  enum MasterEvent implements Event {
-
-  }
+  enum MasterEvent implements Event {}
 }

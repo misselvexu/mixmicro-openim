@@ -14,7 +14,6 @@ import com.acmedcare.microservices.im.exception.DataAccessException;
 import com.acmedcare.microservices.im.kits.Charsets;
 import com.acmedcare.microservices.im.storage.IPersistenceExecutor;
 import com.google.common.collect.Lists;
-import java.nio.charset.Charset;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;

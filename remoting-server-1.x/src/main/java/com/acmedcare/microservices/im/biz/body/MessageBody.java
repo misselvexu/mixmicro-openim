@@ -23,7 +23,6 @@ public class MessageBody implements Serializable {
 
   private List<Message> messages;
 
-
   @Builder
   public MessageBody(List<Message> messages) {
     this.messages = messages;

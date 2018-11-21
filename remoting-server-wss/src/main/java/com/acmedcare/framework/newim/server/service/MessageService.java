@@ -53,8 +53,8 @@ public class MessageService {
             singleMessage.getReceiver(), singleMessage.getMessageType(), singleMessage.bytes());
       } else {
         // 推送消息到对应的转发服务器
-        NettyRemotingSocketClient client = imSession.findClientConnectedClusterConnector(singleMessage.getReceiver());
-
+        NettyRemotingSocketClient client =
+            imSession.findClientConnectedClusterConnector(singleMessage.getReceiver());
       }
 
     } else if (message instanceof GroupMessage) {

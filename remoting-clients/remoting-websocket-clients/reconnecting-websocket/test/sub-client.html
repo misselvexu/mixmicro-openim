@@ -1,53 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <script src="../wss.js" type="text/javascript"></script>
-    <script>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <script src="../wss.js" type="text/javascript"></script>
+  <script>
 
-        // Known params
-        let accessToken = 'eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiIyYzg3Y2I4OGZkZGE0Zjg3OGU4YjAzYjE1ZThhY2Y1MSIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlIcXc5TDdUU0gwVmlLTWNXNUp3RVd0ZXc5Rk12SVFZcGZyV1Z3TnFmMnBqMk1NUlVuVzVOaXBBcitzV2UxOWQ0bCtvYkZWdTVkMTdtN0x2VjhsQm9CNzN1SlN6cExUT0lIYzVlNWt4Y01hckFpU2p3blBURjllMGVQZ2hORzR2NzNwTjRuZEh4cm03Zz0iLCJpYXQiOjE1NDI3NjY4MjE5MDcsImV4cCI6MTU0MzM3NDM2MjkwNywiYXVkIjpudWxsfQ.B9ZbM2kGJCs7l9yNui9p6rF-d65M_xr6wiZ5R2EyX72XA78Cz106rInkUYAFU-YWPpKKY0m6ka5ekgwvgY6lARiJldoCtt_oISsr8973sEeotp--CgS4WW_ogerwteH7HrPjy1OncW2bP5kSZNBjsS3ZPSr3gSwnxT_UtCgBBaFaSXY1n88JoYcbxUDefnfavZ--fdonf3p8zrw2N0vuoYI4vfdzGrttcsK-hsTAze_dDFLV1_C_k5W0jlVNNnd8oAI4IsxdUESIneoOtX-UvaEpsrjni9vgmC-_DjnIL8CfGY_LjXO2Yxd-jsguynQMvEMoWpPLNHi1tKM9ocZjVA';
-        let areaNo = 320500;
-        let orgId = 3910249034228735;
-        let parentOrgId = 3910249034228736; // can be null
-        let passportId = 3837142362366977;
+    // Known params
+    let accessToken = 'eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiIyYzg3Y2I4OGZkZGE0Zjg3OGU4YjAzYjE1ZThhY2Y1MSIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlIcXc5TDdUU0gwVmlLTWNXNUp3RVd0ZXc5Rk12SVFZcGZyV1Z3TnFmMnBqMk1NUlVuVzVOaXBBcitzV2UxOWQ0bCtvYkZWdTVkMTdtN0x2VjhsQm9CNzN1SlN6cExUT0lIYzVlNWt4Y01hckFpU2p3blBURjllMGVQZ2hORzR2NzNwTjRuZEh4cm03Zz0iLCJpYXQiOjE1NDI3NjY4MjE5MDcsImV4cCI6MTU0MzM3NDM2MjkwNywiYXVkIjpudWxsfQ.B9ZbM2kGJCs7l9yNui9p6rF-d65M_xr6wiZ5R2EyX72XA78Cz106rInkUYAFU-YWPpKKY0m6ka5ekgwvgY6lARiJldoCtt_oISsr8973sEeotp--CgS4WW_ogerwteH7HrPjy1OncW2bP5kSZNBjsS3ZPSr3gSwnxT_UtCgBBaFaSXY1n88JoYcbxUDefnfavZ--fdonf3p8zrw2N0vuoYI4vfdzGrttcsK-hsTAze_dDFLV1_C_k5W0jlVNNnd8oAI4IsxdUESIneoOtX-UvaEpsrjni9vgmC-_DjnIL8CfGY_LjXO2Yxd-jsguynQMvEMoWpPLNHi1tKM9ocZjVA';
+    let areaNo = 320500;
+    let orgId = 3910249034228735;
+    let parentOrgId = 3910249034228736; // can be null
+    let passportId = 3837142362366977;
 
-        // web socket instance
-        let ws;
+    // web socket instance
+    let ws;
 
-        function connect() {
-            ws = new AcmedcareWss('ws://10.0.0.9:8888/schedule-sys', null, {
-                debug: true,
-                reconnectInterval: 3000,
-                heartbeat: true, // 开启心跳
-                heartbeatInterval: 10000,
+    function connect() {
+      ws = new AcmedcareWss('ws://10.0.0.9:8888/schedule-sys', null, {
+        debug: true,
+        reconnectInterval: 3000,
+        heartbeat: true, // 开启心跳
+        heartbeatInterval: 10000,
+      });
+
+      // open listener
+      ws.addEventListener('open', function (event) {
+        console.log('1.connected');
+        ws.auth(accessToken,
+            function (success, message) {
+              console.log('Auth Callback Result: ' + success);
+              console.log('Callback Tips : ' + message);
+
+              if (success) {
+                ws.registerClient(areaNo, orgId, passportId, parentOrgId, function (success) {
+                  console.log('Register-Callback:' + success);
+                });
+              }
             });
+      });
+    }
 
-            // open listener
-            ws.addEventListener('open', function(event) {
-                console.log('1.connected');
-                ws.auth(accessToken,
-                    function(success, message) {
-                        console.log('Auth Callback Result: ' + success);
-                        console.log('Callback Tips : ' + message);
+    function pullSubOrg() {
+      ws.pullOnlineSubOrgs(function (data) {
+        console.log('Online Orgs: ' + data);
+      });
+    }
 
-                        if (success) {
-                            ws.registerClient(areaNo, orgId, passportId, parentOrgId, function(success) {
-                                console.log('Register-Callback:' + success);
-                            });
-                        }
-                    });
-            });
-        }
-
-        function pullSubOrg() {
-            ws.pullOnlineSubOrgs(function(data) {
-                console.log('Online Orgs: ' + data);
-            });
-        }
-
-    </script>
+  </script>
 </head>
 <body>
 

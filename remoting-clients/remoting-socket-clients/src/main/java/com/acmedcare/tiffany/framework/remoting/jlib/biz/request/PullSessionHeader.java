@@ -29,7 +29,5 @@ public class PullSessionHeader implements CommandCustomHeader {
   }
 
   @Override
-  public void checkFields() throws RemotingCommandException {
-
-  }
+  public void checkFields() throws RemotingCommandException {}
 }

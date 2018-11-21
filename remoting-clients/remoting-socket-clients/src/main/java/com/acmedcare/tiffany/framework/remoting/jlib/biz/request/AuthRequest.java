@@ -25,7 +25,12 @@ public class AuthRequest {
 
   @Builder
   public AuthRequest(
-      String username, Long passportId, String areaNo, String orgId, String accessToken,String deviceId) {
+      String username,
+      Long passportId,
+      String areaNo,
+      String orgId,
+      String accessToken,
+      String deviceId) {
     this.username = username;
     this.passportId = passportId;
     this.areaNo = areaNo;

@@ -65,7 +65,7 @@ public interface IPersistenceExecutor {
    * @param groupName
    * @param members
    */
-  void newGroup(String groupId,String groupName, String owner, Set<String> members);
+  void newGroup(String groupId, String groupName, String owner, Set<String> members);
 
   void addGroupMember(String groupId, Set<String> members) throws DataAccessException;
 
@@ -81,11 +81,13 @@ public interface IPersistenceExecutor {
    * @param flagId
    * @return
    */
-  Session queryAccountSessionStatus(String username, int type, String flagId) throws DataAccessException;
+  Session queryAccountSessionStatus(String username, int type, String flagId)
+      throws DataAccessException;
 
   void saveOrUpdateSingleSessionRecord(String sender, String receiver, Long messageId);
 
   void saveOrUpdateGroupSessionRecord(String group, Long mid, List<Account> groupReceivers);
 
-  void batchUpdateMessageNotify(List<MessageNotify> singleNotifies, List<MessageNotify> groupNotifies);
+  void batchUpdateMessageNotify(
+      List<MessageNotify> singleNotifies, List<MessageNotify> groupNotifies);
 }

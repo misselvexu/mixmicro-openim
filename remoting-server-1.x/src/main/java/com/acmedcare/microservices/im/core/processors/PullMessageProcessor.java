@@ -60,7 +60,7 @@ public class PullMessageProcessor implements NettyRequestProcessor {
       response.setBody(
           BizResult.builder()
               .code(0)
-//              .data(MessageBody.builder().messages(list).build())
+              //              .data(MessageBody.builder().messages(list).build())
               .data(list)
               .build()
               .bytes());

@@ -18,7 +18,5 @@ public class AuthHeader implements CommandCustomHeader {
   private String username;
 
   @Override
-  public void checkFields() throws RemotingCommandException {
-
-  }
+  public void checkFields() throws RemotingCommandException {}
 }

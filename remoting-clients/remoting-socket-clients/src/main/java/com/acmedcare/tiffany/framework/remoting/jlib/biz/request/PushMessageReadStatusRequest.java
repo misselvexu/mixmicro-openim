@@ -40,6 +40,6 @@ public class PushMessageReadStatusRequest extends BaseRequest {
   public interface Callback {
     void onSuccess();
 
-    void onFailed(int code ,String message);
+    void onFailed(int code, String message);
   }
 }

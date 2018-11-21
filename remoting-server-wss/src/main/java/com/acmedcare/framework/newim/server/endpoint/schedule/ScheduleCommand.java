@@ -59,7 +59,7 @@ public enum ScheduleCommand {
 
   @Getter
   @Setter
-  public static class AuthRequest extends WssRequest{
+  public static class AuthRequest extends WssRequest {
     private String accessToken;
     private String wssClientType;
   }

@@ -1,10 +1,7 @@
 package com.acmedcare.tiffany.framework.remoting.jlib.biz.request;
 
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.BizResult;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message;
-
 import java.util.List;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -57,6 +54,6 @@ public class PullMessageRequest {
 
     void onSuccess(List<Message> messages);
 
-    void onFailed(int code ,String message);
+    void onFailed(int code, String message);
   }
 }

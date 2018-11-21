@@ -23,7 +23,6 @@ import java.util.List;
  */
 public class ChangeAccountTester {
 
-
   static void login(String username) {
 
     RemotingParameters temp =
@@ -86,7 +85,7 @@ public class ChangeAccountTester {
                 if (data instanceof SingleMessage) {
                   SingleMessage singleMessage = (SingleMessage) data;
                   try {
-                    System.out.println(new String(singleMessage.getBody(),"UTF-8"));
+                    System.out.println(new String(singleMessage.getBody(), "UTF-8"));
                   } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                   }
