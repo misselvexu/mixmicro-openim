@@ -58,7 +58,7 @@ public final class Command {
    * <li>{@link #CLUSTER_PUSH_CLIENT_CHANNELS}
    * <li>{@link #CLUSTER_REGISTER}
    * <li>{@link #CLUSTER_SHUTDOWN}
-   * <li>{@link #MASTER_PUSH_SYSTEM_MESSAGES}
+   * <li>{@link #MASTER_PUSH_MESSAGES}
    */
   public static class MasterClusterCommand {
 
@@ -75,7 +75,7 @@ public final class Command {
     public static final int CLUSTER_PUSH_CLIENT_CHANNELS = 0x20004;
 
     /** Master服务器推送系统消息 */
-    public static final int MASTER_PUSH_SYSTEM_MESSAGES = 0x20005;
+    public static final int MASTER_PUSH_MESSAGES = 0x20005;
     /**
      * WebSocket Client And Cluster Command
      * <li>

@@ -5,12 +5,13 @@ import static com.acmedcare.framework.newim.MasterLogger.masterClusterAcceptorLo
 import com.acmedcare.framework.kits.thread.DefaultThreadFactory;
 import com.acmedcare.framework.kits.thread.ThreadKit;
 import com.acmedcare.framework.newim.InstanceNode;
+import com.acmedcare.framework.newim.Message;
+import com.acmedcare.framework.newim.client.MessageAttribute;
 import com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand;
 import com.acmedcare.framework.newim.protocol.request.ClusterPushSessionDataBody;
 import com.acmedcare.framework.newim.protocol.request.ClusterRegisterBody.WssInstance;
 import com.acmedcare.framework.newim.protocol.request.MasterNoticeSessionDataBody;
-import com.acmedcare.tiffany.framework.remoting.netty.NettyClientConfig;
-import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketClient;
+import com.acmedcare.framework.newim.protocol.request.MasterPushMessageHeader;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
@@ -75,9 +76,35 @@ public class MasterSession {
 
     private ScheduledExecutorService notifierExecutor;
     private ExecutorService asyncNotifierExecutor;
+    private ExecutorService distributeMessageExecutor;
 
     public MasterClusterSession() {
       notifier();
+
+      // init distributeMessageExecutor
+      distributeMessageExecutor =
+          new ThreadPoolExecutor(
+              4,
+              16,
+              5000,
+              TimeUnit.MILLISECONDS,
+              new LinkedBlockingQueue<>(64),
+              new DefaultThreadFactory("master-message-distribute-thread-pool"),
+              new CallerRunsPolicy());
+
+      // add shutdown hook
+      Runtime.getRuntime()
+          .addShutdownHook(
+              new Thread(
+                  () -> {
+                    masterClusterAcceptorLog.info("jvm hook , shutdown notifierExecutor .");
+                    ThreadKit.gracefulShutdown(notifierExecutor, 10, 10, TimeUnit.SECONDS);
+                    masterClusterAcceptorLog.info("jvm hook , shutdown asyncNotifierExecutor .");
+                    ThreadKit.gracefulShutdown(asyncNotifierExecutor, 10, 10, TimeUnit.SECONDS);
+                    masterClusterAcceptorLog.info(
+                        "jvm hook , shutdown distributeMessageExecutor .");
+                    ThreadKit.gracefulShutdown(distributeMessageExecutor, 10, 10, TimeUnit.SECONDS);
+                  }));
     }
 
     public Set<String> clusterList() {
@@ -137,6 +164,64 @@ public class MasterSession {
         passportsConnections.put(node, Sets.newHashSet(data.getPassportIds()));
         devicesConnections.put(node, Sets.newHashSet(data.getDeviceIds()));
       }
+    }
+
+    /**
+     * 分发消息
+     *
+     * @param attribute 消息属性
+     * @param message 消息
+     */
+    public void distributeMessage(MessageAttribute attribute, Message message) {
+      // MASTER_PUSH_MESSAGES
+      masterClusterAcceptorLog.info("master distribute message to servers.");
+      clusterClientInstances.forEach(
+          (address, instance) -> {
+            masterClusterAcceptorLog.info("master distribute message to server:{}", address);
+            Channel channel = instance.getClusterClientChannel();
+            distributeMessageExecutor.execute(
+                () -> {
+                  try {
+                    MasterPushMessageHeader header = new MasterPushMessageHeader();
+                    // build header
+                    header.setInnerType(message.getInnerType().name());
+                    header.setMaxRetryTimes(attribute.getMaxRetryTimes());
+                    header.setMessageType(message.getMessageType().name());
+                    header.setPersistent(attribute.isPersistent());
+                    header.setQos(attribute.isQos());
+                    header.setRetryPeriod(attribute.getRetryPeriod());
+
+                    RemotingCommand distributeRequest =
+                        RemotingCommand.createRequestCommand(
+                            MasterClusterCommand.MASTER_PUSH_MESSAGES, header);
+                    distributeRequest.setBody(message.bytes());
+
+
+                    if (channel != null && channel.isWritable()) {
+                      channel
+                          .writeAndFlush(distributeRequest)
+                          .addListener(
+                              (ChannelFutureListener)
+                                  future -> {
+                                    if (future.isSuccess()) {
+                                      // success
+                                      masterClusterAcceptorLog.info(
+                                          "master distribute message to server:{} succeed.",
+                                          address);
+                                    } else {
+                                      // TODO send failed
+                                    }
+                                  });
+                    } else {
+                      // TODO no available
+                    }
+                  } catch (Exception e) {
+                    masterClusterAcceptorLog.error(
+                        "master distribute message to server:{} exception", address, e);
+                    // TODO exception
+                  }
+                });
+          });
     }
 
     public void notifier() {
@@ -206,17 +291,6 @@ public class MasterSession {
           10,
           10,
           TimeUnit.SECONDS);
-
-      // add shutdown hook
-      Runtime.getRuntime()
-          .addShutdownHook(
-              new Thread(
-                  () -> {
-                    masterClusterAcceptorLog.info("jvm hook , shutdown notifierExecutor .");
-                    ThreadKit.gracefulShutdown(notifierExecutor, 10, 10, TimeUnit.SECONDS);
-                    masterClusterAcceptorLog.info("jvm hook , shutdown asyncNotifierExecutor .");
-                    ThreadKit.gracefulShutdown(asyncNotifierExecutor, 10, 10, TimeUnit.SECONDS);
-                  }));
     }
 
     public void shutdownAll() {
@@ -229,46 +303,6 @@ public class MasterSession {
             } catch (Exception ignore) {
             }
           });
-    }
-  }
-
-  /**
-   * Master副本远程实例
-   *
-   * <p>
-   */
-  @Getter
-  @Setter
-  @Builder
-  public static class RemoteReplicaInstance {
-    private Channel masterRemoteReplicaChannel;
-  }
-
-  /**
-   * 远程副本链接客户端
-   *
-   * <p>
-   */
-  @Getter
-  @Setter
-  public static class RemoteReplicaConnectorInstance {
-
-    private InstanceNode connectorNode;
-    /** 副本配置 */
-    private NettyClientConfig nettyClientConfig;
-    /** 副本客户端对象 */
-    private NettyRemotingSocketClient nettyRemotingSocketClient;
-
-    public void start() {
-      if (nettyRemotingSocketClient != null) {
-        nettyRemotingSocketClient.start();
-      }
-    }
-
-    public void shutdown() {
-      if (nettyRemotingSocketClient != null) {
-        nettyRemotingSocketClient.shutdown();
-      }
     }
   }
 

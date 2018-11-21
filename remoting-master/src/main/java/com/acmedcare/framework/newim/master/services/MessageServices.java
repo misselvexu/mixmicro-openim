@@ -1,6 +1,8 @@
 package com.acmedcare.framework.newim.master.services;
 
+import com.acmedcare.framework.newim.Message.SingleMessage;
 import com.acmedcare.framework.newim.client.MessageAttribute;
+import com.acmedcare.framework.newim.master.core.MasterClusterAcceptorServer;
 import com.acmedcare.framework.newim.storage.api.MessageRepository;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,15 +19,25 @@ public class MessageServices {
 
   private final MessageRepository messageRepository;
 
+  /** Server Instance of {@link MasterClusterAcceptorServer} */
+  private final MasterClusterAcceptorServer server;
+
   @Autowired
-  public MessageServices(MessageRepository messageRepository) {
+  public MessageServices(MessageRepository messageRepository, MasterClusterAcceptorServer server) {
     this.messageRepository = messageRepository;
+    this.server = server;
   }
 
   public void sendMessage(
       MessageAttribute attribute, String sender, String receiver, String type, String content) {
 
-    //
+    // 1. save
+    SingleMessage singleMessage = null;
+
+    // 2. build
+
+    // 3. distribute
+
   }
 
   public void sendMessage(

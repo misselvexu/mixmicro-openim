@@ -9,7 +9,13 @@ package com.acmedcare.framework.newim.storage.mongo;
 public enum IMStorageCollections {
 
   /** Message Storage Collection */
-  MESSAGE("im_message");
+  MESSAGE("im_message"),
+
+  GROUP("im_group"),
+
+  REF_GROUP_MEMBER("im_refs_group_member"),
+
+  ;
 
   String collectionName;
 

@@ -12,12 +12,12 @@ import org.springframework.context.annotation.Configuration;
  * @version ${project.version} - 15/11/2018.
  */
 @Configuration
-public class MasterServerAutoBootstrap {
+public class MasterAutoBootstrap {
 
   private final MasterConfig masterConfig;
 
   @Autowired
-  public MasterServerAutoBootstrap(MasterConfig masterConfig) {
+  public MasterAutoBootstrap(MasterConfig masterConfig) {
     this.masterConfig = masterConfig;
   }
 

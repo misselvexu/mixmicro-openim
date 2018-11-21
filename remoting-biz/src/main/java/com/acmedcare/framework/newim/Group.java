@@ -1,6 +1,7 @@
 package com.acmedcare.framework.newim;
 
 import java.io.Serializable;
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,12 +20,31 @@ public class Group implements Serializable {
 
   private static final long serialVersionUID = -7613061811845762121L;
 
-  private String name;
-  private String code;
+  private String groupId;
+  private String groupOwner;
+  private String groupName;
 
   @Builder
-  public Group(String name, String code) {
-    this.name = name;
-    this.code = code;
+  public Group(String groupId, String groupOwner, String groupName) {
+    this.groupId = groupId;
+    this.groupOwner = groupOwner;
+    this.groupName = groupName;
+  }
+
+  @Getter
+  @Setter
+  @NoArgsConstructor
+  public static class GroupMembers implements Serializable {
+
+    private static final long serialVersionUID = 1474652111556171928L;
+
+    private String groupId;
+    private List<String> memberIds;
+
+    @Builder
+    public GroupMembers(String groupId, List<String> memberIds) {
+      this.groupId = groupId;
+      this.memberIds = memberIds;
+    }
   }
 }

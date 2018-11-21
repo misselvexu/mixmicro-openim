@@ -11,6 +11,7 @@ import com.acmedcare.framework.newim.protocol.request.ClusterRegisterHeader;
 import com.acmedcare.framework.newim.server.config.IMProperties;
 import com.acmedcare.framework.newim.server.core.IMSession;
 import com.acmedcare.framework.newim.server.processor.MasterNoticeClientChannelsRequestProcessor;
+import com.acmedcare.framework.newim.server.processor.MasterPushMessageRequestProcessor;
 import com.acmedcare.tiffany.framework.remoting.ChannelEventListener;
 import com.acmedcare.tiffany.framework.remoting.exception.RemotingConnectException;
 import com.acmedcare.tiffany.framework.remoting.exception.RemotingSendRequestException;
@@ -123,6 +124,11 @@ public class MasterConnector {
     client.registerProcessor(
         MasterClusterCommand.MASTER_NOTICE_CLIENT_CHANNELS,
         new MasterNoticeClientChannelsRequestProcessor(imSession),
+        null);
+
+    client.registerProcessor(
+        MasterClusterCommand.MASTER_PUSH_MESSAGES,
+        new MasterPushMessageRequestProcessor(imSession),
         null);
 
     // set

@@ -7,7 +7,6 @@ import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -31,13 +30,13 @@ public class Message implements Serializable {
   private Long mid;
 
   /** message innerType */
-  @Default private InnerType innerType = InnerType.NORMAL;
+  private InnerType innerType = InnerType.NORMAL;
 
   /** message sender */
   private String sender;
 
   /** 接收人类型 */
-  @Default private MessageType messageType = MessageType.GROUP;
+  private MessageType messageType = MessageType.GROUP;
 
   /** Message body */
   private byte[] body;
