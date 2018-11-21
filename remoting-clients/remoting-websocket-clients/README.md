@@ -4,15 +4,18 @@
 ### 如何使用
 
 - 引入脚本
+
 ```javascript
+
 <script src="wss.js" type="text/javascript"></script>
 ```
 
 
 - 初始化使用
-```javascript
-<script>
 
+```javascript
+
+<script>
     // 当前接入WebServer 的系统名称[固定]
     let wssName = 'schedule-sys';
 
@@ -93,7 +96,6 @@
         ws.pushOrder(document.getElementById('pushOrderInput').value, subOrgId);
     }
 </script>
-
 
 ```
 
