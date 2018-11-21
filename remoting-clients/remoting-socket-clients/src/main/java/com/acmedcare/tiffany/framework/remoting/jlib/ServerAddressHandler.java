@@ -26,6 +26,7 @@ public interface ServerAddressHandler {
   @AllArgsConstructor
   public static class RemotingAddress {
 
+    private boolean https = false;
     /** address host * */
     private String host;
 

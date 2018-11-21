@@ -10,28 +10,16 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>remoting-socket-client</artifactId>
+    <artifactId>remoting-endpoint-client</artifactId>
     <version>2.1.0-RC1</version>
     <packaging>jar</packaging>
 
-    <name>remoting-socket-client</name>
+    <name>remoting-endpoint-client</name>
 
     <dependencies>
         <dependency>
-            <groupId>com.acmedcare.tiffany.framework</groupId>
-            <artifactId>remoting-android-jarlib-nio</artifactId>
-            <version>Oceania.SR1</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.acmedcare.framework.kits</groupId>
-            <artifactId>emoji-convert-kit</artifactId>
-            <version>Antarctica.RC1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.acmedcare.framework.kits</groupId>
-            <artifactId>jre-http-client-kit</artifactId>
+            <artifactId>http-client-kit</artifactId>
             <version>Antarctica.RC1</version>
         </dependency>
 
@@ -43,13 +31,6 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.android</groupId>
-            <artifactId>android</artifactId>
-            <version>4.1.1.4</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 

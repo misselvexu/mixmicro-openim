@@ -10,17 +10,14 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>remoting-clients-parent</artifactId>
+    <artifactId>remoting-api</artifactId>
     <version>2.1.0-RC1</version>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
-    <name>remoting-clients-parent</name>
+    <name>remoting-api</name>
+    <description>Remote Api</description>
 
-    <modules>
-        <module>remoting-websocket-clients</module>
-        <module>remoting-socket-clients</module>
-        <module>remoting-endpoint-client</module>
-    </modules>
-
+    <dependencies>
+    </dependencies>
 
 </project>

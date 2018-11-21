@@ -8,6 +8,7 @@
     <artifactId>remoting-newim</artifactId>
     <version>2.1.0-RC1</version>
     <modules>
+        <module>remoting-api</module>
         <module>remoting-biz</module>
         <module>remoting-storage</module>
         <module>remoting-master</module>

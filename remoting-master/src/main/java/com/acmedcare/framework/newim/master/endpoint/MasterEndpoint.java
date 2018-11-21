@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @version ${project.version} - 16/11/2018.
  */
 @RestController
+@RequestMapping("/master")
 public class MasterEndpoint {
 
   private final MasterClusterAcceptorServer masterClusterAcceptorServer;
@@ -28,7 +30,7 @@ public class MasterEndpoint {
     this.masterClusterAcceptorServer = masterClusterAcceptorServer;
   }
 
-  @GetMapping("/master/available-cluster-servers")
+  @GetMapping("/available-cluster-servers")
   ResponseEntity availableClusterServerList() {
     try {
       Set<String> servers =
@@ -39,7 +41,7 @@ public class MasterEndpoint {
     }
   }
 
-  @GetMapping("/master/available-wss-servers")
+  @GetMapping("/available-wss-servers")
   ResponseEntity availableWssServerList(@RequestParam String wssName) {
     try {
 

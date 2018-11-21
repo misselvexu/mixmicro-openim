@@ -20,11 +20,14 @@ public class AuthHeader implements CommandCustomHeader {
   @CFNotNull private String passport;
   @CFNotNull private String passportId;
   @CFNotNull private String accessToken;
+  // common base field
   @CFNotNull private String deviceId;
+  @CFNotNull private String areaNo;
+  @CFNotNull private String orgId;
 
   @Override
   public void checkFields() throws RemotingCommandException {
-    if (StringUtils.isAnyBlank(passport, passportId, accessToken, deviceId)) {
+    if (StringUtils.isAnyBlank(passport, passportId, accessToken, deviceId, areaNo, orgId)) {
       throw new RemotingCommandException("授权用户名,登录授权凭证,设备唯一编号不能为空");
     }
   }

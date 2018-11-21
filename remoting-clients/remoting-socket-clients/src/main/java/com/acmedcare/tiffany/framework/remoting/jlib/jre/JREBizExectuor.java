@@ -60,6 +60,11 @@ public class JREBizExectuor extends BizExecutor {
 
     AuthHeader authHeader = new AuthHeader();
     authHeader.setUsername(request.getUsername());
+    authHeader.setAccessToken(request.getAccessToken());
+    authHeader.setAreaNo(request.getAreaNo());
+    authHeader.setDeviceId(request.getDeviceId());
+    authHeader.setOrgId(request.getOrgId());
+    authHeader.setPassportId(request.getPassportId());
 
     AcmedcareLogger.i(this.getClass().getSimpleName(), "授权请求头:" + JSON.toJSONString(authCallback));
     RemotingCommand command = RemotingCommand.createRequestCommand(BizCode.CLIENT_AUTH, authHeader);

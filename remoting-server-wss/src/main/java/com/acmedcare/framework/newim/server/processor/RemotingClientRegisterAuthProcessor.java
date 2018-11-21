@@ -27,11 +27,6 @@ public class RemotingClientRegisterAuthProcessor extends AbstractNormalRequestPr
   private IMSession imSession;
   private RemotingAuthService remotingAuthService;
 
-  public RemotingClientRegisterAuthProcessor(IMSession imSession, IMSession imSession1) {
-    super(imSession);
-    this.imSession = imSession1;
-  }
-
   public RemotingClientRegisterAuthProcessor(
       IMSession imSession, RemotingAuthService remotingAuthService) {
     super(imSession);

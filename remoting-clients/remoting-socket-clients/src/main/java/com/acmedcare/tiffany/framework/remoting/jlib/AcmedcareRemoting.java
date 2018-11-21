@@ -1,6 +1,7 @@
 package com.acmedcare.tiffany.framework.remoting.jlib;
 
 import android.content.Context;
+import com.acmedcare.framework.kits.jre.http.HttpRequest;
 import com.acmedcare.tiffany.framework.remoting.android.HandlerMessageListener;
 import com.acmedcare.tiffany.framework.remoting.android.core.IoSessionEventListener;
 import com.acmedcare.tiffany.framework.remoting.android.core.protocol.RemotingCommand;
@@ -19,6 +20,9 @@ import com.acmedcare.tiffany.framework.remoting.jlib.events.BasicListenerHandler
 import com.acmedcare.tiffany.framework.remoting.jlib.exception.NoServerAddressException;
 import com.acmedcare.tiffany.framework.remoting.jlib.jre.JREBizExectuor;
 import com.acmedcare.tiffany.framework.remoting.jlib.processor.ServerPushMessageProcessor;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.AsyncEventBus;
 import java.io.Serializable;
@@ -206,19 +210,46 @@ public final class AcmedcareRemoting implements Serializable {
     reConnectRetryTimes = AcmedcareRemoting.parameters.getReConnectRetryTimes();
 
     // address list
-    List<ServerAddressHandler.RemotingAddress> _addresses =
+    List<ServerAddressHandler.RemotingAddress> masterAddresses =
         AcmedcareRemoting.parameters.getServerAddressHandler().remotingAddressList();
 
-    AcmedcareRemoting.addresses.clear();
-
-    if (_addresses != null && _addresses.size() > 0) {
-      for (ServerAddressHandler.RemotingAddress address : _addresses) {
-        AcmedcareRemoting.addresses.add(address.toString());
+    if (masterAddresses != null && masterAddresses.size() > 0) {
+      List<String> clusterServers = Lists.newArrayList();
+      for (ServerAddressHandler.RemotingAddress address : masterAddresses) {
+        try {
+          String url =
+              (address.isHttps() ? "https://" : "http://")
+                  + address.toString()
+                  + "/master/available-cluster-servers";
+          AcmedcareLogger.i(TAG, "获取可用服务器请求地址: " + url);
+          HttpRequest request = HttpRequest.get(url);
+          if (request.ok()) {
+            String body = request.body("UTF-8");
+            AcmedcareLogger.i(TAG, "获取可用服务器请求返回值: " + body);
+            if (!Strings.isNullOrEmpty(body)) {
+              List<String> temp = JSON.parseObject(body, new TypeReference<List<String>>() {});
+              if (temp != null && temp.size() > 0) {
+                clusterServers.addAll(temp);
+                break;
+              }
+            }
+          }
+        } catch (Exception e) {
+          AcmedcareLogger.i(TAG, "从主服务器:" + address.toString() + "获取可用通讯服务器地址失败");
+        }
       }
+
+      AcmedcareLogger.i(TAG, " 可用通讯服务器地址:" + JSON.toJSONString(clusterServers));
+      if (clusterServers.isEmpty()) {
+        AcmedcareLogger.w(TAG, "无可用的通讯服务器");
+        throw new NoServerAddressException();
+      }
+
+      AcmedcareRemoting.addresses.clear();
+      AcmedcareRemoting.addresses.addAll(clusterServers);
 
       Random indexRandom = new Random();
       int index = indexRandom.nextInt(AcmedcareRemoting.addresses.size());
-
       this.currentRemotingAddress = AcmedcareRemoting.addresses.get(index);
 
       // assert address must not be null

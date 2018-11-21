@@ -17,4 +17,7 @@ public class MasterLogger {
 
   public static final Logger startLog =
       LoggerFactory.getLogger("com.acmedcare.framework.newim.startLog");
+
+  public static final Logger endpointLog =
+      LoggerFactory.getLogger("com.acmedcare.framework.newim.endpointLog");
 }
