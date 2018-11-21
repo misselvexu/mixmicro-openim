@@ -6,7 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * Default Charset Kit
  *
- * @author Elve.Xu [iskp.me<at>gmail.com]
+ * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version v1.0 - 21/08/2018.
  */
 public final class Charsets {

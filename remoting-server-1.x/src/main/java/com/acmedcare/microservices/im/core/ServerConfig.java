@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 /**
  * Remoting Server Config
  *
- * @author Elve.Xu [iskp.me<at>gmail.com]
+ * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version v1.0 - 06/07/2018.
  */
 @Component

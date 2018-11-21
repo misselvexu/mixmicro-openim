@@ -11,7 +11,7 @@ import lombok.Setter;
 /**
  * Server Push Message Header
  *
- * @author Elve.Xu [iskp.me<at>gmail.com]
+ * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version v1.0 - 11/08/2018.
  */
 @Getter

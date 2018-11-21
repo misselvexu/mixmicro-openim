@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Pull Session List
  *
- * @author Elve.Xu [iskp.me<at>gmail.com]
+ * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version v1.0 - 09/08/2018.
  */
 public class PullSessionProcessor implements NettyRequestProcessor {

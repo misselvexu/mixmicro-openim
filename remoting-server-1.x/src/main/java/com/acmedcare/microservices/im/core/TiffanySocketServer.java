@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Main Server
  *
- * @author Elve.Xu [iskp.me<at>gmail.com]
+ * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version v1.0 - 02/07/2018.
  */
 @SuppressWarnings("ALL")

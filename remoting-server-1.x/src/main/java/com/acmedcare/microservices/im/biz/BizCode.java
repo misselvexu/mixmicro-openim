@@ -3,7 +3,7 @@ package com.acmedcare.microservices.im.biz;
 /**
  * Biz Code Defined
  *
- * @author Elve.Xu [iskp.me<at>gmail.com]
+ * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version v1.0 - 02/07/2018.
  */
 public class BizCode {
