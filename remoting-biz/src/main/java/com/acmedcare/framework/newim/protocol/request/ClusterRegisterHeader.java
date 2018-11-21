@@ -19,8 +19,6 @@ import lombok.Setter;
 public class ClusterRegisterHeader implements CommandCustomHeader {
 
   @CFNotNull private String clusterServerHost;
-  @CFNotNull private String wssHost;
-  @CFNotNull private int wssPort;
 
   public InstanceNode instance() {
     return InstanceNode.builder().host(clusterServerHost).nodeType(NodeType.CLUSTER).build();

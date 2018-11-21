@@ -38,6 +38,12 @@
 
             /** The binary type, possible values 'blob' or 'arraybuffer', default 'blob'. */
             binaryType: 'blob',
+
+            /** heartbeat flag */
+            heartbeat: false,
+
+            /** heartbeat period */
+            heartbeatInterval: 30000,
         };
         if (!options) {
             options = {};
@@ -80,6 +86,33 @@
         var ws;
         var forcedClose = false;
         var timedOut = false;
+        var defaultRequest = {};
+        var heartbeatRunning = false;
+        var heartbeatTimer;
+
+        this.clearDefaultRequest = function() {
+            console.log('info: clear request cache.');
+            defaultRequest = {};
+        };
+
+        this.getDefaultRequest = function() {
+            return defaultRequest;
+        };
+
+        this.newHeartbeat = function() {
+            heartbeatRunning = true;
+            heartbeatTimer = setInterval(function() {
+                let request = {};
+                request.bizCode = 0x30003;
+                request.orgId = defaultRequest.orgId;
+                request.parentOrgId = defaultRequest.parentOrgId;
+                request.areaNo = defaultRequest.areaNo;
+                request.passportId = defaultRequest.passportId;
+                ws.send(JSON.stringify(request));
+                console.log('info: heartbeat.');
+            }, self.heartbeatInterval);
+        };
+
         var eventTarget = document.createElement('div');
 
         // Wire up "on*" properties as event handlers
@@ -88,6 +121,12 @@
             self.onopen(event);
         });
         eventTarget.addEventListener('close', function(event) {
+            // TODO shutdown heartbeat
+            if (self.heartbeat) {
+                console.log('info: shutdown heartbeat.');
+                clearInterval(heartbeatTimer);
+                heartbeatRunning = false;
+            }
             self.onclose(event);
         });
         eventTarget.addEventListener('connecting', function(event) {
@@ -121,7 +160,7 @@
             var evt = document.createEvent('CustomEvent');
             evt.initCustomEvent(s, false, false, args);
             return evt;
-        };
+        }
 
         this.open = function(reconnectAttempt) {
             ws = new WebSocket(self.url, protocols || []);
@@ -235,6 +274,29 @@
             }
         };
 
+        // Access Token Auth
+        this.pushOrder = function(orderDetail, subOrgId) {
+            if (ws) {
+                if (self.debug || AcmedcareWss.debugAll) {
+                    console.debug('AcmedcareWss', 'send', self.url, orderDetail, subOrgId);
+                }
+
+                // build auth message
+                let request = {};
+                request.bizCode = 0x31002;
+                request.orgId = this.getDefaultRequest().orgId;
+                request.parentOrgId = this.getDefaultRequest().parentOrgId;
+                request.areaNo = this.getDefaultRequest().areaNo;
+                request.passportId = this.getDefaultRequest().passportId;
+                request.orderDetail = orderDetail;
+                request.subOrgId = subOrgId;
+
+                return ws.send(JSON.stringify(request));
+            } else {
+                throw 'INVALID_STATE_ERR : Pausing to reconnect websocket';
+            }
+        };
+
         this.registerClient = function(areaNo, orgId, passportId, parentOrgId, callback) {
             if (ws) {
                 if (self.debug || AcmedcareWss.debugAll) {
@@ -245,6 +307,7 @@
                     AcmedcareWss.prototype.registerClientCallback = callback;
                 }
 
+                console.log('begin register client.');
                 // build auth message
                 let request = {};
                 request.bizCode = 0x30001;
@@ -253,6 +316,8 @@
                 request.areaNo = areaNo;
                 request.passportId = passportId;
 
+                // save
+                defaultRequest = request;
                 return ws.send(JSON.stringify(request));
             } else {
                 throw 'INVALID_STATE_ERR : Pausing to reconnect websocket';
@@ -303,7 +368,7 @@
          */
         this.close = function(code, reason) {
             // Default CLOSE_NORMAL code
-            if (typeof code == 'undefined') {
+            if (typeof code === 'undefined') {
                 code = 1000;
             }
             forcedClose = true;
@@ -338,6 +403,12 @@
     /** An event listener to be called when a message is received from the server. */
     AcmedcareWss.prototype.onmessage = function(event) {
         let result = JSON.parse(event.data);
+        console.log('Rev: ' + event.data);
+
+        if (result.bizCode === 0x30003) {
+            // heartbeat response
+            console.log('heartbeat response.');
+        }
 
         // auth response
         if (result.bizCode === 0x30000) {
@@ -346,7 +417,15 @@
 
         // register response message
         if (result.bizCode === 0x30001) {
-            this.registerClientCallback(result.data);
+            if (result.code !== 0) {
+                // clear request
+                this.clearDefaultRequest();
+                this.registerClientCallback(false);
+            } else {
+                // startup heartbeat
+                this.newHeartbeat();
+                this.registerClientCallback(true);
+            }
         }
 
         // pull online sub orgs response

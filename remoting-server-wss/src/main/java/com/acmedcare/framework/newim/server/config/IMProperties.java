@@ -1,7 +1,8 @@
 package com.acmedcare.framework.newim.server.config;
 
-import static com.acmedcare.framework.newim.server.config.WssConstants.WSS_PORT_KEY_DEFAULT_VALUE;
+import static com.acmedcare.framework.newim.server.config.WssConstants.WSS_PORT_KEY;
 
+import com.acmedcare.framework.newim.protocol.request.ClusterRegisterBody.WssInstance;
 import com.google.common.collect.Lists;
 import java.util.List;
 import lombok.Getter;
@@ -70,12 +71,18 @@ public class IMProperties implements EnvironmentAware {
     return null;
   }
 
-  /**
-   * Get WebSocket Defined Port
-   *
-   * @return port
-   */
-  public int getWssPort() {
-    return getProperties(WssConstants.WSS_PORT_KEY, Integer.class, WSS_PORT_KEY_DEFAULT_VALUE);
+  public List<WssInstance> loadWssEndpoints() {
+    List<WssInstance> instances = Lists.newArrayList();
+
+    String[] endpoints = getProperties(WssConstants.WSS_ENDPOINTS, String.class, "").split(",");
+    for (String endpoint : endpoints) {
+      WssInstance wssInstance = new WssInstance();
+      wssInstance.setWssName(endpoint);
+      wssInstance.setWssHost(this.host);
+      wssInstance.setWssPort(
+          getProperties(String.format(WSS_PORT_KEY, endpoint), Integer.class, 8888));
+      instances.add(wssInstance);
+    }
+    return instances;
   }
 }

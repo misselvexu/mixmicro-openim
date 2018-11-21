@@ -38,7 +38,8 @@ public class ClusterPushClientChannelsRequestProcessor implements NettyRequestPr
     InstanceNode node =
         new InstanceNode(
             RemotingUtil.socketAddress2String(channelHandlerContext.channel().remoteAddress()),
-            NodeType.CLUSTER);
+            NodeType.CLUSTER,
+            null);
 
     masterClusterAcceptorLog.info("收到Cluster:{},上报数据请求", node.getHost());
 

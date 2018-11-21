@@ -19,13 +19,15 @@ import lombok.Setter;
 public class InstanceNode implements Serializable {
 
   private static final long serialVersionUID = -4560765383064351784L;
+  private String name;
   private String host;
   private NodeType nodeType;
 
   @Builder
-  public InstanceNode(String host, NodeType nodeType) {
+  public InstanceNode(String host, NodeType nodeType,String name) {
     this.host = host;
     this.nodeType = nodeType;
+    this.name = name;
   }
 
   @Override

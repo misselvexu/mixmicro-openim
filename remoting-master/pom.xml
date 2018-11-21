@@ -77,6 +77,12 @@
             <version>Antarctica.RC1</version>
         </dependency>
 
+        <dependency>
+            <artifactId>spring-boot-starter-cors</artifactId>
+            <groupId>com.acmedcare.framework</groupId>
+            <version>2.1.0-RC1</version>
+        </dependency>
+
     </dependencies>
 
     <build>

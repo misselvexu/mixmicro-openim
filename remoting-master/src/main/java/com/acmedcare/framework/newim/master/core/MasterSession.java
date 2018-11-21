@@ -7,15 +7,18 @@ import com.acmedcare.framework.kits.thread.ThreadKit;
 import com.acmedcare.framework.newim.InstanceNode;
 import com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand;
 import com.acmedcare.framework.newim.protocol.request.ClusterPushSessionDataBody;
+import com.acmedcare.framework.newim.protocol.request.ClusterRegisterBody.WssInstance;
 import com.acmedcare.framework.newim.protocol.request.MasterNoticeSessionDataBody;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyClientConfig;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketClient;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -67,6 +70,9 @@ public class MasterSession {
     private static Map<String, RemoteClusterClientInstance> clusterClientInstances =
         Maps.newConcurrentMap();
 
+    private static Map<String, Map<String, WssInstance>> clusterWssServerInstance =
+        Maps.newConcurrentMap();
+
     private ScheduledExecutorService notifierExecutor;
     private ExecutorService asyncNotifierExecutor;
 
@@ -78,11 +84,29 @@ public class MasterSession {
       return clusterClientInstances.keySet();
     }
 
-    public void registerClusterInstance(String clusterAddress, Channel channel) {
+    public List<WssInstance> wssList() {
+      List<WssInstance> result = Lists.newArrayList();
+      for (Map<String, WssInstance> map : clusterWssServerInstance.values()) {
+        result.addAll(map.values());
+      }
+      return result;
+    }
+
+    public void registerClusterInstance(
+        String clusterAddress, List<WssInstance> wssNodes, Channel channel) {
       RemoteClusterClientInstance original =
           clusterClientInstances.put(
               clusterAddress,
               RemoteClusterClientInstance.builder().clusterClientChannel(channel).build());
+
+      // process wss
+      Map<String, WssInstance> temp = Maps.newHashMap();
+      for (WssInstance wssNode : wssNodes) {
+        temp.put(wssNode.getWssName(), wssNode);
+      }
+
+      clusterWssServerInstance.put(clusterAddress, temp);
+
       if (original != null) {
         masterClusterAcceptorLog.info(
             "Cluster:{} registered, Auto-release original old instance", clusterAddress);
@@ -104,6 +128,8 @@ public class MasterSession {
         } catch (Exception ignore) {
         }
       }
+
+      clusterWssServerInstance.remove(clusterAddress);
     }
 
     public void merge(InstanceNode node, ClusterPushSessionDataBody data) {

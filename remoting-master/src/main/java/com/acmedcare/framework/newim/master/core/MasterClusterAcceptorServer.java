@@ -12,6 +12,7 @@ import com.acmedcare.framework.newim.master.core.MasterSession.MasterClusterSess
 import com.acmedcare.framework.newim.master.processor.ClusterPushClientChannelsRequestProcessor;
 import com.acmedcare.framework.newim.master.processor.DefaultMasterProcessor;
 import com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand;
+import com.acmedcare.framework.newim.protocol.request.ClusterRegisterBody.WssInstance;
 import com.acmedcare.framework.newim.protocol.request.ClusterRegisterHeader;
 import com.acmedcare.tiffany.framework.remoting.ChannelEventListener;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketServer;
@@ -19,10 +20,12 @@ import com.acmedcare.tiffany.framework.remoting.netty.NettyRequestProcessor;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyServerConfig;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.DefaultThreadFactory;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -130,7 +133,8 @@ public class MasterClusterAcceptorServer {
                     remotingCommand.decodeCommandCustomHeader(ClusterRegisterHeader.class);
             Assert.notNull(header, "cluster register header must not be null");
 
-            masterClusterAcceptorLog.info("cluster remote address:{}", header.getClusterServerHost());
+            masterClusterAcceptorLog.info(
+                "cluster remote address:{}", header.getClusterServerHost());
 
             InstanceNode node =
                 channelHandlerContext.channel().attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).get();
@@ -138,9 +142,14 @@ public class MasterClusterAcceptorServer {
 
             node = header.instance();
 
+            String bodyContent = new String(remotingCommand.getBody(), "UTF-8");
+            // wss instance body
+            List<WssInstance> instances =
+                JSON.parseObject(bodyContent, new TypeReference<List<WssInstance>>() {});
+
             // register new remote client
             masterClusterSession.registerClusterInstance(
-                node.getHost(), channelHandlerContext.channel());
+                node.getHost(), instances, channelHandlerContext.channel());
 
             channelHandlerContext.channel().attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).set(node);
 

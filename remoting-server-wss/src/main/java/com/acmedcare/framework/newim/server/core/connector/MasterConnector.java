@@ -70,12 +70,13 @@ public class MasterConnector {
   private RemoteMasterConnectorInstance newMasterConnectorInstance(List<String> nodeAddresses) {
     List<InstanceNode> nodes = Lists.newArrayList();
     for (String address : nodeAddresses) {
-      nodes.add(new InstanceNode(address, NodeType.MASTER));
+      nodes.add(new InstanceNode(address, NodeType.MASTER, null));
     }
 
     RemoteMasterConnectorInstance instance = new RemoteMasterConnectorInstance();
     InstanceNode localNode =
-        new InstanceNode(imProperties.getHost() + ":" + imProperties.getPort(), NodeType.CLUSTER);
+        new InstanceNode(
+            imProperties.getHost() + ":" + imProperties.getPort(), NodeType.CLUSTER, null);
     instance.setLocalNode(localNode);
     NettyClientConfig config = new NettyClientConfig();
     config.setEnableHeartbeat(false);
@@ -175,12 +176,12 @@ public class MasterConnector {
     void register(IMProperties imProperties) throws Exception {
       ClusterRegisterHeader header = new ClusterRegisterHeader();
       header.setClusterServerHost(localNode.getHost());
-      header.setWssHost(imProperties.getHost());
-      header.setWssPort(imProperties.getWssPort());
 
       // send register command
       RemotingCommand registerRequest =
           RemotingCommand.createRequestCommand(MasterClusterCommand.CLUSTER_REGISTER, header);
+
+      registerRequest.setBody(JSON.toJSONBytes(imProperties.loadWssEndpoints()));
 
       for (InstanceNode masterNode : masterNodes) {
         nettyRemotingSocketClient.invokeAsync(

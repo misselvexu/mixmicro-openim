@@ -8,12 +8,16 @@ package com.acmedcare.framework.newim.server.config;
  */
 public interface WssConstants {
 
+  String WSS_ENDPOINTS = "wss.endpoints";
+
   /**
    * WebSocket Config Port Key
    *
    * <p>
    */
-  String WSS_PORT_KEY = "schedule-sys.port";
+  String WSS_PORT_KEY = "%s.port";
+
+  String WSS_HOST_KEY = "%s.host";
 
   /**
    * Default Port For WebSocket

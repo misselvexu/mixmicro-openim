@@ -66,6 +66,7 @@ public class ScheduleSysWssEndpoint extends WssAdapter {
           wssServerLog.info(
               "[WSS] Remoting client:{} is connected with auth",
               RemotingHelper.parseChannelRemoteAddr(session.channel()));
+          session.sendText(WssResponse.successResponse(authRequest.getBizCode()).json());
         } else {
           session.sendText(WssResponse.failResponse(WS_AUTH, "无效的登录凭证信息").json());
           session.close();
