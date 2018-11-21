@@ -1,5 +1,5 @@
 ## Remoting WebSocket Client
-
+支持自动重连,负载均衡WebSocket SDK
 
 ### 如何使用
 
