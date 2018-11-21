@@ -10,7 +10,7 @@
 
 
 - 初始化使用
-```javascript 1.6
+```javascript
 <script>
 
     // 当前接入WebServer 的系统名称[固定]
