@@ -26,7 +26,6 @@ public class MessageRepositoryImplTest {
   public void testSaveMessage() throws Exception {
 
     SingleMessage singleMessage = new SingleMessage();
-
     singleMessage.setSender("test-sender");
     singleMessage.setBody("content".getBytes());
     singleMessage.setReceiver("test-receiver");

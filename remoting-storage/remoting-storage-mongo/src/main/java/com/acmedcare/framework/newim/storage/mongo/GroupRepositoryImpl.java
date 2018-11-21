@@ -6,6 +6,8 @@ import static com.acmedcare.framework.newim.storage.mongo.IMStorageCollections.R
 import com.acmedcare.framework.newim.Group;
 import com.acmedcare.framework.newim.Group.GroupMembers;
 import com.acmedcare.framework.newim.storage.api.GroupRepository;
+import com.mongodb.MongoClient;
+import com.mongodb.client.ClientSession;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Builder;
@@ -28,12 +30,16 @@ import org.springframework.stereotype.Repository;
 public class GroupRepositoryImpl implements GroupRepository {
   private final MongoTemplate mongoTemplate;
   private final MongoTransactionManager mongoTransactionManager;
+  private final MongoClient mongoClient;
 
   @Autowired
   public GroupRepositoryImpl(
-      MongoTemplate mongoTemplate, MongoTransactionManager mongoTransactionManager) {
+      MongoTemplate mongoTemplate,
+      MongoTransactionManager mongoTransactionManager,
+      MongoClient mongoClient) {
     this.mongoTemplate = mongoTemplate;
     this.mongoTransactionManager = mongoTransactionManager;
+    this.mongoClient = mongoClient;
   }
 
   @Override
@@ -62,19 +68,27 @@ public class GroupRepositoryImpl implements GroupRepository {
                   .in(members.getMemberIds()));
 
       // TODO transaction
-      mongoTemplate.findAllAndRemove(query, REF_GROUP_MEMBER.collectionName());
-      List<GroupMemberRef> refs = new ArrayList<>();
-      members
-          .getMemberIds()
-          .forEach(
-              memberId ->
-                  refs.add(
-                      GroupMemberRef.builder()
-                          .groupId(members.getGroupId())
-                          .memberId(memberId)
-                          .build()));
+      ClientSession clientSession = mongoClient.startSession();
+      clientSession.startTransaction();
+      try {
+        mongoTemplate.findAllAndRemove(query, REF_GROUP_MEMBER.collectionName());
+        List<GroupMemberRef> refs = new ArrayList<>();
+        members
+            .getMemberIds()
+            .forEach(
+                memberId ->
+                    refs.add(
+                        GroupMemberRef.builder()
+                            .groupId(members.getGroupId())
+                            .memberId(memberId)
+                            .build()));
 
-      mongoTemplate.insert(refs, REF_GROUP_MEMBER.collectionName());
+        mongoTemplate.insert(refs, REF_GROUP_MEMBER.collectionName());
+        //
+        clientSession.commitTransaction();
+      } catch (Exception e) {
+        clientSession.abortTransaction();
+      }
     }
   }
 
