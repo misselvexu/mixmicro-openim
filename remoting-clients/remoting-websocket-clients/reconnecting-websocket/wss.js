@@ -324,23 +324,23 @@
             }
         };
 
-        this.pullOnlineSubOrgs = function(areaNo, orgId, passportId, callback) {
+        this.pullOnlineSubOrgs = function( callback) {
             if (ws) {
                 if (self.debug || AcmedcareWss.debugAll) {
-                    console.debug('AcmedcareWss', 'send', self.url, areaNo, orgId, passportId);
+                    console.debug('AcmedcareWss', 'send', self.url);
                 }
 
                 if (typeof callback !== 'undefined') {
                     AcmedcareWss.prototype.pullOnlineSubOrgsCallback = callback;
                 }
                 // build auth message
-                let pullRequest = {};
-                pullRequest.bizCode = 0x31001;
-                pullRequest.orgId = orgId;
-                pullRequest.areaNo = areaNo;
-                pullRequest.passportId = passportId;
+                let request = {};
+                request.bizCode = 0x31001;
+                request.orgId = this.getDefaultRequest().orgId;
+                request.areaNo = this.getDefaultRequest().areaNo;
+                request.passportId = this.getDefaultRequest().passportId;
 
-                return ws.send(JSON.stringify(pullRequest));
+                return ws.send(JSON.stringify(request));
             } else {
                 throw 'INVALID_STATE_ERR : Pausing to reconnect websocket';
             }

@@ -42,7 +42,7 @@
         }
 
         function pullSubOrg() {
-            ws.pullOnlineSubOrgs(areaNo, orgId, passportId, function(data) {
+            ws.pullOnlineSubOrgs(function(data) {
                 console.log('Online Orgs: ' + data);
             });
         }

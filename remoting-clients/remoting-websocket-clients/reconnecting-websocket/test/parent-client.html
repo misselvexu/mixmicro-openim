@@ -76,7 +76,7 @@
 
         // DEMO: 拉取在线的分站机构方法示例
         function pullSubOrg() {
-            ws.pullOnlineSubOrgs(areaNo, orgId, passportId, function(data) {
+            ws.pullOnlineSubOrgs(function(data) {
                 console.log('在线子机构列表 : ' + data);
             });
         }
