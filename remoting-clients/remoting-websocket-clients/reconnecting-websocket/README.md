@@ -1,173 +1,160 @@
-# Reconnecting WebSocket
+AcmedcareWss
+=====================
 
-[![Build Status](https://travis-ci.org/pladaria/reconnecting-websocket.svg?branch=master)](https://travis-ci.org/pladaria/reconnecting-websocket)
-[![Coverage Status](https://coveralls.io/repos/github/pladaria/reconnecting-websocket/badge.svg?branch=master&v=1)](https://coveralls.io/github/pladaria/reconnecting-websocket?branch=master)
+A JavaScript library that decorates the WebSocket API to provide a WebSocket connection that will automatically reconnect if the connection is dropped.
 
-WebSocket that will automatically reconnect if the connection is closed.
-
-## Features
-
--   WebSocket API compatible (same interface, Level0 and Level2 event model)
--   Fully configurable
--   Multi-platform (Web, ServiceWorkers, Node.js, React Native)
--   Dependency free (does not depend on Window, DOM or any EventEmitter library)
--   Handle connection timeouts
--   Allows changing server URL between reconnections
--   Buffering. Will send accumulated messages on open
--   Multiple builds available (see dist folder)
--   Debug mode
-
-## Install
-
-```bash
-npm install --save reconnecting-websocket
-```
-
-## Usage
-
-### Compatible with WebSocket Browser API
-
-So this documentation should be valid:
-[MDN WebSocket API](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket).
-
-Ping me if you find any problems. Or, even better, write a test for your case and make a pull
-request :)
-
-### Simple usage
+It is API compatible, so when you have:
 
 ```javascript
-import ReconnectingWebSocket from 'reconnecting-websocket';
-
-const rws = new ReconnectingWebSocket('ws://my.site.com');
-
-rws.addEventListener('open', () => {
-    rws.send('hello!');
-});
+var ws = new WebSocket('ws://....');
 ```
 
-### Update URL
-
-The `url` parameter will be resolved before connecting, possible types:
-
--   `string`
--   `() => string`
--   `() => Promise<string>`
+you can replace with:
 
 ```javascript
-import ReconnectingWebSocket from 'reconnecting-websocket';
-
-const urls = ['ws://my.site.com', 'ws://your.site.com', 'ws://their.site.com'];
-let urlIndex = 0;
-
-// round robin url provider
-const urlProvider = () => urls[urlIndex++ % urls.length];
-
-const rws = new ReconnectingWebSocket(urlProvider);
+var ws = new AcmedcareWss('ws://....');
 ```
+
+Minified library with gzip compression is less than 600 bytes.
+
+How reconnections occur
+-----------------------
+
+With the standard `WebSocket` API, the events you receive from the WebSocket instance are typically:
+
+    onopen
+    onmessage
+    onmessage
+    onmessage
+    onclose // At this point the WebSocket instance is dead.
+
+With a `AcmedcareWss`, after an `onclose` event is called it will automatically attempt to reconnect. In addition, a connection is attempted repeatedly (with a small pause) until it succeeds. So the events you receive may look something more like:
+
+    onopen
+    onmessage
+    onmessage
+    onmessage
+    onclose
+    // AcmedcareWss attempts to reconnect
+    onopen
+    onmessage
+    onmessage
+    onmessage
+    onclose
+    // AcmedcareWss attempts to reconnect
+    onopen
+    onmessage
+    onmessage
+    onmessage
+    onclose
+
+This is all handled automatically for you by the library.
+
+## Parameters
 
 ```javascript
-import ReconnectingWebSocket from 'reconnecting-websocket';
-
-// async url provider
-const urlProvider = async () => {
-    const token = await getSessionToken();
-    return `wss://my.site.com/${token}`;
-};
-
-const rws = new ReconnectingWebSocket(urlProvider);
+var socket = new AcmedcareWss(url, protocols, options);
 ```
 
-### Options
+#### `url`
+- The URL you are connecting to.
+- https://html.spec.whatwg.org/multipage/comms.html#network
 
-#### Sample with custom options
+#### `protocols`
+- Optional string or array of protocols per the WebSocket spec.
+- https://tools.ietf.org/html/rfc6455
+
+#### `options`
+- Options (see below)
+
+## Options
+
+Options can either be passed as the 3rd parameter upon instantiation or set directly on the object after instantiation:
 
 ```javascript
-import ReconnectingWebSocket from 'reconnecting-websocket';
-import WS from 'ws';
-
-const options = {
-    WebSocket: WS, // custom WebSocket constructor
-    connectionTimeout: 1000,
-    maxRetries: 10,
-};
-const rws = new ReconnectingWebSocket('ws://my.site.com', [], options);
+var socket = new AcmedcareWss(url, null, {debug: true, reconnectInterval: 3000});
 ```
 
-#### Available options
-
-```typescript
-type Options = {
-    WebSocket?: any; // WebSocket constructor, if none provided, defaults to global WebSocket
-    maxReconnectionDelay?: number; // max delay in ms between reconnections
-    minReconnectionDelay?: number; // min delay in ms between reconnections
-    reconnectionDelayGrowFactor?: number; // how fast the reconnection delay grows
-    minUptime?: number; // min time in ms to consider connection as stable
-    connectionTimeout?: number; // retry connect if not connected after this time, in ms
-    maxRetries?: number; // maximum number of retries
-    debug?: boolean; // enables debug output
-};
-```
-
-#### Default values
+or
 
 ```javascript
-WebSocket: undefined,
-maxReconnectionDelay: 10000,
-minReconnectionDelay: 1000 + Math.random() * 4000,
-reconnectionDelayGrowFactor: 1.3,
-minUptime: 5000,
-connectionTimeout: 4000,
-maxRetries: Infinity,
-debug: false,
+var socket = new AcmedcareWss(url);
+socket.debug = true;
+socket.timeoutInterval = 5400;
 ```
 
-## API
+#### `debug`
+- Whether this instance should log debug messages or not. Debug messages are printed to `console.debug()`.
+- Accepts `true` or `false`
+- Default value: `false`
 
-### Methods
+#### `automaticOpen`
+- Whether or not the websocket should attempt to connect immediately upon instantiation. The socket can be manually opened or closed at any time using ws.open() and ws.close().
+- Accepts `true` or `false`
+- Default value: `true`
 
-```typescript
-constructor(url: UrlProvider, protocols?: string | string[], options?: Options)
+#### `reconnectInterval`
+- The number of milliseconds to delay before attempting to reconnect.
+- Accepts `integer`
+- Default: `1000`
 
-close(code?: number, reason?: string)
-reconnect(code?: number, reason?: string)
+#### `maxReconnectInterval`
+- The maximum number of milliseconds to delay a reconnection attempt.
+- Accepts `integer`
+- Default: `30000`
 
-send(data: string | ArrayBuffer | Blob | ArrayBufferView)
+####`reconnectDecay`
+- The rate of increase of the reconnect delay. Allows reconnect attempts to back off when problems persist.
+- Accepts `integer` or `float`
+- Default: `1.5`
 
-addEventListener(type: 'open' | 'close' | 'message' | 'error', listener: EventListener)
-removeEventListener(type:  'open' | 'close' | 'message' | 'error', listener: EventListener)
-```
+#### `timeoutInterval`
+- The maximum time in milliseconds to wait for a connection to succeed before closing and retrying.
+- Accepts `integer`
+- Default: `2000`
 
-### Attributes
+#### `maxReconnectAttempts`
+- The maximum number of reconnection attempts that will be made before giving up. If null, reconnection attempts will be continue to be made forever.
+- Accepts `integer` or `null`.
+- Default: `null`
 
-[More info](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket)
+#### `binaryType`
+- The binary type is required by some applications.
+- Accepts strings `'blob'` or `'arraybuffer'`.
+- Default: `'blob'`
 
-```typescript
-binaryType: string;
-bufferedAmount: number;
-extensions: string;
-onclose: EventListener;
-onerror: EventListener;
-onmessage: EventListener;
-onopen: EventListener;
-protocol: string;
-readyState: number;
-url: string;
-retryCount: number;
-```
+### `heartbeat`
+- Heartbeat enabled flag
+-Default: `'true'`
 
-### Constants
+### `heartbeatInterval`
+- Heartbeat time period of milliseconds to next heartbeat
+- Default: `30000`
 
-```text
-CONNECTING 0 The connection is not yet open.
-OPEN       1 The connection is open and ready to communicate.
-CLOSING    2 The connection is in the process of closing.
-CLOSED     3 The connection is closed or couldn't be opened.
-```
+---
 
-## Contributing
+## Methods
 
-[Read here](./CONTRIBUTING.md)
+#### `ws.open()`
+- Open the Reconnecting Websocket
 
-## License
+#### `ws.close(code, reason)`
+- Closes the WebSocket connection or connection attempt, if any. If the connection is already CLOSED, this method does nothing.
+- `code` is optional the closing code (default value 1000). [https://tools.ietf.org/html/rfc6455#section-7.4.1](https://tools.ietf.org/html/rfc6455#section-7.4.1)
+- `reason` is the optional reason that the socket is being closed. [https://tools.ietf.org/html/rfc6455#section-7.1.6](https://tools.ietf.org/html/rfc6455#section-7.1.6)
 
-MIT
+#### `ws.refresh()`
+- Refresh the connection if still open (close and then re-open it).
+
+#### `ws.send(data)`
+- Transmits data to the server over the WebSocket connection.
+- Accepts @param data a text string, ArrayBuffer or Blob
+
+
+## Biz Methods
+
+#### `ws.pullOnlineSubOrgs(callback)`
+- Pull current online org list
+
+#### `ws.pushOrder(orderDetail,targetOrgId,callback)`
+- Push order detail to sub-org web socket client
