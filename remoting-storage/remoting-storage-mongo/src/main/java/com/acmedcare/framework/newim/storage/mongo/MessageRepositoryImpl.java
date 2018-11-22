@@ -1,7 +1,7 @@
 package com.acmedcare.framework.newim.storage.mongo;
 
 import static com.acmedcare.framework.newim.CommonLogger.mongoLog;
-import static com.acmedcare.framework.newim.storage.mongo.IMStorageCollections.IM_MESSAGE;
+import static com.acmedcare.framework.newim.storage.IMStorageCollections.IM_MESSAGE;
 
 import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.storage.api.MessageRepository;
@@ -39,15 +39,14 @@ public class MessageRepositoryImpl implements MessageRepository {
   @Override
   public long saveMessage(Message message) {
 
-    mongoLog.info("保存操作,消息类型:{} ,内容:{} ", IM_MESSAGE.collectionName(), message.toString());
+    mongoLog.info("保存操作,消息类型:{} ,内容:{} ", IM_MESSAGE, message.toString());
 
     // check is saved
     boolean exist =
-        mongoTemplate.exists(
-            new Query(Criteria.where("mid").is(message.getMid())), IM_MESSAGE.collectionName());
+        mongoTemplate.exists(new Query(Criteria.where("mid").is(message.getMid())), IM_MESSAGE);
 
     if (!exist) {
-      mongoTemplate.save(message, IM_MESSAGE.collectionName());
+      mongoTemplate.save(message, IM_MESSAGE);
     } else {
       mongoLog.warn("[NEW-IM-DB] 消息:{},已经存在,不重复添加", message.getMid());
     }
@@ -72,10 +71,7 @@ public class MessageRepositoryImpl implements MessageRepository {
 
     List<Long> existsIds =
         mongoTemplate.findDistinct(
-            new Query(Criteria.where("mid").in(saveMessageIds)),
-            "mid",
-            IM_MESSAGE.collectionName(),
-            Long.class);
+            new Query(Criteria.where("mid").in(saveMessageIds)), "mid", IM_MESSAGE, Long.class);
 
     mongoLog.warn("[忽略]批量保存消息,部分消息已经存在,列表:{}", Arrays.toString(existsIds.toArray()));
 
@@ -88,7 +84,7 @@ public class MessageRepositoryImpl implements MessageRepository {
               }
             });
 
-    mongoTemplate.insert(readySaveMessages, IM_MESSAGE.collectionName());
+    mongoTemplate.insert(readySaveMessages, IM_MESSAGE);
     List<Long> result = Lists.newArrayList();
     readySaveMessages.forEach(message -> result.add(message.getMid()));
 

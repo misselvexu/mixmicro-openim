@@ -1,5 +1,6 @@
 package com.acmedcare.framework.newim;
 
+import com.acmedcare.framework.newim.storage.IMStorageCollections;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 import java.io.Serializable;
@@ -10,6 +11,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * Base Message
@@ -27,6 +30,7 @@ public class Message implements Serializable {
 
   private static final long serialVersionUID = 1213375068246340023L;
   /** Message Id */
+  @Indexed(unique = true)
   private Long mid;
 
   /** message innerType */
@@ -94,6 +98,7 @@ public class Message implements Serializable {
   @Setter
   @NoArgsConstructor
   @AllArgsConstructor
+  @Document(value = IMStorageCollections.IM_MESSAGE)
   public static class SingleMessage extends QosMessage {
 
     private static final long serialVersionUID = 8573237210255043188L;
@@ -107,6 +112,7 @@ public class Message implements Serializable {
   @Setter
   @NoArgsConstructor
   @AllArgsConstructor
+  @Document(value = IMStorageCollections.IM_MESSAGE)
   public static class GroupMessage extends QosMessage {
 
     private static final long serialVersionUID = 7000304314077119170L;

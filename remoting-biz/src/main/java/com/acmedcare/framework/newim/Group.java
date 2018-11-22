@@ -1,11 +1,14 @@
 package com.acmedcare.framework.newim;
 
+import com.acmedcare.framework.newim.storage.IMStorageCollections;
 import java.io.Serializable;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * Group
@@ -16,11 +19,14 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@Document(value = IMStorageCollections.GROUP)
 public class Group implements Serializable {
 
   private static final long serialVersionUID = -7613061811845762121L;
 
+  @Indexed(unique = true)
   private String groupId;
+
   private String groupOwner;
   private String groupName;
 

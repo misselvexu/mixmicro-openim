@@ -1,14 +1,16 @@
 package com.acmedcare.framework.newim.storage.mongo;
 
 import static com.acmedcare.framework.newim.CommonLogger.mongoLog;
-import static com.acmedcare.framework.newim.storage.mongo.IMStorageCollections.GROUP;
-import static com.acmedcare.framework.newim.storage.mongo.IMStorageCollections.REF_GROUP_MEMBER;
+import static com.acmedcare.framework.newim.storage.IMStorageCollections.GROUP;
+import static com.acmedcare.framework.newim.storage.IMStorageCollections.REF_GROUP_MEMBER;
 import static org.springframework.data.mongodb.SessionSynchronization.ALWAYS;
 import static org.springframework.data.mongodb.SessionSynchronization.ON_ACTUAL_TRANSACTION;
 
 import com.acmedcare.framework.newim.Group;
 import com.acmedcare.framework.newim.Group.GroupMembers;
+import com.acmedcare.framework.newim.storage.IMStorageCollections;
 import com.acmedcare.framework.newim.storage.api.GroupRepository;
+import com.acmedcare.framework.newim.storage.exception.StorageExecuteException;
 import com.mongodb.MongoClient;
 import com.mongodb.client.result.DeleteResult;
 import java.util.ArrayList;
@@ -20,6 +22,8 @@ import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
@@ -53,17 +57,16 @@ public class GroupRepositoryImpl implements GroupRepository {
   @Override
   public Group queryGroup(String groupId) {
     return mongoTemplate.findOne(
-        new Query(Criteria.where("groupId").is(groupId)), Group.class, GROUP.collectionName());
+        new Query(Criteria.where("groupId").is(groupId)), Group.class, GROUP);
   }
 
   @Override
   public void saveGroup(Group group) {
     boolean exist =
-        mongoTemplate.exists(
-            new Query(Criteria.where("groupId").is(group.getGroupId())), GROUP.collectionName());
+        mongoTemplate.exists(new Query(Criteria.where("groupId").is(group.getGroupId())), GROUP);
 
     if (!exist) {
-      mongoTemplate.save(group, GROUP.collectionName());
+      mongoTemplate.save(group, GROUP);
     } else {
       mongoLog.warn("群组:{},已经存在,不重复添加", group.getGroupId());
     }
@@ -73,9 +76,9 @@ public class GroupRepositoryImpl implements GroupRepository {
   public long removeGroup(String groupId) {
     mongoLog.info("请求删除群组:{}", groupId);
     Query query = new Query(Criteria.where("groupId").is(groupId));
-    DeleteResult dr1 = mongoTemplate.remove(query, GROUP.collectionName());
+    DeleteResult dr1 = mongoTemplate.remove(query, GROUP);
     mongoLog.info("删除群组影响行数:{}", dr1.getDeletedCount());
-    DeleteResult dr2 = mongoTemplate.remove(query, REF_GROUP_MEMBER.collectionName());
+    DeleteResult dr2 = mongoTemplate.remove(query, REF_GROUP_MEMBER);
     mongoLog.info("删除群组与成员关联关系记录影响行数:{}", dr2.getDeletedCount());
     return dr1.getDeletedCount();
   }
@@ -84,6 +87,12 @@ public class GroupRepositoryImpl implements GroupRepository {
   public void saveGroupMembers(GroupMembers members) {
     // REF_GROUP_MEMBER
     if (members.getMemberIds() != null && members.getMemberIds().size() > 0) {
+
+      if (!mongoTemplate.exists(
+          new Query(Criteria.where("groupId").is(members.getGroupId())), GROUP)) {
+        throw new StorageExecuteException("群组:" + members.getGroupId() + "不存在");
+      }
+
       Query query =
           new Query(
               Criteria.where("groupId")
@@ -97,7 +106,7 @@ public class GroupRepositoryImpl implements GroupRepository {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
               try {
-                mongoTemplate.remove(query, REF_GROUP_MEMBER.collectionName());
+                mongoTemplate.remove(query, REF_GROUP_MEMBER);
                 List<GroupMemberRef> refs = new ArrayList<>();
                 members
                     .getMemberIds()
@@ -109,7 +118,7 @@ public class GroupRepositoryImpl implements GroupRepository {
                                     .memberId(memberId)
                                     .build()));
 
-                mongoTemplate.insert(refs, REF_GROUP_MEMBER.collectionName());
+                mongoTemplate.insert(refs, REF_GROUP_MEMBER);
               } catch (Exception e) {
                 mongoLog.error("添加群组成员方法异常回滚", e);
                 transactionStatus.setRollbackOnly();
@@ -126,7 +135,7 @@ public class GroupRepositoryImpl implements GroupRepository {
 
     mongoLog.info("请求删除群组:{},成员列表:{}", groupId, Arrays.toString(memberIds.toArray()));
     Query query = new Query(Criteria.where("groupId").is(groupId).and("memberId").in(memberIds));
-    DeleteResult deleteResult = mongoTemplate.remove(query, REF_GROUP_MEMBER.collectionName());
+    DeleteResult deleteResult = mongoTemplate.remove(query, REF_GROUP_MEMBER);
     mongoLog.info("删除群组成员影响行数:{}", deleteResult.getDeletedCount());
     return deleteResult.getDeletedCount();
   }
@@ -134,13 +143,17 @@ public class GroupRepositoryImpl implements GroupRepository {
   @Override
   public List<String> queryGroupMembers(String groupId) {
     Query query = new Query(Criteria.where("groupId").is(groupId));
-    return mongoTemplate.findDistinct(
-        query, "memberId", REF_GROUP_MEMBER.collectionName(), String.class);
+    return mongoTemplate.findDistinct(query, "memberId", REF_GROUP_MEMBER, String.class);
   }
 
   @Getter
   @Setter
+  @Document(value = IMStorageCollections.REF_GROUP_MEMBER)
+  @CompoundIndex(
+      name = "unique_index_4_group_id_and_member_id",
+      def = "{'groupId': 1, 'memberId': -1}")
   private static class GroupMemberRef {
+
     private String groupId;
     private String memberId;
 

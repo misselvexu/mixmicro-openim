@@ -10,6 +10,7 @@ import com.acmedcare.framework.newim.client.bean.request.BatchSendMessageRequest
 import com.acmedcare.framework.newim.client.bean.request.SendGroupMessageRequest;
 import com.acmedcare.framework.newim.client.bean.request.SendMessageRequest;
 import com.acmedcare.framework.newim.master.services.MessageServices;
+import com.acmedcare.framework.newim.storage.exception.StorageExecuteException;
 import com.alibaba.fastjson.JSON;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +58,7 @@ public class MessageEndpoint {
           request.getContent());
 
       return ResponseEntity.ok().build();
-    } catch (InvalidRequestParamException e) {
+    } catch (InvalidRequestParamException | StorageExecuteException e) {
       endpointLog.error("发送消息异常", e);
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body(
@@ -99,7 +100,7 @@ public class MessageEndpoint {
           request.getContent());
 
       return ResponseEntity.ok().build();
-    } catch (InvalidRequestParamException e) {
+    } catch (InvalidRequestParamException | StorageExecuteException e) {
       endpointLog.error("批量发送消息异常", e);
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body(
@@ -138,7 +139,7 @@ public class MessageEndpoint {
           request.getContent());
 
       return ResponseEntity.ok().build();
-    } catch (InvalidRequestParamException e) {
+    } catch (InvalidRequestParamException | StorageExecuteException e) {
       endpointLog.error("发送群消息异常", e);
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body(
