@@ -38,9 +38,9 @@ public class MessageRepositoryImpl implements MessageRepository {
     boolean exist =
         mongoTemplate.exists(
             new Query(Criteria.where("mid").is(message.getMid())),
-            IMStorageCollections.MESSAGE.name());
+            IMStorageCollections.MESSAGE.collectionName());
     if (!exist) {
-      mongoTemplate.save(message, IMStorageCollections.MESSAGE.name());
+      mongoTemplate.save(message, IMStorageCollections.MESSAGE.collectionName());
     } else {
       LOG.warn("[NEW-IM-DB] 消息:{},已经存在,不重复添加", message.getMid());
     }

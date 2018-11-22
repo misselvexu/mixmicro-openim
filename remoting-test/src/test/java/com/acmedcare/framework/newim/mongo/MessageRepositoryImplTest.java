@@ -1,8 +1,8 @@
-package com.acmedcare.framework.newim.storage.mongo;
+package com.acmedcare.framework.newim.mongo;
 
 import com.acmedcare.framework.newim.Message.InnerType;
 import com.acmedcare.framework.newim.Message.SingleMessage;
-import com.acmedcare.framework.newim.storage.Application;
+import com.acmedcare.framework.newim.TestApplication;
 import com.acmedcare.framework.newim.storage.api.MessageRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,7 +17,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @version ${project.version} - 13/11/2018.
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = Application.class)
+@SpringBootTest(classes = TestApplication.class)
 public class MessageRepositoryImplTest {
 
   @Autowired private MessageRepository messageRepository;

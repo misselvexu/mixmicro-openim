@@ -14,7 +14,6 @@ public enum IMStorageCollections {
   GROUP("im_group"),
 
   REF_GROUP_MEMBER("im_refs_group_member"),
-
   ;
 
   String collectionName;

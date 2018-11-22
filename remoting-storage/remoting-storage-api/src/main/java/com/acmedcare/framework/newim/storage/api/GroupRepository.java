@@ -2,6 +2,7 @@ package com.acmedcare.framework.newim.storage.api;
 
 import com.acmedcare.framework.newim.Group;
 import com.acmedcare.framework.newim.Group.GroupMembers;
+import java.util.List;
 
 /**
  * Group Repository Api
@@ -13,5 +14,11 @@ public interface GroupRepository {
 
   void saveGroup(Group group);
 
+  long removeGroup(String groupId);
+
   void saveGroupMembers(GroupMembers members);
+
+  long removeGroupMembers(String groupId, List<String> memberIds);
+
+  List<String> queryGroupMembers(String groupId);
 }

@@ -25,10 +25,16 @@
         </dependency>
 
         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.acmedcare.microservices.im</groupId>
             <artifactId>remoting-api</artifactId>
             <version>2.1.0-RC1</version>
         </dependency>
+
     </dependencies>
 
 </project>

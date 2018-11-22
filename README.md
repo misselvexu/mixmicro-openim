@@ -35,6 +35,9 @@ Acmedcare NewIM System , Support Some New Features
 
 Document storage database;
 
+***WARN*** `Mongo4.x Single Cluster` not support transaction.
+
+
 > Docker Running
 
 ```bash
@@ -44,6 +47,17 @@ Document storage database;
   # start container
   docker run -p 27017:27017 -v /acmedcare/data/mongo:/data/db --name docker_mongodb -d mongo
   
+```
+
+> Docker For Mongo Replica Env
+
+```bash
+  # 创建数据目录
+  mkdir /acmedcare/replica-datas/cluster{1..3} -pv
+  
+  
+
+
 ```
 
 #### MySQL

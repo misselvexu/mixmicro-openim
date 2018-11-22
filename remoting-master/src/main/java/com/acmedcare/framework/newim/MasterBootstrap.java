@@ -4,9 +4,6 @@ import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.data.mongodb.MongoDbFactory;
-import org.springframework.data.mongodb.MongoTransactionManager;
 
 /**
  * Master Server Of NewIM System
@@ -31,10 +28,5 @@ public class MasterBootstrap {
             .sources(MasterBootstrap.class)
             .web(WebApplicationType.SERVLET)
             .run(args);
-  }
-
-  @Bean
-  MongoTransactionManager transactionManager(MongoDbFactory dbFactory) {
-    return new MongoTransactionManager(dbFactory);
   }
 }

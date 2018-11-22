@@ -2,7 +2,7 @@
 <configuration>
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <property name="LOG_FILE"
-       value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}/}acmedcare-server-wss-service.log}"/>
+       value="/Users/ive/git-acmedcare/Acmedcare-NewIM/remoting-test/logs/remoting-tester.log}"/>
     <include resource="org/springframework/boot/logging/logback/file-appender.xml"/>
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
     <logger level="DEBUG" name="com.acmedcare.framework"/>
