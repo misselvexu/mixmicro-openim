@@ -17,4 +17,12 @@ public interface MessageRepository {
    * @return mid
    */
   long saveMessage(Message message);
+
+  /**
+   * 批量保存消息
+   *
+   * @param messages 消息列表
+   * @return 保存成功的消息
+   */
+  Long[] batchSaveMessage(Message... messages);
 }

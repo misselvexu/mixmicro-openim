@@ -26,6 +26,15 @@ public class GroupRepositoryImpl {
   @Autowired private GroupRepository groupRepository;
 
   @Test
+  public void queryGroup() {
+
+    Group group = this.groupRepository.queryGroup("gid-20181122");
+    Assert.assertEquals("gid-20181122", group.getGroupId());
+    Assert.assertEquals("misselvexu", group.getGroupOwner());
+    Assert.assertEquals("gname-test-group", group.getGroupName());
+  }
+
+  @Test
   public void testSaveGroup() {
 
     Group group =

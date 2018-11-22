@@ -12,6 +12,8 @@ import java.util.List;
  */
 public interface GroupRepository {
 
+  Group queryGroup(String groupId);
+
   void saveGroup(Group group);
 
   long removeGroup(String groupId);

@@ -11,6 +11,7 @@ import com.acmedcare.framework.newim.client.bean.request.SendGroupMessageRequest
 import com.acmedcare.framework.newim.client.bean.request.SendMessageRequest;
 import com.acmedcare.framework.newim.master.services.MessageServices;
 import com.alibaba.fastjson.JSON;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +42,13 @@ public class MessageEndpoint {
   @PostMapping(MessageRequest.SEND_MESSAGE)
   ResponseEntity sendMessage(@RequestBody SendMessageRequest request) {
     try {
-      endpointLog.info("send message request params: {}", JSON.toJSONString(request));
+      endpointLog.info("发送消息请求参数: {}", JSON.toJSONString(request));
+
+      if (StringUtils.isAnyBlank(
+          request.getContent(), request.getReceiver(), request.getSender(), request.getType())) {
+        throw new InvalidRequestParamException("发送消息的参数[content,receiver,sender,type]不能为空");
+      }
+
       this.messageServices.sendMessage(
           request.attribute(),
           request.getSender(),
@@ -51,6 +58,7 @@ public class MessageEndpoint {
 
       return ResponseEntity.ok().build();
     } catch (InvalidRequestParamException e) {
+      endpointLog.error("发送消息异常", e);
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body(
               BizResult.builder()
@@ -59,7 +67,7 @@ public class MessageEndpoint {
                       ExceptionWrapper.builder().type(e.getClass()).message(e.getMessage()).build())
                   .build());
     } catch (Exception e) {
-      endpointLog.error("send message failed", e);
+      endpointLog.error("发送消息异常", e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .body(
               BizResult.builder()
@@ -73,7 +81,16 @@ public class MessageEndpoint {
   @PostMapping(MessageRequest.BATCH_SEND_MESSAGE)
   ResponseEntity sendMessage(@RequestBody BatchSendMessageRequest request) {
     try {
-      endpointLog.info("batch send message request params: {}", JSON.toJSONString(request));
+      endpointLog.info("批量发送消息请求参数: {}", JSON.toJSONString(request));
+
+      if (StringUtils.isAnyBlank(request.getContent(), request.getSender(), request.getType())) {
+        throw new InvalidRequestParamException("发送消息的参数[content,sender,type]不能为空");
+      }
+
+      if (request.getReceivers().isEmpty()) {
+        throw new InvalidRequestParamException("发送消息的参数[receivers]不能为空");
+      }
+
       this.messageServices.sendMessage(
           request.attribute(),
           request.getSender(),
@@ -83,6 +100,7 @@ public class MessageEndpoint {
 
       return ResponseEntity.ok().build();
     } catch (InvalidRequestParamException e) {
+      endpointLog.error("批量发送消息异常", e);
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body(
               BizResult.builder()
@@ -91,7 +109,7 @@ public class MessageEndpoint {
                       ExceptionWrapper.builder().type(e.getClass()).message(e.getMessage()).build())
                   .build());
     } catch (Exception e) {
-      endpointLog.error("batch send message failed", e);
+      endpointLog.error("批量发送消息异常", e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .body(
               BizResult.builder()
@@ -105,7 +123,12 @@ public class MessageEndpoint {
   @PostMapping(MessageRequest.SEND_GROUP_MESSAGE)
   ResponseEntity sendGroupMessage(@RequestBody SendGroupMessageRequest request) {
     try {
-      endpointLog.info("send group message request params: {}", JSON.toJSONString(request));
+      endpointLog.info("发送群消息请求参数: {}", JSON.toJSONString(request));
+
+      if (StringUtils.isAnyBlank(
+          request.getContent(), request.getGroupId(), request.getSender(), request.getType())) {
+        throw new InvalidRequestParamException("发送群消息的参数[content,groupId,sender,type]不能为空");
+      }
 
       this.messageServices.sendGroupMessage(
           request.attribute(),
@@ -116,6 +139,7 @@ public class MessageEndpoint {
 
       return ResponseEntity.ok().build();
     } catch (InvalidRequestParamException e) {
+      endpointLog.error("发送群消息异常", e);
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body(
               BizResult.builder()
@@ -124,7 +148,7 @@ public class MessageEndpoint {
                       ExceptionWrapper.builder().type(e.getClass()).message(e.getMessage()).build())
                   .build());
     } catch (Exception e) {
-      endpointLog.error("send group message failed", e);
+      endpointLog.error("发送群消息异常", e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .body(
               BizResult.builder()

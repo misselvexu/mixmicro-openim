@@ -49,6 +49,11 @@ public class Message implements Serializable {
     return JSON.toJSONBytes(this);
   }
 
+  @Override
+  public String toString() {
+    return JSON.toJSONString(this);
+  }
+
   /** 消息类型 */
   public enum InnerType {
     /** 普通消息 */

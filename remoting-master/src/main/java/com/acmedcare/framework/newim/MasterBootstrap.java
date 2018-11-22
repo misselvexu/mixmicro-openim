@@ -1,5 +1,6 @@
 package com.acmedcare.framework.newim;
 
+import com.acmedcare.framework.boot.snowflake.EnableSnowflake;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -12,6 +13,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  * @version ${project.version} - 05/11/2018.
  */
 @SpringBootApplication
+@EnableSnowflake(dataCenterId = "${snowflake.dataCenterId:1}", workerId = "${snowflake.workId:1}")
 public class MasterBootstrap {
 
   /** Spring Context Instance of {@link org.springframework.context.ApplicationContext} */

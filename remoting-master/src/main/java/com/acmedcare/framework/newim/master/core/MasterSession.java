@@ -167,6 +167,20 @@ public class MasterSession {
     }
 
     /**
+     * 批量分发消息(同类型消息)
+     *
+     * @param attribute 消息属性
+     * @param messages 消息内容列表
+     */
+    public void batchDistributeMessage(MessageAttribute attribute, Message... messages) {
+      if (messages != null && messages.length > 0) {
+        for (Message message : messages) {
+          distributeMessage(attribute, message);
+        }
+      }
+    }
+
+    /**
      * 分发消息
      *
      * @param attribute 消息属性
@@ -195,7 +209,6 @@ public class MasterSession {
                         RemotingCommand.createRequestCommand(
                             MasterClusterCommand.MASTER_PUSH_MESSAGES, header);
                     distributeRequest.setBody(message.bytes());
-
 
                     if (channel != null && channel.isWritable()) {
                       channel

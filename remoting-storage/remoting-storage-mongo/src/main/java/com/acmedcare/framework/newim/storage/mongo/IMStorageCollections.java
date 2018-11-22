@@ -8,11 +8,13 @@ package com.acmedcare.framework.newim.storage.mongo;
  */
 public enum IMStorageCollections {
 
-  /** Message Storage Collection */
-  MESSAGE("im_message"),
+  /** 消息 */
+  IM_MESSAGE("im_message"),
 
+  /** 群组 */
   GROUP("im_group"),
 
+  /** 群组成员管理 */
   REF_GROUP_MEMBER("im_refs_group_member"),
   ;
 

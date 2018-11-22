@@ -51,6 +51,12 @@ public class GroupRepositoryImpl implements GroupRepository {
   }
 
   @Override
+  public Group queryGroup(String groupId) {
+    return mongoTemplate.findOne(
+        new Query(Criteria.where("groupId").is(groupId)), Group.class, GROUP.collectionName());
+  }
+
+  @Override
   public void saveGroup(Group group) {
     boolean exist =
         mongoTemplate.exists(
@@ -84,8 +90,6 @@ public class GroupRepositoryImpl implements GroupRepository {
                   .is(members.getGroupId())
                   .and("memberId")
                   .in(members.getMemberIds()));
-
-      // TODO transaction
 
       mongoTemplate.setSessionSynchronization(ALWAYS);
       transactionTemplate.execute(

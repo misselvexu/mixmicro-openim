@@ -37,10 +37,11 @@ public class GroupServices {
   }
 
   public void addNewGroupMembers(String groupId, List<String> memberIds) {
-    //
+    this.groupRepository.saveGroupMembers(
+        GroupMembers.builder().groupId(groupId).memberIds(memberIds).build());
   }
 
   public void removeNewGroupMembers(String groupId, List<String> memberIds) {
-    //
+    this.groupRepository.removeGroupMembers(groupId, memberIds);
   }
 }
