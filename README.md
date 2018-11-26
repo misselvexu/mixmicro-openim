@@ -8,7 +8,7 @@ Acmedcare NewIM System , Support Some New Features
 - Protocol Support
     * [x] TCP
     * [x] R-UDP
-    * [ ] WebSocket
+    * [x] WebSocket
     
 - Develop Kit
     * [x] JDK SDK Kit
@@ -20,8 +20,8 @@ Acmedcare NewIM System , Support Some New Features
     * [ ] (R)UDP
 
 - Develop Kit
-    * [ ] JDK SDK Kit
-    * [ ] Android SDK Kit
+    * [x] JDK SDK Kit
+    * [x] Android SDK Kit
 
 
 ## Quick-start
@@ -60,7 +60,7 @@ Document storage database;
 
 ```
 
-#### MySQL
+#### MySQL (`Removed`)
 The MySQL v1 component currently is only tested with MySQL 5.6-7. It is designed to be easy to understand, and get started with. For example, it deconstructs spans into columns, so you can perform ad-hoc queries using SQL. However, this component has known performance issues: queries will eventually take seconds to return if you put a lot of data into it.
 
 
