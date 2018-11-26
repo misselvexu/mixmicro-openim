@@ -10,6 +10,7 @@ import com.acmedcare.framework.newim.server.core.IMSession;
 import com.acmedcare.framework.newim.storage.api.MessageRepository;
 import com.alibaba.fastjson.JSON;
 import java.util.Arrays;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -97,5 +98,13 @@ public class MessageService {
         }
         break;
     }
+  }
+
+  public List<Message> queryAccountGroupMessages(
+      String username, String sender, int type, long leastMessageId, long limit) {
+
+    // TODO 查询消息
+
+    return null;
   }
 }

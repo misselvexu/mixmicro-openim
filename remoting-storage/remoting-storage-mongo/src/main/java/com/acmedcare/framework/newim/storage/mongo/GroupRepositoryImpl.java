@@ -146,6 +146,12 @@ public class GroupRepositoryImpl implements GroupRepository {
     return mongoTemplate.findDistinct(query, "memberId", REF_GROUP_MEMBER, String.class);
   }
 
+  @Override
+  public List<Group> queryMemberGroups(String username) {
+    // TODO
+    return null;
+  }
+
   @Getter
   @Setter
   @Document(value = IMStorageCollections.REF_GROUP_MEMBER)

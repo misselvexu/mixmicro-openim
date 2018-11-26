@@ -9,9 +9,12 @@ import com.acmedcare.framework.newim.server.config.IMProperties;
 import com.acmedcare.framework.newim.server.processor.ClusterForwardMessageRequestProcessor;
 import com.acmedcare.framework.newim.server.processor.ClusterReplicaRegisterRequestProcessor;
 import com.acmedcare.framework.newim.server.processor.DefaultIMProcessor;
+import com.acmedcare.framework.newim.server.processor.RemotingClientPullGroupProcessor;
+import com.acmedcare.framework.newim.server.processor.RemotingClientPullMessageProcessor;
 import com.acmedcare.framework.newim.server.processor.RemotingClientPullSessionProcessor;
 import com.acmedcare.framework.newim.server.processor.RemotingClientPushMessageProcessor;
 import com.acmedcare.framework.newim.server.processor.RemotingClientRegisterAuthProcessor;
+import com.acmedcare.framework.newim.server.service.GroupService;
 import com.acmedcare.framework.newim.server.service.MessageService;
 import com.acmedcare.framework.newim.server.service.RemotingAuthService;
 import com.acmedcare.tiffany.framework.remoting.ChannelEventListener;
@@ -40,6 +43,7 @@ public class NewIMServerBootstrap {
 
   private final RemotingAuthService remotingAuthService;
   private final MessageService messageService;
+  private final GroupService groupService;
   private final IMProperties imProperties;
   // ======================== Autowired Instance Properties =============================//
 
@@ -69,10 +73,12 @@ public class NewIMServerBootstrap {
       IMProperties imProperties,
       RemotingAuthService remotingAuthService,
       MessageService messageService,
+      GroupService groupService,
       IMSession imSession) {
     this.imProperties = imProperties;
     this.remotingAuthService = remotingAuthService;
     this.messageService = messageService;
+    this.groupService = groupService;
     this.imSession = imSession;
 
     // build imServer config
@@ -209,12 +215,19 @@ public class NewIMServerBootstrap {
         new RemotingClientPushMessageProcessor(imSession, messageService),
         null);
 
-    //    imServer.registerProcessor(ClusterClientCommand.CLIENT_PULL_OWNER_GROUPS, new
-    // PullGroupProcessor(), null);
-    //    imServer.registerProcessor(ClusterClientCommand.CLIENT_PULL_MESSAGE, new
-    // PullMessageProcessor(), null);
+    imServer.registerProcessor(
+        ClusterClientCommand.CLIENT_PULL_OWNER_GROUPS,
+        new RemotingClientPullGroupProcessor(groupService),
+        null);
+
+    imServer.registerProcessor(
+        ClusterClientCommand.CLIENT_PULL_MESSAGE,
+        new RemotingClientPullMessageProcessor(messageService),
+        null);
+
     //    imServer.registerProcessor(ClusterClientCommand.CLIENT_PUSH_MESSAGE_READ_STATUS, new
     // PushMessageReadStatusProcessor(), null);
+
     //    imServer.registerProcessor(ClusterClientCommand.CLIENT_PULL_SESSION_STATUS, new
     // PullSessionStatusProcessor(), null);
 

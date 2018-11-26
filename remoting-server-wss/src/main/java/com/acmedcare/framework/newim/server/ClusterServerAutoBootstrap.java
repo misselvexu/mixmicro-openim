@@ -5,6 +5,7 @@ import com.acmedcare.framework.newim.server.core.IMSession;
 import com.acmedcare.framework.newim.server.core.NewIMServerBootstrap;
 import com.acmedcare.framework.newim.server.core.connector.ClusterReplicaConnector;
 import com.acmedcare.framework.newim.server.core.connector.MasterConnector;
+import com.acmedcare.framework.newim.server.service.GroupService;
 import com.acmedcare.framework.newim.server.service.MessageService;
 import com.acmedcare.framework.newim.server.service.RemotingAuthService;
 import org.springframework.context.annotation.Bean;
@@ -32,8 +33,10 @@ public class ClusterServerAutoBootstrap {
       IMProperties imProperties,
       RemotingAuthService remotingAuthService,
       MessageService messageService,
+      GroupService groupService,
       IMSession imSession) {
-    return new NewIMServerBootstrap(imProperties, remotingAuthService, messageService, imSession);
+    return new NewIMServerBootstrap(
+        imProperties, remotingAuthService, messageService, groupService, imSession);
   }
 
   @Bean

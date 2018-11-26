@@ -23,4 +23,6 @@ public interface GroupRepository {
   long removeGroupMembers(String groupId, List<String> memberIds);
 
   List<String> queryGroupMembers(String groupId);
+
+  List<Group> queryMemberGroups(String username);
 }
