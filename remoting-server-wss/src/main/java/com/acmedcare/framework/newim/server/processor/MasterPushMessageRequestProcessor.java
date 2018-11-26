@@ -5,6 +5,10 @@ import static com.acmedcare.framework.newim.server.ClusterLogger.masterClusterLo
 import com.acmedcare.framework.kits.Assert;
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
+import com.acmedcare.framework.newim.Message;
+import com.acmedcare.framework.newim.Message.GroupMessage;
+import com.acmedcare.framework.newim.Message.MessageType;
+import com.acmedcare.framework.newim.Message.SingleMessage;
 import com.acmedcare.framework.newim.protocol.request.MasterPushMessageHeader;
 import com.acmedcare.framework.newim.server.core.IMSession;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRequestProcessor;
@@ -38,12 +42,24 @@ public class MasterPushMessageRequestProcessor implements NettyRequestProcessor 
           (MasterPushMessageHeader)
               remotingCommand.decodeCommandCustomHeader(MasterPushMessageHeader.class);
       Assert.notNull(header, "Master服务器分发消息请求头不能为空");
-      masterClusterLog.info("Master分发消息请求头信息:{}", JSON.toJSONString(header));
+      masterClusterLog.info("Cluster接收到Master分发消息请求头信息:{}", JSON.toJSONString(header));
 
-      // TODO 解析头信息
-      // TODO 解析消息信息
-      // TODO 分发消息到客户端
+      MessageType messageType = header.decodeMessageType();
+      masterClusterLog.info("Cluster接收到Master分发消息解析出消息的类型为:{}", messageType);
+      byte[] message = remotingCommand.getBody();
+      masterClusterLog.info(
+          "Cluster接收到Master分发消息解析出的消息内容为:{}", new String(message, Message.DEFAULT_CHARSET));
 
+      switch (messageType) {
+        case GROUP:
+          GroupMessage groupMessage = JSON.parseObject(message, GroupMessage.class);
+          imSession.sendMessageToPassport(groupMessage.getReceivers(), messageType, message);
+          break;
+        case SINGLE:
+          SingleMessage singleMessage = JSON.parseObject(message, SingleMessage.class);
+          imSession.sendMessageToPassport(singleMessage.getReceiver(), messageType, message);
+          break;
+      }
     } catch (Exception e) {
       // exception
       response.setBody(

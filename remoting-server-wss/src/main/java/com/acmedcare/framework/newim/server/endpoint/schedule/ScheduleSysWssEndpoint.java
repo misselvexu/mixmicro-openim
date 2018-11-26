@@ -7,7 +7,6 @@ import static com.acmedcare.framework.newim.protocol.Command.WebSocketClusterCom
 import static com.acmedcare.framework.newim.protocol.Command.WebSocketClusterCommand.WS_SHUTDOWN;
 import static com.acmedcare.framework.newim.server.ClusterLogger.wssServerLog;
 
-import com.acmedcare.framework.aorp.beans.Principal;
 import com.acmedcare.framework.boot.web.socket.annotation.OnClose;
 import com.acmedcare.framework.boot.web.socket.annotation.OnError;
 import com.acmedcare.framework.boot.web.socket.annotation.OnEvent;
@@ -15,6 +14,7 @@ import com.acmedcare.framework.boot.web.socket.annotation.OnMessage;
 import com.acmedcare.framework.boot.web.socket.annotation.OnOpen;
 import com.acmedcare.framework.boot.web.socket.annotation.ServerEndpoint;
 import com.acmedcare.framework.boot.web.socket.processor.WssSession;
+import com.acmedcare.framework.newim.server.core.SessionContextConstants.WssPrincipal;
 import com.acmedcare.framework.newim.server.endpoint.WssAdapter;
 import com.acmedcare.framework.newim.server.endpoint.WssMessageRequestProcessor;
 import com.acmedcare.framework.newim.server.endpoint.schedule.ScheduleCommand.AuthRequest;
@@ -59,7 +59,7 @@ public class ScheduleSysWssEndpoint extends WssAdapter {
       wssServerLog.info("[WSS] Remoting Client Type is :{} ", authRequest.getWssClientType());
       if (validResult) {
         wssServerLog.info("[WSS] token is valid,then to get principal detail with token");
-        Principal principal = remotingAuthService.principal(authRequest.getAccessToken());
+        WssPrincipal principal = remotingAuthService.principal(authRequest.getAccessToken());
         wssServerLog.info("[WSS] principal detail : {}", JSON.toJSONString(principal));
         if (principal != null) {
           wssSessionContext.registerWssClient(principal, session);

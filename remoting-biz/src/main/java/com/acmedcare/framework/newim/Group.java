@@ -27,14 +27,25 @@ public class Group implements Serializable {
   @Indexed(unique = true)
   private String groupId;
 
+  /** 群主 */
   private String groupOwner;
+
+  /** 群组名称 */
   private String groupName;
+  /** 业务标识 */
+  private String groupBizTag;
+
+  /** 群组扩展信息 */
+  private String groupExt;
 
   @Builder
-  public Group(String groupId, String groupOwner, String groupName) {
+  public Group(
+      String groupId, String groupOwner, String groupName, String groupBizTag, String groupExt) {
     this.groupId = groupId;
     this.groupOwner = groupOwner;
     this.groupName = groupName;
+    this.groupBizTag = groupBizTag;
+    this.groupExt = groupExt;
   }
 
   @Getter

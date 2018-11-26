@@ -74,7 +74,7 @@ public final class Command {
     /** 通讯节点同步推送本地客户端连接列表 */
     public static final int CLUSTER_PUSH_CLIENT_CHANNELS = 0x20004;
 
-    /** Master服务器推送系统消息 */
+    /** Master服务器推送消息 */
     public static final int MASTER_PUSH_MESSAGES = 0x20005;
     /**
      * WebSocket Client And Cluster Command
@@ -84,8 +84,12 @@ public final class Command {
 
     /** cluster 拉取其他的备份节点 */
     public static final int CLUSTER_PULL_REPLICAS = 0x20007;
+
+    /** cluster 转发信息 */
+    public static final int CLUSTER_FORWARD_MESSAGES = 0x20008;
   }
 
+  /** 服务端推送消息到WS 客户端 */
   public static class WebSocketClusterCommand {
 
     public static final int WS_AUTH = 0x30000;
@@ -98,6 +102,9 @@ public final class Command {
 
     /** 客户端心跳协议 */
     public static final int WS_HEARTBEAT = 0x30003;
+
+    /** 推送消息 */
+    public static final int WS_PUSH_MESSAGE = 0x30004;
   }
 
   /**
@@ -107,7 +114,7 @@ public final class Command {
   public static class ClusterClientCommand {
 
     /** 客户端连接授权操作请求 */
-    public static final int CLIENT_AUTH = 0x40001;
+    public static final int CLIENT_AUTH = 0x40000;
 
     /**
      * 客户端拉取[离线]消息

@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -73,7 +72,7 @@ public class GroupEndpoint {
     }
   }
 
-  @PutMapping(ADD_GROUP_MEMBERS)
+  @PostMapping(ADD_GROUP_MEMBERS)
   ResponseEntity addNewMembers(@RequestBody AddGroupMembersRequest request) {
     try {
       endpointLog.info("add group members request params: {}", JSON.toJSONString(request));
@@ -100,7 +99,7 @@ public class GroupEndpoint {
     }
   }
 
-  @PutMapping(REMOVE_GROUP_MEMBERS)
+  @PostMapping(REMOVE_GROUP_MEMBERS)
   ResponseEntity deleteGroupMembers(@RequestBody RemoveGroupMembersRequest request) {
     try {
       endpointLog.info("remove group members request params: {}", JSON.toJSONString(request));

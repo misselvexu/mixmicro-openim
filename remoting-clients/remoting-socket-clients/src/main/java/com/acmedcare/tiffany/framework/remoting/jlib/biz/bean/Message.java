@@ -3,10 +3,10 @@ package com.acmedcare.tiffany.framework.remoting.jlib.biz.bean;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 import java.io.Serializable;
+import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,13 +23,14 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Message implements Serializable {
 
-  private static final long serialVersionUID = 1213375068246340023L;
+  public static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
 
+  private static final long serialVersionUID = 1213375068246340023L;
   /** Message Id */
   private Long mid;
 
   /** message innerType */
-  private InnerType innerType;
+  private InnerType innerType = InnerType.NORMAL;
 
   /** message sender */
   private String sender;
@@ -48,6 +49,11 @@ public class Message implements Serializable {
     return JSON.toJSONBytes(this);
   }
 
+  @Override
+  public String toString() {
+    return JSON.toJSONString(this);
+  }
+
   /** 消息类型 */
   public enum InnerType {
     /** 普通消息 */
@@ -56,8 +62,8 @@ public class Message implements Serializable {
     /** 指令消息 */
     COMMAND,
 
-    /** 多媒体消息, 图片/视频 */
-    MEDIA
+    /** 媒体类型 */
+    MEDIA,
   }
 
   /** 消息本身的类型 */
@@ -65,62 +71,70 @@ public class Message implements Serializable {
     /** 单人接 */
     SINGLE,
     /** 发群组消息 */
-    GROUP
+    GROUP,
+    /** 推送消息 */
+    PUSH
+  }
+
+  @Getter
+  @Setter
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class QosMessage extends Message {
+
+    private static final long serialVersionUID = -7983416922999708268L;
+
+    /** 是否开启QOS,默认值为 false */
+    private boolean qos = false;
+
+    /** 最大重试次数 */
+    private int maxRetryTimes = 1;
+
+    /** 重试间隔 */
+    private long retryPeriod = 5000;
   }
 
   /** 单聊消息 */
   @Getter
   @Setter
   @NoArgsConstructor
-  public static class SingleMessage extends Message {
+  @AllArgsConstructor
+  public static class SingleMessage extends QosMessage {
 
     private static final long serialVersionUID = 8573237210255043188L;
     private String receiver;
 
-    @JSONField(serialize = false)
     private boolean readFlag;
-
-    @Builder
-    public SingleMessage(
-        Long mid,
-        InnerType innerType,
-        String sender,
-        MessageType messageType,
-        byte[] body,
-        Date sendTimestamp,
-        String receiver,
-        boolean readFlag) {
-      super(mid, innerType, sender, messageType, body, sendTimestamp);
-      this.receiver = receiver;
-      this.readFlag = readFlag;
-    }
   }
 
   /** 群组消息 */
   @Getter
   @Setter
   @NoArgsConstructor
-  public static class GroupMessage extends Message {
+  @AllArgsConstructor
+  public static class GroupMessage extends QosMessage {
 
     private static final long serialVersionUID = 7000304314077119170L;
     private String group;
     private List<String> receivers;
     /** 未读人数 */
     private int unReadSize;
+  }
 
-    @Builder
-    public GroupMessage(
-        Long mid,
-        InnerType innerType,
-        String sender,
-        MessageType messageType,
-        byte[] body,
-        Date sendTimestamp,
-        String group,
-        List<String> receivers) {
-      super(mid, innerType, sender, messageType, body, sendTimestamp);
-      this.group = group;
-      this.receivers = receivers;
-    }
+  /** 推送消息 */
+  @Getter
+  @Setter
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class PushMessage extends QosMessage {
+
+    private static final long serialVersionUID = 1620489599567755440L;
+
+    /**
+     * 设备列表
+     *
+     * <p>不指定设备列表,默认推送所有的设备
+     */
+    private List<String> deviceIds;
   }
 }

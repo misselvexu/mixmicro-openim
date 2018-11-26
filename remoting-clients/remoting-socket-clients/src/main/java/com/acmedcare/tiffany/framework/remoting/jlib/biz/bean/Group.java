@@ -1,6 +1,7 @@
 package com.acmedcare.tiffany.framework.remoting.jlib.biz.bean;
 
 import java.io.Serializable;
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,33 +20,43 @@ public class Group implements Serializable {
 
   private static final long serialVersionUID = -7613061811845762121L;
 
-  private String name;
-  private String code;
+  private String groupId;
 
-  public Group(String name, String code) {
-    this.name = name;
-    this.code = code;
+  /** 群主 */
+  private String groupOwner;
+
+  /** 群组名称 */
+  private String groupName;
+  /** 业务标识 */
+  private String groupBizTag;
+
+  /** 群组扩展信息 */
+  private String groupExt;
+
+  @Builder
+  public Group(
+      String groupId, String groupOwner, String groupName, String groupBizTag, String groupExt) {
+    this.groupId = groupId;
+    this.groupOwner = groupOwner;
+    this.groupName = groupName;
+    this.groupBizTag = groupBizTag;
+    this.groupExt = groupExt;
   }
 
-  /**
-   * Group Ext Properties
-   *
-   * @version v1.0
-   */
   @Getter
   @Setter
   @NoArgsConstructor
-  public static class GroupExt extends Group {
-    private static final long serialVersionUID = -4292596471820796119L;
+  public static class GroupMembers implements Serializable {
 
-    private int unreadSize;
-    private Message leastMessage;
+    private static final long serialVersionUID = 1474652111556171928L;
+
+    private String groupId;
+    private List<String> memberIds;
 
     @Builder
-    public GroupExt(String name, String code, int unreadSize, Message leastMessage) {
-      super(name, code);
-      this.unreadSize = unreadSize;
-      this.leastMessage = leastMessage;
+    public GroupMembers(String groupId, List<String> memberIds) {
+      this.groupId = groupId;
+      this.memberIds = memberIds;
     }
   }
 }

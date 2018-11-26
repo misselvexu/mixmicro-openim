@@ -1,16 +1,15 @@
 package com.acmedcare.framework.newim.master.processor;
 
 import static com.acmedcare.framework.newim.MasterLogger.masterClusterAcceptorLog;
+import static com.acmedcare.framework.newim.master.core.MasterSession.MasterClusterSession.CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY;
 
 import com.acmedcare.framework.kits.Assert;
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
 import com.acmedcare.framework.newim.InstanceNode;
-import com.acmedcare.framework.newim.InstanceNode.NodeType;
 import com.acmedcare.framework.newim.master.core.MasterSession.MasterClusterSession;
 import com.acmedcare.framework.newim.protocol.request.ClusterPushSessionDataBody;
 import com.acmedcare.framework.newim.protocol.request.ClusterPushSessionDataHeader;
-import com.acmedcare.tiffany.framework.remoting.common.RemotingUtil;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRequestProcessor;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.alibaba.fastjson.JSON;
@@ -35,16 +34,21 @@ public class ClusterPushClientChannelsRequestProcessor implements NettyRequestPr
       ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand)
       throws Exception {
 
-    InstanceNode node =
-        new InstanceNode(
-            RemotingUtil.socketAddress2String(channelHandlerContext.channel().remoteAddress()),
-            NodeType.CLUSTER,
-            null);
-
-    masterClusterAcceptorLog.info("收到Cluster:{},上报数据请求", node.getHost());
-
     RemotingCommand response =
         RemotingCommand.createResponseCommand(remotingCommand.getCode(), null);
+    InstanceNode node =
+        channelHandlerContext.channel().attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).get();
+
+    if (node == null) {
+      response.setBody(
+          BizResult.builder()
+              .code(-1)
+              .exception(ExceptionWrapper.builder().message("未注册的客户端").build())
+              .build()
+              .bytes());
+      return response;
+    }
+    masterClusterAcceptorLog.info("收到Cluster:{},上报数据请求", node.getHost());
 
     try {
       ClusterPushSessionDataHeader header =

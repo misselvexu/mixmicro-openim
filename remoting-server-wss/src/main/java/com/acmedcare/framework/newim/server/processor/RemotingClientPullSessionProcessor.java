@@ -1,10 +1,12 @@
 package com.acmedcare.framework.newim.server.processor;
 
-import com.acmedcare.framework.aorp.beans.Principal;
+import static com.acmedcare.framework.newim.server.core.SessionContextConstants.PRINCIPAL_KEY;
+
 import com.acmedcare.framework.kits.Assert;
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
 import com.acmedcare.framework.newim.server.core.IMSession;
+import com.acmedcare.framework.newim.server.core.SessionContextConstants.WssPrincipal;
 import com.acmedcare.framework.newim.server.exception.UnauthorizedException;
 import com.acmedcare.framework.newim.server.processor.header.PullSessionHeader;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
@@ -40,7 +42,7 @@ public class RemotingClientPullSessionProcessor extends AbstractNormalRequestPro
       Assert.notNull(pullSessionHeader, "拉取会话列表请求参数异常");
 
       // get principal from session
-      Principal principal = channelHandlerContext.channel().attr(PRINCIPAL_KEY).get();
+      WssPrincipal principal = channelHandlerContext.channel().attr(PRINCIPAL_KEY).get();
       if (principal == null) {
         throw new UnauthorizedException("链接未授权异常");
       }

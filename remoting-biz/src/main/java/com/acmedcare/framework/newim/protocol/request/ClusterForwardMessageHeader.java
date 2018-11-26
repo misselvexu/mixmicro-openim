@@ -1,6 +1,6 @@
 package com.acmedcare.framework.newim.protocol.request;
 
-import com.acmedcare.framework.newim.Message.MessageType;
+import com.acmedcare.framework.newim.Message;
 import com.acmedcare.tiffany.framework.remoting.CommandCustomHeader;
 import com.acmedcare.tiffany.framework.remoting.annotation.CFNotNull;
 import com.acmedcare.tiffany.framework.remoting.exception.RemotingCommandException;
@@ -8,14 +8,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Master Push Message Header
+ * Cluster Forward Message Request Header
  *
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
- * @version ${project.version} - 21/11/2018.
+ * @version ${project.version} - 14/11/2018.
  */
 @Getter
 @Setter
-public class MasterPushMessageHeader implements CommandCustomHeader {
+public class ClusterForwardMessageHeader implements CommandCustomHeader {
 
   /** 质量保证 */
   @CFNotNull private boolean qos;
@@ -34,14 +34,13 @@ public class MasterPushMessageHeader implements CommandCustomHeader {
 
   /** 普通消息/指令消息 */
   @CFNotNull private String innerType;
-
   /**
-   * 解析消息类型
+   * Decode Message Type
    *
-   * @return enum of {@link MessageType}
+   * @return type enum
    */
-  public MessageType decodeMessageType() {
-    return MessageType.valueOf(messageType);
+  public Message.MessageType decodeType() {
+    return Message.MessageType.valueOf(messageType);
   }
 
   @Override

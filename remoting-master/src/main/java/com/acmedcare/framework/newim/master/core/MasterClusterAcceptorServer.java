@@ -2,13 +2,17 @@ package com.acmedcare.framework.newim.master.core;
 
 import static com.acmedcare.framework.newim.MasterLogger.masterClusterAcceptorLog;
 import static com.acmedcare.framework.newim.MasterLogger.startLog;
+import static com.acmedcare.framework.newim.master.core.MasterSession.MasterClusterSession.CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY;
+import static com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand.CLUSTER_FORWARD_MESSAGES;
 import static com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand.CLUSTER_PULL_REPLICAS;
 
 import com.acmedcare.framework.kits.Assert;
 import com.acmedcare.framework.newim.BizResult;
+import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
 import com.acmedcare.framework.newim.InstanceNode;
 import com.acmedcare.framework.newim.master.MasterConfig;
 import com.acmedcare.framework.newim.master.core.MasterSession.MasterClusterSession;
+import com.acmedcare.framework.newim.master.processor.ClusterForwardMessageRequestProcessor;
 import com.acmedcare.framework.newim.master.processor.ClusterPushClientChannelsRequestProcessor;
 import com.acmedcare.framework.newim.master.processor.DefaultMasterProcessor;
 import com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand;
@@ -23,7 +27,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import java.util.List;
 import java.util.Set;
@@ -41,9 +44,6 @@ import lombok.Getter;
  * @version ${project.version} - 07/11/2018.
  */
 public class MasterClusterAcceptorServer {
-
-  private static final AttributeKey<InstanceNode> CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY =
-      AttributeKey.newInstance("CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY");
 
   private final MasterConfig masterConfig;
   private MasterSession masterSession = new MasterSession();
@@ -113,7 +113,12 @@ public class MasterClusterAcceptorServer {
         new ClusterPushClientChannelsRequestProcessor(masterClusterSession),
         null);
 
-    // master 相互注册处理器
+    // 注册 cluster 转发信息处理器
+    masterClusterAcceptorServer.registerProcessor(
+        CLUSTER_FORWARD_MESSAGES,
+        new ClusterForwardMessageRequestProcessor(masterClusterSession),
+        null);
+
     masterClusterAcceptorServer.registerProcessor(
         MasterClusterCommand.CLUSTER_REGISTER,
         new NettyRequestProcessor() {
@@ -178,6 +183,19 @@ public class MasterClusterAcceptorServer {
             RemotingCommand response =
                 RemotingCommand.createResponseCommand(remotingCommand.getCode(), null);
 
+            InstanceNode instanceNode =
+                channelHandlerContext.channel().attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).get();
+
+            if (instanceNode == null) {
+              response.setBody(
+                  BizResult.builder()
+                      .code(-1)
+                      .exception(ExceptionWrapper.builder().message("未注册的客户端").build())
+                      .build()
+                      .bytes());
+              return response;
+            }
+
             InstanceNode node =
                 channelHandlerContext.channel().attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).get();
 
@@ -207,6 +225,19 @@ public class MasterClusterAcceptorServer {
             RemotingCommand response =
                 RemotingCommand.createResponseCommand(remotingCommand.getCode(), null);
 
+            // check
+            InstanceNode instanceNode =
+                channelHandlerContext.channel().attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).get();
+
+            if (instanceNode == null) {
+              response.setBody(
+                  BizResult.builder()
+                      .code(-1)
+                      .exception(ExceptionWrapper.builder().message("未注册的客户端").build())
+                      .build()
+                      .bytes());
+              return response;
+            }
             Set<String> servers = masterClusterSession.clusterList();
             response.setBody(JSON.toJSONBytes(servers));
 

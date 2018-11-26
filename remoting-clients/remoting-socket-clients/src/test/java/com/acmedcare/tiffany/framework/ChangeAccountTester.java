@@ -41,7 +41,7 @@ public class ChangeAccountTester {
                 new ServerAddressHandler() {
                   @Override
                   public List<RemotingAddress> remotingAddressList() {
-                    return Lists.newArrayList(new RemotingAddress("192.168.1.39", 8887, false));
+                    return Lists.newArrayList(new RemotingAddress(false,"192.168.1.39", 8887, false));
                   }
                 })
             .build();

@@ -4,6 +4,7 @@ import com.acmedcare.tiffany.framework.remoting.android.core.CFNotNull;
 import com.acmedcare.tiffany.framework.remoting.android.core.exception.RemotingCommandException;
 import com.acmedcare.tiffany.framework.remoting.android.core.protocol.CommandCustomHeader;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message;
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,12 +23,35 @@ public class PushMessageHeader extends BaseHeader implements CommandCustomHeader
 
   private static final long serialVersionUID = -5953866493854736706L;
   @CFNotNull private String messageType;
-  @CFNotNull private String username;
+
+  @CFNotNull
+  @JSONField(name = "passport")
+  private String username;
+
+  @CFNotNull private String passportId;
+
+  /** 质量保证 */
+  @CFNotNull private boolean qos;
+
+  /** 发送失败后,最大重试次数 */
+  @CFNotNull private int maxRetryTimes;
+
+  /** 消息重试间隔 */
+  @CFNotNull private long retryPeriod;
+
+  /** 是否持久化消息 */
+  @CFNotNull private boolean persistent;
 
   @Builder
-  public PushMessageHeader(String messageType, String username) {
+  public PushMessageHeader(String messageType, String username, String passportId, boolean qos, int maxRetryTimes,
+      long retryPeriod, boolean persistent) {
     this.messageType = messageType;
     this.username = username;
+    this.passportId = passportId;
+    this.qos = qos;
+    this.maxRetryTimes = maxRetryTimes;
+    this.retryPeriod = retryPeriod;
+    this.persistent = persistent;
   }
 
   /**

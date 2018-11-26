@@ -23,7 +23,7 @@ public class BizCode {
   @Deprecated public static final int HEARTBEAT = 0x1001;
 
   /** 客户端连接授权操作请求 */
-  public static final int CLIENT_AUTH = 0x40001;
+  public static final int CLIENT_AUTH = 0x40000;
 
   /**
    * 客户端拉取[离线]消息

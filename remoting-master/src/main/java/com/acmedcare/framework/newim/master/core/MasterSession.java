@@ -19,8 +19,10 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.util.AttributeKey;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -49,20 +51,20 @@ public class MasterSession {
    */
   public static class MasterClusterSession {
 
+    public static final AttributeKey<InstanceNode> CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY =
+        AttributeKey.newInstance("CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY");
     /**
      * 通行证登录连接
      *
      * <p>
      */
     private static Map<InstanceNode, Set<String>> passportsConnections = Maps.newConcurrentMap();
-
     /**
      * 设备登录连接
      *
      * <p>
      */
     private static Map<InstanceNode, Set<String>> devicesConnections = Maps.newConcurrentMap();
-
     /**
      * 通讯服务器客户端链接对象池
      *
@@ -73,7 +75,6 @@ public class MasterSession {
 
     private static Map<String, Map<String, WssInstance>> clusterWssServerInstance =
         Maps.newConcurrentMap();
-
     private ScheduledExecutorService notifierExecutor;
     private ExecutorService asyncNotifierExecutor;
     private ExecutorService distributeMessageExecutor;
@@ -105,6 +106,10 @@ public class MasterSession {
                         "jvm hook , shutdown distributeMessageExecutor .");
                     ThreadKit.gracefulShutdown(distributeMessageExecutor, 10, 10, TimeUnit.SECONDS);
                   }));
+    }
+
+    public static InstanceNode decodeInstanceNode(Channel channel) {
+      return channel.attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).get();
     }
 
     public Set<String> clusterList() {
@@ -180,13 +185,23 @@ public class MasterSession {
       }
     }
 
-    /**
-     * 分发消息
-     *
-     * @param attribute 消息属性
-     * @param message 消息
-     */
-    public void distributeMessage(MessageAttribute attribute, Message message) {
+    public void distributeMessage(
+        MessageAttribute attribute, Message message, String excludeForwardAddress) {
+      Map<String, RemoteClusterClientInstance> temp = Maps.newConcurrentMap();
+      clusterClientInstances.forEach(
+          (address, remoteClusterClientInstance) -> {
+            if (excludeForwardAddress != null && !Objects.equals(excludeForwardAddress, address)) {
+              temp.put(address, remoteClusterClientInstance);
+            }
+          });
+      //
+      distributeMessage(attribute, message, temp);
+    }
+
+    private void distributeMessage(
+        MessageAttribute attribute,
+        Message message,
+        Map<String, RemoteClusterClientInstance> clusterClientInstances) {
       // MASTER_PUSH_MESSAGES
       masterClusterAcceptorLog.info("master distribute message to servers.");
       clusterClientInstances.forEach(
@@ -235,6 +250,16 @@ public class MasterSession {
                   }
                 });
           });
+    }
+
+    /**
+     * 分发消息
+     *
+     * @param attribute 消息属性
+     * @param message 消息
+     */
+    public void distributeMessage(MessageAttribute attribute, Message message) {
+      distributeMessage(attribute, message, clusterClientInstances);
     }
 
     public void notifier() {

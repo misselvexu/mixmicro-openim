@@ -1,6 +1,7 @@
 package com.acmedcare.framework.newim.server.processor;
 
-import com.acmedcare.framework.aorp.beans.Principal;
+import static com.acmedcare.framework.newim.server.ClusterLogger.imServerLog;
+
 import com.acmedcare.framework.kits.Assert;
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
@@ -10,14 +11,13 @@ import com.acmedcare.framework.newim.Message.MessageType;
 import com.acmedcare.framework.newim.Message.SingleMessage;
 import com.acmedcare.framework.newim.server.RemotingWssServer.Ids;
 import com.acmedcare.framework.newim.server.core.IMSession;
+import com.acmedcare.framework.newim.server.core.SessionContextConstants.WssPrincipal;
 import com.acmedcare.framework.newim.server.processor.header.PushMessageHeader;
 import com.acmedcare.framework.newim.server.service.MessageService;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingSerializable;
 import com.alibaba.fastjson.JSONObject;
 import io.netty.channel.ChannelHandlerContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Client Push Message Request Processor
@@ -26,9 +26,6 @@ import org.slf4j.LoggerFactory;
  * @version ${project.version} - 13/11/2018.
  */
 public class RemotingClientPushMessageProcessor extends AbstractNormalRequestProcessor {
-
-  private static final Logger LOG =
-      LoggerFactory.getLogger(RemotingClientPushMessageProcessor.class);
 
   private final MessageService messageService;
 
@@ -48,7 +45,7 @@ public class RemotingClientPushMessageProcessor extends AbstractNormalRequestPro
     try {
 
       // valid
-      Principal principal = validatePrincipal(channelHandlerContext.channel());
+      WssPrincipal principal = validatePrincipal(channelHandlerContext.channel());
 
       PushMessageHeader header =
           (PushMessageHeader) remotingCommand.decodeCommandCustomHeader(PushMessageHeader.class);
@@ -59,7 +56,8 @@ public class RemotingClientPushMessageProcessor extends AbstractNormalRequestPro
 
       byte[] messageBytes = remotingCommand.getBody();
 
-      LOG.info("[NEW-IM-CLIENT] 客户端请求发送消息:" + new String(messageBytes, Message.DEFAULT_CHARSET));
+      imServerLog.info(
+          "[NEW-IM-CLIENT] 客户端请求发送消息:" + new String(messageBytes, Message.DEFAULT_CHARSET));
 
       // build result for client
       JSONObject ret = new JSONObject();
@@ -72,7 +70,8 @@ public class RemotingClientPushMessageProcessor extends AbstractNormalRequestPro
           ret.put("mid", mid);
           singleMessage.setMid(mid);
 
-          this.messageService.pushMessage(imSession, singleMessage);
+          imServerLog.info("[NEW-IM-CLIENT] 服务器处理客户端消息,开始发送单聊消息给接受客户端");
+          this.messageService.processMessage(imSession, singleMessage);
           break;
 
         case GROUP:
@@ -82,7 +81,8 @@ public class RemotingClientPushMessageProcessor extends AbstractNormalRequestPro
           ret.put("mid", mid);
           groupMessage.setMid(mid);
 
-          this.messageService.pushMessage(imSession, groupMessage);
+          imServerLog.info("[NEW-IM-CLIENT] 服务器处理客户端消息,开始发送群组消息给接受客户端");
+          this.messageService.processMessage(imSession, groupMessage);
 
           break;
       }

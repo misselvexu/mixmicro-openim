@@ -8,10 +8,10 @@ import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.protocol.Command.ClusterWithClusterCommand;
 import com.acmedcare.framework.newim.protocol.Command.Retriable;
 import com.acmedcare.framework.newim.protocol.RetriableRemotingCommand;
+import com.acmedcare.framework.newim.protocol.request.ClusterForwardMessageHeader;
 import com.acmedcare.framework.newim.server.config.IMProperties;
 import com.acmedcare.framework.newim.server.core.ClusterReplicaSession;
 import com.acmedcare.framework.newim.server.core.IMSession;
-import com.acmedcare.framework.newim.server.processor.header.ClusterForwardMessageHeader;
 import com.acmedcare.tiffany.framework.remoting.ChannelEventListener;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyClientConfig;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketClient;
@@ -162,6 +162,7 @@ public class ClusterReplicaConnector {
       ClusterForwardMessageHeader header, byte[] messages, Retriable retriable) {
 
     for (String server : replicaServerList) {
+      clusterReplicaLog.info("准备分发消息到服务器:{}", server);
       doForwardMessage(nettyRemotingSocketClient, server, header, messages, retriable);
     }
   }
@@ -170,14 +171,14 @@ public class ClusterReplicaConnector {
       NettyRemotingSocketClient nettyRemotingSocketClient,
       String server,
       ClusterForwardMessageHeader header,
-      byte[] messages,
+      byte[] message,
       Retriable retriable) {
 
     try {
       RemotingCommand forwardRequest =
           RemotingCommand.createRequestCommand(
               ClusterWithClusterCommand.CLUSTER_FORWARD_MESSAGE, header);
-      forwardRequest.setBody(messages);
+      forwardRequest.setBody(message);
       forwardMessageExecutor.execute(
           () -> {
             try {
@@ -196,9 +197,8 @@ public class ClusterReplicaConnector {
                           // forward success
                           clusterReplicaLog.info(
                               "forward message:{} to server:{} succeed.",
-                              new String(messages),
+                              new String(message),
                               server);
-                          return;
                         } else {
                           // failed
                           if (retriable != null && retriable.isRetry()) {
@@ -208,7 +208,7 @@ public class ClusterReplicaConnector {
                                     .client(nettyRemotingSocketClient)
                                     .targetServerAddress(server)
                                     .header(header)
-                                    .body(messages)
+                                    .body(message)
                                     .build());
                             clusterReplicaLog.info(
                                 "forward message success, response biz code is failed. , add retry queue");
@@ -223,7 +223,7 @@ public class ClusterReplicaConnector {
                                   .client(nettyRemotingSocketClient)
                                   .targetServerAddress(server)
                                   .header(header)
-                                  .body(messages)
+                                  .body(message)
                                   .build());
                           clusterReplicaLog.info("forward message failed , add retry queue");
                         }
@@ -237,7 +237,7 @@ public class ClusterReplicaConnector {
                                 .client(nettyRemotingSocketClient)
                                 .targetServerAddress(server)
                                 .header(header)
-                                .body(messages)
+                                .body(message)
                                 .build());
                         clusterReplicaLog.info("forward message failed , add retry queue");
                       }
@@ -253,7 +253,7 @@ public class ClusterReplicaConnector {
                         .client(nettyRemotingSocketClient)
                         .targetServerAddress(server)
                         .header(header)
-                        .body(messages)
+                        .body(message)
                         .build());
                 clusterReplicaLog.info("forward message failed , add retry queue");
               }

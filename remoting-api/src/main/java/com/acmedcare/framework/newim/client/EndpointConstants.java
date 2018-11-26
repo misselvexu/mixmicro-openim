@@ -43,4 +43,10 @@ public interface EndpointConstants {
     /** 发送群组消息 */
     String SEND_GROUP_MESSAGE = "/message/send-group-message";
   }
+
+  interface PushRequest {
+
+    /** 推送通知 */
+    String PUSH_NOTICE = "/push/notice";
+  }
 }

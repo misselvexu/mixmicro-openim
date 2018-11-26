@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import java.io.Serializable;
 import java.util.Map;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,5 +26,5 @@ public class ScheduleWssClientAccountInstance implements Serializable {
   private ScheduleWssClientInstance scheduleWssClientInstance;
 
   /** 登录账号 */
-  private Map<Long, Principal> principals = Maps.newConcurrentMap();
+  @Default private Map<Long, Principal> principals = Maps.newConcurrentMap();
 }

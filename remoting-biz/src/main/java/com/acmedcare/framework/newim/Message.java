@@ -49,6 +49,8 @@ public class Message implements Serializable {
   @JSONField(format = "yyyy-MM-dd HH:mm:ss")
   private Date sendTimestamp;
 
+  private boolean persistent = true;
+
   public byte[] bytes() {
     return JSON.toJSONBytes(this);
   }
@@ -64,7 +66,10 @@ public class Message implements Serializable {
     NORMAL,
 
     /** 指令消息 */
-    COMMAND
+    COMMAND,
+
+    /** 媒体类型 */
+    MEDIA,
   }
 
   /** 消息本身的类型 */
@@ -72,7 +77,9 @@ public class Message implements Serializable {
     /** 单人接 */
     SINGLE,
     /** 发群组消息 */
-    GROUP
+    GROUP,
+    /** 推送消息 */
+    PUSH
   }
 
   @Getter
@@ -120,5 +127,22 @@ public class Message implements Serializable {
     private List<String> receivers;
     /** 未读人数 */
     private int unReadSize;
+  }
+
+  /** 推送消息 */
+  @Getter
+  @Setter
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class PushMessage extends QosMessage {
+
+    private static final long serialVersionUID = 1620489599567755440L;
+
+    /**
+     * 设备列表
+     *
+     * <p>不指定设备列表,默认推送所有的设备
+     */
+    private List<String> deviceIds;
   }
 }

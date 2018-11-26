@@ -38,7 +38,7 @@ public class SimpleClientDemo2 {
                 new ServerAddressHandler() {
                   @Override
                   public List<RemotingAddress> remotingAddressList() {
-                    return Lists.newArrayList(new RemotingAddress("127.0.0.1", 8887, false));
+                    return Lists.newArrayList(new RemotingAddress(false,"127.0.0.1", 8887, false));
                   }
                 })
             .build();

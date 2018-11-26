@@ -576,6 +576,11 @@ public class JREBizExectuor extends BizExecutor {
         PushMessageHeader.builder()
             .username(request.getUsername())
             .messageType(request.getMessageType())
+            .maxRetryTimes(request.getAttribute().getMaxRetryTimes())
+            .passportId(request.getPassportId())
+            .persistent(request.getAttribute().isPersistent())
+            .qos(request.getAttribute().isQos())
+            .retryPeriod(request.getAttribute().getRetryPeriod())
             .build();
 
     AcmedcareLogger.i(this.getClass().getSimpleName(), "发送消息请求头:" + JSON.toJSONString(header));
