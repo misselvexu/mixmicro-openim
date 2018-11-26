@@ -19,7 +19,8 @@ Acmedcare NewIM System , Support Some New Features
 > Push Server
 
 - Protocol Support
-    * [ ] (R)UDP
+
+    * [ ] R-UDP
 
 - Develop Kit
     * [x] JDK SDK Kit
