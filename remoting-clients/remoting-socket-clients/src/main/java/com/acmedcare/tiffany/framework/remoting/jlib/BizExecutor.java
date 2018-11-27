@@ -3,8 +3,6 @@ package com.acmedcare.tiffany.framework.remoting.jlib;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.AuthRequest;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullMessageRequest;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullOwnerGroupListRequest;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullSessionListRequest;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullSessionStatusRequest;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PushMessageReadStatusRequest;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PushMessageRequest;
 import com.acmedcare.tiffany.framework.remoting.jlib.exception.BizException;
@@ -81,31 +79,6 @@ public abstract class BizExecutor {
   public abstract void pushMessageReadStatus(
       PushMessageReadStatusRequest request,
       @Nullable PushMessageReadStatusRequest.Callback callback)
-      throws BizException;
-
-  /**
-   * 拉取会话列表
-   *
-   * @param request 请求
-   * @param callback 回调(回调为空,事件通知)
-   * @throws BizException exception
-   * @see
-   *     com.acmedcare.tiffany.framework.remoting.jlib.events.AcmedcareEvent.BizEvent#PULL_SESSION_LIST_RESPONSE
-   */
-  public abstract void pullOwnerSessionList(
-      PullSessionListRequest request, PullSessionListRequest.Callback callback) throws BizException;
-
-  /**
-   * 拉取会话详情
-   *
-   * @param request 请求对象
-   * @param callback 回调(回调为空,事件通知)
-   * @throws BizException exception
-   * @see
-   *     com.acmedcare.tiffany.framework.remoting.jlib.events.AcmedcareEvent.BizEvent#PULL_SESSION_STATUS_RESPONSE
-   */
-  public abstract void pullSessionStatus(
-      PullSessionStatusRequest request, PullSessionStatusRequest.Callback callback)
       throws BizException;
 
   /**

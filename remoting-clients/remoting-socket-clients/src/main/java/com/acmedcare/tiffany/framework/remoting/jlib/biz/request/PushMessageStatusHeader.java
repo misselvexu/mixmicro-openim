@@ -19,7 +19,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class PushMessageStatusHeader extends BaseHeader implements CommandCustomHeader {
 
-  @CFNotNull private String username;
+  @CFNotNull private String passport;
+  @CFNotNull private String passportId;
 
   /**
    * 最新消息 ID
@@ -34,11 +35,13 @@ public class PushMessageStatusHeader extends BaseHeader implements CommandCustom
   @CFNotNull private String pmt;
 
   @Builder
-  public PushMessageStatusHeader(String username, long leastMessageId, String sender, String pmt) {
-    this.username = username;
+  public PushMessageStatusHeader(
+      String passport, long leastMessageId, String sender, String pmt, String passportId) {
+    this.passport = passport;
     this.leastMessageId = leastMessageId;
     this.sender = sender;
     this.pmt = pmt;
+    this.passportId = passportId;
   }
 
   /**

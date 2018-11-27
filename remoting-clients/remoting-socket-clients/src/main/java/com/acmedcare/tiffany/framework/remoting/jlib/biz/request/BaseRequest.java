@@ -1,6 +1,5 @@
 package com.acmedcare.tiffany.framework.remoting.jlib.biz.request;
 
-import com.acmedcare.tiffany.framework.remoting.jlib.Alias;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.MessageAttribute;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,25 +16,24 @@ import lombok.Setter;
 @NoArgsConstructor
 public abstract class BaseRequest {
 
-  @Alias("passport")
-  private String username;
+  private String passport;
 
   private String passportId;
 
   /** Default Attribute */
   private MessageAttribute attribute = MessageAttribute.builder().build();
 
-  public BaseRequest(String username) {
-    this.username = username;
+  public BaseRequest(String passport) {
+    this.passport = passport;
   }
 
-  public BaseRequest(String username, String passportId) {
-    this.username = username;
+  public BaseRequest(String passport, String passportId) {
+    this.passport = passport;
     this.passportId = passportId;
   }
 
-  public BaseRequest(String username, String passportId, MessageAttribute attribute) {
-    this.username = username;
+  public BaseRequest(String passport, String passportId, MessageAttribute attribute) {
+    this.passport = passport;
     this.passportId = passportId;
     this.attribute = attribute;
   }

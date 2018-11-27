@@ -17,11 +17,12 @@ import org.apache.commons.lang3.StringUtils;
 @Setter
 public class PullSessionHeader implements CommandCustomHeader {
 
+  @CFNotNull private String passport;
   @CFNotNull private String passportId;
 
   @Override
   public void checkFields() throws RemotingCommandException {
-    if (StringUtils.isAnyBlank(passportId)) {
+    if (StringUtils.isAnyBlank(passport, passportId)) {
       throw new RemotingCommandException("通行证编号不能为空");
     }
   }

@@ -10,10 +10,10 @@
 
     <appender class="ch.qos.logback.core.rolling.RollingFileAppender"
        name="start-log">
-        <file>logs/start.log</file>
+        <file>logs/master/start.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/start.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
+            <fileNamePattern>logs/master/start.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
             <maxFileSize>2GB</maxFileSize>
             <MaxHistory>15</MaxHistory>
             <totalSizeCap>7GB</totalSizeCap>
@@ -27,10 +27,10 @@
 
     <appender class="ch.qos.logback.core.rolling.RollingFileAppender"
        name="master-mongo-log">
-        <file>logs/master-mongo-log.log</file>
+        <file>logs/master/master-mongo-log.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/master-mongo-log.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
+            <fileNamePattern>logs/master/master-mongo-log.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
             <maxFileSize>2GB</maxFileSize>
             <MaxHistory>15</MaxHistory>
             <totalSizeCap>7GB</totalSizeCap>
@@ -44,10 +44,10 @@
 
     <appender class="ch.qos.logback.core.rolling.RollingFileAppender"
        name="endpoint-log">
-        <file>logs/endpoint-log.log</file>
+        <file>logs/master/endpoint-log.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/endpoint-log.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
+            <fileNamePattern>logs/master/endpoint-log.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
             <maxFileSize>2GB</maxFileSize>
             <MaxHistory>15</MaxHistory>
             <totalSizeCap>7GB</totalSizeCap>
@@ -61,10 +61,10 @@
 
     <appender class="ch.qos.logback.core.rolling.RollingFileAppender"
        name="master-cluster-acceptor">
-        <file>logs/master-cluster-acceptor.log</file>
+        <file>logs/master/master-cluster-acceptor.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/master-cluster-acceptor.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
+            <fileNamePattern>logs/master/master-cluster-acceptor.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
             <maxFileSize>2GB</maxFileSize>
             <MaxHistory>15</MaxHistory>
             <totalSizeCap>7GB</totalSizeCap>
@@ -79,10 +79,10 @@
 
     <appender class="ch.qos.logback.core.rolling.RollingFileAppender"
        name="rootFile">
-        <file>logs/master.log</file>
+        <file>logs/master/master.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/master.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
+            <fileNamePattern>logs/master/master.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
             <maxFileSize>50MB</maxFileSize>
             <MaxHistory>15</MaxHistory>
             <totalSizeCap>512MB</totalSizeCap>

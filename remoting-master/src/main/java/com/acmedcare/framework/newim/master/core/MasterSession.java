@@ -4,6 +4,7 @@ import static com.acmedcare.framework.newim.MasterLogger.masterClusterAcceptorLo
 
 import com.acmedcare.framework.kits.thread.DefaultThreadFactory;
 import com.acmedcare.framework.kits.thread.ThreadKit;
+import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.InstanceNode;
 import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.client.MessageAttribute;
@@ -13,12 +14,12 @@ import com.acmedcare.framework.newim.protocol.request.ClusterRegisterBody.WssIns
 import com.acmedcare.framework.newim.protocol.request.MasterNoticeSessionDataBody;
 import com.acmedcare.framework.newim.protocol.request.MasterPushMessageHeader;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
+import com.acmedcare.tiffany.framework.remoting.protocol.RemotingSerializable;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.util.AttributeKey;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +79,7 @@ public class MasterSession {
     private ScheduledExecutorService notifierExecutor;
     private ExecutorService asyncNotifierExecutor;
     private ExecutorService distributeMessageExecutor;
+    private MasterClusterAcceptorServer masterClusterAcceptorServer;
 
     public MasterClusterSession() {
       notifier();
@@ -225,23 +227,23 @@ public class MasterSession {
                             MasterClusterCommand.MASTER_PUSH_MESSAGES, header);
                     distributeRequest.setBody(message.bytes());
 
-                    if (channel != null && channel.isWritable()) {
-                      channel
-                          .writeAndFlush(distributeRequest)
-                          .addListener(
-                              (ChannelFutureListener)
-                                  future -> {
-                                    if (future.isSuccess()) {
-                                      // success
-                                      masterClusterAcceptorLog.info(
-                                          "master distribute message to server:{} succeed.",
-                                          address);
-                                    } else {
-                                      // TODO send failed
-                                    }
-                                  });
+                    RemotingCommand response =
+                        masterClusterAcceptorServer
+                            .getMasterClusterAcceptorServer()
+                            .invokeSync(channel, distributeRequest, 3000);
+
+                    if (response != null) {
+                      BizResult bizResult =
+                          RemotingSerializable.decode(response.getBody(), BizResult.class);
+                      if (bizResult.getCode() == 0) {
+                        masterClusterAcceptorLog.info(
+                            "master distribute message to server:{} succeed.", address);
+                      } else {
+                        // TODO failed
+                      }
                     } else {
-                      // TODO no available
+                      // TODO failed
+
                     }
                   } catch (Exception e) {
                     masterClusterAcceptorLog.error(
@@ -300,22 +302,34 @@ public class MasterSession {
                       asyncNotifierExecutor.execute(
                           () -> {
                             try {
+
                               if (value.getClusterClientChannel().isWritable()) {
-                                value
-                                    .getClusterClientChannel()
-                                    .writeAndFlush(notifyRequest)
-                                    .addListener(
-                                        (ChannelFutureListener)
-                                            future -> {
-                                              if (future.isSuccess()) {
-                                                masterClusterAcceptorLog.info(
-                                                    "master notify push session data succeed.");
-                                              }
-                                            });
+
+                                RemotingCommand response =
+                                    masterClusterAcceptorServer
+                                        .getMasterClusterAcceptorServer()
+                                        .invokeSync(
+                                            value.getClusterClientChannel(), notifyRequest, 3000);
+
+                                if (response != null) {
+                                  BizResult bizResult =
+                                      RemotingSerializable.decode(
+                                          response.getBody(), BizResult.class);
+                                  if (bizResult.getCode() == 0) {
+                                    masterClusterAcceptorLog.info(
+                                        "master notify push session data succeed.");
+                                  } else {
+                                    // TODO failed
+                                  }
+                                } else {
+                                  // TODO failed
+
+                                }
                               } else {
                                 masterClusterAcceptorLog.warn(
                                     "master notify push session data fail , cause by cluster client channel is un-writable");
                               }
+
                             } catch (Exception e) {
                               masterClusterAcceptorLog.error(
                                   "master notify push session data exception", e);
@@ -341,6 +355,10 @@ public class MasterSession {
             } catch (Exception ignore) {
             }
           });
+    }
+
+    public void registerServerInstance(MasterClusterAcceptorServer masterClusterAcceptorServer) {
+      this.masterClusterAcceptorServer = masterClusterAcceptorServer;
     }
   }
 

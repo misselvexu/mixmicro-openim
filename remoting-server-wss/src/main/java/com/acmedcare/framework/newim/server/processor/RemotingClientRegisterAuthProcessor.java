@@ -65,7 +65,7 @@ public class RemotingClientRegisterAuthProcessor extends AbstractNormalRequestPr
       }
 
       WssPrincipal wssPrincipal = new WssPrincipal();
-      BeanUtils.copyProperties(principal,wssPrincipal);
+      BeanUtils.copyProperties(principal, wssPrincipal);
       wssPrincipal.setAreaNo(authHeader.getAreaNo());
       wssPrincipal.setDeviceId(authHeader.getDeviceId());
       wssPrincipal.setOrgId(authHeader.getOrgId());

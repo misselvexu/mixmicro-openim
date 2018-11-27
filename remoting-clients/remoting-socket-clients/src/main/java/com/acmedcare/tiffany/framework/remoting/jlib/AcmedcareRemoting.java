@@ -264,6 +264,7 @@ public final class AcmedcareRemoting implements Serializable {
     if (AcmedcareRemoting.clientConfig == null) {
       AcmedcareLogger.i(null, "build new client config with default setting");
       AcmedcareRemoting.clientConfig = new XLMRClientConfig();
+      AcmedcareRemoting.clientConfig.setClientChannelMaxIdleTimeSeconds(40);
     }
 
     AcmedcareLogger.i(null, "build new remoting client instance for connect");
@@ -309,7 +310,12 @@ public final class AcmedcareRemoting implements Serializable {
                   // auth automatic
                   AcmedcareRemoting.this.bizExecutor.auth(
                       AuthRequest.builder()
+                          .accessToken(AcmedcareRemoting.parameters.getAccessToken())
+                          .areaNo(AcmedcareRemoting.parameters.getAreaNo())
+                          .orgId(AcmedcareRemoting.parameters.getOrgId())
+                          .deviceId(AcmedcareRemoting.parameters.getDeviceId())
                           .username(AcmedcareRemoting.parameters.getUsername())
+                          .passportId(AcmedcareRemoting.parameters.getPassportId())
                           .build(),
                       AcmedcareRemoting.parameters.getAuthCallback());
                 }

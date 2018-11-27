@@ -19,7 +19,7 @@ import lombok.Setter;
 public class PullMessageHeader implements CommandCustomHeader {
 
   /** passport for client */
-  @CFNotNull private String username;
+  @CFNotNull private String passport;
 
   @CFNotNull private String passportId;
 

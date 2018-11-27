@@ -42,7 +42,7 @@ public class RemotingAuthService {
   public WssPrincipal principal(String token) {
     Principal principal = aorpClient.getPrincipal(token);
     WssPrincipal wssPrincipal = new WssPrincipal();
-    BeanUtils.copyProperties(principal,wssPrincipal);
+    BeanUtils.copyProperties(principal, wssPrincipal);
     return wssPrincipal;
   }
 }

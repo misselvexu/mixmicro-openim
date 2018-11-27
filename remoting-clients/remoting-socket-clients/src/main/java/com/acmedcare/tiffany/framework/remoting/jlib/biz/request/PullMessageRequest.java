@@ -44,7 +44,12 @@ public class PullMessageRequest {
 
   @Builder
   public PullMessageRequest(
-      String sender, int type, long leastMessageId, long limit, String username,String passportId) {
+      String sender,
+      int type,
+      long leastMessageId,
+      long limit,
+      String username,
+      String passportId) {
     this.sender = sender;
     this.type = type;
     this.leastMessageId = leastMessageId;

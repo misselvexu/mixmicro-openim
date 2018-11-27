@@ -4,7 +4,6 @@ import com.acmedcare.tiffany.framework.remoting.android.core.CFNotNull;
 import com.acmedcare.tiffany.framework.remoting.android.core.exception.RemotingCommandException;
 import com.acmedcare.tiffany.framework.remoting.android.core.protocol.CommandCustomHeader;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message;
-import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,9 +23,7 @@ public class PushMessageHeader extends BaseHeader implements CommandCustomHeader
   private static final long serialVersionUID = -5953866493854736706L;
   @CFNotNull private String messageType;
 
-  @CFNotNull
-  @JSONField(name = "passport")
-  private String username;
+  @CFNotNull private String passport;
 
   @CFNotNull private String passportId;
 
@@ -43,10 +40,16 @@ public class PushMessageHeader extends BaseHeader implements CommandCustomHeader
   @CFNotNull private boolean persistent;
 
   @Builder
-  public PushMessageHeader(String messageType, String username, String passportId, boolean qos, int maxRetryTimes,
-      long retryPeriod, boolean persistent) {
+  public PushMessageHeader(
+      String messageType,
+      String passport,
+      String passportId,
+      boolean qos,
+      int maxRetryTimes,
+      long retryPeriod,
+      boolean persistent) {
     this.messageType = messageType;
-    this.username = username;
+    this.passport = passport;
     this.passportId = passportId;
     this.qos = qos;
     this.maxRetryTimes = maxRetryTimes;

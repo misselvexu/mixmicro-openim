@@ -19,7 +19,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class PullMessageHeader extends BaseHeader implements CommandCustomHeader {
 
-  @CFNotNull private String username;
+  @CFNotNull private String passport;
 
   @CFNotNull private String passportId;
 
@@ -45,8 +45,13 @@ public class PullMessageHeader extends BaseHeader implements CommandCustomHeader
 
   @Builder
   public PullMessageHeader(
-      String username, String sender, int type, long leastMessageId, long limit,String passportId) {
-    this.username = username;
+      String passport,
+      String sender,
+      int type,
+      long leastMessageId,
+      long limit,
+      String passportId) {
+    this.passport = passport;
     this.sender = sender;
     this.type = type;
     this.leastMessageId = leastMessageId;

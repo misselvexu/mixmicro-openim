@@ -87,7 +87,7 @@ public class RemotingClientPushMessageProcessor extends AbstractNormalRequestPro
           break;
       }
 
-      response.setBody(BizResult.builder().data(ret).build().bytes());
+      response.setBody(BizResult.builder().code(0).data(ret).build().bytes());
 
     } catch (Exception e) {
       // exception

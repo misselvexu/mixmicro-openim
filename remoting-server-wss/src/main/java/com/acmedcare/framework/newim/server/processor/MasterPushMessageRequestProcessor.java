@@ -60,6 +60,9 @@ public class MasterPushMessageRequestProcessor implements NettyRequestProcessor 
           imSession.sendMessageToPassport(singleMessage.getReceiver(), messageType, message);
           break;
       }
+
+      response.setBody(BizResult.builder().code(0).build().bytes());
+
     } catch (Exception e) {
       // exception
       response.setBody(

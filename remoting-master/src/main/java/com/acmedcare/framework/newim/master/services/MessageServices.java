@@ -55,7 +55,7 @@ public class MessageServices {
     singleMessage.setReadFlag(false);
     singleMessage.setReceiver(receiver);
     singleMessage.setBody(content.getBytes());
-    singleMessage.setInnerType(InnerType.valueOf(type));
+    singleMessage.setInnerType(InnerType.valueOf(type.toUpperCase()));
     singleMessage.setMaxRetryTimes(attribute.getMaxRetryTimes());
     singleMessage.setMessageType(MessageType.SINGLE);
     singleMessage.setQos(attribute.isQos());
@@ -88,7 +88,7 @@ public class MessageServices {
       singleMessage.setReadFlag(false);
       singleMessage.setReceiver(receiver);
       singleMessage.setBody(content.getBytes());
-      singleMessage.setInnerType(InnerType.valueOf(type));
+      singleMessage.setInnerType(InnerType.valueOf(type.toUpperCase()));
       singleMessage.setMaxRetryTimes(attribute.getMaxRetryTimes());
       singleMessage.setMessageType(MessageType.SINGLE);
       singleMessage.setQos(attribute.isQos());
@@ -116,7 +116,7 @@ public class MessageServices {
     //
     GroupMessage message = new GroupMessage();
     message.setBody(content.getBytes());
-    message.setInnerType(InnerType.valueOf(type));
+    message.setInnerType(InnerType.valueOf(type.toUpperCase()));
     message.setMaxRetryTimes(attribute.getMaxRetryTimes());
     message.setMessageType(MessageType.GROUP);
     message.setQos(attribute.isQos());

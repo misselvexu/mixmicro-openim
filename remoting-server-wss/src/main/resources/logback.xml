@@ -10,10 +10,10 @@
 
     <appender class="ch.qos.logback.core.rolling.RollingFileAppender"
        name="start-log">
-        <file>logs/start.log</file>
+        <file>logs/wss/start.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/start.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
+            <fileNamePattern>logs/wss/start.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
             <maxFileSize>2GB</maxFileSize>
             <MaxHistory>15</MaxHistory>
             <totalSizeCap>7GB</totalSizeCap>
@@ -27,10 +27,10 @@
 
     <appender class="ch.qos.logback.core.rolling.RollingFileAppender"
        name="master-mongo-log">
-        <file>logs/cluster-mongo.log</file>
+        <file>logs/wss/cluster-mongo.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/cluster-mongo.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
+            <fileNamePattern>logs/wss/cluster-mongo.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
             <maxFileSize>2GB</maxFileSize>
             <MaxHistory>15</MaxHistory>
             <totalSizeCap>7GB</totalSizeCap>
@@ -44,10 +44,10 @@
 
     <appender class="ch.qos.logback.core.rolling.RollingFileAppender"
        name="master-cluster-connector">
-        <file>logs/master-cluster-connector.log</file>
+        <file>logs/wss/master-cluster-connector.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/master-cluster-connector.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
+            <fileNamePattern>logs/wss/master-cluster-connector.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
             <maxFileSize>2GB</maxFileSize>
             <MaxHistory>15</MaxHistory>
             <totalSizeCap>7GB</totalSizeCap>
@@ -61,10 +61,10 @@
 
     <appender class="ch.qos.logback.core.rolling.RollingFileAppender"
        name="im-convert">
-        <file>logs/im-convert.log</file>
+        <file>logs/wss/im-convert.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/im-convert.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
+            <fileNamePattern>logs/wss/im-convert.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
             <maxFileSize>2GB</maxFileSize>
             <MaxHistory>15</MaxHistory>
             <totalSizeCap>7GB</totalSizeCap>
@@ -78,10 +78,10 @@
 
     <appender class="ch.qos.logback.core.rolling.RollingFileAppender"
        name="inner-replica-server">
-        <file>logs/inner-replica-server.log</file>
+        <file>logs/wss/inner-replica-server.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/inner-replica-server.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
+            <fileNamePattern>logs/wss/inner-replica-server.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
             <maxFileSize>2GB</maxFileSize>
             <MaxHistory>15</MaxHistory>
             <totalSizeCap>7GB</totalSizeCap>
@@ -95,10 +95,10 @@
 
     <appender class="ch.qos.logback.core.rolling.RollingFileAppender"
        name="im-server">
-        <file>logs/im-server.log</file>
+        <file>logs/wss/im-server.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/im-server.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
+            <fileNamePattern>logs/wss/im-server.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
             <maxFileSize>2GB</maxFileSize>
             <MaxHistory>15</MaxHistory>
             <totalSizeCap>7GB</totalSizeCap>
@@ -112,10 +112,10 @@
 
     <appender class="ch.qos.logback.core.rolling.RollingFileAppender"
        name="wss-server">
-        <file>logs/wss-server.log</file>
+        <file>logs/wss/wss-server.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/wss-server.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
+            <fileNamePattern>logs/wss/wss-server.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
             <maxFileSize>2GB</maxFileSize>
             <MaxHistory>15</MaxHistory>
             <totalSizeCap>7GB</totalSizeCap>
@@ -129,10 +129,10 @@
 
     <appender class="ch.qos.logback.core.rolling.RollingFileAppender"
        name="cluster-replica-connector">
-        <file>logs/cluster-replica-connector.log</file>
+        <file>logs/wss/cluster-replica-connector.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/cluster-replica-connector.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
+            <fileNamePattern>logs/wss/cluster-replica-connector.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
             <maxFileSize>2GB</maxFileSize>
             <MaxHistory>15</MaxHistory>
             <totalSizeCap>7GB</totalSizeCap>
@@ -147,10 +147,10 @@
 
     <appender class="ch.qos.logback.core.rolling.RollingFileAppender"
        name="rootFile">
-        <file>logs/cluster.log</file>
+        <file>logs/wss/cluster.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/cluster.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
+            <fileNamePattern>logs/wss/cluster.log.%d{yyyy-MM-dd}.%i</fileNamePattern>
             <maxFileSize>50MB</maxFileSize>
             <MaxHistory>15</MaxHistory>
             <totalSizeCap>512MB</totalSizeCap>

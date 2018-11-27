@@ -16,7 +16,17 @@ public final class RemotingParameters {
 
   @Getter private ServerAddressHandler serverAddressHandler;
 
+  @Getter private String accessToken;
+
   @Getter private String username;
+
+  @Getter private Long passportId;
+
+  @Getter private String areaNo;
+
+  @Getter private String orgId;
+
+  @Getter private String deviceId;
 
   @Getter private AuthRequest.AuthCallback authCallback;
 

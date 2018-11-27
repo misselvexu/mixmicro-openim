@@ -19,12 +19,12 @@ import lombok.Setter;
 @NoArgsConstructor
 public class PullGroupHeader extends BaseHeader implements CommandCustomHeader {
 
-  @CFNotNull private String username;
+  @CFNotNull private String passport;
   @CFNotNull private String passportId;
 
   @Builder
-  public PullGroupHeader(String username, String passportId) {
-    this.username = username;
+  public PullGroupHeader(String passport, String passportId) {
+    this.passport = passport;
     this.passportId = passportId;
   }
 

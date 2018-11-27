@@ -51,7 +51,7 @@ public class MasterClusterAcceptorServer {
   /** 集群MServer配置 */
   private NettyServerConfig masterClusterConfig;
   /** 集群MServer 实例 */
-  private NettyRemotingSocketServer masterClusterAcceptorServer;
+  @Getter private NettyRemotingSocketServer masterClusterAcceptorServer;
 
   /** Default Executor */
   private ExecutorService defaultExecutor =
@@ -250,6 +250,8 @@ public class MasterClusterAcceptorServer {
           }
         },
         null);
+
+    masterClusterSession.registerServerInstance(this);
 
     // 启动
     masterClusterAcceptorServer.start();

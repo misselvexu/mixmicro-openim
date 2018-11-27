@@ -51,16 +51,6 @@ public class BizCode {
   public static final int CLIENT_PULL_OWNER_GROUPS = 0x40002;
 
   /**
-   * 客户端拉取会话列表
-   *
-   * <pre>
-   *
-   *
-   * </pre>
-   */
-  public static final int CLIENT_PULL_OWNER_SESSIONS = 0x40003;
-
-  /**
    * 客户端推送消息已读状态
    *
    * <pre>
@@ -69,15 +59,6 @@ public class BizCode {
    * </pre>
    */
   public static final int CLIENT_PUSH_MESSAGE_READ_STATUS = 0x40004;
-
-  /**
-   * 客户端拉取会话状态(未读数/最后一条消息)
-   *
-   * <pre>
-   *
-   * </pre>
-   */
-  public static final int CLIENT_PULL_SESSION_STATUS = 0x40005;
 
   /**
    * 客户端发消息
