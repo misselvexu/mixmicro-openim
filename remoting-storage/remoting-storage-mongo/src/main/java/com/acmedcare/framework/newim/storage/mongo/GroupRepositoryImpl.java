@@ -151,8 +151,8 @@ public class GroupRepositoryImpl implements GroupRepository {
   public List<Group> queryMemberGroups(String passportId) {
 
     Query groupIdsQuery = new Query(Criteria.where("memberId").is(passportId));
-    List<Long> groupIds =
-        this.mongoTemplate.findDistinct(groupIdsQuery, "groupId", REF_GROUP_MEMBER, Long.class);
+    List<String> groupIds =
+        this.mongoTemplate.findDistinct(groupIdsQuery, "groupId", REF_GROUP_MEMBER, String.class);
     if (!groupIds.isEmpty()) {
       Query groupDetailQuery = new Query(Criteria.where("groupId").in(groupIds));
       return this.mongoTemplate.find(groupDetailQuery, Group.class, GROUP);

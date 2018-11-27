@@ -7,6 +7,7 @@ import com.acmedcare.framework.newim.Message.GroupMessage;
 import com.acmedcare.framework.newim.Message.SingleMessage;
 import com.acmedcare.framework.newim.client.MessageAttribute;
 import com.acmedcare.framework.newim.server.core.IMSession;
+import com.acmedcare.framework.newim.storage.api.GroupRepository;
 import com.acmedcare.framework.newim.storage.api.MessageRepository;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
@@ -27,10 +28,12 @@ import org.springframework.stereotype.Component;
 public class MessageService {
 
   private final MessageRepository messageRepository;
+  private final GroupRepository groupRepository;
 
   @Autowired
-  public MessageService(MessageRepository messageRepository) {
+  public MessageService(MessageRepository messageRepository, GroupRepository groupRepository) {
     this.messageRepository = messageRepository;
+    this.groupRepository = groupRepository;
   }
 
   /**
@@ -42,10 +45,6 @@ public class MessageService {
    * @see Message.GroupMessage
    */
   public void processMessage(IMSession imSession, Message message) {
-    // 1. (根据消息类型)存储消息
-    this.messageRepository.saveMessage(message);
-    imServerLog.info("消息,ID:{},内容:{},存储成功", message.getMid(), JSON.toJSONString(message));
-
     MessageAttribute attribute = MessageAttribute.builder().build();
     // 2. 拉取目标对象的服务器地址(Master Server)
     if (message instanceof SingleMessage) {
@@ -63,7 +62,15 @@ public class MessageService {
       attribute.setPersistent(groupMessage.isPersistent());
       attribute.setQos(groupMessage.isQos());
       attribute.setRetryPeriod(groupMessage.getRetryPeriod());
+
+      // check group receivers
+      List<String> groupIds = this.groupRepository.queryGroupMembers(groupMessage.getGroup());
+      groupMessage.setReceivers(groupIds);
     }
+
+    // 1. (根据消息类型)存储消息
+    this.messageRepository.saveMessage(message);
+    imServerLog.info("消息,ID:{},内容:{},存储成功", message.getMid(), JSON.toJSONString(message));
 
     // 分发
     imServerLog.info("提交分发消息到其他的通讯服务器任务");
@@ -90,6 +97,7 @@ public class MessageService {
           GroupMessage groupMessage = (GroupMessage) message;
           imSession.sendMessageToPassport(
               groupMessage.getReceivers(), groupMessage.getMessageType(), message.bytes());
+
           imServerLog.info(
               "本机批量发送单聊消息到客户端完成, 消息编号:{} , 接收人列表:{}",
               groupMessage.getMid(),

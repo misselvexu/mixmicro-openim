@@ -10,7 +10,6 @@ import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Group;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message.GroupMessage;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message.InnerType;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message.MessageType;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message.SingleMessage;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.AuthRequest.AuthCallback;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullMessageRequest;
@@ -35,7 +34,7 @@ import java.util.List;
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version v1.0 - 11/08/2018.
  */
-public class FirstDemoClient {
+public class SecondDemoClient {
 
   public static void main(String[] args) throws IOException {
 
@@ -123,7 +122,7 @@ public class FirstDemoClient {
         // functions
         String[] inputArgs = input.split("\\s+");
 
-        // 拉取消息请求参数:  pullMessageList 3837142362366976 -1
+        // 拉取消息请求参数:  pullMessageList 3837142362366977 -1
         if (inputArgs[0].equals("pullMessageList")) {
           pullMessageList(inputArgs[1], Long.parseLong(inputArgs[2]));
           continue;
@@ -146,7 +145,6 @@ public class FirstDemoClient {
             singleMessage.setReceiver(inputArgs[2]);
             singleMessage.setBody(inputArgs[3].getBytes());
             singleMessage.setInnerType(InnerType.NORMAL);
-            singleMessage.setMessageType(MessageType.SINGLE);
             singleMessage.setSender(KnownParams.passportId.toString());
 
             sendMessage(singleMessage);
@@ -154,10 +152,8 @@ public class FirstDemoClient {
 
           if ("GROUP".equals(inputArgs[1])) {
             GroupMessage groupMessage = new GroupMessage();
-            groupMessage.setSender(KnownParams.passportId.toString());
             groupMessage.setGroup(inputArgs[2]);
             groupMessage.setBody(inputArgs[3].getBytes());
-            groupMessage.setMessageType(MessageType.GROUP);
 
             sendMessage(groupMessage);
           }
@@ -261,16 +257,16 @@ public class FirstDemoClient {
   private interface KnownParams {
 
     String accessToken =
-        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiJjMTZjZDk5MzM4NDY0YmQ5OWExMGRkOWFmYWNiN2VhNiIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NDMzMTEyNDcxMTgsImV4cCI6MTU0MzkyNDUyMTExOCwiYXVkIjpudWxsfQ.BhrmV4LBkhyifVKvHqdImLZ-ppRsU9nmM09fHw9-Zjycz0x9Sqi7MjIYsYo1F_DbUIXNeKLo9KxaBmyyefR-zIMTBA2X4irGIb7e9TQU0zz7tihdxtqi0epKNOAKN_3rsMaoCI9YQeJTw5hqWOIBWnFalZMC1jvSRLuSlZvD-fwEJFBQTu6dQ0IgFijZApoeGEo0_bDn7TKPeyL7s8I1Wm1V_vPc297d1O1xj0PzLoH346_G3U1qjt6SI6pYUfV26TzS20m4sAcgZbDn10wOyMUketjgEEKefahnSM41AgohvE8z0fAaVUASq1DFaMiJeMKARgewSBySYFTS-ImyjA";
+        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiJhMmUzOTExMzAyMmM0NzNkYTllNzAwMjFiNGU4NGQzZCIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlIcXc5TDdUU0gwVmlLTWNXNUp3RVd0ZXc5Rk12SVFZcGZDMG5CUUhOamVucmMyYndheHNwMk93NXVkSGM1ZllTcGd0a2FxRkV6U29Uck41S0kyaHZKRW52L1RHV0hLeDdFdTJRNEs1V3JrZTZTMjNIaUdhWXdvQ29ua3ZuSlVjWGQxNzNwV3pFbmF0bz0iLCJpYXQiOjE1NDMzMTAyOTY0NTEsImV4cCI6MTU0MzkyMzUwMDQ1MSwiYXVkIjpudWxsfQ.kVupBQJuGfcvKqmWQzxa5PLqWx835gCGpvwxiBnYlJZul-0kN7DnErc-sS4ZfUbDZtJZqrhyrb_4W5ISizkRgq8oZDe_DEHW0FzPN4RIse6SO5f4uy3mSOOH7DuT-aJ52iLFo88GjliSPKtWggw9x1lKcOxC-qL7tNdMZ5y8A38OQY7JfSFEGBSZ2Vrw4xgtipPkAVJ0eGygnTUCvGijKg-A17T0lOAAxLJVjdmmzPCsVHBw-VWaxHP9MfMIImjiiSGTVT0AN_k3_BYr4BaztxA9ZZMi9iv-KK6P1Fob3aKZkMKRx-AJefb70kE1gdhjF8eLi5E_z2H-hhcRJ6ofCg";
 
     String areaNo = "320500";
 
     String orgId = "3910249034228736";
 
-    Long passportId = 3837142362366976L;
+    Long passportId = 3837142362366977L;
 
-    String passport = "13910187669";
+    String passport = "13910187666";
 
-    String deviceId = "DEVICE-ID";
+    String deviceId = "DEVICE-ID-2";
   }
 }

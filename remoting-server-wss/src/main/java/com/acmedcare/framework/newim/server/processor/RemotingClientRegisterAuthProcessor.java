@@ -88,7 +88,7 @@ public class RemotingClientRegisterAuthProcessor extends AbstractNormalRequestPr
               .exception(
                   ExceptionWrapper.builder()
                       .message(e.getMessage())
-                      .type(e.getCause().getClass())
+                      .type(e.getClass())
                       .build())
               .build()
               .bytes());

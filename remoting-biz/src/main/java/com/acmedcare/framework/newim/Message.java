@@ -133,7 +133,6 @@ public class Message implements Serializable {
     @Indexed(name = "group_query_index")
     private String group;
 
-    @JSONField(serialize = false) // 不序列化给客户端
     private List<String> receivers;
     /** 未读人数 */
     private int unReadSize;

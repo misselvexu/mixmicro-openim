@@ -63,8 +63,8 @@ public abstract class BizExecutor {
    * @see
    *     com.acmedcare.tiffany.framework.remoting.jlib.events.AcmedcareEvent.BizEvent#PULL_MESSAGE_RESPONSE
    */
-  public abstract void pullMessage(
-      PullMessageRequest request, @Nullable PullMessageRequest.Callback callback)
+  public abstract <T> void pullMessage(
+      PullMessageRequest request, @Nullable PullMessageRequest.Callback<T> callback)
       throws BizException;
 
   /**

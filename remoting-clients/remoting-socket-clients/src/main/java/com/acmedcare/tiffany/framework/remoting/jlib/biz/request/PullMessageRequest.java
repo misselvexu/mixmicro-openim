@@ -1,6 +1,5 @@
 package com.acmedcare.tiffany.framework.remoting.jlib.biz.request;
 
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
@@ -58,9 +57,9 @@ public class PullMessageRequest {
     this.passportId = passportId;
   }
 
-  public interface Callback {
+  public interface Callback<T> {
 
-    void onSuccess(List<Message> messages);
+    void onSuccess(List<T> messages);
 
     void onFailed(int code, String message);
   }

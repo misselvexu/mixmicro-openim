@@ -11,7 +11,6 @@ import com.acmedcare.framework.newim.server.processor.ClusterReplicaRegisterRequ
 import com.acmedcare.framework.newim.server.processor.DefaultIMProcessor;
 import com.acmedcare.framework.newim.server.processor.RemotingClientPullGroupProcessor;
 import com.acmedcare.framework.newim.server.processor.RemotingClientPullMessageProcessor;
-import com.acmedcare.framework.newim.server.processor.RemotingClientPullSessionProcessor;
 import com.acmedcare.framework.newim.server.processor.RemotingClientPushMessageProcessor;
 import com.acmedcare.framework.newim.server.processor.RemotingClientRegisterAuthProcessor;
 import com.acmedcare.framework.newim.server.service.GroupService;
@@ -206,10 +205,6 @@ public class NewIMServerBootstrap {
         new RemotingClientRegisterAuthProcessor(imSession, remotingAuthService),
         defaultExecutor);
 
-    imServer.registerProcessor(
-        ClusterClientCommand.CLIENT_PULL_OWNER_SESSIONS,
-        new RemotingClientPullSessionProcessor(imSession),
-        null);
     imServer.registerProcessor(
         ClusterClientCommand.CLIENT_PUSH_MESSAGE,
         new RemotingClientPushMessageProcessor(imSession, messageService),

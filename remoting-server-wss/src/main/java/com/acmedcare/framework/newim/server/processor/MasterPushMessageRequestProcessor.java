@@ -14,7 +14,9 @@ import com.acmedcare.framework.newim.server.core.IMSession;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRequestProcessor;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
 import io.netty.channel.ChannelHandlerContext;
+import java.util.List;
 
 /**
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
@@ -53,7 +55,9 @@ public class MasterPushMessageRequestProcessor implements NettyRequestProcessor 
       switch (messageType) {
         case GROUP:
           GroupMessage groupMessage = JSON.parseObject(message, GroupMessage.class);
-          imSession.sendMessageToPassport(groupMessage.getReceivers(), messageType, message);
+          List<String> receivers = Lists.newArrayList(groupMessage.getReceivers());
+          groupMessage.getReceivers().clear();
+          imSession.sendMessageToPassport(receivers, messageType, message);
           break;
         case SINGLE:
           SingleMessage singleMessage = JSON.parseObject(message, SingleMessage.class);

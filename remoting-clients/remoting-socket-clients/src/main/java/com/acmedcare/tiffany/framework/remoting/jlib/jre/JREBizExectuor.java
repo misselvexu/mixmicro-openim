@@ -13,7 +13,6 @@ import com.acmedcare.tiffany.framework.remoting.jlib.BizExecutor;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.BizCode;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.BizResult;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Group;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.AuthHeader;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.AuthRequest;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullGroupHeader;
@@ -123,7 +122,7 @@ public class JREBizExectuor extends BizExecutor {
   }
 
   @Override
-  public void pullMessage(PullMessageRequest request, final PullMessageRequest.Callback callback)
+  public <T> void pullMessage(PullMessageRequest request, final PullMessageRequest.Callback<T> callback)
       throws BizException {
 
     PullMessageHeader header =
@@ -163,10 +162,10 @@ public class JREBizExectuor extends BizExecutor {
 
                       if (bizResult.getCode() == 0) {
                         // success
-                        final List<Message> messages =
+                        final List<T> messages =
                             JSONObject.parseObject(
                                 JSON.toJSONString(bizResult.getData()),
-                                new TypeReference<List<Message>>() {});
+                                new TypeReference<List<T>>() {});
 
                         if (callback != null) {
 
