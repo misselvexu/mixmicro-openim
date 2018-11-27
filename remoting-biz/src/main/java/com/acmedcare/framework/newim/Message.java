@@ -37,6 +37,7 @@ public class Message implements Serializable {
   private InnerType innerType = InnerType.NORMAL;
 
   /** message sender */
+  @Indexed(name = "send_query_index")
   private String sender;
 
   /** 接收人类型 */
@@ -47,7 +48,10 @@ public class Message implements Serializable {
 
   /** Send Timestamp */
   @JSONField(format = "yyyy-MM-dd HH:mm:ss")
-  private Date sendTimestamp;
+  private Date sendTimestamp = new Date();
+
+  @JSONField(serialize = false)
+  private long innerTimestamp = System.nanoTime();
 
   private boolean persistent = true;
 
@@ -109,6 +113,8 @@ public class Message implements Serializable {
   public static class SingleMessage extends QosMessage {
 
     private static final long serialVersionUID = 8573237210255043188L;
+
+    @Indexed(name = "receiver_query_index")
     private String receiver;
 
     private boolean readFlag;
@@ -123,7 +129,11 @@ public class Message implements Serializable {
   public static class GroupMessage extends QosMessage {
 
     private static final long serialVersionUID = 7000304314077119170L;
+
+    @Indexed(name = "group_query_index")
     private String group;
+
+    @JSONField(serialize = false) // 不序列化给客户端
     private List<String> receivers;
     /** 未读人数 */
     private int unReadSize;

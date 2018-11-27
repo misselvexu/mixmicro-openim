@@ -9,6 +9,7 @@ import com.acmedcare.framework.newim.client.MessageAttribute;
 import com.acmedcare.framework.newim.server.core.IMSession;
 import com.acmedcare.framework.newim.storage.api.MessageRepository;
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,11 +101,29 @@ public class MessageService {
     }
   }
 
-  public List<Message> queryAccountGroupMessages(
-      String username, String sender, int type, long leastMessageId, long limit) {
+  public List<? extends Message> queryAccountMessages(
+      String username,
+      String passportId,
+      String sender, // type == 1 时候, 标识群组的 ID , == 0 时候,标识是发送人的 ID
+      int type,
+      long leastMessageId,
+      long limit) {
 
-    // TODO 查询消息
+    List<? extends Message> messages = Lists.newArrayList();
 
-    return null;
+    // 0默认单聊 ,1-群组
+    if (type == 1) {
+      // 群聊信息
+      messages =
+          this.messageRepository.queryGroupMessages(
+              sender, passportId, limit, leastMessageId > 0, leastMessageId);
+
+    } else if (type == 0) {
+      // 单聊信息
+      messages =
+          this.messageRepository.querySingleMessages(
+              sender, passportId, limit, leastMessageId > 0, leastMessageId);
+    }
+    return messages;
   }
 }

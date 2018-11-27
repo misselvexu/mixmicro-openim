@@ -14,6 +14,7 @@ import com.acmedcare.framework.newim.client.bean.request.RemoveGroupMembersReque
 import com.acmedcare.framework.newim.master.services.GroupServices;
 import com.acmedcare.framework.newim.storage.exception.StorageExecuteException;
 import com.alibaba.fastjson.JSON;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,10 +46,18 @@ public class GroupEndpoint {
   ResponseEntity createNewGroup(@RequestBody NewGroupRequest request) {
     try {
       endpointLog.info("create group request params: {}", JSON.toJSONString(request));
+
+      if (StringUtils.isAnyBlank(
+          request.getGroupId(), request.getGroupName(), request.getGroupOwner())) {
+        throw new InvalidRequestParamException("创建群组参数异常");
+      }
+
       this.groupServices.createGroup(
           request.getGroupId(),
           request.getGroupName(),
           request.getGroupOwner(),
+          request.getGroupBizTag(),
+          request.getGroupExt(),
           request.getMemberIds());
 
       return ResponseEntity.ok().build();
@@ -76,6 +85,15 @@ public class GroupEndpoint {
   ResponseEntity addNewMembers(@RequestBody AddGroupMembersRequest request) {
     try {
       endpointLog.info("add group members request params: {}", JSON.toJSONString(request));
+
+      if (StringUtils.isAnyBlank(request.getGroupId())) {
+        throw new InvalidRequestParamException("群组标识ID不能为空");
+      }
+
+      if (request.getMemberIds() == null || request.getMemberIds().isEmpty()) {
+        throw new InvalidRequestParamException("添加群组成员列表不能为空");
+      }
+
       this.groupServices.addNewGroupMembers(request.getGroupId(), request.getMemberIds());
 
       return ResponseEntity.ok().build();
@@ -103,6 +121,11 @@ public class GroupEndpoint {
   ResponseEntity deleteGroupMembers(@RequestBody RemoveGroupMembersRequest request) {
     try {
       endpointLog.info("remove group members request params: {}", JSON.toJSONString(request));
+
+      if (StringUtils.isAnyBlank(request.getGroupId())) {
+        throw new InvalidRequestParamException("群组标识ID不能为空");
+      }
+
       this.groupServices.removeNewGroupMembers(request.getGroupId(), request.getMemberIds());
 
       return ResponseEntity.ok().build();

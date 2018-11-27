@@ -20,5 +20,10 @@ public class NewGroupRequest implements Serializable {
   private String groupId;
   private String groupName;
   private String groupOwner;
+  /** 业务标识 */
+  private String groupBizTag;
+  /** 群组扩展信息 */
+  private String groupExt;
+
   private List<String> memberIds;
 }

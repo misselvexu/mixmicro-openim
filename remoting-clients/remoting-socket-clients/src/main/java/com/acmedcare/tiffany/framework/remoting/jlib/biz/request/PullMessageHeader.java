@@ -21,6 +21,8 @@ public class PullMessageHeader extends BaseHeader implements CommandCustomHeader
 
   @CFNotNull private String username;
 
+  @CFNotNull private String passportId;
+
   @CFNotNull private String sender;
 
   /**
@@ -43,12 +45,13 @@ public class PullMessageHeader extends BaseHeader implements CommandCustomHeader
 
   @Builder
   public PullMessageHeader(
-      String username, String sender, int type, long leastMessageId, long limit) {
+      String username, String sender, int type, long leastMessageId, long limit,String passportId) {
     this.username = username;
     this.sender = sender;
     this.type = type;
     this.leastMessageId = leastMessageId;
     this.limit = limit;
+    this.passportId = passportId;
   }
 
   @Override

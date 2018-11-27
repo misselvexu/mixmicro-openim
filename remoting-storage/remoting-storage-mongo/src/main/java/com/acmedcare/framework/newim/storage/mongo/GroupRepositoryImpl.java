@@ -11,6 +11,7 @@ import com.acmedcare.framework.newim.Group.GroupMembers;
 import com.acmedcare.framework.newim.storage.IMStorageCollections;
 import com.acmedcare.framework.newim.storage.api.GroupRepository;
 import com.acmedcare.framework.newim.storage.exception.StorageExecuteException;
+import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 import com.mongodb.client.result.DeleteResult;
 import java.util.ArrayList;
@@ -147,9 +148,16 @@ public class GroupRepositoryImpl implements GroupRepository {
   }
 
   @Override
-  public List<Group> queryMemberGroups(String username) {
-    // TODO
-    return null;
+  public List<Group> queryMemberGroups(String passportId) {
+
+    Query groupIdsQuery = new Query(Criteria.where("memberId").is(passportId));
+    List<Long> groupIds =
+        this.mongoTemplate.findDistinct(groupIdsQuery, "groupId", REF_GROUP_MEMBER, Long.class);
+    if (!groupIds.isEmpty()) {
+      Query groupDetailQuery = new Query(Criteria.where("groupId").in(groupIds));
+      return this.mongoTemplate.find(groupDetailQuery, Group.class, GROUP);
+    }
+    return Lists.newArrayList();
   }
 
   @Getter

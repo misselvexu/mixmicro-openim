@@ -24,16 +24,29 @@ public class GroupServices {
   }
 
   public void createGroup(
-      String groupId, String groupName, String groupOwner, List<String> memberIds) {
+      String groupId,
+      String groupName,
+      String groupOwner,
+      String groupBizTag,
+      String groupExt,
+      List<String> memberIds) {
     //
     Group group =
-        Group.builder().groupId(groupId).groupName(groupName).groupOwner(groupOwner).build();
-
-    // members
-    GroupMembers members = GroupMembers.builder().groupId(groupId).memberIds(memberIds).build();
+        Group.builder()
+            .groupId(groupId)
+            .groupName(groupName)
+            .groupOwner(groupOwner)
+            .groupBizTag(groupBizTag)
+            .groupExt(groupExt)
+            .build();
 
     this.groupRepository.saveGroup(group);
-    this.groupRepository.saveGroupMembers(members);
+
+    if (memberIds != null && !memberIds.isEmpty()) {
+      // members
+      GroupMembers members = GroupMembers.builder().groupId(groupId).memberIds(memberIds).build();
+      this.groupRepository.saveGroupMembers(members);
+    }
   }
 
   public void addNewGroupMembers(String groupId, List<String> memberIds) {

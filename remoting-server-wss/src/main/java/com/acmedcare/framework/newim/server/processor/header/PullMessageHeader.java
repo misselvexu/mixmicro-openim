@@ -21,6 +21,8 @@ public class PullMessageHeader implements CommandCustomHeader {
   /** passport for client */
   @CFNotNull private String username;
 
+  @CFNotNull private String passportId;
+
   @CFNotNull private String sender;
 
   /**

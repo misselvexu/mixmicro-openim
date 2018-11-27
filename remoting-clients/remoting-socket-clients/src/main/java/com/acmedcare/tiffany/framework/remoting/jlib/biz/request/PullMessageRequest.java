@@ -40,14 +40,17 @@ public class PullMessageRequest {
 
   private String username;
 
+  private String passportId;
+
   @Builder
   public PullMessageRequest(
-      String sender, int type, long leastMessageId, long limit, String username) {
+      String sender, int type, long leastMessageId, long limit, String username,String passportId) {
     this.sender = sender;
     this.type = type;
     this.leastMessageId = leastMessageId;
     this.limit = limit;
     this.username = username;
+    this.passportId = passportId;
   }
 
   public interface Callback {

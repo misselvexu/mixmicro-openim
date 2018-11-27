@@ -54,9 +54,10 @@ public class RemotingClientPullMessageProcessor implements NettyRequestProcessor
       PullMessageHeader pullMessageHeader = (PullMessageHeader) header;
 
       // 拉取用户组消息列表
-      List<Message> list =
-          this.messageService.queryAccountGroupMessages(
+      List<? extends Message> list =
+          this.messageService.queryAccountMessages(
               pullMessageHeader.getUsername(),
+              pullMessageHeader.getPassportId(),
               pullMessageHeader.getSender(),
               pullMessageHeader.getType(),
               pullMessageHeader.getLeastMessageId(),

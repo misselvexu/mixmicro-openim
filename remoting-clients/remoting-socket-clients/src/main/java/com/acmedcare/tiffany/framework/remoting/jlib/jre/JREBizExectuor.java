@@ -138,6 +138,7 @@ public class JREBizExectuor extends BizExecutor {
             .sender(request.getSender())
             .type(request.getType())
             .username(request.getUsername())
+            .passportId(request.getPassportId())
             .build();
 
     AcmedcareLogger.i(this.getClass().getSimpleName(), "拉取消息请求头:" + JSON.toJSONString(header));
@@ -485,7 +486,11 @@ public class JREBizExectuor extends BizExecutor {
       PullOwnerGroupListRequest request, final PullOwnerGroupListRequest.Callback callback)
       throws BizException {
 
-    PullGroupHeader header = PullGroupHeader.builder().username(request.getUsername()).build();
+    PullGroupHeader header =
+        PullGroupHeader.builder()
+            .username(request.getUsername())
+            .passportId(request.getPassportId())
+            .build();
 
     AcmedcareLogger.i(this.getClass().getSimpleName(), "拉取用户群组请求头:" + JSON.toJSONString(header));
 

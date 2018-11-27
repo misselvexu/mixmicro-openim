@@ -19,8 +19,8 @@ import lombok.Setter;
 public class PullOwnerGroupListRequest extends BaseRequest {
 
   @Builder
-  public PullOwnerGroupListRequest(String username) {
-    super(username);
+  public PullOwnerGroupListRequest(String username, String passportId) {
+    super(username, passportId);
   }
 
   public interface Callback {

@@ -18,6 +18,7 @@ public class PullGroupHeader implements CommandCustomHeader {
 
   /** passport for client */
   @CFNotNull private String username;
+  @CFNotNull private String passportId;
 
   @Override
   public void checkFields() throws RemotingCommandException {}

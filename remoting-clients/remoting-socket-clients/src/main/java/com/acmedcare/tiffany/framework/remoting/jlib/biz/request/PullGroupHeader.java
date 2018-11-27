@@ -1,5 +1,6 @@
 package com.acmedcare.tiffany.framework.remoting.jlib.biz.request;
 
+import com.acmedcare.tiffany.framework.remoting.android.core.CFNotNull;
 import com.acmedcare.tiffany.framework.remoting.android.core.exception.RemotingCommandException;
 import com.acmedcare.tiffany.framework.remoting.android.core.protocol.CommandCustomHeader;
 import lombok.Builder;
@@ -18,11 +19,13 @@ import lombok.Setter;
 @NoArgsConstructor
 public class PullGroupHeader extends BaseHeader implements CommandCustomHeader {
 
-  private String username;
+  @CFNotNull private String username;
+  @CFNotNull private String passportId;
 
   @Builder
-  public PullGroupHeader(String username) {
+  public PullGroupHeader(String username, String passportId) {
     this.username = username;
+    this.passportId = passportId;
   }
 
   @Override

@@ -28,4 +28,15 @@ public abstract class BaseRequest {
   public BaseRequest(String username) {
     this.username = username;
   }
+
+  public BaseRequest(String username, String passportId) {
+    this.username = username;
+    this.passportId = passportId;
+  }
+
+  public BaseRequest(String username, String passportId, MessageAttribute attribute) {
+    this.username = username;
+    this.passportId = passportId;
+    this.attribute = attribute;
+  }
 }

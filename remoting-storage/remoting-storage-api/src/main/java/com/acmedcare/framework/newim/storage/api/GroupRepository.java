@@ -24,5 +24,5 @@ public interface GroupRepository {
 
   List<String> queryGroupMembers(String groupId);
 
-  List<Group> queryMemberGroups(String username);
+  List<Group> queryMemberGroups(String passportId);
 }

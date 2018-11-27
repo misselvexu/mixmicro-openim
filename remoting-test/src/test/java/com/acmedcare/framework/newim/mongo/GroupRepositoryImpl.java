@@ -42,6 +42,8 @@ public class GroupRepositoryImpl {
             .groupId("gid-20181122")
             .groupOwner("misselvexu")
             .groupName("gname-test-group")
+            .groupBizTag("G-Z")
+            .groupExt("")
             .build();
 
     this.groupRepository.saveGroup(group);
@@ -51,8 +53,7 @@ public class GroupRepositoryImpl {
   public void testSaveGroupMembers() {
 
     List<String> members = Lists.newArrayList();
-    members.add("mb1");
-    members.add("mb2");
+    members.add("13910187666");
 
     GroupMembers groupMembers =
         GroupMembers.builder().groupId("gid-20181122").memberIds(members).build();

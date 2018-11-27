@@ -22,7 +22,7 @@ public class GroupService {
     this.groupRepository = groupRepository;
   }
 
-  public List<Group> queryAccountGroups(String username) {
-    return this.groupRepository.queryMemberGroups(username);
+  public List<Group> queryAccountGroups(String passportId) {
+    return this.groupRepository.queryMemberGroups(passportId);
   }
 }

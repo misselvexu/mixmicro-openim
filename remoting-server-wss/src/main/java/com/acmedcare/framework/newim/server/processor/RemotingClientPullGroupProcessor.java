@@ -53,7 +53,7 @@ public class RemotingClientPullGroupProcessor implements NettyRequestProcessor {
       }
 
       // 查询当前用户名下的群组信息
-      List<Group> list = this.groupService.queryAccountGroups(pullGroupHeader.getUsername());
+      List<Group> list = this.groupService.queryAccountGroups(pullGroupHeader.getPassportId());
 
       response.setBody(BizResult.builder().code(0).data(list).build().bytes());
 
