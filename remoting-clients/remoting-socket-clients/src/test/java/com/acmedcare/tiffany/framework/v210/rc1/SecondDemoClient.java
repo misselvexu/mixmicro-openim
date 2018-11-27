@@ -20,6 +20,7 @@ import com.acmedcare.tiffany.framework.remoting.jlib.events.AcmedcareEvent;
 import com.acmedcare.tiffany.framework.remoting.jlib.events.AcmedcareEvent.Event;
 import com.acmedcare.tiffany.framework.remoting.jlib.events.BasicListenerHandler;
 import com.acmedcare.tiffany.framework.remoting.jlib.exception.NoServerAddressException;
+import com.acmedcare.tiffany.framework.remoting.jlib.exception.SdkInitException;
 import com.alibaba.fastjson.JSON;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
@@ -105,6 +106,8 @@ public class SecondDemoClient {
       AcmedcareRemoting.getInstance().run(1000);
 
     } catch (NoServerAddressException e) {
+      e.printStackTrace();
+    } catch (SdkInitException e) {
       e.printStackTrace();
     }
 
