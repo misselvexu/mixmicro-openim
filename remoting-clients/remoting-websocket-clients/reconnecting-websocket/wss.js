@@ -444,6 +444,10 @@
     if (result.bizCode === 0x31002) {
       this.receiveOrder(result.data);
     }
+
+    if(result.bizCode === 0x30004) {
+      this.onMessageListener(result.message);
+    }
   };
   /** An event listener to be called when an error occurs. */
   AcmedcareWss.prototype.onerror = function (event) {
@@ -460,6 +464,10 @@
   };
 
   AcmedcareWss.prototype.receiveOrder = function (data) {
+  };
+
+  AcmedcareWss.prototype.onMessageListener = function(message) {
+
   };
 
   /**

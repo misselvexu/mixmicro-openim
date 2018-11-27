@@ -11,7 +11,7 @@
 
     // Known params
     // 登录返回的通行证登录票据
-    let accessToken = 'eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiJkY2I1OGE3MTU4MmI0MDYwYTcyZTAzMGI1ZjE5N2Q4ZCIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NDI3MDM2ODY2NDUsImV4cCI6MTU0MzMxMDY2MDY0NSwiYXVkIjpudWxsfQ.Mm4dLLeKEexAm_v6MdUulGXaAntwdDYgsoh663lolJ89VMm8ZQn_Ejn3rCxKxgJ2AdDnv-rG15LNMxPUWurVm8C6QMO-OYfJsq2jyKg2TafYUKFCsr73BKvc4PMXIt4TRLT1jqdV817_NRGfP-Ksqjb33nHskkP1-uZw5VEF1Fo-hHXSs5lw_ASWs6OpoNIx6U706hNvTauObmueU_yt3LI7KZ5YpmM8azWt7zTEApGGVHBeZ6Pt59PTOp1lXUS1XZ6GyoA2kqx0gb9rFmJKulihmiwwaHqWcFSWyeSNuWAJQh6qQesvA4pybmoeMD93VaUVYVCOyP4-Afa-Gbb97Q';
+    let accessToken = 'eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiJjMTZjZDk5MzM4NDY0YmQ5OWExMGRkOWFmYWNiN2VhNiIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NDMzMTEyNDcxMTgsImV4cCI6MTU0MzkyNDUyMTExOCwiYXVkIjpudWxsfQ.BhrmV4LBkhyifVKvHqdImLZ-ppRsU9nmM09fHw9-Zjycz0x9Sqi7MjIYsYo1F_DbUIXNeKLo9KxaBmyyefR-zIMTBA2X4irGIb7e9TQU0zz7tihdxtqi0epKNOAKN_3rsMaoCI9YQeJTw5hqWOIBWnFalZMC1jvSRLuSlZvD-fwEJFBQTu6dQ0IgFijZApoeGEo0_bDn7TKPeyL7s8I1Wm1V_vPc297d1O1xj0PzLoH346_G3U1qjt6SI6pYUfV26TzS20m4sAcgZbDn10wOyMUketjgEEKefahnSM41AgohvE8z0fAaVUASq1DFaMiJeMKARgewSBySYFTS-ImyjA';
     let areaNo = 320500;  // 当前系统的区域编号
     let orgId = 3910249034228736; // 当前机构的编号
     let parentOrgId = null; // 父机构编号  (可为空)
@@ -72,6 +72,10 @@
               }
             });
       });
+
+      ws.onMessageListener = function (message) {
+        console.log("收到信息:  " + message)
+      };
     }
 
     // DEMO: 拉取在线的分站机构方法示例
