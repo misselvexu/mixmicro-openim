@@ -20,6 +20,7 @@ import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.AuthRequest;
 import com.acmedcare.tiffany.framework.remoting.jlib.events.AcmedcareEvent;
 import com.acmedcare.tiffany.framework.remoting.jlib.events.BasicListenerHandler;
 import com.acmedcare.tiffany.framework.remoting.jlib.exception.NoServerAddressException;
+import com.acmedcare.tiffany.framework.remoting.jlib.exception.SdkInitException;
 import com.acmedcare.tiffany.framework.remoting.jlib.jre.JREBizExectuor;
 import com.acmedcare.tiffany.framework.remoting.jlib.processor.ServerPushMessageProcessor;
 import com.alibaba.fastjson.JSON;
@@ -160,7 +161,7 @@ public final class AcmedcareRemoting implements Serializable {
    * @param delay client connect delay time (unit: ms)
    * @throws NoServerAddressException no server address exception
    */
-  public synchronized void run(final long delay) throws NoServerAddressException {
+  public synchronized void run(final long delay) throws NoServerAddressException, SdkInitException {
 
     if (runOnce.get()) {
       return;
@@ -177,8 +178,11 @@ public final class AcmedcareRemoting implements Serializable {
 
         this.delay = delay;
         assert AcmedcareRemoting.parameters != null
-            && AcmedcareRemoting.parameters.getServerAddressHandler() != null
-            && AcmedcareRemoting.parameters.validate();
+            && AcmedcareRemoting.parameters.getServerAddressHandler() != null;
+
+        if (!AcmedcareRemoting.parameters.validate()) {
+          throw new SdkInitException("SDK初始化参数异常[参考文档:" + Issues.URL + "]");
+        }
 
         // ssl
         //        if (AcmedcareRemoting.parameters.isEnableSSL()) {

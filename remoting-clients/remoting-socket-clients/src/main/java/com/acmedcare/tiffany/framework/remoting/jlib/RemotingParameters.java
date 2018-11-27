@@ -1,8 +1,11 @@
 package com.acmedcare.tiffany.framework.remoting.jlib;
 
+import com.acmedcare.tiffany.framework.remoting.android.core.protocol.RemotingCommand;
+import com.acmedcare.tiffany.framework.remoting.android.utils.RemotingLogger;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.AuthRequest;
 import com.google.common.base.Strings;
 import java.io.File;
+import java.nio.file.Paths;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Getter;
@@ -15,6 +18,8 @@ import lombok.Getter;
  */
 @Builder
 public final class RemotingParameters {
+
+  private static final String DEFAULT_JKS_PD = "1qaz2wsx";
 
   @Getter private ServerAddressHandler serverAddressHandler;
 
@@ -42,11 +47,22 @@ public final class RemotingParameters {
 
   @Getter private File jksFile;
 
-  @Getter private String jksPassword;
+  @Getter @Default private String jksPassword = DEFAULT_JKS_PD;
 
   public boolean validate() {
-    if (Strings.isNullOrEmpty(accessToken)) {
-      return false;
+
+    if (enableSSL) {
+      if (jksFile == null || !jksFile.exists()) {
+        try {
+          // load default
+          this.jksFile =
+              Paths.get(RemotingCommand.class.getResource("/META-INF/keystore.jks").toURI())
+                  .toFile();
+          this.jksPassword = DEFAULT_JKS_PD;
+        } catch (Exception e) {
+          RemotingLogger.warn(null, "load default jks failed.(ignore)");
+        }
+      }
     }
 
     boolean and = false;

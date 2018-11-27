@@ -54,6 +54,7 @@ public class SecondDemoClient {
                     System.out.println("授权失败,Code=" + code + ", 错误:" + message);
                   }
                 })
+            .enableSSL(true)
             .username(KnownParams.passport)
             .accessToken(KnownParams.accessToken)
             .areaNo(KnownParams.areaNo)
