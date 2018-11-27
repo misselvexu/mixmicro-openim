@@ -1,5 +1,7 @@
 package com.acmedcare.tiffany.framework.remoting.jlib;
 
+import static com.acmedcare.tiffany.framework.remoting.jlib.biz.BizCode.CLIENT_HANDSHAKE;
+
 import android.content.Context;
 import com.acmedcare.framework.kits.jre.http.HttpRequest;
 import com.acmedcare.tiffany.framework.remoting.android.HandlerMessageListener;
@@ -175,12 +177,13 @@ public final class AcmedcareRemoting implements Serializable {
 
         this.delay = delay;
         assert AcmedcareRemoting.parameters != null
-            && AcmedcareRemoting.parameters.getServerAddressHandler() != null;
+            && AcmedcareRemoting.parameters.getServerAddressHandler() != null
+            && AcmedcareRemoting.parameters.validate();
 
         // ssl
-        if (AcmedcareRemoting.parameters.isEnableSSL()) {
-          System.setProperty("tiffany.quantum.encrypt.enable", "true");
-        }
+        //        if (AcmedcareRemoting.parameters.isEnableSSL()) {
+        //          System.setProperty("tiffany.quantum.encrypt.enable", "true");
+        //        }
 
         // processor
         processorParameters();
@@ -267,6 +270,12 @@ public final class AcmedcareRemoting implements Serializable {
       AcmedcareRemoting.clientConfig.setClientChannelMaxIdleTimeSeconds(40);
     }
 
+    if (AcmedcareRemoting.parameters.isEnableSSL()) {
+      AcmedcareRemoting.clientConfig.setUseTLS(true);
+      AcmedcareRemoting.clientConfig.setJksFile(AcmedcareRemoting.parameters.getJksFile());
+      AcmedcareRemoting.clientConfig.setJksPassword(AcmedcareRemoting.parameters.getJksPassword());
+    }
+
     AcmedcareLogger.i(null, "build new remoting client instance for connect");
     AcmedcareRemoting.remotingClient =
         new XLMRRemotingClient(
@@ -348,6 +357,7 @@ public final class AcmedcareRemoting implements Serializable {
 
               @Override
               public void onSessionException(IoSession ioSession, Throwable throwable) {
+                throwable.printStackTrace();
                 AcmedcareLogger.e(null, throwable, "Connection is exception ");
               }
 
@@ -413,6 +423,11 @@ public final class AcmedcareRemoting implements Serializable {
                   }
                   AcmedcareLogger.i(TAG, "start to connect server..");
                   remotingClient.start();
+
+                  // send shake hand
+                  AcmedcareLogger.i(TAG, "send handshake request to connect server..");
+                  handshake();
+
                 } catch (Throwable e) {
                   AcmedcareLogger.e(TAG, e, "Async Connection Thread execute failed.");
                 }
@@ -420,6 +435,16 @@ public final class AcmedcareRemoting implements Serializable {
             },
             "remoting-client-network-connect-thread");
     startThread.start();
+  }
+
+  private void handshake() {
+    try {
+      RemotingCommand handshakeRequest =
+          RemotingCommand.createRequestCommand(CLIENT_HANDSHAKE, null);
+      AcmedcareRemoting.remotingClient.invokeOneway(
+          this.currentRemotingAddress, handshakeRequest, 3000);
+    } catch (Exception ignore) {
+    }
   }
 
   /** Shutdown Now */

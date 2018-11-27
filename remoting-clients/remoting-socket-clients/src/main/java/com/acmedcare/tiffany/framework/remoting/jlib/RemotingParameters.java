@@ -1,6 +1,8 @@
 package com.acmedcare.tiffany.framework.remoting.jlib;
 
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.AuthRequest;
+import com.google.common.base.Strings;
+import java.io.File;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Getter;
@@ -37,4 +39,29 @@ public final class RemotingParameters {
   @Getter @Default private int heartbeatPeriod = 10;
 
   @Getter @Default private boolean enableSSL = false;
+
+  @Getter private File jksFile;
+
+  @Getter private String jksPassword;
+
+  public boolean validate() {
+    if (Strings.isNullOrEmpty(accessToken)) {
+      return false;
+    }
+
+    boolean and = false;
+    if (enableSSL && jksFile != null && jksFile.exists()) {
+      and = true;
+    }
+
+    return !Strings.isNullOrEmpty(accessToken)
+        && !Strings.isNullOrEmpty(username)
+        && !Strings.isNullOrEmpty(areaNo)
+        && passportId > 0
+        && and
+        && !Strings.isNullOrEmpty(orgId)
+        && !Strings.isNullOrEmpty(deviceId)
+        && !Strings.isNullOrEmpty(accessToken)
+        && !Strings.isNullOrEmpty(accessToken);
+  }
 }

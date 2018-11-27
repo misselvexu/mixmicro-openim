@@ -25,6 +25,7 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
@@ -55,6 +56,9 @@ public class FirstDemoClient {
                     System.out.println("授权失败,Code=" + code + ", 错误:" + message);
                   }
                 })
+            .enableSSL(true)
+            .jksFile(new File("/Users/ive/git-acmedcare/Acmedcare-NewIM/remoting-certs/client/keystore.jks"))
+            .jksPassword("1qaz2wsx")
             .username(KnownParams.passport)
             .accessToken(KnownParams.accessToken)
             .areaNo(KnownParams.areaNo)

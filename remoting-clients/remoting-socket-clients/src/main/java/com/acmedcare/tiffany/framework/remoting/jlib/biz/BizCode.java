@@ -22,6 +22,9 @@ public class BizCode {
    */
   @Deprecated public static final int HEARTBEAT = 0x1001;
 
+  /** 客户端捂手操作 */
+  public static final int CLIENT_HANDSHAKE = -0x40000;
+
   /** 客户端连接授权操作请求 */
   public static final int CLIENT_AUTH = 0x40000;
 

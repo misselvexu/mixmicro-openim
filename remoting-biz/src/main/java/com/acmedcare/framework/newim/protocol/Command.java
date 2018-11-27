@@ -113,6 +113,9 @@ public final class Command {
    */
   public static class ClusterClientCommand {
 
+    /** 客户端捂手操作 */
+    public static final int CLIENT_HANDSHAKE = -0x40000;
+
     /** 客户端连接授权操作请求 */
     public static final int CLIENT_AUTH = 0x40000;
 
