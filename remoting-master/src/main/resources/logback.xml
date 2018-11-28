@@ -94,39 +94,43 @@
         </encoder>
     </appender>
 
-    <logger additivity="false" name="com.acmedcare.framework.newim.startLog">
-        <level value="INFO"/>
+    <logger additivity="true" name="com.acmedcare.framework.newim.startLog">
+        <level value="DEBUG"/>
+        <appender-ref ref="CONSOLE"/>
         <appender-ref ref="start-log"/>
     </logger>
 
-    <logger additivity="false" name="com.acmedcare.framework.newim.endpointLog">
-        <level value="INFO"/>
+    <logger additivity="true" name="com.acmedcare.framework.newim.endpointLog">
+        <level value="DEBUG"/>
+        <appender-ref ref="CONSOLE"/>
         <appender-ref ref="endpoint-log"/>
     </logger>
 
-    <logger additivity="false" name="com.acmedcare.framework.newim.mongoLog">
-        <level value="INFO"/>
+    <logger additivity="true" name="com.acmedcare.framework.newim.mongoLog">
+        <level value="DEBUG"/>
+        <appender-ref ref="CONSOLE"/>
         <appender-ref ref="master-mongo-log"/>
     </logger>
 
-    <logger additivity="false" name="com.acmedcare.framework.newim.masterClusterAcceptorLog">
+    <logger additivity="true" name="com.acmedcare.framework.newim.masterClusterAcceptorLog">
         <level value="DEBUG"/>
+        <appender-ref ref="CONSOLE"/>
         <appender-ref ref="master-cluster-acceptor"/>
     </logger>
 
     <logger name="org.springframework">
         <appender-ref ref="CONSOLE"/>
-        <level value="INFO"/>
+        <level value="DEBUG"/>
     </logger>
 
     <logger name="io.undertow">
         <appender-ref ref="CONSOLE"/>
-        <level value="INFO"/>
+        <level value="DEBUG"/>
     </logger>
 
     <logger name="com.acmedcare.tiffany.framework.remoting">
         <appender-ref ref="CONSOLE"/>
-        <level value="INFO"/>
+        <level value="DEBUG"/>
     </logger>
 
     <logger name="TiffanyQuantumRemoting">
@@ -135,7 +139,7 @@
     </logger>
 
     <root>
-        <level value="INFO"/>
+        <level value="DEBUG"/>
         <appender-ref ref="rootFile"/>
     </root>
 </configuration>

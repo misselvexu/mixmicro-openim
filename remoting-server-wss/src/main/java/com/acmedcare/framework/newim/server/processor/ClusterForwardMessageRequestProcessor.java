@@ -50,14 +50,14 @@ public class ClusterForwardMessageRequestProcessor extends AbstractClusterReques
 
       long start = System.currentTimeMillis();
       switch (messageType) {
-        case GROUP:
+        case SINGLE:
           SingleMessage singleMessage =
               JSON.parseObject(remotingCommand.getBody(), SingleMessage.class);
           String passportId = singleMessage.getReceiver();
           this.imSession.sendMessageToPassport(passportId, messageType, singleMessage.bytes());
 
           break;
-        case SINGLE:
+        case GROUP:
           GroupMessage groupMessage =
               JSON.parseObject(remotingCommand.getBody(), GroupMessage.class);
           List<String> passports = groupMessage.getReceivers();

@@ -143,9 +143,12 @@ public class MasterClusterAcceptorServer {
 
             InstanceNode node =
                 channelHandlerContext.channel().attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).get();
-            Assert.isNull(node, "remote channel has been distorted.");
 
-            node = header.instance();
+            if (node == null) {
+              node = header.instance();
+            }
+
+            InstanceNode replica = header.replica();
 
             String bodyContent = new String(remotingCommand.getBody(), "UTF-8");
             // wss instance body
@@ -154,7 +157,7 @@ public class MasterClusterAcceptorServer {
 
             // register new remote client
             masterClusterSession.registerClusterInstance(
-                node.getHost(), instances, channelHandlerContext.channel());
+                node.getHost(), replica.getHost(), instances, channelHandlerContext.channel());
 
             channelHandlerContext.channel().attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).set(node);
 
@@ -238,8 +241,8 @@ public class MasterClusterAcceptorServer {
                       .bytes());
               return response;
             }
-            Set<String> servers = masterClusterSession.clusterList();
-            response.setBody(JSON.toJSONBytes(servers));
+            Set<String> servers = masterClusterSession.clusterReplicaList();
+            response.setBody(BizResult.builder().code(0).data(servers).build().bytes());
 
             return response;
           }

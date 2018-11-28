@@ -118,6 +118,15 @@ public class MasterSession {
       return clusterClientInstances.keySet();
     }
 
+    public Set<String> clusterReplicaList() {
+      Set<String> replicas = Sets.newHashSet();
+      clusterClientInstances.forEach(
+          (s, remoteClusterClientInstance) -> {
+            replicas.add(remoteClusterClientInstance.getClusterReplicaAddress());
+          });
+      return replicas;
+    }
+
     public List<WssInstance> wssList() {
       List<WssInstance> result = Lists.newArrayList();
       for (Map<String, WssInstance> map : clusterWssServerInstance.values()) {
@@ -127,11 +136,17 @@ public class MasterSession {
     }
 
     public void registerClusterInstance(
-        String clusterAddress, List<WssInstance> wssNodes, Channel channel) {
+        String clusterAddress,
+        String clusterReplicaAddress,
+        List<WssInstance> wssNodes,
+        Channel channel) {
       RemoteClusterClientInstance original =
           clusterClientInstances.put(
               clusterAddress,
-              RemoteClusterClientInstance.builder().clusterClientChannel(channel).build());
+              RemoteClusterClientInstance.builder()
+                  .clusterReplicaAddress(clusterReplicaAddress)
+                  .clusterClientChannel(channel)
+                  .build());
 
       // process wss
       Map<String, WssInstance> temp = Maps.newHashMap();
@@ -374,5 +389,7 @@ public class MasterSession {
 
     /** 客户端 Channel对象 */
     private Channel clusterClientChannel;
+
+    private String clusterReplicaAddress;
   }
 }

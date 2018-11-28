@@ -51,6 +51,7 @@ public class InstanceNode implements Serializable {
   public enum NodeType {
     MASTER,
     CLUSTER,
+    REPLICA,
     WSS,
     CLIENT
   }

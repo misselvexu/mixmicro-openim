@@ -53,7 +53,8 @@ public class GroupRepositoryImpl {
   public void testSaveGroupMembers() {
 
     List<String> members = Lists.newArrayList();
-    members.add("13910187666");
+    members.add("3837142362366976");
+    members.add("3837142362366977");
 
     GroupMembers groupMembers =
         GroupMembers.builder().groupId("gid-20181122").memberIds(members).build();

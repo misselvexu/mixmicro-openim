@@ -23,6 +23,7 @@ public final class Command {
    */
   public static class ClusterWithClusterCommand {
 
+    public static final int CLUSTER_HANDSHAKE = 0x11000;
     /** 通讯服务器注册链接 */
     public static final int CLUSTER_REGISTER = 0x11001;
 

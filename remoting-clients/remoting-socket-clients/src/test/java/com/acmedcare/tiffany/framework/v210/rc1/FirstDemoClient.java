@@ -60,7 +60,7 @@ public class FirstDemoClient {
             .enableSSL(true)
             .jksFile(
                 new File(
-                    "/path/of/keystore.jks"))
+                    "/Users/ive/git-acmedcare/Acmedcare-NewIM/remoting-certs/client/keystore.jks"))
             .jksPassword("1qaz2wsx")
             .username(KnownParams.passport)
             .accessToken(KnownParams.accessToken)
@@ -72,8 +72,8 @@ public class FirstDemoClient {
             .serverAddressHandler(
                 () ->
                     Lists.newArrayList(
-                        new RemotingAddress(false, "192.168.1.227", 13110, false),
-                        new RemotingAddress(false, "192.168.1.227", 13120, false)))
+                        new RemotingAddress(false, "127.0.0.1", 13110, false),
+                        new RemotingAddress(false, "127.0.0.1", 13120, false)))
             .build();
 
     AcmedcareRemoting.getInstance().init(null, temp);
@@ -273,7 +273,7 @@ public class FirstDemoClient {
   private interface KnownParams {
 
     String accessToken =
-        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiJjMTZjZDk5MzM4NDY0YmQ5OWExMGRkOWFmYWNiN2VhNiIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NDMzMTEyNDcxMTgsImV4cCI6MTU0MzkyNDUyMTExOCwiYXVkIjpudWxsfQ.BhrmV4LBkhyifVKvHqdImLZ-ppRsU9nmM09fHw9-Zjycz0x9Sqi7MjIYsYo1F_DbUIXNeKLo9KxaBmyyefR-zIMTBA2X4irGIb7e9TQU0zz7tihdxtqi0epKNOAKN_3rsMaoCI9YQeJTw5hqWOIBWnFalZMC1jvSRLuSlZvD-fwEJFBQTu6dQ0IgFijZApoeGEo0_bDn7TKPeyL7s8I1Wm1V_vPc297d1O1xj0PzLoH346_G3U1qjt6SI6pYUfV26TzS20m4sAcgZbDn10wOyMUketjgEEKefahnSM41AgohvE8z0fAaVUASq1DFaMiJeMKARgewSBySYFTS-ImyjA";
+        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiJlYjE3NDZlYWYwNDA0ZDA3YWVlNmU1YThlZWM1MzMxNiIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NDM0MzA4MTMyOTgsImV4cCI6MTU0NDA0MTI5NDI1NCwiYXVkIjpudWxsfQ.CWUFoh7ycCJQhcpwov5nWXAlCytZy3XV90ULTm3dNKlenOgLJCPFtks5RpjT5MIhMOI9qXAdt6Nz2YHV1SDX9_eXgTvui3TEIGfyyLlA34duBWipFjVMZmeJb19LWswaQPMhs_rRcGC1m6SFCFHDK0zGa7YTERzFbM-ibHtABIIBvn9iSzPVso9StXrwwXmX3e7OZkwc0iBjN3vYbYlbzK_WTE-90_Rf9PAgbdlynG_YpzBy8KxVQJ8YeIBlsVS8_W6H4WHILvIL3jw3i6wt1jFKDGgv8jwEOr1iSMogRnzB-0Npv9hAywKdHvbFX_yZY3sabmiYEj-BhSMOSt3Xzg";
 
     String areaNo = "320500";
 

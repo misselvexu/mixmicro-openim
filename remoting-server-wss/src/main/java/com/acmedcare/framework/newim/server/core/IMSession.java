@@ -12,6 +12,7 @@ import com.acmedcare.framework.newim.protocol.Command.Retriable;
 import com.acmedcare.framework.newim.protocol.request.ClusterForwardMessageHeader;
 import com.acmedcare.framework.newim.server.core.connector.ClusterReplicaConnector;
 import com.acmedcare.framework.newim.server.endpoint.WssSessionContext;
+import com.acmedcare.framework.newim.server.event.AbstractEventHandler;
 import com.acmedcare.framework.newim.server.exception.SessionBindException;
 import com.acmedcare.framework.newim.server.processor.header.ServerPushMessageHeader;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketServer;
@@ -19,18 +20,22 @@ import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.eventbus.AsyncEventBus;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.ThreadSafe;
 import lombok.Getter;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 
 /**
  * IM Client Session Context
@@ -39,7 +44,7 @@ import lombok.Getter;
  * @version ${project.version} - 12/11/2018.
  */
 @ThreadSafe
-public class IMSession {
+public class IMSession implements InitializingBean, DisposableBean {
 
   /**
    * 设备->远程连接(TCPs)
@@ -47,7 +52,6 @@ public class IMSession {
    * <p>
    */
   private static Map<String, List<Channel>> devicesTcpChannelContainer = Maps.newConcurrentMap();
-
   /**
    * 通行证->远程连接(TCPs)
    *
@@ -63,7 +67,6 @@ public class IMSession {
    */
   private static Map<String, List<String>> passportsClusterConnectorMapping =
       Maps.newConcurrentMap();
-
   /** 发送消息线程池 */
   private static ExecutorService asyncExecutor =
       new ThreadPoolExecutor(
@@ -75,6 +78,7 @@ public class IMSession {
           new DefaultThreadFactory("new-im-send-async-executor-pool-"),
           new CallerRunsPolicy());
 
+  @Getter private AsyncEventBus asyncEventBus;
   private NettyRemotingSocketServer imServer;
   @Getter private ClusterReplicaConnector clusterReplicaConnector;
   private WssSessionContext wssSessionContext;
@@ -262,5 +266,19 @@ public class IMSession {
 
   public void registerWssSessionContext(WssSessionContext wssSessionContext) {
     this.wssSessionContext = wssSessionContext;
+  }
+
+  public <T> void registerEventHandler(AbstractEventHandler<T> handler) {
+    this.asyncEventBus.register(handler);
+  }
+
+  public <T> void unRegisterEventHandler() {
+    this.asyncEventBus.unregister(this);
+  }
+
+  @Override
+  public void afterPropertiesSet() throws Exception {
+    this.asyncEventBus = new AsyncEventBus(Executors.newFixedThreadPool(8));
+    imServerLog.info("异步事件初始化完成:{}", this.asyncEventBus);
   }
 }

@@ -7,7 +7,6 @@ import com.acmedcare.framework.newim.protocol.Command.ClusterClientCommand;
 import com.acmedcare.framework.newim.protocol.Command.ClusterWithClusterCommand;
 import com.acmedcare.framework.newim.server.config.IMProperties;
 import com.acmedcare.framework.newim.server.processor.ClusterForwardMessageRequestProcessor;
-import com.acmedcare.framework.newim.server.processor.ClusterReplicaRegisterRequestProcessor;
 import com.acmedcare.framework.newim.server.processor.DefaultIMProcessor;
 import com.acmedcare.framework.newim.server.processor.RemotingClientPullGroupProcessor;
 import com.acmedcare.framework.newim.server.processor.RemotingClientPullMessageProcessor;
@@ -105,10 +104,19 @@ public class NewIMServerBootstrap {
   }
 
   public void shutdown(boolean immediately) {
-
-    // TODO 停止服务,释放资源
-
     running = false;
+
+    try {
+      imServerLog.info("Ready to shutdown cluster replica acceptor server.");
+      clusterServer.shutdown();
+    } catch (Exception ignore) {
+    }
+
+    try {
+      imServerLog.info("Ready to shutdown im server.");
+      imServer.shutdown();
+    } catch (Exception ignore) {
+    }
   }
 
   private void startupInnerClusterServer(long delay) {
@@ -121,17 +129,17 @@ public class NewIMServerBootstrap {
             new ChannelEventListener() {
               @Override
               public void onChannelConnect(String remoteAddr, Channel channel) {
-                innerReplicaServerLog.debug("Cluster Remoting[{}] is connected", remoteAddr);
+                innerReplicaServerLog.info("Cluster Remoting[{}] is connected", remoteAddr);
               }
 
               @Override
               public void onChannelClose(String remoteAddr, Channel channel) {
-                innerReplicaServerLog.debug("Cluster Remoting[{}] is closed", remoteAddr);
+                innerReplicaServerLog.info("Cluster Remoting[{}] is closed", remoteAddr);
               }
 
               @Override
               public void onChannelException(String remoteAddr, Channel channel) {
-                innerReplicaServerLog.debug(
+                innerReplicaServerLog.info(
                     "Cluster Remoting[{}] is exception ,closing ..", remoteAddr);
                 try {
                   channel.close();
@@ -141,15 +149,11 @@ public class NewIMServerBootstrap {
 
               @Override
               public void onChannelIdle(String remoteAddr, Channel channel) {
-                innerReplicaServerLog.debug("Cluster Remoting[{}] is idle", remoteAddr);
+                innerReplicaServerLog.info("Cluster Remoting[{}] is idle", remoteAddr);
               }
             });
 
     clusterServer.registerDefaultProcessor(new DefaultIMProcessor(), defaultExecutor);
-    clusterServer.registerProcessor(
-        ClusterWithClusterCommand.CLUSTER_REGISTER,
-        new ClusterReplicaRegisterRequestProcessor(clusterReplicaSession),
-        null);
     clusterServer.registerProcessor(
         ClusterWithClusterCommand.CLUSTER_FORWARD_MESSAGE,
         new ClusterForwardMessageRequestProcessor(imSession),
@@ -167,17 +171,17 @@ public class NewIMServerBootstrap {
               new ChannelEventListener() {
                 @Override
                 public void onChannelConnect(String remoteAddr, Channel channel) {
-                  imServerLog.debug("Client Remoting[{}] is connected", remoteAddr);
+                  imServerLog.info("Client Remoting[{}] is connected", remoteAddr);
                 }
 
                 @Override
                 public void onChannelClose(String remoteAddr, Channel channel) {
-                  imServerLog.debug("Client Remoting[{}] is closed", remoteAddr);
+                  imServerLog.info("Client Remoting[{}] is closed", remoteAddr);
                 }
 
                 @Override
                 public void onChannelException(String remoteAddr, Channel channel) {
-                  imServerLog.debug("Client Remoting[{}] is exception ,closing ..", remoteAddr);
+                  imServerLog.info("Client Remoting[{}] is exception ,closing ..", remoteAddr);
                   try {
                     channel.close();
                   } catch (Exception ignore) {
@@ -186,7 +190,7 @@ public class NewIMServerBootstrap {
 
                 @Override
                 public void onChannelIdle(String remoteAddr, Channel channel) {
-                  imServerLog.debug("Client Remoting[{}] is idle", remoteAddr);
+                  imServerLog.info("Client Remoting[{}] is idle", remoteAddr);
                 }
               });
     }
@@ -196,8 +200,6 @@ public class NewIMServerBootstrap {
     // bind processors
     // default processor
     imServer.registerDefaultProcessor(new DefaultIMProcessor(), defaultExecutor);
-
-    // TODO biz processors
 
     // register server process cluster register request
     imServer.registerProcessor(
@@ -228,7 +230,5 @@ public class NewIMServerBootstrap {
 
     // start imServer
     imServer.start();
-
-    // TODO start imServer checker
   }
 }

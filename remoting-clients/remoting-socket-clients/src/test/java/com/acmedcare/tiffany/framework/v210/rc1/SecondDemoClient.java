@@ -66,8 +66,8 @@ public class SecondDemoClient {
             .serverAddressHandler(
                 () ->
                     Lists.newArrayList(
-                        new RemotingAddress(false, "192.168.1.227", 13110, false),
-                        new RemotingAddress(false, "192.168.1.227", 13120, false)))
+                        new RemotingAddress(false, "127.0.0.1", 13110, false),
+                        new RemotingAddress(false, "127.0.0.1", 13120, false)))
             .build();
 
     AcmedcareRemoting.getInstance().init(null, temp);
@@ -264,7 +264,7 @@ public class SecondDemoClient {
   private interface KnownParams {
 
     String accessToken =
-        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiJhMmUzOTExMzAyMmM0NzNkYTllNzAwMjFiNGU4NGQzZCIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlIcXc5TDdUU0gwVmlLTWNXNUp3RVd0ZXc5Rk12SVFZcGZDMG5CUUhOamVucmMyYndheHNwMk93NXVkSGM1ZllTcGd0a2FxRkV6U29Uck41S0kyaHZKRW52L1RHV0hLeDdFdTJRNEs1V3JrZTZTMjNIaUdhWXdvQ29ua3ZuSlVjWGQxNzNwV3pFbmF0bz0iLCJpYXQiOjE1NDMzMTAyOTY0NTEsImV4cCI6MTU0MzkyMzUwMDQ1MSwiYXVkIjpudWxsfQ.kVupBQJuGfcvKqmWQzxa5PLqWx835gCGpvwxiBnYlJZul-0kN7DnErc-sS4ZfUbDZtJZqrhyrb_4W5ISizkRgq8oZDe_DEHW0FzPN4RIse6SO5f4uy3mSOOH7DuT-aJ52iLFo88GjliSPKtWggw9x1lKcOxC-qL7tNdMZ5y8A38OQY7JfSFEGBSZ2Vrw4xgtipPkAVJ0eGygnTUCvGijKg-A17T0lOAAxLJVjdmmzPCsVHBw-VWaxHP9MfMIImjiiSGTVT0AN_k3_BYr4BaztxA9ZZMi9iv-KK6P1Fob3aKZkMKRx-AJefb70kE1gdhjF8eLi5E_z2H-hhcRJ6ofCg";
+        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiJmZmUxOTQ1MjNmNWU0YTM3Yjk0NDllZTdjNThmNjg2NSIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlIcXc5TDdUU0gwVmlLTWNXNUp3RVd0ZXc5Rk12SVFZcGZDMG5CUUhOamVucmMyYndheHNwMk93NXVkSGM1ZllTcGd0a2FxRkV6U29Uck41S0kyaHZKRW52L1RHV0hLeDdFdTJRNEs1V3JrZTZTMjNIaUdhWXdvQ29ua3ZuSlVjWGQxNzNwV3pFbmF0bz0iLCJpYXQiOjE1NDM0MzA5MDUyNTYsImV4cCI6MTU0NDA0MjU3MTI1NiwiYXVkIjpudWxsfQ.O0DNYmXQ96S_54nm4GlIe4iVhlL9ocJiXd9WxBlylAzvTHpdKtbo_Za6ny-DgUylVIXalgsMXDLnUTSDVF1Hw9TFHbOIuQzlIvWRHIgfI8mCpgxRFLG4yfjf6RoDgIqEOp4fs8eZU-kpbKoRVw6RjAJiihZEEaKCAEc_xLQB7RPEeBy3KT7TDkAXh2gp2laka4BbuACIJsIiFqwPLyOReb_oyAZFYKCeXuy15AWtO4DTxA8Nm9Z6ATw-sGayFPdY4aXEMoGXxY_tV_uIzKUGTJH_eC2BBI5oEwe08cKh6d8rySz5EJ-v72bmpKGuLXLUIwktI7ZSaBrIuOQzfWm87A";
 
     String areaNo = "320500";
 

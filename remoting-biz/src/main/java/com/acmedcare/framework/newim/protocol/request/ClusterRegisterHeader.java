@@ -19,9 +19,14 @@ import lombok.Setter;
 public class ClusterRegisterHeader implements CommandCustomHeader {
 
   @CFNotNull private String clusterServerHost;
+  @CFNotNull private String clusterReplicaAddress;
 
   public InstanceNode instance() {
     return InstanceNode.builder().host(clusterServerHost).nodeType(NodeType.CLUSTER).build();
+  }
+
+  public InstanceNode replica() {
+    return InstanceNode.builder().host(clusterReplicaAddress).nodeType(NodeType.REPLICA).build();
   }
 
   @Override
