@@ -180,12 +180,11 @@
         </repository>
     </distributionManagement>
 
-
     <repositories>
         <repository>
             <id>spring-milestones</id>
             <name>Spring Milestones</name>
-            <url>https://repo.spring.io/libs-milestone</url>
+            <url>http://repo.spring.io/milestone</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -338,7 +337,34 @@
                     <artifactId>versions-maven-plugin</artifactId>
                     <version>2.2</version>
                 </plugin>
-                <!-- Need to set releases.repo and snapshots.repo properties in your .m2/settings.xml -->
+
+                <plugin>
+                    <groupId>org.apache.rat</groupId>
+                    <artifactId>apache-rat-plugin</artifactId>
+                    <version>0.12</version>
+
+                    <configuration>
+                        <excludes>
+                            <exclude>.travis.yml</exclude>
+                            <exclude>CONTRIBUTING.md</exclude>
+                            <exclude>CODE_OF_CONDUCT.md</exclude>
+                            <exclude>CHANGELOG.md</exclude>
+                            <exclude>style/codeStyle.md</exclude>
+                            <exclude>REPORTING-BUGS.md</exclude>
+                            <exclude>README.md</exclude>
+                            <exclude>.github/**/*</exclude>
+                            <exclude>src/main/resources/*/*/*</exclude>
+                            <exclude>src/main/resources/*/*</exclude>
+                            <exclude>src/main/resources/*</exclude>
+                            <exclude>src/test/resources/*</exclude>
+                            <exclude>src/main/resources/static/**/*.js</exclude>
+                            <exclude>src/main/resources/**/*.svg</exclude>
+                            <exclude>bin/*</exclude>
+                            <exclude>conf/*</exclude>
+                            <exclude>derby.log</exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -405,8 +431,13 @@
                     <failOnNoGitDirectory>false</failOnNoGitDirectory>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+            </plugin>
         </plugins>
 
+        <!--
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -431,6 +462,7 @@
                 </excludes>
             </resource>
         </resources>
+        -->
     </build>
 
 </project>

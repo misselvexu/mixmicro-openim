@@ -78,9 +78,10 @@ fi
 
 JAVA_OPT="${JAVA_OPT} -XX:-OmitStackTraceInFastThrow"
 JAVA_OPT="${JAVA_OPT} -XX:-UseLargePages"
+JAVA_OPT="${JAVA_OPT} -Xbootclasspath/a:./:${BASE_DIR}/config/"
 JAVA_OPT="${JAVA_OPT} -jar ${BASE_DIR}/${SERVICE_NAME}-${SERVICE_VERSION}.jar"
 JAVA_OPT="${JAVA_OPT} ${JAVA_OPT_EXT}"
-#JAVA_OPT="${JAVA_OPT} --spring.config.location=${CUSTOM_SEARCH_LOCATIONS}"
+JAVA_OPT="${JAVA_OPT} --spring.config.location=${CUSTOM_SEARCH_LOCATIONS}"
 JAVA_OPT="${JAVA_OPT} --logging.config=${BASE_DIR}/config/logback.xml"
 if [ ! -d "${BASE_DIR}/logs" ]; then
   mkdir ${BASE_DIR}/logs

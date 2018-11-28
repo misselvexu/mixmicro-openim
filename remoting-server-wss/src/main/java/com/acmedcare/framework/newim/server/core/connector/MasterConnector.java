@@ -13,12 +13,14 @@ import com.acmedcare.framework.newim.server.core.IMSession;
 import com.acmedcare.framework.newim.server.processor.MasterNoticeClientChannelsRequestProcessor;
 import com.acmedcare.framework.newim.server.processor.MasterPushMessageRequestProcessor;
 import com.acmedcare.tiffany.framework.remoting.ChannelEventListener;
+import com.acmedcare.tiffany.framework.remoting.InvokeCallback;
 import com.acmedcare.tiffany.framework.remoting.exception.RemotingConnectException;
 import com.acmedcare.tiffany.framework.remoting.exception.RemotingSendRequestException;
 import com.acmedcare.tiffany.framework.remoting.exception.RemotingTimeoutException;
 import com.acmedcare.tiffany.framework.remoting.exception.RemotingTooMuchRequestException;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyClientConfig;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketClient;
+import com.acmedcare.tiffany.framework.remoting.netty.ResponseFuture;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingSysRequestCode;
 import com.alibaba.fastjson.JSON;
@@ -81,6 +83,7 @@ public class MasterConnector {
     instance.setLocalNode(localNode);
     NettyClientConfig config = new NettyClientConfig();
     config.setEnableHeartbeat(false);
+    config.setUseTLS(false);
     config.setClientChannelMaxIdleTimeSeconds(40); // idle
 
     NettyRemotingSocketClient client =
@@ -135,6 +138,9 @@ public class MasterConnector {
     instance.setMasterNodes(nodes);
     instance.setNettyClientConfig(config);
     instance.setNettyRemotingSocketClient(client);
+
+    // start
+    client.start();
     return instance;
   }
 
@@ -162,7 +168,6 @@ public class MasterConnector {
 
     void start() {
       if (nettyRemotingSocketClient != null) {
-        nettyRemotingSocketClient.start();
         try {
           handshake();
         } catch (Exception e) {
@@ -172,38 +177,45 @@ public class MasterConnector {
     }
 
     private void handshake() throws Exception {
-      RemotingCommand handshakeRequest =
-          RemotingCommand.createRequestCommand(MasterClusterCommand.CLUSTER_HANDSHAKE, null);
       for (InstanceNode masterNode : masterNodes) {
+        masterClusterLog.info("send handshake request to server :{} ", masterNode.getHost());
+        RemotingCommand handshakeRequest =
+            RemotingCommand.createRequestCommand(MasterClusterCommand.CLUSTER_HANDSHAKE, null);
         nettyRemotingSocketClient.invokeOneway(masterNode.getHost(), handshakeRequest, 2000);
       }
     }
 
     void register(IMProperties imProperties) throws Exception {
+
       ClusterRegisterHeader header = new ClusterRegisterHeader();
       header.setClusterServerHost(localNode.getHost());
 
       // send register command
-      RemotingCommand registerRequest =
-          RemotingCommand.createRequestCommand(MasterClusterCommand.CLUSTER_REGISTER, header);
-
-      registerRequest.setBody(JSON.toJSONBytes(imProperties.loadWssEndpoints()));
-
       for (InstanceNode masterNode : masterNodes) {
+
+        masterClusterLog.info("send register request to server :{} ", masterNode.getHost());
+
+        RemotingCommand registerRequest =
+            RemotingCommand.createRequestCommand(MasterClusterCommand.CLUSTER_REGISTER, header);
+
+        registerRequest.setBody(JSON.toJSONBytes(imProperties.loadWssEndpoints()));
         nettyRemotingSocketClient.invokeAsync(
             masterNode.getHost(),
             registerRequest,
-            2000,
-            responseFuture -> {
-              if (responseFuture.isSendRequestOK()) {
-                RemotingCommand response = responseFuture.getResponseCommand();
-                BizResult bizResult = JSON.parseObject(response.getBody(), BizResult.class);
-                if (bizResult != null && bizResult.getCode() == 0) {
-                  masterClusterLog.info(
-                      "Master-Cluster-Client:{} register succeed. ", masterNode.getHost());
-                  availableCache.put(masterNode.getHost(), true);
-                  heartbeat();
-                  syncClusterListTask();
+            5000,
+            new InvokeCallback() {
+              @Override
+              public void operationComplete(ResponseFuture responseFuture) {
+                if (responseFuture.isSendRequestOK()) {
+                  RemotingCommand response = responseFuture.getResponseCommand();
+                  BizResult bizResult = JSON.parseObject(response.getBody(), BizResult.class);
+                  if (bizResult != null && bizResult.getCode() == 0) {
+                    masterClusterLog.info(
+                        "Master-Cluster-Client:{} register succeed. ", masterNode.getHost());
+                    availableCache.put(masterNode.getHost(), true);
+                    heartbeat();
+                    syncClusterListTask();
+                  }
                 }
               }
             });
@@ -298,9 +310,6 @@ public class MasterConnector {
       }
       if (rollingPullClusterListExecutor != null) {
         ThreadKit.gracefulShutdown(rollingPullClusterListExecutor, 5, 10, TimeUnit.SECONDS);
-      }
-      if (nettyRemotingSocketClient != null) {
-        nettyRemotingSocketClient.shutdown();
       }
     }
   }

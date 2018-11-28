@@ -68,7 +68,8 @@ public class FirstDemoClient {
             .deviceId(KnownParams.deviceId)
             .heartbeatPeriod(10)
             .serverAddressHandler(
-                () -> Lists.newArrayList(new RemotingAddress(false, "127.0.0.1", 13110, false)))
+                () -> Lists.newArrayList(new RemotingAddress(false, "192.168.1.227", 13110, false),
+                                         new RemotingAddress(false, "192.168.1.227", 13120, false)))
             .build();
 
     AcmedcareRemoting.getInstance().init(null, temp);

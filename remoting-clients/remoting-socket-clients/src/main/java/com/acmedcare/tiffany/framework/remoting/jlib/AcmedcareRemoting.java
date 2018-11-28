@@ -500,7 +500,7 @@ public final class AcmedcareRemoting implements Serializable {
     AcmedcareLogger.i(null, "release remoting's instances ~");
   }
 
-  private void reConnect0() {
+  private void reConnect0() throws NoServerAddressException {
 
     AcmedcareLogger.i(TAG, "Try to re-connecting");
     // re-shutdown
@@ -516,11 +516,8 @@ public final class AcmedcareRemoting implements Serializable {
     AcmedcareRemoting.remotingClient = null;
 
     AcmedcareLogger.i(null, "re-process user parameters .");
-    try {
-      processorParameters();
-    } catch (NoServerAddressException e) {
-      AcmedcareLogger.i(TAG, "This time can't get available cluster server address list.");
-    }
+    processorParameters();
+
     // re-new remoting client
     newRemotingClient();
 
@@ -532,6 +529,8 @@ public final class AcmedcareRemoting implements Serializable {
       AcmedcareLogger.i(TAG, "re-Connecting...");
 
       remotingClient.start();
+
+      handshake();
 
     } catch (Exception e) {
       AcmedcareLogger.e(TAG, e, "Re-Connect Failed");
@@ -560,7 +559,11 @@ public final class AcmedcareRemoting implements Serializable {
           }
 
           try {
-            AcmedcareRemoting.getInstance().reConnect0();
+            try {
+              AcmedcareRemoting.getInstance().reConnect0();
+            } catch (NoServerAddressException e) {
+              AcmedcareLogger.i(TAG, "This time can't get available cluster server address list.");
+            }
             Thread.sleep(reConnectPeriod * 1000 + (reConnectRetryTimes - times) * 1000);
           } catch (InterruptedException ignored) {
           }
