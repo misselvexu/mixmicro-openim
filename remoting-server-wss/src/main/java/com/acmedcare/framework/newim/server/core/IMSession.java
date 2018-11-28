@@ -29,6 +29,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
@@ -78,6 +80,9 @@ public class IMSession implements InitializingBean, DisposableBean {
           new DefaultThreadFactory("new-im-send-async-executor-pool-"),
           new CallerRunsPolicy());
 
+  private static ScheduledExecutorService cleaner =
+      new ScheduledThreadPoolExecutor(1, new DefaultThreadFactory("channel-cleaner-thread"));
+
   @Getter private AsyncEventBus asyncEventBus;
   private NettyRemotingSocketServer imServer;
   @Getter private ClusterReplicaConnector clusterReplicaConnector;
@@ -94,6 +99,7 @@ public class IMSession implements InitializingBean, DisposableBean {
    */
   public void destroy() {
     ThreadKit.gracefulShutdown(asyncExecutor, 10, 20, TimeUnit.SECONDS);
+    ThreadKit.gracefulShutdown(cleaner, 10, 20, TimeUnit.SECONDS);
   }
 
   // ================================ Session Bind Methods ========================================
@@ -280,5 +286,37 @@ public class IMSession implements InitializingBean, DisposableBean {
   public void afterPropertiesSet() throws Exception {
     this.asyncEventBus = new AsyncEventBus(Executors.newFixedThreadPool(8));
     imServerLog.info("异步事件初始化完成:{}", this.asyncEventBus);
+
+    // startup cleaner
+    cleaner.scheduleWithFixedDelay(
+        () -> {
+          if (imServerLog.isDebugEnabled()) {
+            imServerLog.debug(
+                "Time to clean local channel cache, remove unavailable channel instance");
+          }
+          try {
+            devicesTcpChannelContainer.forEach(
+                (s, channels) ->
+                    channels.removeIf(
+                        channel ->
+                            channel == null || !channel.isActive() || !channel.isWritable()));
+
+          } catch (Exception ignore) {
+          }
+
+          try {
+
+            passportsTcpChannelContainer.forEach(
+                (s, channels) ->
+                    channels.removeIf(
+                        channel ->
+                            channel == null || !channel.isActive() || !channel.isWritable()));
+
+          } catch (Exception ignore) {
+          }
+        },
+        30,
+        30,
+        TimeUnit.SECONDS);
   }
 }
