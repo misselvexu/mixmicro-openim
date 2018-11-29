@@ -5,7 +5,7 @@ import com.acmedcare.tiffany.framework.remoting.jlib.AcmedcareLogger;
 import com.acmedcare.tiffany.framework.remoting.jlib.AcmedcareRemoting;
 import com.acmedcare.tiffany.framework.remoting.jlib.AcmedcareRemoting.RemotingConnectListener;
 import com.acmedcare.tiffany.framework.remoting.jlib.RemotingParameters;
-import com.acmedcare.tiffany.framework.remoting.jlib.ServerAddressHandler.RemotingAddress;
+import com.acmedcare.tiffany.framework.remoting.jlib.ServerAddressHandler;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Group;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message.GroupMessage;
@@ -70,10 +70,14 @@ public class FirstDemoClient {
             .deviceId(KnownParams.deviceId)
             .heartbeatPeriod(10)
             .serverAddressHandler(
-                () ->
-                    Lists.newArrayList(
+                new ServerAddressHandler() {
+                  @Override
+                  public List<RemotingAddress> remotingAddressList() {
+                    return Lists.newArrayList(
                         new RemotingAddress(false, "127.0.0.1", 13110, false),
-                        new RemotingAddress(false, "127.0.0.1", 13120, false)))
+                        new RemotingAddress(false, "127.0.0.1", 13120, false));
+                  }
+                })
             .build();
 
     AcmedcareRemoting.getInstance().init(null, temp);
