@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>remoting-newim</artifactId>
+        <groupId>com.acmedcare.microservices.im</groupId>
+        <version>2.1.0-RC2</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>remoting-test</artifactId>
+    <version>2.1.0-RC2</version>
+    <packaging>jar</packaging>
+
+    <name>remoting-test ${project.version}</name>
+    <description>Remote Test(s)</description>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-undertow</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-actuator</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.acmedcare.tiffany.framework</groupId>
+            <artifactId>remoting-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.acmedcare.microservices.im</groupId>
+            <artifactId>remoting-biz</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.acmedcare.framework.kits</groupId>
+            <artifactId>common-kits</artifactId>
+            <version>Antarctica.RC1</version>
+        </dependency>
+
+        <dependency>
+            <artifactId>spring-boot-starter-cors</artifactId>
+            <groupId>com.acmedcare.framework</groupId>
+            <version>2.1.0-RC1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.acmedcare.microservices.im</groupId>
+            <artifactId>remoting-storage-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.acmedcare.microservices.im</groupId>
+            <artifactId>remoting-storage-mongo</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.acmedcare.framework</groupId>
+            <artifactId>exception-api</artifactId>
+            <version>2.1.0-RC1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.acmedcare.microservices.im</groupId>
+            <artifactId>remoting-api</artifactId>
+            <version>2.1.0-RC2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.acmedcare.framework</groupId>
+            <artifactId>spring-boot-starter-snowflake</artifactId>
+            <version>2.1.0-RC1</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <extensions>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>1.4.0.Final</version>
+            </extension>
+        </extensions>
+    </build>
+
+</project>

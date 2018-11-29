@@ -1,40 +1,28 @@
-## Acmedcare+ IM System
+# Acmedcare+ NewIM System
+---
+Acmedcare NewIM System , Support Some New Features
 
-Acmedcare Bass System IM Server & Develop Client SDK Support.
+## RoadMap
 
-### How to Build
+> IM Server
 
-```bash
-    # clone source code
-    git clone git@115.29.47.72:acmedback/acmedcare-im.git
-    cd acmedcare-im
-    # run package
-    mvn clean package
-
-```
-### How to Start Server
-```bash
+- Protocol Support
+    * [x] TCP
+    * [x] R-UDP
+    * [x] WebSocket
     
-    tar -zxvf remoting-server-Europe.RC1-assembly.tar.gz
-    cd remoting-server-Europe.RC1
+- Develop Kit
+    * [x] JDK SDK Kit
+    * [x] Android SDK Kit
+    * [ ] NodeJS SDK Kit
     
-    # start server
-    ./bin/start.sh
-    
-    # stop server
-    ./bin/stop.sh
-    
-    # restart server
-    ./bin/restart.sh
-    
-    # cat log
-    tail -f logs/stdout.log 
-```
+> Push Server
 
-### `Protocol` Biz Code
+- Protocol Support
 
-> 业务编码
+    * [ ] R-UDP
 
+<<<<<<< HEAD
 | 协议说明 | Code | Value |
 | --- | --- | --- |
 | 授权认证 | AUTH | 0x2001 |
@@ -46,44 +34,57 @@ Acmedcare Bass System IM Server & Develop Client SDK Support.
 | 客户端发消息 | CLIENT_PUSH_MESSAGE | 0x3006 |
 | 客户端接收服务端消息 | SERVER_PUSH_MESSAGE | 0x4001 |
 | 服务端通知客户端下线通知 | SERVER_PUSH_FOCUS_LOGOUT | 0x4002 |
-
-> 系统编码
-
-| 协议说明 | Code | Value |
-| --- | --- | --- |
-| 心跳协议 | HEARTBEAT | 0x1001 |
-| ACK(default) | PONG | 0x0000 |
-
-### Development SDK
-
-#### Android
-
-* JDK 1.7+
-* Android Studio 3.0+ [`optional`]
-
-> Android SDK Source [Acmedcare Gitlab](http://115.29.47.72:8082/acmedback/tiffany-quantum/tree/Oceania.SR1/remoting-android-library-jre-core)
+=======
+- Develop Kit
+    * [x] JDK SDK Kit
+    * [x] Android SDK Kit
+>>>>>>> origin/2.1.x
 
 
-##### Android SDK Dependencies
+## Quick-start
+> building
 
-| 依赖库名 | 地址 | 版本 |
-| --- | --- | --- |
-| remoting-android-jarlib-nio | [Acmedcare Gitlab](http://115.29.47.72:8082/acmedback/tiffany-quantum/tree/Oceania.SR1/remoting-android-jarlib-nio) | Oceania.SR1 |
-| fastjson | - | 1.1.68.android |
-| slf4j | - | 1.7.25 |
+## Core Library
 
-#### iOS
+### Storage Component
 
-> coming soon
+#### MongoDB
 
-#### C++
+Document storage database;
 
-> coming soon
-
-### 依赖库
-
-| 依赖库名 | 地址 | 版本 |
-| --- | --- | --- |
-| tiffany-quantum | [Acmedcare Gitlab](http://115.29.47.72:8082/acmedback/tiffany-quantum) | Oceania.SR1 |
+***WARN*** `Mongo4.x Single Cluster` not support transaction.
 
 
+> Docker Running
+
+```bash
+  # pull images
+  docker pull mongo
+  
+  # start container
+  docker run -p 27017:27017 -v /acmedcare/data/mongo:/data/db --name docker_mongodb -d mongo
+  
+```
+
+> Docker For Mongo Replica Env
+
+```bash
+  # 创建数据目录
+  mkdir /acmedcare/replica-datas/cluster{1..3} -pv
+  
+  
+
+
+```
+
+#### MySQL (`Removed`)
+The MySQL v1 component currently is only tested with MySQL 5.6-7. It is designed to be easy to understand, and get started with. For example, it deconstructs spans into columns, so you can perform ad-hoc queries using SQL. However, this component has known performance issues: queries will eventually take seconds to return if you put a lot of data into it.
+
+
+
+### Running the server from source
+> building
+
+
+## Artifacts
+> building

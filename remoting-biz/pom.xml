@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>remoting-newim</artifactId>
+        <groupId>com.acmedcare.microservices.im</groupId>
+        <version>2.1.0-RC2</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>remoting-biz</artifactId>
+    <version>2.1.0-RC2</version>
+    <packaging>jar</packaging>
+
+    <name>remoting-biz ${project.version}</name>
+    <description>Remote Biz</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.acmedcare.tiffany.framework</groupId>
+            <artifactId>remoting-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.acmedcare.microservices.im</groupId>
+            <artifactId>remoting-api</artifactId>
+            <version>2.1.0-RC2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+</project>
