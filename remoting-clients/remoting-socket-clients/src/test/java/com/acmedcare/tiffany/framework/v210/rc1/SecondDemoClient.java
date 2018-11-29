@@ -10,6 +10,7 @@ import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Group;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message.GroupMessage;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message.InnerType;
+import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message.MessageType;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message.SingleMessage;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.AuthRequest.AuthCallback;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullMessageRequest;
@@ -68,8 +69,8 @@ public class SecondDemoClient {
                   @Override
                   public List<RemotingAddress> remotingAddressList() {
                     return Lists.newArrayList(
-                        new RemotingAddress(false, "127.0.0.1", 13110, false),
-                        new RemotingAddress(false, "127.0.0.1", 13120, false));
+                        new RemotingAddress(false, "192.168.1.227", 13110, false),
+                        new RemotingAddress(false, "192.168.1.227", 13120, false));
                   }
                 })
             .build();
@@ -146,7 +147,7 @@ public class SecondDemoClient {
         }
 
         // 发送消息
-        // 单聊消息: sendMessage SINGLE 3837142362366977 hi
+        // 单聊消息: sendMessage SINGLE 3837142362366976 hi
         // 群消息: sendMessage GROUP gid-20181122 hi
         if (inputArgs[0].equals("sendMessage")) {
 
@@ -156,6 +157,7 @@ public class SecondDemoClient {
             singleMessage.setReceiver(inputArgs[2]);
             singleMessage.setBody(inputArgs[3].getBytes());
             singleMessage.setInnerType(InnerType.NORMAL);
+            singleMessage.setMessageType(MessageType.SINGLE);
             singleMessage.setSender(KnownParams.passportId.toString());
 
             sendMessage(singleMessage);
@@ -268,7 +270,7 @@ public class SecondDemoClient {
   private interface KnownParams {
 
     String accessToken =
-        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiJmZmUxOTQ1MjNmNWU0YTM3Yjk0NDllZTdjNThmNjg2NSIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlIcXc5TDdUU0gwVmlLTWNXNUp3RVd0ZXc5Rk12SVFZcGZDMG5CUUhOamVucmMyYndheHNwMk93NXVkSGM1ZllTcGd0a2FxRkV6U29Uck41S0kyaHZKRW52L1RHV0hLeDdFdTJRNEs1V3JrZTZTMjNIaUdhWXdvQ29ua3ZuSlVjWGQxNzNwV3pFbmF0bz0iLCJpYXQiOjE1NDM0MzA5MDUyNTYsImV4cCI6MTU0NDA0MjU3MTI1NiwiYXVkIjpudWxsfQ.O0DNYmXQ96S_54nm4GlIe4iVhlL9ocJiXd9WxBlylAzvTHpdKtbo_Za6ny-DgUylVIXalgsMXDLnUTSDVF1Hw9TFHbOIuQzlIvWRHIgfI8mCpgxRFLG4yfjf6RoDgIqEOp4fs8eZU-kpbKoRVw6RjAJiihZEEaKCAEc_xLQB7RPEeBy3KT7TDkAXh2gp2laka4BbuACIJsIiFqwPLyOReb_oyAZFYKCeXuy15AWtO4DTxA8Nm9Z6ATw-sGayFPdY4aXEMoGXxY_tV_uIzKUGTJH_eC2BBI5oEwe08cKh6d8rySz5EJ-v72bmpKGuLXLUIwktI7ZSaBrIuOQzfWm87A";
+        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiJhZmNhYTU1ZjY3YzM0Yzk4YWQ0ZTRhZWViYzEyNWIzMiIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlIcXc5TDdUU0gwVmlLTWNXNUp3RVd0ZXc5Rk12SVFZcGZDMG5CUUhOamVucmMyYndheHNwMk93NXVkSGM1ZllTcGd0a2FxRkV6U29Uck41S0kyaHZKRW52L1RHV0hLeDdFdTJRNEs1V3JrZTZTMjNIaUdhWXdvQ29ua3ZuSlVjWGQxNzNwV3pFbmF0bz0iLCJpYXQiOjE1NDM0NTc1OTQyMjEsImV4cCI6MTU0NDA2Nzk2MTIyMSwiYXVkIjpudWxsfQ.qrgMQvs1IyTXd_xr6OzzbuylwwfBO_ObVccvPe4Ku0CipqLa-83t7RnvouGUxN0y0JOKTnHKxT_2D2QMlBTl9KFU-D7pdL3IrVnJZOJHK_NYynfCkZl41Yl-j6Lyjr03jVNUD93v4pnoe6NnWhqYg5ZULpKnu-L50TgFaA_mKC86Ql3gvoTccWwuSeAdRvIVPN1z_Y_DoVBA360bmCs8zTTfk9M5r3JUVIqAz3l-3otVERCDWmbPktmy5ZAP6mgHBttTI_ykX3NGEizmtXVptFuQ7nfyV_eWtslNXbhsrah2Z_LhdncquwB8jrNOCVSnFCtZbOVW2s0kVcl5F6_BWw";
 
     String areaNo = "320500";
 
