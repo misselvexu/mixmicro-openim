@@ -71,6 +71,7 @@ remoting.master.endpoint.https=false
 
 ### 参考案例
 
-- 
+- [集成Starter工程](http://115.29.47.72:8082/acmedback/Acmedcare-NewIM/tree/2.1.x/remoting-clients/remoting-endpoint-client-boot-starter-sample)
+- [Api具体操作代码](http://115.29.47.72:8082/acmedback/Acmedcare-NewIM/blob/2.1.x/remoting-clients/remoting-endpoint-client/src/test/java/com/acmedcare/framework/newim/master/endpoint/client/MasterEndpointClientTest.java)
 
 
