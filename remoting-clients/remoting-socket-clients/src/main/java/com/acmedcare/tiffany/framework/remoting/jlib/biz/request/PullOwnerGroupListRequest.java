@@ -2,7 +2,6 @@ package com.acmedcare.tiffany.framework.remoting.jlib.biz.request;
 
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Group;
 import java.util.List;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,11 +16,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class PullOwnerGroupListRequest extends BaseRequest {
-
-  @Builder
-  public PullOwnerGroupListRequest(String username, String passportId) {
-    super(username, passportId);
-  }
 
   public interface Callback {
 

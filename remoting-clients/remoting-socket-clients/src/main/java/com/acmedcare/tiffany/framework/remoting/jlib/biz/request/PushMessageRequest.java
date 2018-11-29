@@ -1,8 +1,6 @@
 package com.acmedcare.tiffany.framework.remoting.jlib.biz.request;
 
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.MessageAttribute;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,22 +19,6 @@ public class PushMessageRequest extends BaseRequest {
   private String messageType;
 
   private Message message;
-
-  @Builder
-  public PushMessageRequest(
-      String username,
-      String passportId,
-      String messageType,
-      Message message,
-      MessageAttribute attribute) {
-
-    super(username);
-    this.messageType = messageType;
-    this.setPassportId(passportId);
-    this.message = message;
-
-    this.setAttribute(attribute);
-  }
 
   public interface Callback {
     void onSuccess(long messageId);
