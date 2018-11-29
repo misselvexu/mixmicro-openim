@@ -60,7 +60,8 @@ public class RemotingClientRegisterAuthProcessor extends AbstractNormalRequestPr
 
       Principal principal = this.remotingAuthService.principal(authHeader.getAccessToken());
       if (!StringUtils.equals(authHeader.getPassportId(), principal.getPassportUid().toString())
-          || !StringUtils.equals(authHeader.getPassport(), principal.getPassportAccount())) {
+          || !StringUtils.equalsIgnoreCase(
+              authHeader.getPassport(), principal.getPassportAccount())) {
         throw new InvalidTokenException("登录票据与通行证不匹配,非法Token");
       }
 
@@ -86,10 +87,7 @@ public class RemotingClientRegisterAuthProcessor extends AbstractNormalRequestPr
           BizResult.builder()
               .code(-1)
               .exception(
-                  ExceptionWrapper.builder()
-                      .message(e.getMessage())
-                      .type(e.getClass())
-                      .build())
+                  ExceptionWrapper.builder().message(e.getMessage()).type(e.getClass()).build())
               .build()
               .bytes());
     }

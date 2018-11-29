@@ -74,8 +74,7 @@ public class FirstDemoClient {
                   @Override
                   public List<RemotingAddress> remotingAddressList() {
                     return Lists.newArrayList(
-                        new RemotingAddress(false, "192.168.1.227", 13110, false),
-                        new RemotingAddress(false, "192.168.1.227", 13120, false));
+                        new RemotingAddress(false, "127.0.0.1", 13110, false));
                   }
                 })
             .build();
@@ -274,18 +273,35 @@ public class FirstDemoClient {
    * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
    * @version ${project.version} - 27/11/2018.
    */
+  //  private interface KnownParams {
+  //
+  //    String accessToken =
+  //
+  // "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiJiZDJiOTYwMDY4MDM0OTEzYmEyNTc1ZTNhM2Y3YTQ2OSIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NDM0NTc1Nzg4MzgsImV4cCI6MTU0NDA2NDcxNjgzOCwiYXVkIjpudWxsfQ.Qvsxp7p4AeTAXmtiDX3YuLzaKVB_vUQOvv-ghBonFI7qFKuWaMU7pN-zUcLOJmRDula4WKcgppzMgNnE4Ip3jWrLMiThiwwSQpClLdBrZ-qeS2lWH9FjiS35MrlRLDfUz0KBRfQkXjavRCnQjwJlQyJSbFVnFXHIStslTYPy9SQcHhdTkmz1XW_1UFAHUxaWUH-JB2N2WoZmbNCTYiPWYYWdPS6ZUBE0_hAykn8yqj_aA-e6iA4f0LMpGyc2lCl76V8ckQbo1mk0N6WE48ia_T3eYafRTZsHEmcV-Reti93hMzBFWjvFrXN3euiv7svYsODwIYSVTM0KKy5ZnqEl1w";
+  //
+  //    String areaNo = "320500";
+  //
+  //    String orgId = "3910249034228736";
+  //
+  //    Long passportId = 3837142362366976L;
+  //
+  //    String passport = "13910187669";
+  //
+  //    String deviceId = "DEVICE-ID";
+  //  }
+
   private interface KnownParams {
 
     String accessToken =
-        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiJiZDJiOTYwMDY4MDM0OTEzYmEyNTc1ZTNhM2Y3YTQ2OSIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NDM0NTc1Nzg4MzgsImV4cCI6MTU0NDA2NDcxNjgzOCwiYXVkIjpudWxsfQ.Qvsxp7p4AeTAXmtiDX3YuLzaKVB_vUQOvv-ghBonFI7qFKuWaMU7pN-zUcLOJmRDula4WKcgppzMgNnE4Ip3jWrLMiThiwwSQpClLdBrZ-qeS2lWH9FjiS35MrlRLDfUz0KBRfQkXjavRCnQjwJlQyJSbFVnFXHIStslTYPy9SQcHhdTkmz1XW_1UFAHUxaWUH-JB2N2WoZmbNCTYiPWYYWdPS6ZUBE0_hAykn8yqj_aA-e6iA4f0LMpGyc2lCl76V8ckQbo1mk0N6WE48ia_T3eYafRTZsHEmcV-Reti93hMzBFWjvFrXN3euiv7svYsODwIYSVTM0KKy5ZnqEl1w";
+        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiIyYjRmMzBhZTdkZGE0ZGY1ODY5ZGUzNWYxM2EyOTdiZiIsImRhdCI6Ik4vQmtqTkJBelh1R1lyT1JNL245UUZGclFmQkluTlFkTlhIYm1rdUF6TCtKSldsRVpySm9wQk12MFM5YzZvWTV1Z1NTckRsclNoQjE1c25uT0NIZ0hlRVhDZ3lLcG5hd2ZIRHIvZDl5Yk9UL1ErSEJRUmJGeG8zRWRBL2c1NlZRMEFVSHVVa3Jib2liSkhoYm5yV2FZV2RKdDREM0dBbXRqcEMxUnBlb0hPOD0iLCJpYXQiOjE1NDM0NzY4MjExOTEsImV4cCI6MTU0NDA4ODExNjE5MSwiYXVkIjpudWxsfQ.ncrqSwJGQm473dNxD60r78H0OncHznrGOl9c3rj00WadsU--Ezq3nG6OxxkKIJZrNwwnUDoBQdlmGcoF_HJoBTUPkn6jfMpqk67rWtdJgBbv6WySQSB7MI8Hu-UFqp4INinFVCy7l1doacGsoibIpjiFXk4bkKANc7iCgZH_piGPZc906BbjwvMHT9nvFVpOCE7DrMLPPPR61GRYRGsJ5q2KvOFrTetCTeR7aiSaoHmlZwXBuIQnfmCUX604yuLFQKnFF7Z2cuuHqkdpSFgxdECc3RUtwa8ait-h7QPLIqRfuZHSsx56sS_22gGPv_SMKmj-fz8TiKIk_QiwJQgCAg";
 
-    String areaNo = "320500";
+    String areaNo = "451300";
 
-    String orgId = "3910249034228736";
+    String orgId = "999190104901888";
 
-    Long passportId = 3837142362366976L;
+    Long passportId = 1033050009520384L;
 
-    String passport = "13910187669";
+    String passport = "johnOuthos002";
 
     String deviceId = "DEVICE-ID";
   }
