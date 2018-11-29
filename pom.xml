@@ -12,7 +12,6 @@
         <module>remoting-biz</module>
         <module>remoting-storage</module>
         <module>remoting-master</module>
-        <module>remoting-server-1.x</module>
         <module>remoting-server-wss</module>
         <module>remoting-clients</module>
         <module>remoting-test</module>
