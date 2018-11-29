@@ -15,6 +15,7 @@ import com.acmedcare.framework.newim.server.endpoint.WssSessionContext;
 import com.acmedcare.framework.newim.server.event.AbstractEventHandler;
 import com.acmedcare.framework.newim.server.exception.SessionBindException;
 import com.acmedcare.framework.newim.server.processor.header.ServerPushMessageHeader;
+import com.acmedcare.tiffany.framework.remoting.common.RemotingHelper;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketServer;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.alibaba.fastjson.JSON;
@@ -148,9 +149,11 @@ public class IMSession implements InitializingBean, DisposableBean {
 
     try {
       asyncExecutor.execute(
-          () ->
-              IMSession.this.wssSessionContext.sendMessageToPassports(
-                  Lists.newArrayList(passportId), message));
+          () -> {
+            Message messageInstance = JSON.parseObject(message, Message.class);
+            IMSession.this.wssSessionContext.sendMessageToPassports(
+                Lists.newArrayList(passportId), messageInstance.getBody());
+          });
 
       imServerLog.info("[TCP-WSS] 提交转发消息任务成功");
     } catch (Exception e) {
@@ -170,7 +173,7 @@ public class IMSession implements InitializingBean, DisposableBean {
         // foreach send
         for (Channel channel : channels) {
           try {
-            if (channel.isWritable()) {
+            if (channel != null && channel.isWritable()) {
               // send
               channel
                   .writeAndFlush(command)
@@ -179,11 +182,15 @@ public class IMSession implements InitializingBean, DisposableBean {
                           future -> {
                             if (future.isSuccess()) {
                               // TODO 根据客户端的消息类型进行结果回执
-
+                              if (imServerLog.isDebugEnabled()) {
+                                imServerLog.debug(
+                                    "[IM-SESSION-SEND] 消息请求发送成功; Channel:{}",
+                                    RemotingHelper.parseChannelRemoteAddr(channel));
+                              }
                             }
                           });
             } else {
-              imServerLog.warn("[IM-SESSION-SEND] 客户端:{}链接异常", channel);
+              imServerLog.warn("[IM-SESSION-SEND] 客户端:{} 链接异常", channel);
             }
           } catch (Exception e) {
             imServerLog.warn("[IM-SESSION-SEND] 发送消息给客户端:" + channel + "失败", e);

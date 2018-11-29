@@ -7,7 +7,7 @@
 
 * remoting-android-jarlib-nio-Oceania.SR1.jar       `Nio Socket 底层包`
 * remoting-android-library-jre-core-Oceania.SR1.jar   `Android SDK Jar包`
-* remoting-server-2.1.0-RC1.jar              `替换服务端192.168.1.4的服务端包`
+* remoting-server-2.1.0-RC2.jar              `替换服务端192.168.1.4的服务端包`
 
 
 ### 服务器部署重启
@@ -22,9 +22,9 @@
 
 ```bash
   
-  cd /opt/remoting-server-2.1.0-RC1
+  cd /opt/remoting-server-2.1.0-RC2
   
-  #将`remoting-server-2.1.0-RC1.jar` 覆盖替换到lib目录下面
+  #将`remoting-server-2.1.0-RC2.jar` 覆盖替换到lib目录下面
   
   
   # 重启服务即可

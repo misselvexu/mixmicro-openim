@@ -13,7 +13,7 @@ public interface EndpointConstants {
    *
    * <p>
    *
-   * @since 2.1.0-RC1
+   * @since 2.1.0-RC2
    */
   interface GroupRequest {
 
@@ -30,7 +30,7 @@ public interface EndpointConstants {
   /**
    * Messgae Endpoint Request
    *
-   * @since 2.1.0-RC1
+   * @since 2.1.0-RC2
    */
   interface MessageRequest {
 

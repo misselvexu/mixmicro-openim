@@ -1,6 +1,6 @@
 #!/bin/bash
 SERVICE_NAME=remoting-server-wss
-SERVICE_VERSION=2.1.0-RC1
+SERVICE_VERSION=2.1.0-RC2
 # Copyright 1999-2018 Acmedcare+ Group Holding Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.

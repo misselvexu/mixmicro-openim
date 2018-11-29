@@ -5,15 +5,15 @@
     <parent>
         <artifactId>remoting-newim</artifactId>
         <groupId>com.acmedcare.microservices.im</groupId>
-        <version>2.1.0-RC1</version>
+        <version>2.1.0-RC2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>remoting-server</artifactId>
-    <version>2.1.0-RC1</version>
+    <version>2.1.0-RC2</version>
     <packaging>jar</packaging>
 
-    <name>remoting-server</name>
+    <name>remoting-server ${project.version}</name>
 
 
     <dependencies>
