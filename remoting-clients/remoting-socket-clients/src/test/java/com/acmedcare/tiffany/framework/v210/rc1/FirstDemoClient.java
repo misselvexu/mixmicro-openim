@@ -139,7 +139,7 @@ public class FirstDemoClient {
         // functions
         String[] inputArgs = input.split("\\s+");
 
-        // 拉取消息请求参数:  pullMessageList 3837142362366976 -1
+        // 拉取消息请求参数:  pullMessageList 3837142362366977 -1
         if (inputArgs[0].equals("pullMessageList")) {
           pullMessageList(inputArgs[1], Long.parseLong(inputArgs[2]));
           continue;
