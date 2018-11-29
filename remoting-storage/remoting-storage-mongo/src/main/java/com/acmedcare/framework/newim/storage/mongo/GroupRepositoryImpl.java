@@ -8,12 +8,14 @@ import static org.springframework.data.mongodb.SessionSynchronization.ON_ACTUAL_
 
 import com.acmedcare.framework.newim.Group;
 import com.acmedcare.framework.newim.Group.GroupMembers;
+import com.acmedcare.framework.newim.Status;
 import com.acmedcare.framework.newim.storage.IMStorageCollections;
 import com.acmedcare.framework.newim.storage.api.GroupRepository;
 import com.acmedcare.framework.newim.storage.exception.StorageExecuteException;
 import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.UpdateResult;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +29,7 @@ import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -74,14 +77,35 @@ public class GroupRepositoryImpl implements GroupRepository {
   }
 
   @Override
+  public void updateGroup(Group group) {
+    Query query = new Query(Criteria.where("groupId").is(group.getGroupId()));
+    Update update = new Update();
+    update.set("groupName", group.getGroupName());
+    update.set("groupOwner", group.getGroupOwner());
+    update.set("groupBizTag", group.getGroupBizTag());
+    update.set("groupExt", group.getGroupExt());
+    UpdateResult updateResult = this.mongoTemplate.updateFirst(query, update, GROUP);
+    long row = updateResult.getModifiedCount();
+    mongoLog.info("请求更新群组返回值:{}", row);
+  }
+
+  @Override
   public long removeGroup(String groupId) {
     mongoLog.info("请求删除群组:{}", groupId);
     Query query = new Query(Criteria.where("groupId").is(groupId));
+    Update update = new Update();
+    update.set("status", Status.DISABLED);
+    UpdateResult updateResult = this.mongoTemplate.updateFirst(query, update, GROUP);
+
+    // change remove rule ,flag
+    /*
     DeleteResult dr1 = mongoTemplate.remove(query, GROUP);
     mongoLog.info("删除群组影响行数:{}", dr1.getDeletedCount());
     DeleteResult dr2 = mongoTemplate.remove(query, REF_GROUP_MEMBER);
     mongoLog.info("删除群组与成员关联关系记录影响行数:{}", dr2.getDeletedCount());
-    return dr1.getDeletedCount();
+    */
+
+    return updateResult.getModifiedCount();
   }
 
   @Override

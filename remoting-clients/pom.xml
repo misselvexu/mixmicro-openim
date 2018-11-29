@@ -20,6 +20,8 @@
         <module>remoting-websocket-clients</module>
         <module>remoting-socket-clients</module>
         <module>remoting-endpoint-client</module>
+        <module>remoting-endpoint-client-boot-starter</module>
+        <module>remoting-endpoint-client-boot-starter-sample</module>
     </modules>
 
 

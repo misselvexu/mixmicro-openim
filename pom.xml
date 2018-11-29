@@ -114,6 +114,13 @@
             </dependency>
 
             <!-- remoting libs-->
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>remoting-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>remoting-biz</artifactId>

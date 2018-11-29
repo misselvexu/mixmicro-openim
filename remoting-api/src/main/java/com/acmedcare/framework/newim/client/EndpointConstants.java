@@ -13,12 +13,18 @@ public interface EndpointConstants {
    *
    * <p>
    *
-   * @since 2.1.0-RC2
+   * @since 2.1.0-RC1
    */
   interface GroupRequest {
 
     /** 创建群组 */
     String CREATE_GROUP = "/group/create-new-group";
+
+    /** 删除群组 */
+    String REMOVE_GROUP = "/group/remove-group";
+
+    /** 更新群组信息 */
+    String UPDATE_GROUP = "/group/update-group";
 
     /** 群组添加人员 */
     String ADD_GROUP_MEMBERS = "/group/add-group-members";
@@ -28,9 +34,9 @@ public interface EndpointConstants {
   }
 
   /**
-   * Messgae Endpoint Request
+   * Message Endpoint Request
    *
-   * @since 2.1.0-RC2
+   * @since 2.1.0-RC1
    */
   interface MessageRequest {
 
