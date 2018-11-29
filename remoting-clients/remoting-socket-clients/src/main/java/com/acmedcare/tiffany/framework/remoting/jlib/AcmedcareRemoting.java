@@ -3,7 +3,6 @@ package com.acmedcare.tiffany.framework.remoting.jlib;
 import static com.acmedcare.tiffany.framework.remoting.jlib.biz.BizCode.CLIENT_HANDSHAKE;
 
 import android.content.Context;
-import com.acmedcare.framework.kits.jre.http.HttpRequest;
 import com.acmedcare.tiffany.framework.remoting.android.HandlerMessageListener;
 import com.acmedcare.tiffany.framework.remoting.android.core.IoSessionEventListener;
 import com.acmedcare.tiffany.framework.remoting.android.core.protocol.RemotingCommand;
@@ -15,6 +14,7 @@ import com.acmedcare.tiffany.framework.remoting.android.nio.core.future.IoFuture
 import com.acmedcare.tiffany.framework.remoting.android.nio.core.future.IoFutureListener;
 import com.acmedcare.tiffany.framework.remoting.android.nio.core.session.IoSession;
 import com.acmedcare.tiffany.framework.remoting.android.utils.RemotingHelper;
+import com.acmedcare.tiffany.framework.remoting.jlib.ServerAddressHandler.RemotingAddress;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.BizCode;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.AuthRequest;
 import com.acmedcare.tiffany.framework.remoting.jlib.events.AcmedcareEvent;
@@ -28,9 +28,14 @@ import com.alibaba.fastjson.TypeReference;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.AsyncEventBus;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.Serializable;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -221,28 +226,68 @@ public final class AcmedcareRemoting implements Serializable {
         AcmedcareRemoting.parameters.getServerAddressHandler().remotingAddressList();
 
     if (masterAddresses != null && masterAddresses.size() > 0) {
-      List<String> clusterServers = Lists.newArrayList();
+      final List<String> clusterServers = Lists.newArrayList();
       for (ServerAddressHandler.RemotingAddress address : masterAddresses) {
+
         try {
-          String url =
+          final RemotingAddress tempAddress = address;
+          final String url =
               (address.isHttps() ? "https://" : "http://")
                   + address.toString()
                   + "/master/available-cluster-servers";
           AcmedcareLogger.i(TAG, "获取可用服务器请求地址: " + url);
-          HttpRequest request = HttpRequest.get(url);
-          if (request.ok()) {
-            String body = request.body("UTF-8");
-            AcmedcareLogger.i(TAG, "获取可用服务器请求返回值: " + body);
-            if (!Strings.isNullOrEmpty(body)) {
-              List<String> temp = JSON.parseObject(body, new TypeReference<List<String>>() {});
-              if (temp != null && temp.size() > 0) {
-                clusterServers.addAll(temp);
-                break;
-              }
-            }
-          }
+
+          final CountDownLatch count = new CountDownLatch(1);
+
+          Thread asyncThread =
+              new Thread(
+                  new Runnable() {
+                    @Override
+                    public void run() {
+
+                      try {
+                        URL requestURL = new URL(url);
+                        HttpURLConnection urlConn = (HttpURLConnection) requestURL.openConnection();
+                        urlConn.setConnectTimeout(2 * 1000);
+                        urlConn.setReadTimeout(2 * 1000);
+                        urlConn.setUseCaches(false);
+                        urlConn.setRequestMethod("GET");
+                        urlConn.connect();
+                        if (urlConn.getResponseCode() == 200) {
+                          String body = streamToString(urlConn.getInputStream());
+                          AcmedcareLogger.i(TAG, "获取可用服务器请求返回值: " + body);
+                          if (!Strings.isNullOrEmpty(body)) {
+                            List<String> temp =
+                                JSON.parseObject(body, new TypeReference<List<String>>() {});
+                            if (temp != null && temp.size() > 0) {
+                              clusterServers.addAll(temp);
+                            }
+                          }
+                        } else {
+                          AcmedcareLogger.i(
+                              TAG, "获取可用服务器请求状态代码: " + urlConn.getResponseCode() + ", 尝试下一组服务器...");
+                        }
+                        urlConn.disconnect();
+
+                      } catch (Exception e) {
+                        e.printStackTrace();
+                        AcmedcareLogger.e(
+                            TAG, e, "从主服务器:" + tempAddress.toString() + "获取可用通讯服务器地址失败");
+                      } finally {
+                        count.countDown();
+                      }
+                    }
+                  });
+          asyncThread.start();
+          count.await();
+
         } catch (Exception e) {
-          AcmedcareLogger.i(TAG, "从主服务器:" + address.toString() + "获取可用通讯服务器地址失败");
+          e.printStackTrace();
+          AcmedcareLogger.e(TAG, e, "异步处理网络获取通讯地址异常");
+        }
+
+        if (clusterServers.size() > 0) {
+          break;
         }
       }
 
@@ -633,6 +678,24 @@ public final class AcmedcareRemoting implements Serializable {
       // register event bus handler
       eventBus().register(eventHandler);
       AcmedcareLogger.i(null, "application register event listener handler :" + eventHandler);
+    }
+  }
+
+  private String streamToString(InputStream is) {
+    try {
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      byte[] buffer = new byte[1024];
+      int len = 0;
+      while ((len = is.read(buffer)) != -1) {
+        baos.write(buffer, 0, len);
+      }
+      baos.close();
+      is.close();
+      byte[] byteArray = baos.toByteArray();
+      return new String(byteArray);
+    } catch (Exception e) {
+      AcmedcareLogger.e(TAG, e, e.getMessage());
+      return null;
     }
   }
 
