@@ -4,19 +4,19 @@ Acmedcare NewIM System is a distributed messaging and streaming platform with lo
 
 It offers a variety of features:
 
--[x] Group & Topic message model
--[x] Pub/Sub messaging model
--[x] Message retroactivity by time or offset
--[x] Flexible distributed scale-out deployment architecture
--[x] Lightning-fast batch message exchange system
--[ ] Efficient pull&push consumption model
--[ ] Scheduled message delivery
--[ ] Log collection for streaming
--[ ] Big data integration
--[ ] Reliable FIFO and strict ordered messaging in the same queue
--[ ] Million-level message accumulation capacity in a single queue
--[x] Docker images for isolated testing and cloud isolated clusters
--[ ] Feature-rich administrative dashboard for configuration, metrics and monitoring
+- [x] Group & Topic message model
+- [x] Pub/Sub messaging model
+- [x] Message retroactivity by time or offset
+- [x] Flexible distributed scale-out deployment architecture
+- [x] Lightning-fast batch message exchange system
+- [ ] Efficient pull&push consumption model
+- [ ] Scheduled message delivery
+- [ ] Log collection for streaming
+- [ ] Big data integration
+- [ ] Reliable FIFO and strict ordered messaging in the same queue
+- [ ] Million-level message accumulation capacity in a single queue
+- [x] Docker images for isolated testing and cloud isolated clusters
+- [ ] Feature-rich administrative dashboard for configuration, metrics and monitoring
 
 ## RoadMap
 
