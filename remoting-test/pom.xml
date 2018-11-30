@@ -17,6 +17,10 @@
     <name>remoting-test ${project.version}</name>
     <description>Remote Test(s)</description>
 
+    <properties>
+        <deploy.skip>true</deploy.skip>
+    </properties>
+
     <dependencies>
 
         <dependency>

@@ -16,6 +16,10 @@
     <name>remoting-master ${project.version}</name>
     <description>Remote Master Server</description>
 
+    <properties>
+        <deploy.skip>true</deploy.skip>
+    </properties>
+
     <dependencies>
 
         <dependency>
