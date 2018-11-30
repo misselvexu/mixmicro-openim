@@ -5,7 +5,10 @@ import com.acmedcare.framework.newim.client.exception.EndpointException;
 import com.acmedcare.framework.newim.master.endpoint.client.MasterEndpointClient;
 import com.acmedcare.framework.newim.master.endpoint.client.MasterEndpointFactory;
 import com.acmedcare.framework.newim.master.endpoint.client.MasterEndpointProperties;
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -23,6 +26,8 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties(RemotingMasterEndpointClientServiceProperties.class)
 public class RemotingClientAutoConfiguration {
 
+  private static final Logger LOG = LoggerFactory.getLogger(RemotingClientAutoConfiguration.class);
+
   @Bean
   public MasterEndpointClient masterEndpointClient(
       RemotingMasterEndpointClientServiceProperties properties) {
@@ -35,6 +40,10 @@ public class RemotingClientAutoConfiguration {
     MasterEndpointProperties masterEndpointProperties =
         new MasterEndpointProperties(
             Lists.newArrayList(properties.getRemoteAddr().split(",")), properties.isHttps());
+
+    LOG.info(
+        "Remoting endpoint client is already inited ,Properties is: {}",
+        JSON.toJSONString(masterEndpointProperties));
 
     return MasterEndpointFactory.newMasterEndpointClient(masterEndpointProperties);
   }
