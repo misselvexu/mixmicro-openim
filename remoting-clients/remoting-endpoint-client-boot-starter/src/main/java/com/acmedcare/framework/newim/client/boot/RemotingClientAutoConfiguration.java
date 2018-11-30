@@ -6,6 +6,7 @@ import com.acmedcare.framework.newim.master.endpoint.client.MasterEndpointClient
 import com.acmedcare.framework.newim.master.endpoint.client.MasterEndpointFactory;
 import com.acmedcare.framework.newim.master.endpoint.client.MasterEndpointProperties;
 import com.google.common.collect.Lists;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +19,7 @@ import org.springframework.context.annotation.Configuration;
  * @version v1.0 - 12/10/2018.
  */
 @Configuration
+@ConditionalOnClass(MasterEndpointClient.class)
 @EnableConfigurationProperties(RemotingMasterEndpointClientServiceProperties.class)
 public class RemotingClientAutoConfiguration {
 

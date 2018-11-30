@@ -145,6 +145,12 @@ public class FirstDemoClient {
           continue;
         }
 
+        // 拉取消息请求参数:  pullMessageList2 gid-20181122 -1
+        if (inputArgs[0].equals("pullMessageList2")) {
+          pullMessageList2(inputArgs[1], Long.parseLong(inputArgs[2]));
+          continue;
+        }
+
         // 拉取消息请求参数:  pullOwnGroupList
         if (inputArgs[0].equals("pullOwnGroupList")) {
           pullOwnGroupList();
@@ -196,6 +202,33 @@ public class FirstDemoClient {
     pullMessageRequest.setPassportId(KnownParams.passportId.toString());
     pullMessageRequest.setSender(sender);
     pullMessageRequest.setType(0);
+    pullMessageRequest.setUsername(KnownParams.passport);
+
+    AcmedcareRemoting.getInstance()
+        .executor()
+        .pullMessage(
+            pullMessageRequest,
+            new Callback<SingleMessage>() {
+              @Override
+              public void onSuccess(List<SingleMessage> messages) {
+                System.out.println("拉取消息返回值: " + JSON.toJSONString(messages));
+              }
+
+              @Override
+              public void onFailed(int code, String message) {
+                System.out.println("拉取消息列表失败,Code = " + code + ", Message = " + message);
+              }
+            });
+  }
+
+  /** 拉取消息列表(群组) */
+  private static void pullMessageList2(String sender, long leastMessageId) {
+    PullMessageRequest pullMessageRequest = new PullMessageRequest();
+    pullMessageRequest.setLeastMessageId(leastMessageId);
+    pullMessageRequest.setLimit(10);
+    pullMessageRequest.setPassportId(KnownParams.passportId.toString());
+    pullMessageRequest.setSender(sender);
+    pullMessageRequest.setType(1);
     pullMessageRequest.setUsername(KnownParams.passport);
 
     AcmedcareRemoting.getInstance()
