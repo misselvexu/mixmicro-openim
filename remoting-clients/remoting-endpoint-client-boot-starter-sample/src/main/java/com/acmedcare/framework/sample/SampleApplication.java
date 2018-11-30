@@ -1,4 +1,4 @@
-package com.acmedcare.framework.newim.client.sample;
+package com.acmedcare.framework.sample;
 
 import com.acmedcare.framework.newim.client.MessageBizType;
 import com.acmedcare.framework.newim.client.MessageContentType;
