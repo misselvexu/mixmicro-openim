@@ -1,5 +1,6 @@
 package com.acmedcare.tiffany.framework.v210.rc1;
 
+import com.acmedcare.nas.client.NasProperties;
 import com.acmedcare.tiffany.framework.remoting.android.core.xlnio.XLMRRemotingClient;
 import com.acmedcare.tiffany.framework.remoting.jlib.AcmedcareLogger;
 import com.acmedcare.tiffany.framework.remoting.jlib.AcmedcareRemoting;
@@ -43,6 +44,10 @@ public class FirstDemoClient {
 
     System.setProperty(AcmedcareLogger.NON_ANDROID_FLAG, "true");
 
+    NasProperties nasProperties = new NasProperties();
+    nasProperties.setServerAddrs(Lists.<String>newArrayList("127.0.0.1:18848"));
+    nasProperties.setHttps(false);
+
     RemotingParameters temp =
         RemotingParameters.builder()
             .authCallback(
@@ -63,6 +68,7 @@ public class FirstDemoClient {
                     "/Users/ive/git-acmedcare/Acmedcare-NewIM/remoting-certs/client/keystore.jks"))
             .jksPassword("1qaz2wsx")
             .username(KnownParams.passport)
+            .nasProperties(nasProperties)
             .accessToken(KnownParams.accessToken)
             .areaNo(KnownParams.areaNo)
             .orgId(KnownParams.orgId)
@@ -74,8 +80,7 @@ public class FirstDemoClient {
                   @Override
                   public List<RemotingAddress> remotingAddressList() {
                     return Lists.newArrayList(
-                        new RemotingAddress(false, "192.168.1.227", 13110, false),
-                        new RemotingAddress(false, "192.168.1.227", 13120, false));
+                        new RemotingAddress(false, "127.0.0.1", 13110, false));
                   }
                 })
             .build();
@@ -186,10 +191,38 @@ public class FirstDemoClient {
           continue;
         }
 
+        // 单聊消息: sendMediaMessage SINGLE 3837142362366977
+        // /Users/ive/git-acmedcare/Acmedcare-NewIM/COMMAND.md
+        // 群消息: sendMediaMessage GROUP gid-20181122
+        // /Users/ive/git-acmedcare/Acmedcare-NewIM/COMMAND.md
+        if (inputArgs[0].equals("sendMediaMessage")) {
+
+          if ("SINGLE".equals(inputArgs[1])) {
+            SingleMessage singleMessage = new SingleMessage();
+            singleMessage.setReceiver(inputArgs[2]);
+            singleMessage.setInnerType(InnerType.MEDIA);
+            singleMessage.setMessageType(MessageType.SINGLE);
+            singleMessage.setSender(KnownParams.passportId.toString());
+            sendMediaMessage(singleMessage, inputArgs[3]);
+          }
+
+          if ("GROUP".equals(inputArgs[1])) {
+            GroupMessage groupMessage = new GroupMessage();
+            groupMessage.setGroup(inputArgs[2]);
+            groupMessage.setInnerType(InnerType.MEDIA);
+            groupMessage.setMessageType(MessageType.GROUP);
+            groupMessage.setSender(KnownParams.passportId.toString());
+            sendMediaMessage(groupMessage, inputArgs[3]);
+          }
+
+          continue;
+        }
+
         if (input.equalsIgnoreCase("quit")) {
           System.exit(0);
         }
       } catch (Exception ignored) {
+        ignored.printStackTrace();
       }
     }
   }
@@ -300,6 +333,32 @@ public class FirstDemoClient {
             });
   }
 
+  private static void sendMediaMessage(Message message, String fileName) {
+
+    PushMessageRequest pushMessageRequest = new PushMessageRequest();
+    pushMessageRequest.setPassport(KnownParams.passport);
+    pushMessageRequest.setMessage(message);
+    pushMessageRequest.setMessageType(message.getMessageType().name());
+    pushMessageRequest.setPassportId(KnownParams.passportId.toString());
+    pushMessageRequest.setFile(new File(fileName));
+
+    AcmedcareRemoting.getInstance()
+        .executor()
+        .pushMessage(
+            pushMessageRequest,
+            new PushMessageRequest.Callback() {
+              @Override
+              public void onSuccess(long messageId) {
+                System.out.println("发送消息成功, 生成的消息编号:" + messageId);
+              }
+
+              @Override
+              public void onFailed(int code, String message) {
+                System.out.println("发送消息失败,Code = " + code + ", Message = " + message);
+              }
+            });
+  }
+
   /**
    * 已知参数
    *
@@ -309,7 +368,7 @@ public class FirstDemoClient {
   private interface KnownParams {
 
     String accessToken =
-        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiJiZDJiOTYwMDY4MDM0OTEzYmEyNTc1ZTNhM2Y3YTQ2OSIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NDM0NTc1Nzg4MzgsImV4cCI6MTU0NDA2NDcxNjgzOCwiYXVkIjpudWxsfQ.Qvsxp7p4AeTAXmtiDX3YuLzaKVB_vUQOvv-ghBonFI7qFKuWaMU7pN-zUcLOJmRDula4WKcgppzMgNnE4Ip3jWrLMiThiwwSQpClLdBrZ-qeS2lWH9FjiS35MrlRLDfUz0KBRfQkXjavRCnQjwJlQyJSbFVnFXHIStslTYPy9SQcHhdTkmz1XW_1UFAHUxaWUH-JB2N2WoZmbNCTYiPWYYWdPS6ZUBE0_hAykn8yqj_aA-e6iA4f0LMpGyc2lCl76V8ckQbo1mk0N6WE48ia_T3eYafRTZsHEmcV-Reti93hMzBFWjvFrXN3euiv7svYsODwIYSVTM0KKy5ZnqEl1w";
+        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiI3ZjkyNjcyYTZlMmU0MjY0OWE3YmY0ODAzMmQ0MzVhZCIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NDM3MzYzNzQ0NDgsImV4cCI6MTU0NDM1MTA0ODQ0OCwiYXVkIjpudWxsfQ.maY697jhev5c7tYv1XpS1aifkwn-HrUhKEFYWkuJmmu_8m91xJVsPIrHq_hfHj8gokirLsBWANvvVTMcUc29tcpuW4U0j7bFx86cBv9AJmpMG0O90zl_mejPbQle-iooOhchejoRsQk2e9infekmU-Y6xV8ClCgJWQR9Mk_5vdp4qPY-KXd0iTS-yKHEgCC3LOv-2Uq72vY0rhnOYSWDy0KD3Iy4JLMoDF2rlzkO1PEwBVlhqWCbveO500YyGqeRZ_BlWhzXglUDEK4wVqn43UNIuEIv-TmTWSia5daWB47lPPuPudDMgsaSUozcqwIhUIk2Q9dGJ60UAy3Lvy0rRQ";
 
     String areaNo = "320500";
 

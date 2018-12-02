@@ -1,5 +1,7 @@
 package com.acmedcare.tiffany.framework.remoting.jlib;
 
+import com.acmedcare.nas.client.NasClient;
+import com.acmedcare.nas.client.NasClientFactory;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.AuthRequest;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullMessageRequest;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullOwnerGroupListRequest;
@@ -20,8 +22,20 @@ public abstract class BizExecutor {
 
   protected AcmedcareRemoting remoting;
 
+  protected NasClient nasClient;
+
   public BizExecutor(AcmedcareRemoting remoting) {
     this.remoting = remoting;
+
+    try {
+      if (AcmedcareRemoting.getNasProperties() != null) {
+        this.nasClient = NasClientFactory.createNewNasClient(AcmedcareRemoting.getNasProperties());
+        System.out.println(this.nasClient);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      AcmedcareLogger.e(null, e, "Acmedcare Nas Init failed");
+    }
   }
 
   protected String remotingAddress() {
@@ -29,8 +43,8 @@ public abstract class BizExecutor {
       if (this.remoting.getCurrentRemotingAddress() != null) {
         return this.remoting.getCurrentRemotingAddress();
       } else {
-        if (this.remoting.getAddresses() != null) {
-          List<String> addresses = this.remoting.getAddresses();
+        if (AcmedcareRemoting.getAddresses() != null) {
+          List<String> addresses = AcmedcareRemoting.getAddresses();
           if (addresses.size() > 0) {
             this.remoting.setCurrentRemotingAddress(
                 addresses.get(new Random(addresses.size()).nextInt()));

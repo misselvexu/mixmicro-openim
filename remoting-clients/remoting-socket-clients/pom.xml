@@ -30,10 +30,15 @@
         </dependency>
 
         <dependency>
+            <groupId>com.acmedcare.nas</groupId>
+            <artifactId>nas-client</artifactId>
+            <version>2.1.0.BUILD-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.acmedcare.framework.kits</groupId>
             <artifactId>jre-http-client-kit</artifactId>
             <version>Antarctica.RC1</version>
-            <scope>test</scope>
         </dependency>
 
         <dependency>

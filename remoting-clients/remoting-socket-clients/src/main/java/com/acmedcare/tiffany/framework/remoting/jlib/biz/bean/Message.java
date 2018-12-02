@@ -137,4 +137,21 @@ public class Message implements Serializable {
      */
     private List<String> deviceIds;
   }
+
+  @Getter
+  @Setter
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class MediaPayload implements Serializable {
+
+    private static final long serialVersionUID = -1496285586690313202L;
+
+    private String mediaPayloadKey;
+    /** 媒体文件访问连接 */
+    private String mediaPayloadAccessUrl;
+
+    private String mediaFileName;
+
+    private String mediaFileSuffix;
+  }
 }

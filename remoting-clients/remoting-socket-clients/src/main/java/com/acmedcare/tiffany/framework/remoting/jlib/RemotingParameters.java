@@ -1,5 +1,6 @@
 package com.acmedcare.tiffany.framework.remoting.jlib;
 
+import com.acmedcare.nas.client.NasProperties;
 import com.acmedcare.tiffany.framework.remoting.android.core.protocol.RemotingCommand;
 import com.acmedcare.tiffany.framework.remoting.android.utils.RemotingLogger;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.AuthRequest;
@@ -22,6 +23,8 @@ public final class RemotingParameters {
   private static final String DEFAULT_JKS_PD = "1qaz2wsx";
 
   @Getter private ServerAddressHandler serverAddressHandler;
+
+  @Getter private NasProperties nasProperties;
 
   @Getter private String accessToken;
 

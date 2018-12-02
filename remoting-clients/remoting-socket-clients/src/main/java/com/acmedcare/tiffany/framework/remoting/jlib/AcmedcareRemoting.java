@@ -3,6 +3,7 @@ package com.acmedcare.tiffany.framework.remoting.jlib;
 import static com.acmedcare.tiffany.framework.remoting.jlib.biz.BizCode.CLIENT_HANDSHAKE;
 
 import android.content.Context;
+import com.acmedcare.nas.client.NasProperties;
 import com.acmedcare.tiffany.framework.remoting.android.HandlerMessageListener;
 import com.acmedcare.tiffany.framework.remoting.android.core.IoSessionEventListener;
 import com.acmedcare.tiffany.framework.remoting.android.core.protocol.RemotingCommand;
@@ -51,6 +52,9 @@ import lombok.Setter;
  */
 public final class AcmedcareRemoting implements Serializable {
   @Deprecated private static final String TAG = AcmedcareRemoting.class.getSimpleName();
+
+  private static final String DEFAULT_APP_ID = "Acmedcare#Client#SDK$ID";
+  private static final String DEFAULT_APP_KEY = "Acmedcare#Client#SDK$KET";
   private static final AcmedcareRemoting INSTANCE = InstanceHolder.INSTANCE;
   private static final long serialVersionUID = -9029081624617687982L;
   private static int reConnectRetryTimes = 5; // 5 time
@@ -76,6 +80,7 @@ public final class AcmedcareRemoting implements Serializable {
   private static RemotingParameters parameters;
   @Getter private static XLMRRemotingClient remotingClient;
   @Getter private static List<String> addresses = Lists.newArrayList();
+  @Getter private static NasProperties nasProperties; // acmedcare nas config
   @Getter private volatile String currentLoginName;
   private long delay;
   /** Biz Executor Api */
@@ -143,6 +148,9 @@ public final class AcmedcareRemoting implements Serializable {
         AcmedcareRemoting.parameters = parameters;
       }
       inited = true;
+
+      // build nas properties
+      nasProperties = AcmedcareRemoting.parameters.getNasProperties();
 
       // register bizExecutor
       this.bizExecutor = new JREBizExectuor(this);
@@ -220,6 +228,18 @@ public final class AcmedcareRemoting implements Serializable {
     // 设置重连间隔
     reConnectPeriod = AcmedcareRemoting.parameters.getReConnectPeriod();
     reConnectRetryTimes = AcmedcareRemoting.parameters.getReConnectRetryTimes();
+    if (nasProperties == null) {
+      nasProperties = AcmedcareRemoting.parameters.getNasProperties();
+    }
+
+    if (nasProperties != null) {
+      if (nasProperties.getAppId() == null || nasProperties.getAppId().trim().length() == 0) {
+        nasProperties.setAppId(DEFAULT_APP_ID);
+      }
+      if (nasProperties.getAppKey() == null || nasProperties.getAppKey().trim().length() == 0) {
+        nasProperties.setAppKey(DEFAULT_APP_KEY);
+      }
+    }
 
     // address list
     List<ServerAddressHandler.RemotingAddress> masterAddresses =
@@ -535,6 +555,7 @@ public final class AcmedcareRemoting implements Serializable {
 
     currentLoginName = null;
     parameters = null;
+    nasProperties = null;
     bizExecutor = null;
     remotingClient = null;
     addresses.clear();
