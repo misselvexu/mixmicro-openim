@@ -6,6 +6,9 @@ import com.acmedcare.framework.newim.client.bean.request.RemoveGroupMembersReque
 import com.acmedcare.framework.newim.client.bean.request.UpdateGroupRequest;
 import com.acmedcare.framework.newim.client.bean.response.GroupResponse;
 import com.acmedcare.framework.newim.client.exception.EndpointException;
+import com.acmedcare.nas.api.ProgressCallback;
+import com.acmedcare.nas.api.exception.NasException;
+import java.io.File;
 import java.security.acl.Group;
 import java.util.List;
 
@@ -83,6 +86,30 @@ public interface MasterEndpointService {
       throws EndpointException;
 
   /**
+   * Send Single Media Message
+   *
+   * @param bizType bizType of {@link MessageBizType}
+   * @param sender message sender ,passport id
+   * @param receiver message receiver , dest passport id
+   * @param file message content
+   * @param progressCallback progress callback of {@link ProgressCallback}
+   * @param messageAttribute message attribute instance of {@link MessageAttribute}
+   * @throws EndpointException throw failed exception
+   * @throws NasException nas failed exception
+   * @see MessageBizType
+   * @see MessageContentType
+   * @see MessageAttribute
+   */
+  void sendSingleMessage(
+      MessageBizType bizType,
+      String sender,
+      String receiver,
+      File file,
+      MessageAttribute messageAttribute,
+      ProgressCallback progressCallback)
+      throws EndpointException, NasException;
+
+  /**
    * Batch Send Single Message
    *
    * @param bizType bizType of {@link MessageBizType}
@@ -105,6 +132,29 @@ public interface MasterEndpointService {
       throws EndpointException;
 
   /**
+   * Batch Send Single Media Message
+   *
+   * @param bizType bizType of {@link MessageBizType}
+   * @param sender message sender ,passport id
+   * @param receivers message receivers , dest passport ids list
+   * @param file message content
+   * @param progressCallback progress callback of {@link ProgressCallback}
+   * @param messageAttribute message attribute instance of {@link MessageAttribute}
+   * @throws EndpointException throw failed exception
+   * @throws NasException nas failed exception
+   * @see MessageBizType
+   * @see MessageContentType
+   */
+  void batchSendSingleMessages(
+      MessageBizType bizType,
+      String sender,
+      List<String> receivers,
+      File file,
+      MessageAttribute messageAttribute,
+      ProgressCallback progressCallback)
+      throws EndpointException, NasException;
+
+  /**
    * Send Group Message
    *
    * @param bizType bizType of {@link MessageBizType}
@@ -125,4 +175,27 @@ public interface MasterEndpointService {
       MessageContentType contentType,
       MessageAttribute messageAttribute)
       throws EndpointException;
+
+  /**
+   * Send Group Message
+   *
+   * @param bizType bizType of {@link MessageBizType}
+   * @param sender message sender ,passport id
+   * @param groupId group id
+   * @param file message content
+   * @param progressCallback progress callback of {@link ProgressCallback}
+   * @param messageAttribute message attribute instance of {@link MessageAttribute}
+   * @throws EndpointException throw failed exception
+   * @throws NasException nas failed exception
+   * @see MessageBizType
+   * @see MessageContentType
+   */
+  void sendGroupMessage(
+      MessageBizType bizType,
+      String sender,
+      String groupId,
+      File file,
+      MessageAttribute messageAttribute,
+      ProgressCallback progressCallback)
+      throws EndpointException, NasException;
 }

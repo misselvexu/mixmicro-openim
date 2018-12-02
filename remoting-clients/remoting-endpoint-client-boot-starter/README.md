@@ -2,6 +2,19 @@
 
 > ignore
 
+### 更新
+----
+
+- `2.1.0-RC3`
+
+```asciidoc
+1. 新增媒体类单聊消息单发接口
+2. 新增媒体类单聊消息批量接口
+3. 新增媒体类单聊群消息接口
+
+```
+
+
 
 ### 如何使用
 
@@ -14,7 +27,7 @@
 <dependency>
     <groupId>com.acmedcare.microservices.im</groupId>
     <artifactId>spring-boot-starter-remoting-client</artifactId>
-    <version>2.1.0-RC2</version>
+    <version>2.1.0-RC3</version>
 </dependency>
 
 ```
@@ -30,6 +43,20 @@ remoting.master.endpoint.remote-addr=192.168.1.227:13110,192.168.1.227:13120
 # 是否是`https`请求
 remoting.master.endpoint.https=false
 
+# 文件服务器是否开启
+remoting.nas.endpoint.enabled=true
+
+# 文件服务器地址
+remoting.nas.endpoint.remote-addr=127.0.0.1:18848
+
+# ssl
+remoting.nas.endpoint.https=false
+
+# Nas 注册应用标识(可空)
+remoting.nas.endpoint.nas-app-id=
+
+# Nas 注册应用密钥(可空)
+remoting.nas.endpoint.nas-app-key=
 
 ```
 

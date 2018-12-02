@@ -14,6 +14,7 @@ import com.acmedcare.framework.newim.client.MasterEndpointService;
 import com.acmedcare.framework.newim.client.MessageAttribute;
 import com.acmedcare.framework.newim.client.MessageBizType;
 import com.acmedcare.framework.newim.client.MessageContentType;
+import com.acmedcare.framework.newim.client.bean.MediaPayload;
 import com.acmedcare.framework.newim.client.bean.request.AddGroupMembersRequest;
 import com.acmedcare.framework.newim.client.bean.request.BatchSendMessageRequest;
 import com.acmedcare.framework.newim.client.bean.request.NewGroupRequest;
@@ -23,8 +24,14 @@ import com.acmedcare.framework.newim.client.bean.request.SendMessageRequest;
 import com.acmedcare.framework.newim.client.bean.request.UpdateGroupRequest;
 import com.acmedcare.framework.newim.client.bean.response.GroupResponse;
 import com.acmedcare.framework.newim.client.exception.EndpointException;
+import com.acmedcare.nas.api.NasClientConstants.ResponseCode;
+import com.acmedcare.nas.api.ProgressCallback;
+import com.acmedcare.nas.api.entity.UploadEntity;
+import com.acmedcare.nas.api.exception.NasException;
+import com.acmedcare.nas.client.NasClient;
 import com.alibaba.fastjson.JSON;
 import com.google.common.base.Strings;
+import java.io.File;
 import java.security.acl.Group;
 import java.util.List;
 import java.util.Random;
@@ -40,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version ${project.version} - 21/11/2018.
  */
-public class MasterEndpointClient implements MasterEndpointService {
+public class MasterEndpointClient extends NasEndpointClient implements MasterEndpointService {
 
   private static final Logger LOG = LoggerFactory.getLogger(MasterEndpointClient.class);
 
@@ -52,6 +59,11 @@ public class MasterEndpointClient implements MasterEndpointService {
   }
 
   public MasterEndpointClient(List<String> addresses, boolean https) {
+    this(addresses, false, null);
+  }
+
+  public MasterEndpointClient(List<String> addresses, boolean https, NasClient nasClient) {
+    super(nasClient);
     this.addresses = addresses;
     this.https = https;
     Assert.isTrue(
@@ -422,6 +434,74 @@ public class MasterEndpointClient implements MasterEndpointService {
   }
 
   /**
+   * Send Single Media Message
+   *
+   * @param bizType bizType of {@link MessageBizType}
+   * @param sender message sender ,passport id
+   * @param receiver message receiver , dest passport id
+   * @param file message content
+   * @param progressCallback progress callback of {@link ProgressCallback}
+   * @param messageAttribute message attribute instance of {@link MessageAttribute}
+   * @throws EndpointException throw failed exception
+   * @see MessageBizType
+   * @see MessageContentType
+   * @see MessageAttribute
+   */
+  @Override
+  public void sendSingleMessage(
+      MessageBizType bizType,
+      String sender,
+      String receiver,
+      File file,
+      MessageAttribute messageAttribute,
+      ProgressCallback progressCallback)
+      throws EndpointException, NasException {
+
+    try {
+
+      if (file != null && file.exists()) {
+
+        String fileName = file.getName();
+        String fileSuffix =
+            file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf(".") + 1);
+
+        UploadEntity uploadEntity =
+            this.nasClient.upload(fileName, fileSuffix, file, progressCallback);
+
+        if (uploadEntity.getResponseCode().equals(ResponseCode.UPLOAD_OK)) {
+          MediaPayload mediaPayload = new MediaPayload();
+          mediaPayload.setMediaFileName(fileName);
+          mediaPayload.setMediaFileSuffix(fileSuffix);
+          mediaPayload.setMediaPayloadKey(uploadEntity.getFid());
+          mediaPayload.setMediaPayloadAccessUrl(uploadEntity.getPublicUrl());
+
+          // invoke send
+          this.sendSingleMessage(
+              bizType,
+              sender,
+              receiver,
+              JSON.toJSONString(mediaPayload),
+              MessageContentType.APPLICATION_JSON,
+              messageAttribute);
+
+        } else {
+
+          // failed
+          throw new NasException(
+              "Single file upload failed ,error code : "
+                  + uploadEntity.getResponseCode()
+                  + ", reason : "
+                  + uploadEntity.getMessage());
+        }
+      }
+    } catch (NasException | EndpointException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new EndpointException("Send single media message request failed", e);
+    }
+  }
+
+  /**
    * Batch Send Single Message
    *
    * @param bizType bizType of {@link MessageBizType}
@@ -513,6 +593,74 @@ public class MasterEndpointClient implements MasterEndpointService {
   }
 
   /**
+   * Batch Send Single Media Message
+   *
+   * @param bizType bizType of {@link MessageBizType}
+   * @param sender message sender ,passport id
+   * @param receivers message receivers , dest passport ids list
+   * @param file message content
+   * @param messageAttribute message attribute instance of {@link MessageAttribute}
+   * @param progressCallback progress callback of {@link ProgressCallback}
+   * @throws EndpointException throw failed exception
+   * @throws NasException nas failed exception
+   * @see MessageBizType
+   * @see MessageContentType
+   */
+  @Override
+  public void batchSendSingleMessages(
+      MessageBizType bizType,
+      String sender,
+      List<String> receivers,
+      File file,
+      MessageAttribute messageAttribute,
+      ProgressCallback progressCallback)
+      throws EndpointException, NasException {
+
+    try {
+
+      if (file != null && file.exists()) {
+
+        String fileName = file.getName();
+        String fileSuffix =
+            file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf(".") + 1);
+
+        UploadEntity uploadEntity =
+            this.nasClient.upload(fileName, fileSuffix, file, progressCallback);
+
+        if (uploadEntity.getResponseCode().equals(ResponseCode.UPLOAD_OK)) {
+          MediaPayload mediaPayload = new MediaPayload();
+          mediaPayload.setMediaFileName(fileName);
+          mediaPayload.setMediaFileSuffix(fileSuffix);
+          mediaPayload.setMediaPayloadKey(uploadEntity.getFid());
+          mediaPayload.setMediaPayloadAccessUrl(uploadEntity.getPublicUrl());
+
+          // invoke send
+          this.batchSendSingleMessages(
+              bizType,
+              sender,
+              receivers,
+              JSON.toJSONString(mediaPayload),
+              MessageContentType.APPLICATION_JSON,
+              messageAttribute);
+
+        } else {
+
+          // failed
+          throw new NasException(
+              "Single file upload failed ,error code : "
+                  + uploadEntity.getResponseCode()
+                  + ", reason : "
+                  + uploadEntity.getMessage());
+        }
+      }
+    } catch (NasException | EndpointException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new EndpointException("Send single media message request failed", e);
+    }
+  }
+
+  /**
    * Send Group Message
    *
    * @param bizType bizType of {@link MessageBizType}
@@ -595,6 +743,74 @@ public class MasterEndpointClient implements MasterEndpointService {
       throw e;
     } catch (Exception e) {
       throw new EndpointException("Send group message request failed", e);
+    }
+  }
+
+  /**
+   * Send Group Message
+   *
+   * @param bizType bizType of {@link MessageBizType}
+   * @param sender message sender ,passport id
+   * @param groupId group id
+   * @param file message content
+   * @param messageAttribute message attribute instance of {@link MessageAttribute}
+   * @param progressCallback progress callback of {@link ProgressCallback}
+   * @throws EndpointException throw failed exception
+   * @throws NasException nas failed exception
+   * @see MessageBizType
+   * @see MessageContentType
+   */
+  @Override
+  public void sendGroupMessage(
+      MessageBizType bizType,
+      String sender,
+      String groupId,
+      File file,
+      MessageAttribute messageAttribute,
+      ProgressCallback progressCallback)
+      throws EndpointException, NasException {
+
+    try {
+
+      if (file != null && file.exists()) {
+
+        String fileName = file.getName();
+        String fileSuffix =
+            file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf(".") + 1);
+
+        UploadEntity uploadEntity =
+            this.nasClient.upload(fileName, fileSuffix, file, progressCallback);
+
+        if (uploadEntity.getResponseCode().equals(ResponseCode.UPLOAD_OK)) {
+          MediaPayload mediaPayload = new MediaPayload();
+          mediaPayload.setMediaFileName(fileName);
+          mediaPayload.setMediaFileSuffix(fileSuffix);
+          mediaPayload.setMediaPayloadKey(uploadEntity.getFid());
+          mediaPayload.setMediaPayloadAccessUrl(uploadEntity.getPublicUrl());
+
+          // invoke send
+          this.sendGroupMessage(
+              bizType,
+              sender,
+              groupId,
+              JSON.toJSONString(mediaPayload),
+              MessageContentType.APPLICATION_JSON,
+              messageAttribute);
+
+        } else {
+
+          // failed
+          throw new NasException(
+              "Single file upload failed ,error code : "
+                  + uploadEntity.getResponseCode()
+                  + ", reason : "
+                  + uploadEntity.getMessage());
+        }
+      }
+    } catch (NasException | EndpointException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new EndpointException("Send single media message request failed", e);
     }
   }
 }

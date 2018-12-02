@@ -23,6 +23,12 @@
             <artifactId>fastjson</artifactId>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.acmedcare.nas</groupId>
+            <artifactId>nas-client</artifactId>
+            <version>2.1.0.BUILD-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
 </project>
