@@ -1,6 +1,5 @@
 package com.acmedcare.tiffany.framework.remoting.jlib.biz.request;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,15 +26,6 @@ public class PushMessageReadStatusRequest extends BaseRequest {
   private String sender;
 
   private String pmt;
-
-  @Builder
-  public PushMessageReadStatusRequest(
-      String username, long leastMessageId, String sender, String pmt) {
-    super(username);
-    this.leastMessageId = leastMessageId;
-    this.sender = sender;
-    this.pmt = pmt;
-  }
 
   public interface Callback {
     void onSuccess();

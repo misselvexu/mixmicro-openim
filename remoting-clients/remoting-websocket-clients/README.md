@@ -82,6 +82,11 @@
                     }
                 });
         });
+        
+        // TODO 处理通用消息,根据业务具体的处理接收到的消息
+        ws.onMessageListener = function (message) {
+                console.log("收到信息:  " + message)
+              };
     }
 
     // DEMO: 拉取在线的分站机构方法示例

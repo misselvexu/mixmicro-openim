@@ -3,6 +3,7 @@ package com.acmedcare.framework.newim.master.services;
 import com.acmedcare.framework.newim.Group;
 import com.acmedcare.framework.newim.Group.GroupMembers;
 import com.acmedcare.framework.newim.storage.api.GroupRepository;
+import com.acmedcare.framework.newim.storage.exception.StorageExecuteException;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -56,5 +57,38 @@ public class GroupServices {
 
   public void removeNewGroupMembers(String groupId, List<String> memberIds) {
     this.groupRepository.removeGroupMembers(groupId, memberIds);
+  }
+
+  public Group updateGroup(
+      String groupId, String groupName, String groupOwner, String groupBizTag, String groupExt) {
+
+    Group group = this.groupRepository.queryGroup(groupId);
+
+    if (group == null) {
+      throw new StorageExecuteException("无效的群组ID");
+    }
+
+    this.groupRepository.updateGroup(
+        Group.builder()
+            .groupId(groupId)
+            .groupName(groupName)
+            .groupOwner(groupOwner)
+            .groupBizTag(groupBizTag)
+            .groupExt(groupExt)
+            .build());
+
+    return group;
+  }
+
+  public Group removeGroup(String groupId) {
+    Group group = this.groupRepository.queryGroup(groupId);
+
+    if (group == null) {
+      throw new StorageExecuteException("无效的群组ID");
+    }
+
+    long row = this.groupRepository.removeGroup(groupId);
+
+    return group;
   }
 }

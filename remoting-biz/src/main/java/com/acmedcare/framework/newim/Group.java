@@ -38,14 +38,25 @@ public class Group implements Serializable {
   /** 群组扩展信息 */
   private String groupExt;
 
+  private Status groupStatus;
+
   @Builder
   public Group(
-      String groupId, String groupOwner, String groupName, String groupBizTag, String groupExt) {
+      String groupId,
+      String groupOwner,
+      String groupName,
+      String groupBizTag,
+      String groupExt,
+      Status groupStatus) {
     this.groupId = groupId;
     this.groupOwner = groupOwner;
     this.groupName = groupName;
     this.groupBizTag = groupBizTag;
     this.groupExt = groupExt;
+    this.groupStatus = groupStatus;
+    if (this.groupStatus == null) {
+      this.groupStatus = Status.ENABLED;
+    }
   }
 
   @Getter

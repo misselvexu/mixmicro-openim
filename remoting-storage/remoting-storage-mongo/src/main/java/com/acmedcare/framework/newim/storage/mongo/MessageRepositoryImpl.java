@@ -124,7 +124,7 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     // 默认查询最新的消息列表
-    Query messageQuery = new Query(Criteria.where("group").is(groupId).and("receivers"));
+    Query messageQuery = new Query(Criteria.where("group").is(groupId));
     messageQuery.with(new Sort(Direction.DESC, "innerTimestamp")).limit((int) limit);
 
     if (!queryLeast && leastMessageId > 0) {

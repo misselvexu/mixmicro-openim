@@ -24,7 +24,7 @@
     function connect() {
       // 从主服务拉取 WebSocket 服务器地址[多个]
       const http = new XMLHttpRequest();
-      const wssQueryUrl = 'http://10.0.0.9:13110/master/available-wss-servers?wssName=' + wssName;
+      const wssQueryUrl = 'http://192.168.1.227:13110/master/available-wss-servers?wssName=' + wssName;
       http.open('GET', wssQueryUrl);
       http.send();
       http.onreadystatechange = function () {

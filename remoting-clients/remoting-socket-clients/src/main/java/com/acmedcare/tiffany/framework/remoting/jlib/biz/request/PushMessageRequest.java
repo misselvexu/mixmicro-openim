@@ -1,8 +1,8 @@
 package com.acmedcare.tiffany.framework.remoting.jlib.biz.request;
 
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.MessageAttribute;
+import com.acmedcare.nas.api.ProgressCallback;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message;
-import lombok.Builder;
+import java.io.File;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,25 +22,26 @@ public class PushMessageRequest extends BaseRequest {
 
   private Message message;
 
-  @Builder
-  public PushMessageRequest(
-      String username,
-      String passportId,
-      String messageType,
-      Message message,
-      MessageAttribute attribute) {
+  /** send file instance */
+  private File file;
 
-    super(username);
-    this.messageType = messageType;
-    this.setPassportId(passportId);
-    this.message = message;
-
-    this.setAttribute(attribute);
-  }
+  private ProgressCallback progressCallback;
 
   public interface Callback {
+
     void onSuccess(long messageId);
 
     void onFailed(int code, String message);
+  }
+
+  public abstract class MediaMessageCallback implements Callback {
+
+    public abstract void onMediaPayloadUploadSuccess();
+
+    @Override
+    public void onSuccess(long messageId) {}
+
+    @Override
+    public void onFailed(int code, String message) {}
   }
 }

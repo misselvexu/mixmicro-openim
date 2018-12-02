@@ -1,5 +1,7 @@
 package com.acmedcare.tiffany.framework.remoting.jlib.jre;
 
+import com.acmedcare.nas.api.NasClientConstants.ResponseCode;
+import com.acmedcare.nas.api.entity.UploadEntity;
 import com.acmedcare.tiffany.framework.remoting.android.core.InvokeCallback;
 import com.acmedcare.tiffany.framework.remoting.android.core.exception.RemotingConnectException;
 import com.acmedcare.tiffany.framework.remoting.android.core.exception.RemotingSendRequestException;
@@ -13,6 +15,9 @@ import com.acmedcare.tiffany.framework.remoting.jlib.BizExecutor;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.BizCode;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.BizResult;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Group;
+import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message;
+import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message.InnerType;
+import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message.MediaPayload;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.AuthHeader;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.AuthRequest;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullGroupHeader;
@@ -29,6 +34,7 @@ import com.acmedcare.tiffany.framework.remoting.jlib.exception.BizException;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
+import java.io.File;
 import java.util.List;
 
 /**
@@ -122,7 +128,8 @@ public class JREBizExectuor extends BizExecutor {
   }
 
   @Override
-  public <T> void pullMessage(PullMessageRequest request, final PullMessageRequest.Callback<T> callback)
+  public <T> void pullMessage(
+      PullMessageRequest request, final PullMessageRequest.Callback<T> callback)
       throws BizException {
 
     PullMessageHeader header =
@@ -415,7 +422,37 @@ public class JREBizExectuor extends BizExecutor {
     RemotingCommand command =
         RemotingCommand.createRequestCommand(BizCode.CLIENT_PUSH_MESSAGE, header);
 
-    command.setBody(request.getMessage().bytes());
+    //
+    Message message = request.getMessage();
+    if (message.getInnerType().equals(InnerType.MEDIA)) {
+      // 媒体消息
+      File source = request.getFile();
+      if (source != null && source.exists()) {
+        String fileName = source.getName();
+        String fileSuffix = fileName.substring(fileName.lastIndexOf(".") + 1);
+        UploadEntity uploadEntity =
+            this.nasClient.upload(fileName, fileSuffix, source, request.getProgressCallback());
+
+        if (uploadEntity.getResponseCode().equals(ResponseCode.UPLOAD_OK)) {
+          String fid = uploadEntity.getFid();
+          String publicUrl = uploadEntity.getPublicUrl();
+
+          // build message with payload url
+          MediaPayload mediaPayload = new MediaPayload(fid, publicUrl, fileName, fileSuffix);
+
+          // build bytes
+          message.setBody(JSON.toJSONBytes(mediaPayload));
+          command.setBody(message.bytes());
+
+        } else {
+          if (callback != null) {
+            callback.onFailed(uploadEntity.getResponseCode().code(), uploadEntity.getMessage());
+          }
+        }
+      }
+    } else {
+      command.setBody(request.getMessage().bytes());
+    }
 
     try {
       AcmedcareRemoting.getRemotingClient()
