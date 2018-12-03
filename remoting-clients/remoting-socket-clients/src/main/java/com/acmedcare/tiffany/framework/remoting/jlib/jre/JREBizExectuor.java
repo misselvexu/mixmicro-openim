@@ -20,6 +20,9 @@ import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message.InnerType;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message.MediaPayload;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.AuthHeader;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.AuthRequest;
+import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.JoinOrLeaveGroupHeader;
+import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.JoinOrLeaveGroupRequest;
+import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.OperateType;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullGroupHeader;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullMessageHeader;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullMessageRequest;
@@ -517,6 +520,72 @@ public class JREBizExectuor extends BizExecutor {
         | RemotingSendRequestException e) {
 
       AcmedcareLogger.e(JREBizExectuor.class.getSimpleName(), e, "Push Message Request Failed");
+      throw new BizException(e);
+    }
+  }
+
+  @Override
+  public void joinOrLeaveGroup(
+      JoinOrLeaveGroupRequest request, final JoinOrLeaveGroupRequest.Callback callback)
+      throws BizException {
+
+    JoinOrLeaveGroupHeader header = new JoinOrLeaveGroupHeader();
+    header.setGroupId(request.getGroupId());
+    header.setOperateType(request.getOperateType());
+    header.setPassportId(request.getPassportId());
+
+    int bizCode =
+        OperateType.JOIN.equals(request.getOperateType())
+            ? BizCode.CLIENT_JOIN_GROUP
+            : BizCode.CLIENT_QUIT_GROUP;
+
+    AcmedcareLogger.i(this.getClass().getSimpleName(), "加群/退群操作请求头:" + JSON.toJSONString(header));
+
+    RemotingCommand command = RemotingCommand.createRequestCommand(bizCode, header);
+
+    try {
+      AcmedcareRemoting.getRemotingClient()
+          .invokeAsync(
+              this.remotingAddress(),
+              command,
+              5000,
+              new InvokeCallback() {
+                @Override
+                public void operationComplete(XLMRResponseFuture xlmrResponseFuture) {
+                  if (xlmrResponseFuture.isSendRequestOK()) {
+
+                    RemotingCommand response = xlmrResponseFuture.getResponseCommand();
+
+                    if (response != null) {
+
+                      BizResult bizResult =
+                          BizResult.fromBytes(response.getBody(), BizResult.class);
+                      AcmedcareLogger.i(
+                          this.getClass().getSimpleName(), "加群/退群操作返回值:" + bizResult.json());
+
+                      if (bizResult.getCode() == 0) {
+                        // success
+
+                        if (callback != null) {
+                          callback.onSuccess();
+                        }
+                      } else {
+                        if (callback != null) {
+                          callback.onFailed(
+                              bizResult.getCode(), bizResult.getException().getMessage());
+                        }
+                      }
+                    }
+                  }
+                }
+              });
+    } catch (InterruptedException
+        | RemotingConnectException
+        | RemotingTimeoutException
+        | RemotingTooMuchRequestException
+        | RemotingSendRequestException e) {
+
+      AcmedcareLogger.e(JREBizExectuor.class.getSimpleName(), e, "Group Operate Request Failed");
       throw new BizException(e);
     }
   }

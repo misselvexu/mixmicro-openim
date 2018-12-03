@@ -3,6 +3,7 @@ package com.acmedcare.tiffany.framework.remoting.jlib;
 import com.acmedcare.nas.client.NasClient;
 import com.acmedcare.nas.client.NasClientFactory;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.AuthRequest;
+import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.JoinOrLeaveGroupRequest;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullMessageRequest;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullOwnerGroupListRequest;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PushMessageReadStatusRequest;
@@ -118,5 +119,16 @@ public abstract class BizExecutor {
    *     com.acmedcare.tiffany.framework.remoting.jlib.events.AcmedcareEvent.BizEvent#PUSH_MESSAGE_RESPONSE
    */
   public abstract void pushMessage(PushMessageRequest request, PushMessageRequest.Callback callback)
+      throws BizException;
+
+  /**
+   * 加群/退群操作
+   *
+   * @param request 请求对象
+   * @param callback 回调
+   * @throws BizException exception
+   */
+  public abstract void joinOrLeaveGroup(
+      JoinOrLeaveGroupRequest request, JoinOrLeaveGroupRequest.Callback callback)
       throws BizException;
 }

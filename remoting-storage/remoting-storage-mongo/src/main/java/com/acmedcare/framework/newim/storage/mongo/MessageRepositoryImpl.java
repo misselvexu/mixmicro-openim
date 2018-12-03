@@ -6,6 +6,7 @@ import static com.acmedcare.framework.newim.storage.IMStorageCollections.REF_GRO
 
 import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.Message.GroupMessage;
+import com.acmedcare.framework.newim.Message.InnerType;
 import com.acmedcare.framework.newim.Message.SingleMessage;
 import com.acmedcare.framework.newim.storage.api.MessageRepository;
 import com.google.common.collect.Lists;
@@ -142,6 +143,8 @@ public class MessageRepositoryImpl implements MessageRepository {
               new Query(
                   Criteria.where("group")
                       .is(groupId)
+                      .and("innerType")
+                      .ne(InnerType.COMMAND)
                       .and("innerTimestamp") // 查询的消息的时间小于客户端执行的最新消息的时间
                       .lt(innerTimestamp));
           messageQuery.with(new Sort(Direction.DESC, "innerTimestamp")).limit((int) limit);
@@ -199,6 +202,8 @@ public class MessageRepositoryImpl implements MessageRepository {
                       .is(sender)
                       .and("receiver")
                       .is(receiverId)
+                      .and("innerType")
+                      .ne(InnerType.COMMAND)
                       .and("innerTimestamp") // 查询的消息的时间小于客户端执行的最新消息的时间
                       .lt(innerTimestamp));
           messageQuery.with(new Sort(Direction.DESC, "innerTimestamp")).limit((int) limit);

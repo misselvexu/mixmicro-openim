@@ -1,6 +1,7 @@
 package com.acmedcare.framework.newim.server.service;
 
 import com.acmedcare.framework.newim.Group;
+import com.acmedcare.framework.newim.Group.GroupMembers;
 import com.acmedcare.framework.newim.storage.api.GroupRepository;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,5 +25,14 @@ public class GroupService {
 
   public List<Group> queryAccountGroups(String passportId) {
     return this.groupRepository.queryMemberGroups(passportId);
+  }
+
+  public void joinGroup(String groupId, List<String> memberIds) {
+    GroupMembers groupMembers = new GroupMembers(groupId, memberIds);
+    this.groupRepository.saveGroupMembers(groupMembers);
+  }
+
+  public void leaveGroup(String groupId, List<String> memberIds) {
+    this.groupRepository.removeGroupMembers(groupId, memberIds);
   }
 }
