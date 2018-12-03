@@ -191,10 +191,8 @@ public class FirstDemoClient {
           continue;
         }
 
-        // 单聊消息: sendMediaMessage SINGLE 3837142362366977
-        // /Users/ive/git-acmedcare/Acmedcare-NewIM/COMMAND.md
-        // 群消息: sendMediaMessage GROUP gid-20181122
-        // /Users/ive/git-acmedcare/Acmedcare-NewIM/COMMAND.md
+        // 单聊消息: sendMediaMessage SINGLE 3837142362366977 /Users/ive/git-acmedcare/Acmedcare-NewIM/COMMAND.md
+        // 群消息: sendMediaMessage GROUP gid-20181122 /Users/ive/git-acmedcare/Acmedcare-NewIM/COMMAND.md
         if (inputArgs[0].equals("sendMediaMessage")) {
 
           if ("SINGLE".equals(inputArgs[1])) {
