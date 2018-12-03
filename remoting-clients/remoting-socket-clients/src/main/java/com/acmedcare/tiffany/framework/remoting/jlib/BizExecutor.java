@@ -24,6 +24,10 @@ public abstract class BizExecutor {
 
   protected NasClient nasClient;
 
+  public NasClient nasClient() {
+    return this.nasClient;
+  }
+
   public BizExecutor(AcmedcareRemoting remoting) {
     this.remoting = remoting;
 
