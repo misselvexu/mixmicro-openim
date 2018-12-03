@@ -8,6 +8,7 @@ import com.acmedcare.framework.newim.protocol.Command.ClusterWithClusterCommand;
 import com.acmedcare.framework.newim.server.config.IMProperties;
 import com.acmedcare.framework.newim.server.processor.ClusterForwardMessageRequestProcessor;
 import com.acmedcare.framework.newim.server.processor.DefaultIMProcessor;
+import com.acmedcare.framework.newim.server.processor.RemotingClientJoinOrLeaveGroupProcessor;
 import com.acmedcare.framework.newim.server.processor.RemotingClientPullGroupProcessor;
 import com.acmedcare.framework.newim.server.processor.RemotingClientPullMessageProcessor;
 import com.acmedcare.framework.newim.server.processor.RemotingClientPushMessageProcessor;
@@ -220,6 +221,16 @@ public class NewIMServerBootstrap {
     imServer.registerProcessor(
         ClusterClientCommand.CLIENT_PULL_MESSAGE,
         new RemotingClientPullMessageProcessor(messageService),
+        null);
+
+    imServer.registerProcessor(
+        ClusterClientCommand.CLIENT_JOIN_GROUP,
+        new RemotingClientJoinOrLeaveGroupProcessor(groupService),
+        null);
+
+    imServer.registerProcessor(
+        ClusterClientCommand.CLIENT_QUIT_GROUP,
+        new RemotingClientJoinOrLeaveGroupProcessor(groupService),
         null);
 
     //    imServer.registerProcessor(ClusterClientCommand.CLIENT_PUSH_MESSAGE_READ_STATUS, new

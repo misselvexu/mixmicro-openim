@@ -166,6 +166,20 @@ public final class Command {
     public static final int CLIENT_PUSH_MESSAGE = 0x40006;
 
     /**
+     * 客户端加群操作
+     *
+     * <p>
+     */
+    public static final int CLIENT_JOIN_GROUP = 0x40007;
+
+    /**
+     * 客户端退群操作
+     *
+     * <p>
+     */
+    public static final int CLIENT_QUIT_GROUP = 0x40008;
+
+    /**
      * 服务端推送消息
      *
      * <pre>
