@@ -149,8 +149,20 @@ public final class AcmedcareRemoting implements Serializable {
       }
       inited = true;
 
-      // build nas properties
-      nasProperties = AcmedcareRemoting.parameters.getNasProperties();
+      try {
+        // build nas properties
+        nasProperties = AcmedcareRemoting.parameters.getNasProperties();
+
+        if (nasProperties != null) {
+          if (nasProperties.getAppId() == null || nasProperties.getAppId().trim().length() == 0) {
+            nasProperties.setAppId(DEFAULT_APP_ID);
+          }
+          if (nasProperties.getAppKey() == null || nasProperties.getAppKey().trim().length() == 0) {
+            nasProperties.setAppKey(DEFAULT_APP_KEY);
+          }
+        }
+      } catch (Exception ignore) {
+      }
 
       // register bizExecutor
       this.bizExecutor = new JREBizExectuor(this);

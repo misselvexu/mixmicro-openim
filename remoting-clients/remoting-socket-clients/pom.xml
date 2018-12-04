@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>remoting-socket-client</artifactId>
-    <version>2.2.0.BUILD-SNAPSHOT</version>
+    <version>2.1.0-RC5</version>
     <packaging>jar</packaging>
 
     <name>remoting-socket-client ${project.version}</name>

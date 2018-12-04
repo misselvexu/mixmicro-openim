@@ -434,13 +434,26 @@ public class JREBizExectuor extends BizExecutor {
       hasCustomBody = true;
     }
     if (message.getInnerType().equals(InnerType.MEDIA)) {
+
+      if (nasClient() == null) {
+        throw new BizException("媒体消息SDK需要设置NasProperties参数");
+      }
+
       // 媒体消息
       File source = request.getFile();
       if (source != null && source.exists()) {
         String fileName = source.getName();
-        String fileSuffix = fileName.substring(fileName.lastIndexOf(".") + 1);
+        String fileSuffix = request.getFileSuffix();
+        if (fileSuffix == null || fileSuffix.trim().length() == 0) {
+          try {
+            fileSuffix = fileName.substring(fileName.lastIndexOf(".") + 1);
+          } catch (Exception ignore) {
+            fileSuffix = "";
+          }
+        }
+
         UploadEntity uploadEntity =
-            this.nasClient.upload(fileName, fileSuffix, source, request.getProgressCallback());
+            nasClient().upload(fileName, fileSuffix, source, request.getProgressCallback());
 
         if (uploadEntity.getResponseCode().equals(ResponseCode.UPLOAD_OK)) {
           String fid = uploadEntity.getFid();

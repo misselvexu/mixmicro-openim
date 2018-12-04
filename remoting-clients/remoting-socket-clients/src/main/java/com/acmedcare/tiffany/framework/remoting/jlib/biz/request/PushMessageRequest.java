@@ -25,6 +25,9 @@ public class PushMessageRequest extends BaseRequest {
   /** send file instance */
   private File file;
 
+  /** 文件后缀 */
+  private String fileSuffix;
+
   private ProgressCallback progressCallback;
 
   public interface Callback {

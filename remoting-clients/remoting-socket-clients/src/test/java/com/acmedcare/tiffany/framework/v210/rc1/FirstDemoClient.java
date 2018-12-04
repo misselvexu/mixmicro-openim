@@ -45,7 +45,7 @@ public class FirstDemoClient {
     System.setProperty(AcmedcareLogger.NON_ANDROID_FLAG, "true");
 
     NasProperties nasProperties = new NasProperties();
-    nasProperties.setServerAddrs(Lists.<String>newArrayList("127.0.0.1:18848"));
+    nasProperties.setServerAddrs(Lists.<String>newArrayList("192.168.1.226:18848"));
     nasProperties.setHttps(false);
 
     RemotingParameters temp =
@@ -80,7 +80,7 @@ public class FirstDemoClient {
                   @Override
                   public List<RemotingAddress> remotingAddressList() {
                     return Lists.newArrayList(
-                        new RemotingAddress(false, "127.0.0.1", 13110, false));
+                        new RemotingAddress(false, "192.168.1.227", 13110, false));
                   }
                 })
             .build();
