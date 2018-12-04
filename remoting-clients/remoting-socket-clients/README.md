@@ -39,6 +39,11 @@ String deviceId = "DEVICE-ID";
     // Android 默认不开启此选项
     // System.setProperty(AcmedcareLogger.NON_ANDROID_FLAG, "true");
 
+    // Nas 文件服务器配置
+    NasProperties nasProperties = new NasProperties();
+    nasProperties.setServerAddrs(Lists.<String>newArrayList("192.168.1.226:18848"));
+    nasProperties.setHttps(false);
+
     // SDK初始化参数对象
     RemotingParameters temp =
         RemotingParameters.builder()
@@ -62,7 +67,8 @@ String deviceId = "DEVICE-ID";
                 new File(
                     "/path/of/keystore.jks"))
             .jksPassword("1qaz2wsx")
-            
+            // 开启文件服务器的支持
+            .nasProperties(nasProperties)
             .username(KnownParams.passport)
             .accessToken(KnownParams.accessToken)
             .areaNo(KnownParams.areaNo)

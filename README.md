@@ -9,13 +9,13 @@ It offers a variety of features:
 - [x] Message retroactivity by time or offset
 - [x] Flexible distributed scale-out deployment architecture
 - [x] Lightning-fast batch message exchange system
-- [ ] Efficient pull&push consumption model
+- [x] Efficient pull&push consumption model
+- [x] Docker images for isolated testing and cloud isolated clusters
 - [ ] Scheduled message delivery
 - [ ] Log collection for streaming
 - [ ] Big data integration
 - [ ] Reliable FIFO and strict ordered messaging in the same queue
 - [ ] Million-level message accumulation capacity in a single queue
-- [x] Docker images for isolated testing and cloud isolated clusters
 - [ ] Feature-rich administrative dashboard for configuration, metrics and monitoring
 
 ## RoadMap
@@ -53,7 +53,7 @@ like:
 - Group Management
 - Group Member Refs Management
 - Send Message Apis
-
+- Media Message Api
 
 
 ## Quick-start
