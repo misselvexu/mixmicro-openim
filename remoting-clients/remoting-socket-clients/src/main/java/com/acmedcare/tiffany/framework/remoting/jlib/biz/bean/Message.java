@@ -141,6 +141,26 @@ public class Message implements Serializable {
   @Getter
   @Setter
   @NoArgsConstructor
+  public static class CustomMediaPayloadWithExt extends MediaPayload {
+
+    private static final long serialVersionUID = -4024513100445536730L;
+
+    private byte[] body;
+
+    public CustomMediaPayloadWithExt(
+        String mediaPayloadKey,
+        String mediaPayloadAccessUrl,
+        String mediaFileName,
+        String mediaFileSuffix,
+        byte[] body) {
+      super(mediaPayloadKey, mediaPayloadAccessUrl, mediaFileName, mediaFileSuffix);
+      this.body = body;
+    }
+  }
+
+  @Getter
+  @Setter
+  @NoArgsConstructor
   @AllArgsConstructor
   public static class MediaPayload implements Serializable {
 

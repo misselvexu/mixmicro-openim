@@ -191,13 +191,16 @@ public class FirstDemoClient {
           continue;
         }
 
-        // 单聊消息: sendMediaMessage SINGLE 3837142362366977 /Users/ive/git-acmedcare/Acmedcare-NewIM/COMMAND.md
-        // 群消息: sendMediaMessage GROUP gid-20181122 /Users/ive/git-acmedcare/Acmedcare-NewIM/COMMAND.md
+        // 单聊消息: sendMediaMessage SINGLE 3837142362366977
+        // /Users/ive/git-acmedcare/Acmedcare-NewIM/COMMAND.md
+        // 群消息: sendMediaMessage GROUP gid-20181122
+        // /Users/ive/git-acmedcare/Acmedcare-NewIM/COMMAND.md
         if (inputArgs[0].equals("sendMediaMessage")) {
 
           if ("SINGLE".equals(inputArgs[1])) {
             SingleMessage singleMessage = new SingleMessage();
             singleMessage.setReceiver(inputArgs[2]);
+            singleMessage.setBody("...".getBytes());
             singleMessage.setInnerType(InnerType.MEDIA);
             singleMessage.setMessageType(MessageType.SINGLE);
             singleMessage.setSender(KnownParams.passportId.toString());
@@ -207,6 +210,7 @@ public class FirstDemoClient {
           if ("GROUP".equals(inputArgs[1])) {
             GroupMessage groupMessage = new GroupMessage();
             groupMessage.setGroup(inputArgs[2]);
+            groupMessage.setBody("...".getBytes());
             groupMessage.setInnerType(InnerType.MEDIA);
             groupMessage.setMessageType(MessageType.GROUP);
             groupMessage.setSender(KnownParams.passportId.toString());

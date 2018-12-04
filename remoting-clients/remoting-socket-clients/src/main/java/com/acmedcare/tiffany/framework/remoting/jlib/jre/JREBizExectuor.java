@@ -16,6 +16,7 @@ import com.acmedcare.tiffany.framework.remoting.jlib.biz.BizCode;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.BizResult;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Group;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message;
+import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message.CustomMediaPayloadWithExt;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message.InnerType;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message.MediaPayload;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.AuthHeader;
@@ -427,6 +428,11 @@ public class JREBizExectuor extends BizExecutor {
 
     //
     Message message = request.getMessage();
+
+    boolean hasCustomBody = false;
+    if (message.getBody() != null && message.getBody().length > 0) {
+      hasCustomBody = true;
+    }
     if (message.getInnerType().equals(InnerType.MEDIA)) {
       // 媒体消息
       File source = request.getFile();
@@ -440,8 +446,15 @@ public class JREBizExectuor extends BizExecutor {
           String fid = uploadEntity.getFid();
           String publicUrl = uploadEntity.getPublicUrl();
 
-          // build message with payload url
-          MediaPayload mediaPayload = new MediaPayload(fid, publicUrl, fileName, fileSuffix);
+          MediaPayload mediaPayload = null;
+          if (hasCustomBody) {
+            mediaPayload =
+                new CustomMediaPayloadWithExt(
+                    fid, publicUrl, fileName, fileSuffix, message.getBody());
+          } else {
+            // build message with payload url
+            mediaPayload = new MediaPayload(fid, publicUrl, fileName, fileSuffix);
+          }
 
           // build bytes
           message.setBody(JSON.toJSONBytes(mediaPayload));
