@@ -2,17 +2,17 @@ const LOGTAG = 'AcmedcareWss'
 const WSS_NAME = 'schedule-sys'
 
 export const COMMANDS = {
-  'AUTH': 0x30000,
-  'REGISTER': 0x30001,
-  'HEARTBEAT': 0x30003,
-  'MESSAGE': 0x30004
+  AUTH: 0x30000,
+  REGISTER: 0x30001,
+  HEARTBEAT: 0x30003,
+  MESSAGE: 0x30004
 }
 
-function debug (msg) {
+function debug(msg) {
   console.log(LOGTAG, msg)
 }
 
-function generateEvent (s, args) {
+function generateEvent(s, args) {
   var evt = document.createEvent('CustomEvent')
   evt.initCustomEvent(s, false, false, args)
   return evt
@@ -120,10 +120,9 @@ let defaultRequest = {}
 let heartbeatRunning = false
 let heartbeatTimer
 
-function newHeartbeat () {
+function newHeartbeat() {
   heartbeatRunning = true
   heartbeatTimer = setInterval(function () {
-
     if (readyState !== WebSocket.OPEN) {
       clearInterval(heartbeatTimer)
     }
@@ -140,17 +139,20 @@ function newHeartbeat () {
   }, AcmedcareWss.options.heartbeatInterval)
 }
 
-function doConnect (servers, reconnectAttempt) {
+function doConnect(servers, reconnectAttempt) {
   // 随机选择负载策略
   let index = Math.floor(Math.random() * servers.length)
   let server = servers[index]
-  let wssServerAddress = 'ws://' + server.wssHost + ':' + server.wssPort + '/' + WSS_NAME
+  let wssServerAddress = 'ws://' + server.wssHost + ':' + server.wssPort + '/'
+      + WSS_NAME
   console.info(LOGTAG, '连接服务器:', wssServerAddress)
   AcmedcareWss.wssClient = new WebSocket(wssServerAddress)
-  console.log('------------------------------------------------------------------')
+  console.log(
+      '------------------------------------------------------------------')
 
   if (reconnectAttempt) {
-    if (AcmedcareWss.options.maxReconnectAttempts && reconnectAttempts > AcmedcareWss.options.maxReconnectAttempts) {
+    if (AcmedcareWss.options.maxReconnectAttempts && reconnectAttempts
+        > AcmedcareWss.options.maxReconnectAttempts) {
       return
     }
   } else {
@@ -192,13 +194,16 @@ function doConnect (servers, reconnectAttempt) {
         eventTarget.dispatchEvent(generateEvent('close'))
       }
 
-      let timeout = AcmedcareWss.options.reconnectInterval * Math.pow(AcmedcareWss.options.reconnectDecay,
-        reconnectAttempts)
-      setTimeout(function () {
-        reconnectAttempts++
-        doConnect(AcmedcareWss.wssServers, true)
-      }, timeout > AcmedcareWss.options.maxReconnectInterval ? AcmedcareWss.options.maxReconnectInterval
-        : timeout)
+      let timeout = AcmedcareWss.options.reconnectInterval * Math.pow(
+          AcmedcareWss.options.reconnectDecay, reconnectAttempts)
+      setTimeout(
+          function () {
+            reconnectAttempts++
+            doConnect(AcmedcareWss.wssServers, true)
+          },
+          timeout > AcmedcareWss.options.maxReconnectInterval
+              ? AcmedcareWss.options.maxReconnectInterval : timeout
+      )
     }
   }
 
@@ -213,11 +218,11 @@ function doConnect (servers, reconnectAttempt) {
 }
 
 class AcmedcareWss {
-  constructor (serverAddrs, options) {
+  constructor(serverAddrs, options) {
     this.instance(serverAddrs, options)
   }
 
-  instance (serverAddrs, options) {
+  instance(serverAddrs, options) {
     AcmedcareWss.serverAddrs = serverAddrs
 
     if (!options) {
@@ -245,74 +250,35 @@ class AcmedcareWss {
   }
 
   /**
-   * 注册打开事件监听
-   * @param fn 回调函数
-   */
-  addOpenEventListener (fn) {
-    AcmedcareWss.prototype.onopen = fn
-  }
-
-  /**
-   * 注册链接事件监听
-   * @param fn 回调函数
-   */
-  addConnectingEventListener (fn) {
-    AcmedcareWss.prototype.onconnecting = fn
-  }
-
-  /**
-   * 注册业务消息事件监听
-   * @param fn 回调函数
-   */
-  addBizMessageEventListener (fn) {
-    AcmedcareWss.prototype.bizMessage = fn
-  }
-
-  /**
-   * 注册WS消息事件监听
-   * @param fn 回调函数
-   */
-  addMessageEventListener (fn) {
-    AcmedcareWss.prototype.onmessage = fn
-  }
-
-  /**
-   * 注册关闭事件监听
-   * @param fn 回调函数
-   */
-  addCloseEventListener (fn) {
-    AcmedcareWss.prototype.onclose = fn
-  }
-
-  /**
-   * 注册错误事件监听
-   * @param fn 回调函数
-   */
-  addErrorEventListener (fn) {
-    AcmedcareWss.prototype.onerror = fn
-  }
-
-  /**
    * 初始化方法
    */
-  init () {
-    debug('init' + AcmedcareWss.serverAddrs + ',' + AcmedcareWss.options.heartbeat + ',' + AcmedcareWss.options.heartbeatInterval)
+  init() {
+    debug(
+        'init' + AcmedcareWss.serverAddrs + ',' + AcmedcareWss.options.heartbeat
+        + ',' + AcmedcareWss.options.heartbeatInterval)
     // 从主服务拉取 WebSocket 服务器地址[多个]
+    let isConnect = false
     const http = new XMLHttpRequest()
-    const wssQueryUrl = 'http://192.168.1.227:13110/master/available-wss-servers?wssName=' + WSS_NAME
-    http.open('GET', wssQueryUrl)
-    http.send()
-    http.onreadystatechange = function () {
-      if (this.readyState === 4 && this.status === 200) {
-        let servers = JSON.parse(http.responseText)
-        if (servers.length > 0) {
-          AcmedcareWss.wssServers = servers
-          doConnect(servers, false)
-        } else {
-          console.log('警告:无可用的WebSocket服务器地址~')
-        }
+    for (let key of AcmedcareWss.serverAddrs) {//2
+      let chooseServer = key
+      const wssQueryUrl = 'http://' + chooseServer
+          + '/master/available-wss-servers?wssName=' + WSS_NAME
+      http.open('GET', wssQueryUrl, false)
+      http.send()
+
+      let servers = JSON.parse(http.responseText)
+      if (servers.length > 0) {
+        AcmedcareWss.wssServers = servers
+        doConnect(servers, false)
+        isConnect = true
+        break
       }
     }
+
+    if (!isConnect) {
+      console.warn('警告:无可用WebSocket服务器地址~')
+    }
+
   }
 
   /**
@@ -320,7 +286,7 @@ class AcmedcareWss {
    * @param code 编码
    * @param reason 原因
    */
-  destroy (code, reason) {
+  destroy(code, reason) {
     // Default CLOSE_NORMAL code
     if (typeof code === 'undefined') {
       code = 1000
@@ -338,11 +304,59 @@ class AcmedcareWss {
   }
 
   /**
+   * 注册打开事件监听
+   * @param fn 回调函数
+   */
+  addOpenEventListener(fn) {
+    AcmedcareWss.prototype.onopen = fn
+  }
+
+  /**
+   * 注册链接事件监听
+   * @param fn 回调函数
+   */
+  addConnectingEventListener(fn) {
+    AcmedcareWss.prototype.onconnecting = fn
+  }
+
+  /**
+   * 注册业务消息事件监听
+   * @param fn 回调函数
+   */
+  addBizMessageEventListener(fn) {
+    AcmedcareWss.prototype.bizMessage = fn
+  }
+
+  /**
+   * 注册WS消息事件监听
+   * @param fn 回调函数
+   */
+  addMessageEventListener(fn) {
+    AcmedcareWss.prototype.onmessage = fn
+  }
+
+  /**
+   * 注册关闭事件监听
+   * @param fn 回调函数
+   */
+  addCloseEventListener(fn) {
+    AcmedcareWss.prototype.onclose = fn
+  }
+
+  /**
+   * 注册错误事件监听
+   * @param fn 回调函数
+   */
+  addErrorEventListener(fn) {
+    AcmedcareWss.prototype.onerror = fn
+  }
+
+  /**
    * 授权校验函数
    * @param accessToken 登录票据
    * @param callback 回调函数
    */
-  auth (accessToken, callback) {
+  auth(accessToken, callback) {
     if (AcmedcareWss.wssClient) {
       if (typeof callback !== 'undefined') {
         AcmedcareWss.prototype.authCallback = callback
@@ -368,7 +382,7 @@ class AcmedcareWss {
    * @param parentOrgId 父机构编码
    * @param callback 回调函数
    */
-  registerClient (areaNo, orgId, passportId, parentOrgId, callback) {
+  registerClient(areaNo, orgId, passportId, parentOrgId, callback) {
     if (AcmedcareWss.wssClient) {
       if (typeof callback !== 'undefined') {
         AcmedcareWss.prototype.authCallback = callback
