@@ -11,6 +11,7 @@ import com.acmedcare.tiffany.framework.remoting.android.core.protocol.RemotingCo
 import com.acmedcare.tiffany.framework.remoting.android.core.xlnio.XLMRResponseFuture;
 import com.acmedcare.tiffany.framework.remoting.jlib.AcmedcareLogger;
 import com.acmedcare.tiffany.framework.remoting.jlib.AcmedcareRemoting;
+import com.acmedcare.tiffany.framework.remoting.jlib.AsyncRuntimeExecutor;
 import com.acmedcare.tiffany.framework.remoting.jlib.BizExecutor;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.BizCode;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.BizResult;
@@ -40,6 +41,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Biz Executor / JRE implements
@@ -423,67 +425,101 @@ public class JREBizExectuor extends BizExecutor {
 
     AcmedcareLogger.i(this.getClass().getSimpleName(), "发送消息请求头:" + JSON.toJSONString(header));
 
-    RemotingCommand command =
-        RemotingCommand.createRequestCommand(BizCode.CLIENT_PUSH_MESSAGE, header);
-
-    //
-    Message message = request.getMessage();
-
-    boolean hasCustomBody = false;
-    if (message.getBody() != null && message.getBody().length > 0) {
-      hasCustomBody = true;
-    }
-    if (message.getInnerType().equals(InnerType.MEDIA)) {
-
-      if (nasClient() == null) {
-        throw new BizException("媒体消息SDK需要设置NasProperties参数");
-      }
-
-      // 媒体消息
-      File source = request.getFile();
-      if (source != null && source.exists()) {
-        String fileName = source.getName();
-        String fileSuffix = request.getFileSuffix();
-        if (fileSuffix == null || fileSuffix.trim().length() == 0) {
-          try {
-            fileSuffix = fileName.substring(fileName.lastIndexOf(".") + 1);
-          } catch (Exception ignore) {
-            fileSuffix = "";
-          }
-        }
-
-        UploadEntity uploadEntity =
-            nasClient().upload(fileName, fileSuffix, source, request.getProgressCallback());
-
-        if (uploadEntity.getResponseCode().equals(ResponseCode.UPLOAD_OK)) {
-          String fid = uploadEntity.getFid();
-          String publicUrl = uploadEntity.getPublicUrl();
-
-          MediaPayload mediaPayload = null;
-          if (hasCustomBody) {
-            mediaPayload =
-                new CustomMediaPayloadWithExt(
-                    fid, publicUrl, fileName, fileSuffix, message.getBody());
-          } else {
-            // build message with payload url
-            mediaPayload = new MediaPayload(fid, publicUrl, fileName, fileSuffix);
-          }
-
-          // build bytes
-          message.setBody(JSON.toJSONBytes(mediaPayload));
-          command.setBody(message.bytes());
-
-        } else {
-          if (callback != null) {
-            callback.onFailed(uploadEntity.getResponseCode().code(), uploadEntity.getMessage());
-          }
-        }
-      }
-    } else {
-      command.setBody(request.getMessage().bytes());
-    }
-
     try {
+
+      final RemotingCommand command =
+          RemotingCommand.createRequestCommand(BizCode.CLIENT_PUSH_MESSAGE, header);
+
+      //
+      final Message message = request.getMessage();
+
+      if (message.getInnerType().equals(InnerType.MEDIA)) {
+
+        if (nasClient() == null) {
+          throw new BizException("媒体消息SDK需要设置NasProperties参数");
+        }
+
+        // 媒体消息
+        final File source = request.getFile();
+        if (source != null && source.exists()) {
+
+          final CountDownLatch countDownLatch = new CountDownLatch(1);
+          AsyncRuntimeExecutor.getAsyncThreadPool()
+              .execute(
+                  new Runnable() {
+                    @Override
+                    public void run() {
+
+                      try {
+                        boolean hasCustomBody = false;
+                        if (message.getBody() != null && message.getBody().length > 0) {
+                          hasCustomBody = true;
+                        }
+
+                        String fileName = source.getName();
+                        String fileSuffix = request.getFileSuffix();
+                        if (fileSuffix == null || fileSuffix.trim().length() == 0) {
+                          try {
+                            fileSuffix = fileName.substring(fileName.lastIndexOf(".") + 1);
+                          } catch (Exception ignore) {
+                            fileSuffix = "";
+                          }
+                        }
+
+                        UploadEntity uploadEntity =
+                            nasClient()
+                                .upload(
+                                    fileName, fileSuffix, source, request.getProgressCallback());
+
+                        if (uploadEntity.getResponseCode().equals(ResponseCode.UPLOAD_OK)) {
+                          String fid = uploadEntity.getFid();
+                          String publicUrl = uploadEntity.getPublicUrl();
+
+                          MediaPayload mediaPayload = null;
+                          if (hasCustomBody) {
+                            mediaPayload =
+                                new CustomMediaPayloadWithExt(
+                                    fid, publicUrl, fileName, fileSuffix, message.getBody());
+                          } else {
+                            // build message with payload url
+                            mediaPayload = new MediaPayload(fid, publicUrl, fileName, fileSuffix);
+                          }
+
+                          // build bytes
+                          message.setBody(JSON.toJSONBytes(mediaPayload));
+                          command.setBody(message.bytes());
+
+                        } else {
+                          if (callback != null) {
+                            callback.onFailed(
+                                uploadEntity.getResponseCode().code(), uploadEntity.getMessage());
+                          }
+                        }
+                      } finally {
+                        countDownLatch.countDown();
+                      }
+                    }
+                  });
+
+          try {
+            countDownLatch.await();
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+            AcmedcareLogger.e(
+                JREBizExectuor.class.getSimpleName(),
+                e,
+                "Push Message Request Upload CountDownLatch Await Failed");
+            throw new BizException(e);
+          }
+        } else {
+          throw new BizException(
+              "Push media message payload file must not be null and exist ,file = "
+                  + request.getFile());
+        }
+      } else {
+        command.setBody(request.getMessage().bytes());
+      }
+
       AcmedcareRemoting.getRemotingClient()
           .invokeAsync(
               this.remotingAddress(),
@@ -546,6 +582,10 @@ public class JREBizExectuor extends BizExecutor {
         | RemotingSendRequestException e) {
 
       AcmedcareLogger.e(JREBizExectuor.class.getSimpleName(), e, "Push Message Request Failed");
+      throw new BizException(e);
+    } catch (Exception e) {
+      AcmedcareLogger.e(
+          JREBizExectuor.class.getSimpleName(), e, "Push Message Request Execute Failed");
       throw new BizException(e);
     }
   }
