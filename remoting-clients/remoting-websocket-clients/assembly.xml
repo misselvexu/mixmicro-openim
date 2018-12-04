@@ -22,7 +22,7 @@
 
     <files>
         <file>
-            <source>${project.basedir}/reconnecting-websocket/wss.js</source>
+            <source>${project.basedir}/reconnecting-websocket/wss.original.js</source>
             <outputDirectory>./libs</outputDirectory>
         </file>
         <file>

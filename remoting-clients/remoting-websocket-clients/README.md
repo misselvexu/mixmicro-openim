@@ -7,7 +7,7 @@
 
 ```javascript
 
-<script src="wss.js" type="text/javascript"></script>
+<script src="wss.original.js" type="text/javascript"></script>
 ```
 
 

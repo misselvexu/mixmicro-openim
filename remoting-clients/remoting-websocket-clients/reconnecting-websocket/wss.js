@@ -1,486 +1,412 @@
-(function (global, factory) {
-  if (typeof define === 'function' && define.amd) {
-    define([], factory);
-  } else if (typeof module !== 'undefined' && module.exports) {
-    module.exports = factory();
+const LOGTAG = 'AcmedcareWss'
+const WSS_NAME = 'schedule-sys'
+
+export const COMMANDS = {
+  'AUTH': 0x30000,
+  'REGISTER': 0x30001,
+  'HEARTBEAT': 0x30003,
+  'MESSAGE': 0x30004
+}
+
+function debug (msg) {
+  console.log(LOGTAG, msg)
+}
+
+function generateEvent (s, args) {
+  var evt = document.createEvent('CustomEvent')
+  evt.initCustomEvent(s, false, false, args)
+  return evt
+}
+
+let reconnectAttempts = 0
+let readyState = WebSocket.CONNECTING
+this.CONNECTING = WebSocket.CONNECTING
+this.OPEN = WebSocket.OPEN
+this.CLOSING = WebSocket.CLOSING
+this.CLOSED = WebSocket.CLOSED
+
+var eventTarget = document.createElement('div')
+
+eventTarget.addEventListener('open', function (event) {
+  AcmedcareWss.prototype.onopen(event)
+})
+
+eventTarget.addEventListener('close', function (event) {
+  if (AcmedcareWss.options.heartbeat) {
+    clearInterval(heartbeatTimer)
+    heartbeatRunning = false
+  }
+  AcmedcareWss.prototype.onclose(event)
+})
+
+eventTarget.addEventListener('connecting', function (event) {
+  AcmedcareWss.prototype.onconnecting(event)
+})
+
+eventTarget.addEventListener('message', function (event) {
+  let result = JSON.parse(event.data)
+  console.log('Rev: ' + event.data)
+  if (result.bizCode === COMMANDS.HEARTBEAT) {
+    // heartbeat response
+    console.log('heartbeat response.')
+    return
+  }
+
+  // auth response
+  if (result.bizCode === COMMANDS.AUTH) {
+    AcmedcareWss.prototype.authCallback(result.code === 0, result.data)
+    return
+  }
+
+  // register response message
+  if (result.bizCode === COMMANDS.REGISTER) {
+    if (result.code !== 0) {
+      // clear request
+      defaultRequest = {}
+      AcmedcareWss.prototype.registerClientCallback(false)
+    } else {
+      // startup heartbeat
+      if (!heartbeatRunning) {
+        newHeartbeat()
+      }
+      AcmedcareWss.prototype.registerClientCallback(true)
+    }
+    return
+  }
+
+  if (result.bizCode === COMMANDS.MESSAGE) {
+    AcmedcareWss.prototype.bizMessage(result.message)
+    return
+  }
+
+  AcmedcareWss.prototype.onmessage(event)
+})
+eventTarget.addEventListener('error', function (event) {
+  AcmedcareWss.prototype.onerror(event)
+})
+
+var defaultOptions = {
+  /** Whether this instance should log debug messages. */
+  debug: false,
+
+  /** Whether or not the websocket should attempt to connect immediately upon instantiation. */
+  automaticOpen: true,
+
+  /** The number of milliseconds to delay before attempting to reconnect. */
+  reconnectInterval: 10000,
+
+  /** The maximum number of milliseconds to delay a reconnection attempt. */
+  maxReconnectInterval: 30000,
+
+  /** The rate of increase of the reconnect delay. Allows reconnect attempts to back off when problems persist. */
+  reconnectDecay: 1.5,
+
+  /** The maximum time in milliseconds to wait for a connection to succeed before closing and retrying. */
+  timeoutInterval: 2000,
+
+  /** The maximum number of reconnection attempts to make. Unlimited if null. */
+  maxReconnectAttempts: null,
+
+  /** heartbeat flag */
+  heartbeat: false,
+
+  /** heartbeat period */
+  heartbeatInterval: 30000
+}
+
+let forcedClose = false
+let timedOut = false
+let defaultRequest = {}
+let heartbeatRunning = false
+let heartbeatTimer
+
+function newHeartbeat () {
+  heartbeatRunning = true
+  heartbeatTimer = setInterval(function () {
+
+    if (readyState !== WebSocket.OPEN) {
+      clearInterval(heartbeatTimer)
+    }
+
+    let request = {}
+    request.bizCode = COMMANDS.HEARTBEAT
+    request.orgId = defaultRequest.orgId
+    request.parentOrgId = defaultRequest.parentOrgId
+    request.areaNo = defaultRequest.areaNo
+    request.passportId = defaultRequest.passportId
+
+    AcmedcareWss.wssClient.send(JSON.stringify(request))
+    console.log('info: heartbeat.')
+  }, AcmedcareWss.options.heartbeatInterval)
+}
+
+function doConnect (servers, reconnectAttempt) {
+  // 随机选择负载策略
+  let index = Math.floor(Math.random() * servers.length)
+  let server = servers[index]
+  let wssServerAddress = 'ws://' + server.wssHost + ':' + server.wssPort + '/' + WSS_NAME
+  console.info(LOGTAG, '连接服务器:', wssServerAddress)
+  AcmedcareWss.wssClient = new WebSocket(wssServerAddress)
+  console.log('------------------------------------------------------------------')
+
+  if (reconnectAttempt) {
+    if (AcmedcareWss.options.maxReconnectAttempts && reconnectAttempts > AcmedcareWss.options.maxReconnectAttempts) {
+      return
+    }
   } else {
-    global.AcmedcareWss = factory();
-  }
-})(this, function () {
-
-  if (!('WebSocket' in window)) {
-    return;
+    eventTarget.dispatchEvent(generateEvent('connecting'))
+    reconnectAttempts = 0
   }
 
-  function AcmedcareWss(url, protocols, options) {
+  let localWs = AcmedcareWss.wssClient
+  let timeout = setTimeout(function () {
+    timedOut = true
+    localWs.close()
+    timedOut = false
+  }, AcmedcareWss.options.timeoutInterval)
 
-    // Default settings
-    var settings = {
+  AcmedcareWss.wssClient.onopen = function (event) {
+    clearTimeout(timeout)
+    readyState = WebSocket.OPEN
+    reconnectAttempts = 0
+    let e = generateEvent('open')
+    e.isReconnect = reconnectAttempt
+    reconnectAttempt = false
+    eventTarget.dispatchEvent(e)
+  }
 
-      /** Whether this instance should log debug messages. */
-      debug: false,
+  AcmedcareWss.wssClient.onclose = function (event) {
+    clearTimeout(timeout)
+    AcmedcareWss.wssClient = null
+    if (forcedClose) {
+      readyState = WebSocket.CLOSED
+      eventTarget.dispatchEvent(generateEvent('close'))
+    } else {
+      readyState = WebSocket.CONNECTING
+      let e = generateEvent('connecting')
+      e.code = event.code
+      e.reason = event.reason
+      e.wasClean = event.wasClean
+      eventTarget.dispatchEvent(e)
+      if (!reconnectAttempt && !timedOut) {
+        eventTarget.dispatchEvent(generateEvent('close'))
+      }
 
-      /** Whether or not the websocket should attempt to connect immediately upon instantiation. */
-      automaticOpen: true,
+      let timeout = AcmedcareWss.options.reconnectInterval * Math.pow(AcmedcareWss.options.reconnectDecay,
+        reconnectAttempts)
+      setTimeout(function () {
+        reconnectAttempts++
+        doConnect(AcmedcareWss.wssServers, true)
+      }, timeout > AcmedcareWss.options.maxReconnectInterval ? AcmedcareWss.options.maxReconnectInterval
+        : timeout)
+    }
+  }
 
-      /** The number of milliseconds to delay before attempting to reconnect. */
-      reconnectInterval: 1000,
-      /** The maximum number of milliseconds to delay a reconnection attempt. */
-      maxReconnectInterval: 30000,
-      /** The rate of increase of the reconnect delay. Allows reconnect attempts to back off when problems persist. */
-      reconnectDecay: 1.5,
+  AcmedcareWss.wssClient.onmessage = function (event) {
+    let e = generateEvent('message')
+    e.data = event.data
+    eventTarget.dispatchEvent(e)
+  }
+  AcmedcareWss.wssClient.onerror = function (event) {
+    eventTarget.dispatchEvent(generateEvent('error'))
+  }
+}
 
-      /** The maximum time in milliseconds to wait for a connection to succeed before closing and retrying. */
-      timeoutInterval: 2000,
+class AcmedcareWss {
+  constructor (serverAddrs, options) {
+    this.instance(serverAddrs, options)
+  }
 
-      /** The maximum number of reconnection attempts to make. Unlimited if null. */
-      maxReconnectAttempts: null,
+  instance (serverAddrs, options) {
+    AcmedcareWss.serverAddrs = serverAddrs
 
-      /** The binary type, possible values 'blob' or 'arraybuffer', default 'blob'. */
-      binaryType: 'blob',
-
-      /** heartbeat flag */
-      heartbeat: false,
-
-      /** heartbeat period */
-      heartbeatInterval: 30000,
-    };
     if (!options) {
-      options = {};
+      options = {}
+    }
+
+    if (typeof options === 'undefined') {
+      AcmedcareWss.options = defaultOptions
+    } else {
+      AcmedcareWss.options = options
     }
 
     // Overwrite and define settings with options if they exist.
-    for (var key in settings) {
+    for (var key in defaultOptions) {
       if (typeof options[key] !== 'undefined') {
-        this[key] = options[key];
+        AcmedcareWss.options[key] = options[key]
       } else {
-        this[key] = settings[key];
+        AcmedcareWss.options[key] = defaultOptions[key]
       }
     }
 
-    // These should be treated as read-only properties
+    console.log(AcmedcareWss.options)
 
-    /** The URL as resolved by the constructor. This is always an absolute URL. Read only. */
-    this.url = url;
-
-    /** The number of attempted reconnects since starting, or the last successful connection. Read only. */
-    this.reconnectAttempts = 0;
-
-    /**
-     * The current state of the connection.
-     * Can be one of: WebSocket.CONNECTING, WebSocket.OPEN, WebSocket.CLOSING, WebSocket.CLOSED
-     * Read only.
-     */
-    this.readyState = WebSocket.CONNECTING;
-
-    /**
-     * A string indicating the name of the sub-protocol the server selected; this will be one of
-     * the strings specified in the protocols parameter when creating the WebSocket object.
-     * Read only.
-     */
-    this.protocol = null;
-
-    // Private state variables
-
-    var self = this;
-    var ws;
-    var forcedClose = false;
-    var timedOut = false;
-    var defaultRequest = {};
-    var heartbeatRunning = false;
-    var heartbeatTimer;
-
-    this.clearDefaultRequest = function () {
-      console.log('info: clear request cache.');
-      defaultRequest = {};
-    };
-
-    this.getDefaultRequest = function () {
-      return defaultRequest;
-    };
-
-    this.newHeartbeat = function () {
-      heartbeatRunning = true;
-      heartbeatTimer = setInterval(function () {
-        let request = {};
-        request.bizCode = 0x30003;
-        request.orgId = defaultRequest.orgId;
-        request.parentOrgId = defaultRequest.parentOrgId;
-        request.areaNo = defaultRequest.areaNo;
-        request.passportId = defaultRequest.passportId;
-        ws.send(JSON.stringify(request));
-        console.log('info: heartbeat.');
-      }, self.heartbeatInterval);
-    };
-
-    var eventTarget = document.createElement('div');
-
-    // Wire up "on*" properties as event handlers
-
-    eventTarget.addEventListener('open', function (event) {
-      self.onopen(event);
-    });
-    eventTarget.addEventListener('close', function (event) {
-      // TODO shutdown heartbeat
-      if (self.heartbeat) {
-        console.log('info: shutdown heartbeat.');
-        clearInterval(heartbeatTimer);
-        heartbeatRunning = false;
-      }
-      self.onclose(event);
-    });
-    eventTarget.addEventListener('connecting', function (event) {
-      self.onconnecting(event);
-    });
-    eventTarget.addEventListener('message', function (event) {
-      self.onmessage(event);
-    });
-    eventTarget.addEventListener('error', function (event) {
-      self.onerror(event);
-    });
-
-    // Expose the API required by EventTarget
-
-    this.addEventListener = eventTarget.addEventListener.bind(eventTarget);
-    this.removeEventListener = eventTarget.removeEventListener.bind(
-        eventTarget);
-    this.dispatchEvent = eventTarget.dispatchEvent.bind(eventTarget);
-
-    /**
-     * This function generates an event that is compatible with standard
-     * compliant browsers and IE9 - IE11
-     *
-     * This will prevent the error:
-     * Object doesn't support this action
-     *
-     * http://stackoverflow.com/questions/19345392/why-arent-my-parameters-getting-passed-through-to-a-dispatched-event/19345563#19345563
-     * @param s String The name that the event should use
-     * @param args Object an optional object that the event will use
-     */
-    function generateEvent(s, args) {
-      var evt = document.createEvent('CustomEvent');
-      evt.initCustomEvent(s, false, false, args);
-      return evt;
-    }
-
-    this.open = function (reconnectAttempt) {
-      ws = new WebSocket(self.url, protocols || []);
-      ws.binaryType = this.binaryType;
-
-      if (reconnectAttempt) {
-        if (this.maxReconnectAttempts && this.reconnectAttempts
-            > this.maxReconnectAttempts) {
-          return;
-        }
-      } else {
-        eventTarget.dispatchEvent(generateEvent('connecting'));
-        this.reconnectAttempts = 0;
-      }
-
-      if (self.debug || AcmedcareWss.debugAll) {
-        console.debug('AcmedcareWss', 'attempt-connect', self.url);
-      }
-
-      var localWs = ws;
-      var timeout = setTimeout(function () {
-        if (self.debug || AcmedcareWss.debugAll) {
-          console.debug('AcmedcareWss', 'connection-timeout', self.url);
-        }
-        timedOut = true;
-        localWs.close();
-        timedOut = false;
-      }, self.timeoutInterval);
-
-      ws.onopen = function (event) {
-        clearTimeout(timeout);
-        if (self.debug || AcmedcareWss.debugAll) {
-          console.debug('AcmedcareWss', 'onopen', self.url);
-        }
-        self.protocol = ws.protocol;
-        self.readyState = WebSocket.OPEN;
-        self.reconnectAttempts = 0;
-        var e = generateEvent('open');
-        e.isReconnect = reconnectAttempt;
-        reconnectAttempt = false;
-        eventTarget.dispatchEvent(e);
-      };
-
-      ws.onclose = function (event) {
-        clearTimeout(timeout);
-        ws = null;
-        if (forcedClose) {
-          self.readyState = WebSocket.CLOSED;
-          eventTarget.dispatchEvent(generateEvent('close'));
-        } else {
-          self.readyState = WebSocket.CONNECTING;
-          var e = generateEvent('connecting');
-          e.code = event.code;
-          e.reason = event.reason;
-          e.wasClean = event.wasClean;
-          eventTarget.dispatchEvent(e);
-          if (!reconnectAttempt && !timedOut) {
-            if (self.debug || AcmedcareWss.debugAll) {
-              console.debug('AcmedcareWss', 'onclose', self.url);
-            }
-            eventTarget.dispatchEvent(generateEvent('close'));
-          }
-
-          var timeout = self.reconnectInterval * Math.pow(self.reconnectDecay,
-              self.reconnectAttempts);
-          setTimeout(function () {
-            self.reconnectAttempts++;
-            self.open(true);
-          }, timeout > self.maxReconnectInterval ? self.maxReconnectInterval
-              : timeout);
-        }
-      };
-      ws.onmessage = function (event) {
-        if (self.debug || AcmedcareWss.debugAll) {
-          console.debug('AcmedcareWss', 'onmessage', self.url, event.data);
-        }
-        var e = generateEvent('message');
-        e.data = event.data;
-        eventTarget.dispatchEvent(e);
-      };
-      ws.onerror = function (event) {
-        if (self.debug || AcmedcareWss.debugAll) {
-          console.debug('AcmedcareWss', 'onerror', self.url, event);
-        }
-        eventTarget.dispatchEvent(generateEvent('error'));
-      };
-    };
-
-    // Whether or not to create a websocket upon instantiation
-    if (this.automaticOpen == true) {
-      this.open(false);
-    }
-
-    // Access Token Auth
-    this.auth = function (token, callback) {
-      if (ws) {
-        if (self.debug || AcmedcareWss.debugAll) {
-          console.debug('AcmedcareWss', 'send', self.url, token);
-        }
-
-        if (typeof callback !== 'undefined') {
-          AcmedcareWss.prototype.authCallback = callback;
-        }
-
-        // build auth message
-        let request = {};
-        request.bizCode = 0x30000;
-        request.accessToken = token;
-        request.wssClientType = 'Normal';
-
-        return ws.send(JSON.stringify(request));
-      } else {
-        throw 'INVALID_STATE_ERR : Pausing to reconnect websocket';
-      }
-    };
-
-    // Access Token Auth
-    this.pushOrder = function (orderDetail, subOrgId) {
-      if (ws) {
-        if (self.debug || AcmedcareWss.debugAll) {
-          console.debug('AcmedcareWss', 'send', self.url, orderDetail,
-              subOrgId);
-        }
-
-        // build auth message
-        let request = {};
-        request.bizCode = 0x31002;
-        request.orgId = this.getDefaultRequest().orgId;
-        request.parentOrgId = this.getDefaultRequest().parentOrgId;
-        request.areaNo = this.getDefaultRequest().areaNo;
-        request.passportId = this.getDefaultRequest().passportId;
-        request.orderDetail = orderDetail;
-        request.subOrgId = subOrgId;
-
-        return ws.send(JSON.stringify(request));
-      } else {
-        throw 'INVALID_STATE_ERR : Pausing to reconnect websocket';
-      }
-    };
-
-    this.registerClient = function (areaNo, orgId, passportId, parentOrgId,
-        callback) {
-      if (ws) {
-        if (self.debug || AcmedcareWss.debugAll) {
-          console.debug('AcmedcareWss', 'send', self.url, areaNo, orgId,
-              passportId);
-        }
-
-        if (typeof callback !== 'undefined') {
-          AcmedcareWss.prototype.registerClientCallback = callback;
-        }
-
-        console.log('begin register client.');
-        // build auth message
-        let request = {};
-        request.bizCode = 0x30001;
-        request.orgId = orgId;
-        request.parentOrgId = parentOrgId;
-        request.areaNo = areaNo;
-        request.passportId = passportId;
-
-        // save
-        defaultRequest = request;
-        return ws.send(JSON.stringify(request));
-      } else {
-        throw 'INVALID_STATE_ERR : Pausing to reconnect websocket';
-      }
-    };
-
-    this.pullOnlineSubOrgs = function (callback) {
-      if (ws) {
-        if (self.debug || AcmedcareWss.debugAll) {
-          console.debug('AcmedcareWss', 'send', self.url);
-        }
-
-        if (typeof callback !== 'undefined') {
-          AcmedcareWss.prototype.pullOnlineSubOrgsCallback = callback;
-        }
-        // build auth message
-        let request = {};
-        request.bizCode = 0x31001;
-        request.orgId = this.getDefaultRequest().orgId;
-        request.areaNo = this.getDefaultRequest().areaNo;
-        request.passportId = this.getDefaultRequest().passportId;
-
-        return ws.send(JSON.stringify(request));
-      } else {
-        throw 'INVALID_STATE_ERR : Pausing to reconnect websocket';
-      }
-    };
-
-    /**
-     * Transmits data to the server over the WebSocket connection.
-     *
-     * @param data a text string, ArrayBuffer or Blob to send to the server.
-     */
-    this.send = function (data) {
-      if (ws) {
-        if (self.debug || AcmedcareWss.debugAll) {
-          console.debug('AcmedcareWss', 'send', self.url, data);
-        }
-        return ws.send(data);
-      } else {
-        throw 'INVALID_STATE_ERR : Pausing to reconnect websocket';
-      }
-    };
-
-    /**
-     * Closes the WebSocket connection or connection attempt, if any.
-     * If the connection is already CLOSED, this method does nothing.
-     */
-    this.close = function (code, reason) {
-      // Default CLOSE_NORMAL code
-      if (typeof code === 'undefined') {
-        code = 1000;
-      }
-      forcedClose = true;
-      if (ws) {
-        ws.close(code, reason);
-      }
-    };
-
-    /**
-     * Additional public API method to refresh the connection if still open (close, re-open).
-     * For example, if the app suspects bad data / missed heart beats, it can try to refresh.
-     */
-    this.refresh = function () {
-      if (ws) {
-        ws.close();
-      }
-    };
+    return this
   }
 
   /**
-   * An event listener to be called when the WebSocket connection's readyState changes to OPEN;
-   * this indicates that the connection is ready to send and receive data.
+   * 注册打开事件监听
+   * @param fn 回调函数
    */
-  AcmedcareWss.prototype.onopen = function (event) {
-  };
-  /** An event listener to be called when the WebSocket connection's readyState changes to CLOSED. */
-  AcmedcareWss.prototype.onclose = function (event) {
-  };
-  /** An event listener to be called when a connection begins being attempted. */
-  AcmedcareWss.prototype.onconnecting = function (event) {
-  };
-  /** An event listener to be called when a message is received from the server. */
-  AcmedcareWss.prototype.onmessage = function (event) {
-    let result = JSON.parse(event.data);
-    console.log('Rev: ' + event.data);
-
-    if (result.bizCode === 0x30003) {
-      // heartbeat response
-      console.log('heartbeat response.');
-    }
-
-    // auth response
-    if (result.bizCode === 0x30000) {
-      this.authCallback(result.code === 0, result.data);
-    }
-
-    // register response message
-    if (result.bizCode === 0x30001) {
-      if (result.code !== 0) {
-        // clear request
-        this.clearDefaultRequest();
-        this.registerClientCallback(false);
-      } else {
-        // startup heartbeat
-        this.newHeartbeat();
-        this.registerClientCallback(true);
-      }
-    }
-
-    // pull online sub orgs response
-    if (result.bizCode === 0x31001) {
-      this.pullOnlineSubOrgsCallback(result.data);
-    }
-
-    // push command message
-    if (result.bizCode === 0x31002) {
-      this.receiveOrder(result.data);
-    }
-
-    if(result.bizCode === 0x30004) {
-      this.onMessageListener(result.message);
-    }
-  };
-  /** An event listener to be called when an error occurs. */
-  AcmedcareWss.prototype.onerror = function (event) {
-  };
-
-  // biz function
-  AcmedcareWss.prototype.authCallback = function (success, message) {
-  };
-
-  AcmedcareWss.prototype.pullOnlineSubOrgsCallback = function (data) {
-  };
-
-  AcmedcareWss.prototype.registerClientCallback = function (data) {
-  };
-
-  AcmedcareWss.prototype.receiveOrder = function (data) {
-  };
-
-  AcmedcareWss.prototype.onMessageListener = function(message) {
-
-  };
+  addOpenEventListener (fn) {
+    AcmedcareWss.prototype.onopen = fn
+  }
 
   /**
-   * Whether all instances of AcmedcareWss should log debug messages.
-   * Setting this to true is the equivalent of setting all instances of AcmedcareWss.debug to true.
+   * 注册链接事件监听
+   * @param fn 回调函数
    */
-  AcmedcareWss.debugAll = false;
+  addConnectingEventListener (fn) {
+    AcmedcareWss.prototype.onconnecting = fn
+  }
 
-  AcmedcareWss.CONNECTING = WebSocket.CONNECTING;
-  AcmedcareWss.OPEN = WebSocket.OPEN;
-  AcmedcareWss.CLOSING = WebSocket.CLOSING;
-  AcmedcareWss.CLOSED = WebSocket.CLOSED;
+  /**
+   * 注册业务消息事件监听
+   * @param fn 回调函数
+   */
+  addBizMessageEventListener (fn) {
+    AcmedcareWss.prototype.bizMessage = fn
+  }
 
-  return AcmedcareWss;
-});
+  /**
+   * 注册WS消息事件监听
+   * @param fn 回调函数
+   */
+  addMessageEventListener (fn) {
+    AcmedcareWss.prototype.onmessage = fn
+  }
 
+  /**
+   * 注册关闭事件监听
+   * @param fn 回调函数
+   */
+  addCloseEventListener (fn) {
+    AcmedcareWss.prototype.onclose = fn
+  }
+
+  /**
+   * 注册错误事件监听
+   * @param fn 回调函数
+   */
+  addErrorEventListener (fn) {
+    AcmedcareWss.prototype.onerror = fn
+  }
+
+  /**
+   * 初始化方法
+   */
+  init () {
+    debug('init' + AcmedcareWss.serverAddrs + ',' + AcmedcareWss.options.heartbeat + ',' + AcmedcareWss.options.heartbeatInterval)
+    // 从主服务拉取 WebSocket 服务器地址[多个]
+    const http = new XMLHttpRequest()
+    const wssQueryUrl = 'http://192.168.1.227:13110/master/available-wss-servers?wssName=' + WSS_NAME
+    http.open('GET', wssQueryUrl)
+    http.send()
+    http.onreadystatechange = function () {
+      if (this.readyState === 4 && this.status === 200) {
+        let servers = JSON.parse(http.responseText)
+        if (servers.length > 0) {
+          AcmedcareWss.wssServers = servers
+          doConnect(servers, false)
+        } else {
+          console.log('警告:无可用的WebSocket服务器地址~')
+        }
+      }
+    }
+  }
+
+  /**
+   * 注销方法
+   * @param code 编码
+   * @param reason 原因
+   */
+  destroy (code, reason) {
+    // Default CLOSE_NORMAL code
+    if (typeof code === 'undefined') {
+      code = 1000
+    }
+    forcedClose = true
+
+    if (AcmedcareWss.options.heartbeat) {
+      clearInterval(heartbeatTimer)
+      heartbeatRunning = false
+    }
+
+    if (AcmedcareWss.wssClient) {
+      AcmedcareWss.wssClient.close(code, reason)
+    }
+  }
+
+  /**
+   * 授权校验函数
+   * @param accessToken 登录票据
+   * @param callback 回调函数
+   */
+  auth (accessToken, callback) {
+    if (AcmedcareWss.wssClient) {
+      if (typeof callback !== 'undefined') {
+        AcmedcareWss.prototype.authCallback = callback
+      }
+
+      // build auth message
+      let request = {}
+      request.bizCode = COMMANDS.AUTH
+      request.accessToken = accessToken
+      request.wssClientType = 'Normal'
+
+      return AcmedcareWss.wssClient.send(JSON.stringify(request))
+    } else {
+      console.error(LOGTAG, 'Wss client is invalid.')
+    }
+  }
+
+  /**
+   * 注册本机客户端
+   * @param areaNo 区域编号
+   * @param orgId 机构编码
+   * @param passportId 通行证编码
+   * @param parentOrgId 父机构编码
+   * @param callback 回调函数
+   */
+  registerClient (areaNo, orgId, passportId, parentOrgId, callback) {
+    if (AcmedcareWss.wssClient) {
+      if (typeof callback !== 'undefined') {
+        AcmedcareWss.prototype.authCallback = callback
+      }
+
+      console.log('begin register client.')
+      // build auth message
+      let request = {}
+      request.bizCode = COMMANDS.REGISTER
+      request.orgId = orgId
+      request.parentOrgId = parentOrgId
+      request.areaNo = areaNo
+      request.passportId = passportId
+
+      // save
+      defaultRequest = request
+      return AcmedcareWss.wssClient.send(JSON.stringify(request))
+    } else {
+      console.error(LOGTAG, 'Wss client is invalid.')
+    }
+  }
+}
+
+AcmedcareWss.prototype.onopen = function (event) {
+}
+AcmedcareWss.prototype.onconnecting = function (event) {
+}
+AcmedcareWss.prototype.onmessage = function (event) {
+}
+AcmedcareWss.prototype.bizMessage = function (event) {
+}
+AcmedcareWss.prototype.onclose = function (event) {
+}
+AcmedcareWss.prototype.onerror = function (event) {
+}
+AcmedcareWss.prototype.authCallback = function (success, data) {
+}
+AcmedcareWss.prototype.registerClientCallback = function (success, data) {
+}
+
+export default AcmedcareWss
