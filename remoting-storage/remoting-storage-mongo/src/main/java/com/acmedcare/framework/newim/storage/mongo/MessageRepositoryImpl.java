@@ -290,6 +290,11 @@ public class MessageRepositoryImpl implements MessageRepository {
                   update.inc("readedSize", 1);
                   UpdateResult updateResult = mongoTemplate.updateMulti(query, update, IM_MESSAGE);
 
+                  mongoLog.info(
+                      "匹配行数:{} ,更新影响行数:{}",
+                      updateResult.getMatchedCount(),
+                      updateResult.getModifiedCount());
+
                   if (updateResult.getModifiedCount() > 0) {
                     return Boolean.TRUE;
                   } else {
