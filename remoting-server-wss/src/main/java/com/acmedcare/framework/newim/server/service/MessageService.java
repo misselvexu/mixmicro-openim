@@ -7,6 +7,7 @@ import com.acmedcare.framework.newim.Message.GroupMessage;
 import com.acmedcare.framework.newim.Message.SingleMessage;
 import com.acmedcare.framework.newim.client.MessageAttribute;
 import com.acmedcare.framework.newim.server.core.IMSession;
+import com.acmedcare.framework.newim.server.exception.BizException;
 import com.acmedcare.framework.newim.storage.api.GroupRepository;
 import com.acmedcare.framework.newim.storage.api.MessageRepository;
 import com.alibaba.fastjson.JSON;
@@ -133,5 +134,28 @@ public class MessageService {
               sender, passportId, limit, leastMessageId > 0, leastMessageId);
     }
     return messages;
+  }
+
+  public void updateGroupMessageReadStatus(String passportId, String groupId, String messageId) {
+
+    try {
+
+      imServerLog.info("开始处理客户端:{},上报群组:{},消息:{},已读状态...", passportId, groupId, messageId);
+      // query message
+      GroupMessage groupMessage = this.messageRepository.queryGroupMessage(groupId, messageId);
+
+      if (groupMessage == null) {
+        throw new BizException("无效的群组ID和消息ID");
+      }
+
+      imServerLog.info("准备更新群组消息:{}的未读数量", groupMessage.getMid());
+      // update message read status
+      this.messageRepository.updateGroupMessageReadStatus(
+          passportId, groupId, messageId, groupMessage.getInnerTimestamp());
+
+    } catch (Exception e) {
+      imServerLog.error("上报消息状态业务处理失败异常", e);
+      throw new BizException(e);
+    }
   }
 }

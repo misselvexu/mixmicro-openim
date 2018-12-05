@@ -2,7 +2,7 @@ package com.acmedcare.framework.newim.server.service;
 
 import com.acmedcare.framework.aorp.beans.Principal;
 import com.acmedcare.framework.aorp.client.AorpClient;
-import com.acmedcare.framework.newim.server.core.SessionContextConstants.WssPrincipal;
+import com.acmedcare.framework.newim.server.core.SessionContextConstants.RemotePrincipal;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -39,10 +39,10 @@ public class RemotingAuthService {
    * @param token 登录票据
    * @return 用户信息
    */
-  public WssPrincipal principal(String token) {
+  public RemotePrincipal principal(String token) {
     Principal principal = aorpClient.getPrincipal(token);
-    WssPrincipal wssPrincipal = new WssPrincipal();
-    BeanUtils.copyProperties(principal, wssPrincipal);
-    return wssPrincipal;
+    RemotePrincipal remotePrincipal = new RemotePrincipal();
+    BeanUtils.copyProperties(principal, remotePrincipal);
+    return remotePrincipal;
   }
 }

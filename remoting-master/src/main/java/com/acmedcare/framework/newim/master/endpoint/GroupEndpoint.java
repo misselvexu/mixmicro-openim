@@ -16,7 +16,7 @@ import com.acmedcare.framework.newim.client.bean.request.NewGroupRequest;
 import com.acmedcare.framework.newim.client.bean.request.RemoveGroupMembersRequest;
 import com.acmedcare.framework.newim.client.bean.request.UpdateGroupRequest;
 import com.acmedcare.framework.newim.master.services.GroupServices;
-import com.acmedcare.framework.newim.storage.exception.StorageExecuteException;
+import com.acmedcare.framework.newim.storage.exception.StorageException;
 import com.alibaba.fastjson.JSON;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +66,7 @@ public class GroupEndpoint {
           request.getMemberIds());
 
       return ResponseEntity.ok().build();
-    } catch (InvalidRequestParamException | StorageExecuteException e) {
+    } catch (InvalidRequestParamException | StorageException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body(
               BizResult.builder()
@@ -105,7 +105,7 @@ public class GroupEndpoint {
               request.getGroupExt());
 
       return ResponseEntity.ok(BizResult.builder().code(0).data(oldGroup).build());
-    } catch (InvalidRequestParamException | StorageExecuteException e) {
+    } catch (InvalidRequestParamException | StorageException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body(
               BizResult.builder()
@@ -137,7 +137,7 @@ public class GroupEndpoint {
       Group oldGroup = this.groupServices.removeGroup(groupId);
 
       return ResponseEntity.ok(BizResult.builder().code(0).data(oldGroup).build());
-    } catch (InvalidRequestParamException | StorageExecuteException e) {
+    } catch (InvalidRequestParamException | StorageException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body(
               BizResult.builder()
@@ -173,7 +173,7 @@ public class GroupEndpoint {
       this.groupServices.addNewGroupMembers(request.getGroupId(), request.getMemberIds());
 
       return ResponseEntity.ok().build();
-    } catch (InvalidRequestParamException | StorageExecuteException e) {
+    } catch (InvalidRequestParamException | StorageException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body(
               BizResult.builder()
@@ -205,7 +205,7 @@ public class GroupEndpoint {
       this.groupServices.removeNewGroupMembers(request.getGroupId(), request.getMemberIds());
 
       return ResponseEntity.ok().build();
-    } catch (InvalidRequestParamException | StorageExecuteException e) {
+    } catch (InvalidRequestParamException | StorageException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body(
               BizResult.builder()

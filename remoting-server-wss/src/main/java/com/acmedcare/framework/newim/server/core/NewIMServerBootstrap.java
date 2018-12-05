@@ -218,34 +218,35 @@ public class NewIMServerBootstrap {
 
     imServer.registerProcessor(
         ClusterClientCommand.CLIENT_PULL_OWNER_GROUPS,
-        new RemotingClientPullGroupProcessor(groupService),
+        new RemotingClientPullGroupProcessor(groupService, imSession),
         null);
 
     imServer.registerProcessor(
         ClusterClientCommand.CLIENT_PULL_MESSAGE,
-        new RemotingClientPullMessageProcessor(messageService),
+        new RemotingClientPullMessageProcessor(messageService, imSession),
         null);
 
     imServer.registerProcessor(
         ClusterClientCommand.CLIENT_JOIN_GROUP,
-        new RemotingClientJoinOrLeaveGroupProcessor(groupService),
+        new RemotingClientJoinOrLeaveGroupProcessor(groupService, imSession),
         null);
 
     imServer.registerProcessor(
         ClusterClientCommand.CLIENT_QUIT_GROUP,
-        new RemotingClientJoinOrLeaveGroupProcessor(groupService),
+        new RemotingClientJoinOrLeaveGroupProcessor(groupService, imSession),
         null);
 
     // @since 2.2.0
     imServer.registerProcessor(
         ClusterClientCommand.CLIENT_PUSH_MESSAGE_READ_STATUS,
-        new RemotingClientPushMessageReadStatusProcessor(messageService),
+        new RemotingClientPushMessageReadStatusProcessor(messageService, imSession),
         null);
 
     // @since 2.2.0
     imServer.registerProcessor(
         ClusterClientCommand.CLIENT_PULL_GROUP_MESSAGE_READ_STATUS,
-        new RemotingClientPullGroupMessageReadStatusProcessor(messageService, groupService),
+        new RemotingClientPullGroupMessageReadStatusProcessor(
+            messageService, groupService, imSession),
         null);
 
     // @since 2.2.0

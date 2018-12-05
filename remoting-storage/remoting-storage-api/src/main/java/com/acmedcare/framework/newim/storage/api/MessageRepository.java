@@ -1,6 +1,7 @@
 package com.acmedcare.framework.newim.storage.api;
 
 import com.acmedcare.framework.newim.Message;
+import com.acmedcare.framework.newim.Message.GroupMessage;
 import java.util.List;
 
 /**
@@ -52,4 +53,24 @@ public interface MessageRepository {
    */
   List<? extends Message> querySingleMessages(
       String sender, String receiverId, long limit, boolean queryLeast, long leastMessageId);
+
+  /**
+   * 查询群组消息
+   *
+   * @param groupId 群组 ID
+   * @param messageId 消息编号
+   * @return 消息
+   */
+  GroupMessage queryGroupMessage(String groupId, String messageId);
+
+  /**
+   * 更新群组消息的已读数和状态
+   *
+   * @param passportId 接收人编号
+   * @param groupId 群组编号
+   * @param messageId 消息编号
+   * @param innerTimestamp 当前消息时间戳
+   */
+  void updateGroupMessageReadStatus(
+      String passportId, String groupId, String messageId, long innerTimestamp);
 }

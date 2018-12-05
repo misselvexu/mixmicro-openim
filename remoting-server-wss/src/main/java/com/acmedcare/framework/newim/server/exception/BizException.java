@@ -1,20 +1,22 @@
-package com.acmedcare.framework.newim.storage.exception;
+package com.acmedcare.framework.newim.server.exception;
 
 /**
- * Storage Execute Exception
+ * Service Biz Exception
  *
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
- * @version ${project.version} - 22/11/2018.
+ * @version ${project.version} - 2018-12-05.
  */
-public class StorageExecuteException extends RuntimeException {
+public class BizException extends RuntimeException {
 
-  private static final long serialVersionUID = -3089957688559764877L;
+  private static final long serialVersionUID = 4590063918139330627L;
 
   /**
    * Constructs a new runtime exception with {@code null} as its detail message. The cause is not
    * initialized, and may subsequently be initialized by a call to {@link #initCause}.
    */
-  public StorageExecuteException() {}
+  public BizException() {
+    super();
+  }
 
   /**
    * Constructs a new runtime exception with the specified detail message. The cause is not
@@ -23,7 +25,7 @@ public class StorageExecuteException extends RuntimeException {
    * @param message the detail message. The detail message is saved for later retrieval by the
    *     {@link #getMessage()} method.
    */
-  public StorageExecuteException(String message) {
+  public BizException(String message) {
     super(message);
   }
 
@@ -40,7 +42,22 @@ public class StorageExecuteException extends RuntimeException {
    *     unknown.)
    * @since 1.4
    */
-  public StorageExecuteException(String message, Throwable cause) {
+  public BizException(String message, Throwable cause) {
     super(message, cause);
+  }
+
+  /**
+   * Constructs a new runtime exception with the specified cause and a detail message of
+   * <tt>(cause==null ? null : cause.toString())</tt> (which typically contains the class and detail
+   * message of <tt>cause</tt>). This constructor is useful for runtime exceptions that are little
+   * more than wrappers for other throwables.
+   *
+   * @param cause the cause (which is saved for later retrieval by the {@link #getCause()} method).
+   *     (A <tt>null</tt> value is permitted, and indicates that the cause is nonexistent or
+   *     unknown.)
+   * @since 1.4
+   */
+  public BizException(Throwable cause) {
+    super(cause);
   }
 }

@@ -9,7 +9,7 @@ import com.acmedcare.framework.newim.Message.MessageType;
 import com.acmedcare.framework.newim.protocol.Command.WebSocketClusterCommand;
 import com.acmedcare.framework.newim.server.core.IMSession;
 import com.acmedcare.framework.newim.server.core.SessionContextConstants;
-import com.acmedcare.framework.newim.server.core.SessionContextConstants.WssPrincipal;
+import com.acmedcare.framework.newim.server.core.SessionContextConstants.RemotePrincipal;
 import com.acmedcare.framework.newim.server.exception.UnauthorizedException;
 import com.acmedcare.framework.newim.wss.WssPayload.WssMessage;
 import com.acmedcare.tiffany.framework.remoting.common.Pair;
@@ -47,7 +47,7 @@ public class WssSessionContext {
    * @param principal principal detail
    * @param session session channel
    */
-  public void registerWssClient(WssPrincipal principal, WssSession session) {
+  public void registerWssClient(RemotePrincipal principal, WssSession session) {
     // set login status
     session.channel().attr(SessionContextConstants.PRINCIPAL_KEY).set(principal);
     // save cache

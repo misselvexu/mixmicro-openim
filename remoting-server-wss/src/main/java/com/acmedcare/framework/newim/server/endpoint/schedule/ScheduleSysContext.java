@@ -6,7 +6,7 @@ import com.acmedcare.framework.aorp.beans.Principal;
 import com.acmedcare.framework.boot.web.socket.processor.WssSession;
 import com.acmedcare.framework.kits.thread.DefaultThreadFactory;
 import com.acmedcare.framework.newim.server.core.IMSession;
-import com.acmedcare.framework.newim.server.core.SessionContextConstants.WssPrincipal;
+import com.acmedcare.framework.newim.server.core.SessionContextConstants.RemotePrincipal;
 import com.acmedcare.framework.newim.server.endpoint.WssSessionContext;
 import com.acmedcare.tiffany.framework.remoting.common.RemotingHelper;
 import com.google.common.collect.Lists;
@@ -68,7 +68,7 @@ public class ScheduleSysContext extends WssSessionContext implements DisposableB
    * @param session session channel
    */
   @Override
-  public void registerWssClient(WssPrincipal principal, WssSession session) {
+  public void registerWssClient(RemotePrincipal principal, WssSession session) {
     super.registerWssClient(principal, session);
 
     // schedule sys register wss client

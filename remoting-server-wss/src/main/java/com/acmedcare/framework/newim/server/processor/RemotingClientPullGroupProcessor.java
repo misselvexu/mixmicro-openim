@@ -3,9 +3,10 @@ package com.acmedcare.framework.newim.server.processor;
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
 import com.acmedcare.framework.newim.Group;
+import com.acmedcare.framework.newim.server.core.IMSession;
+import com.acmedcare.framework.newim.server.core.SessionContextConstants.RemotePrincipal;
 import com.acmedcare.framework.newim.server.processor.header.PullGroupHeader;
 import com.acmedcare.framework.newim.server.service.GroupService;
-import com.acmedcare.tiffany.framework.remoting.netty.NettyRequestProcessor;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import io.netty.channel.ChannelHandlerContext;
 import java.util.List;
@@ -16,11 +17,12 @@ import java.util.List;
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version v1.0 - 09/08/2018.
  */
-public class RemotingClientPullGroupProcessor implements NettyRequestProcessor {
+public class RemotingClientPullGroupProcessor extends AbstractNormalRequestProcessor {
 
   private final GroupService groupService;
 
-  public RemotingClientPullGroupProcessor(GroupService groupService) {
+  public RemotingClientPullGroupProcessor(GroupService groupService, IMSession imSession) {
+    super(imSession);
     this.groupService = groupService;
   }
 
@@ -33,6 +35,9 @@ public class RemotingClientPullGroupProcessor implements NettyRequestProcessor {
         RemotingCommand.createResponseCommand(remotingCommand.getCode(), null);
 
     try {
+
+      // valid
+      RemotePrincipal principal = validatePrincipal(channelHandlerContext.channel());
 
       PullGroupHeader pullGroupHeader =
           (PullGroupHeader) remotingCommand.decodeCommandCustomHeader(PullGroupHeader.class);

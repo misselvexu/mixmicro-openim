@@ -11,7 +11,7 @@ import com.acmedcare.framework.newim.Message.MessageType;
 import com.acmedcare.framework.newim.Message.SingleMessage;
 import com.acmedcare.framework.newim.server.RemotingWssServer.Ids;
 import com.acmedcare.framework.newim.server.core.IMSession;
-import com.acmedcare.framework.newim.server.core.SessionContextConstants.WssPrincipal;
+import com.acmedcare.framework.newim.server.core.SessionContextConstants.RemotePrincipal;
 import com.acmedcare.framework.newim.server.processor.header.PushMessageHeader;
 import com.acmedcare.framework.newim.server.service.MessageService;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
@@ -45,7 +45,7 @@ public class RemotingClientPushMessageProcessor extends AbstractNormalRequestPro
     try {
 
       // valid
-      WssPrincipal principal = validatePrincipal(channelHandlerContext.channel());
+      RemotePrincipal principal = validatePrincipal(channelHandlerContext.channel());
 
       PushMessageHeader header =
           (PushMessageHeader) remotingCommand.decodeCommandCustomHeader(PushMessageHeader.class);

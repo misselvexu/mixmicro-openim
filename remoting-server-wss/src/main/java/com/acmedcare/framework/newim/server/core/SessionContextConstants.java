@@ -13,12 +13,12 @@ import lombok.Setter;
  */
 public class SessionContextConstants {
 
-  public static final AttributeKey<WssPrincipal> PRINCIPAL_KEY =
+  public static final AttributeKey<RemotePrincipal> PRINCIPAL_KEY =
       AttributeKey.newInstance("PASSPORT_PRINCIPAL");
 
   @Getter
   @Setter
-  public static class WssPrincipal extends Principal {
+  public static class RemotePrincipal extends Principal {
     private static final long serialVersionUID = -8974853632565363647L;
 
     private String deviceId;

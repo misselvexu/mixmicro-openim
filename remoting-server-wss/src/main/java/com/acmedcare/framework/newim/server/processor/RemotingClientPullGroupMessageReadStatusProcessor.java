@@ -1,8 +1,8 @@
 package com.acmedcare.framework.newim.server.processor;
 
+import com.acmedcare.framework.newim.server.core.IMSession;
 import com.acmedcare.framework.newim.server.service.GroupService;
 import com.acmedcare.framework.newim.server.service.MessageService;
-import com.acmedcare.tiffany.framework.remoting.netty.NettyRequestProcessor;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import io.netty.channel.ChannelHandlerContext;
 
@@ -13,13 +13,15 @@ import io.netty.channel.ChannelHandlerContext;
  * @version ${project.version} - 2018-12-05.
  * @since 2.2.0
  */
-public class RemotingClientPullGroupMessageReadStatusProcessor implements NettyRequestProcessor {
+public class RemotingClientPullGroupMessageReadStatusProcessor
+    extends AbstractNormalRequestProcessor {
 
   private final MessageService messageService;
   private final GroupService groupService;
 
   public RemotingClientPullGroupMessageReadStatusProcessor(
-      MessageService messageService, GroupService groupService) {
+      MessageService messageService, GroupService groupService, IMSession imSession) {
+    super(imSession);
     this.messageService = messageService;
     this.groupService = groupService;
   }

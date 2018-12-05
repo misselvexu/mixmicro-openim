@@ -2,9 +2,10 @@ package com.acmedcare.framework.newim.server.processor;
 
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
+import com.acmedcare.framework.newim.server.core.IMSession;
+import com.acmedcare.framework.newim.server.core.SessionContextConstants.RemotePrincipal;
 import com.acmedcare.framework.newim.server.processor.header.JoinOrLeaveGroupHeader;
 import com.acmedcare.framework.newim.server.service.GroupService;
-import com.acmedcare.tiffany.framework.remoting.netty.NettyRequestProcessor;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.google.common.collect.Lists;
 import io.netty.channel.ChannelHandlerContext;
@@ -15,11 +16,12 @@ import io.netty.channel.ChannelHandlerContext;
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version ${project.version} - 2018-12-03.
  */
-public class RemotingClientJoinOrLeaveGroupProcessor implements NettyRequestProcessor {
+public class RemotingClientJoinOrLeaveGroupProcessor extends AbstractNormalRequestProcessor {
 
   private final GroupService groupService;
 
-  public RemotingClientJoinOrLeaveGroupProcessor(GroupService groupService) {
+  public RemotingClientJoinOrLeaveGroupProcessor(GroupService groupService, IMSession imSession) {
+    super(imSession);
     this.groupService = groupService;
   }
 
@@ -32,6 +34,9 @@ public class RemotingClientJoinOrLeaveGroupProcessor implements NettyRequestProc
         RemotingCommand.createResponseCommand(remotingCommand.getCode(), null);
 
     try {
+
+      // valid
+      RemotePrincipal principal = validatePrincipal(channelHandlerContext.channel());
 
       Object header = remotingCommand.decodeCommandCustomHeader(JoinOrLeaveGroupHeader.class);
       if (header == null) {

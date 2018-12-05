@@ -3,7 +3,7 @@ package com.acmedcare.framework.newim.server.processor;
 import static com.acmedcare.framework.newim.server.core.SessionContextConstants.PRINCIPAL_KEY;
 
 import com.acmedcare.framework.newim.server.core.IMSession;
-import com.acmedcare.framework.newim.server.core.SessionContextConstants.WssPrincipal;
+import com.acmedcare.framework.newim.server.core.SessionContextConstants.RemotePrincipal;
 import com.acmedcare.framework.newim.server.exception.UnauthorizedException;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRequestProcessor;
 import io.netty.channel.Channel;
@@ -26,11 +26,11 @@ public abstract class AbstractNormalRequestProcessor implements NettyRequestProc
     this.imSession = imSession;
   }
 
-  protected WssPrincipal validatePrincipal(Channel channel) {
+  protected RemotePrincipal validatePrincipal(Channel channel) {
     if (channel == null) {
       throw new UnauthorizedException("无效的链接对象");
     }
-    WssPrincipal principal = channel.attr(PRINCIPAL_KEY).get();
+    RemotePrincipal principal = channel.attr(PRINCIPAL_KEY).get();
     if (principal == null) {
       throw new UnauthorizedException("链接未授权异常");
     }

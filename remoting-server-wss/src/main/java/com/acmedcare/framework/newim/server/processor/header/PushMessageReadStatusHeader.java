@@ -18,6 +18,8 @@ import org.apache.commons.lang3.StringUtils;
 @Setter
 public class PushMessageReadStatusHeader implements CommandCustomHeader {
 
+  @CFNotNull private String passportId;
+
   /**
    * 群组编号
    *
@@ -34,8 +36,8 @@ public class PushMessageReadStatusHeader implements CommandCustomHeader {
 
   @Override
   public void checkFields() throws RemotingCommandException {
-    if (StringUtils.isAnyBlank(groupId, messageId)) {
-      throw new RemotingCommandException("推送消息读取状态请求参数[groupId,messageId]不能为空");
+    if (StringUtils.isAnyBlank(passportId, groupId, messageId)) {
+      throw new RemotingCommandException("推送消息读取状态请求参数[passportId,groupId,messageId]不能为空");
     }
   }
 }

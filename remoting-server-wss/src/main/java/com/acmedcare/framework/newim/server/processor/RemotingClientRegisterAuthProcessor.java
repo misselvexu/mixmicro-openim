@@ -8,7 +8,7 @@ import com.acmedcare.framework.kits.Assert;
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
 import com.acmedcare.framework.newim.server.core.IMSession;
-import com.acmedcare.framework.newim.server.core.SessionContextConstants.WssPrincipal;
+import com.acmedcare.framework.newim.server.core.SessionContextConstants.RemotePrincipal;
 import com.acmedcare.framework.newim.server.processor.header.AuthHeader;
 import com.acmedcare.framework.newim.server.service.RemotingAuthService;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
@@ -65,18 +65,18 @@ public class RemotingClientRegisterAuthProcessor extends AbstractNormalRequestPr
         throw new InvalidTokenException("登录票据与通行证不匹配,非法Token");
       }
 
-      WssPrincipal wssPrincipal = new WssPrincipal();
-      BeanUtils.copyProperties(principal, wssPrincipal);
-      wssPrincipal.setAreaNo(authHeader.getAreaNo());
-      wssPrincipal.setDeviceId(authHeader.getDeviceId());
-      wssPrincipal.setOrgId(authHeader.getOrgId());
+      RemotePrincipal remotePrincipal = new RemotePrincipal();
+      BeanUtils.copyProperties(principal, remotePrincipal);
+      remotePrincipal.setAreaNo(authHeader.getAreaNo());
+      remotePrincipal.setDeviceId(authHeader.getDeviceId());
+      remotePrincipal.setOrgId(authHeader.getOrgId());
 
       // bind
       imSession.bindTcpSession(
           authHeader.getDeviceId(), authHeader.getPassportId(), channelHandlerContext.channel());
 
       // set session info
-      channelHandlerContext.channel().attr(PRINCIPAL_KEY).set(wssPrincipal);
+      channelHandlerContext.channel().attr(PRINCIPAL_KEY).set(remotePrincipal);
 
       // return success
       response.setBody(BizResult.SUCCESS.bytes());

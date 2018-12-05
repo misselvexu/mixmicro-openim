@@ -11,7 +11,7 @@ import com.acmedcare.framework.newim.Group.GroupMembers;
 import com.acmedcare.framework.newim.Status;
 import com.acmedcare.framework.newim.storage.IMStorageCollections;
 import com.acmedcare.framework.newim.storage.api.GroupRepository;
-import com.acmedcare.framework.newim.storage.exception.StorageExecuteException;
+import com.acmedcare.framework.newim.storage.exception.StorageException;
 import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 import com.mongodb.client.result.DeleteResult;
@@ -115,7 +115,7 @@ public class GroupRepositoryImpl implements GroupRepository {
 
       if (!mongoTemplate.exists(
           new Query(Criteria.where("groupId").is(members.getGroupId())), GROUP)) {
-        throw new StorageExecuteException("群组:" + members.getGroupId() + "不存在");
+        throw new StorageException("群组:" + members.getGroupId() + "不存在");
       }
 
       Query query =
