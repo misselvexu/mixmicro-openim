@@ -9,9 +9,12 @@ import com.acmedcare.framework.newim.server.config.IMProperties;
 import com.acmedcare.framework.newim.server.processor.ClusterForwardMessageRequestProcessor;
 import com.acmedcare.framework.newim.server.processor.DefaultIMProcessor;
 import com.acmedcare.framework.newim.server.processor.RemotingClientJoinOrLeaveGroupProcessor;
+import com.acmedcare.framework.newim.server.processor.RemotingClientPullGroupMembersOnlineStatusProcessor;
+import com.acmedcare.framework.newim.server.processor.RemotingClientPullGroupMessageReadStatusProcessor;
 import com.acmedcare.framework.newim.server.processor.RemotingClientPullGroupProcessor;
 import com.acmedcare.framework.newim.server.processor.RemotingClientPullMessageProcessor;
 import com.acmedcare.framework.newim.server.processor.RemotingClientPushMessageProcessor;
+import com.acmedcare.framework.newim.server.processor.RemotingClientPushMessageReadStatusProcessor;
 import com.acmedcare.framework.newim.server.processor.RemotingClientRegisterAuthProcessor;
 import com.acmedcare.framework.newim.server.service.GroupService;
 import com.acmedcare.framework.newim.server.service.MessageService;
@@ -233,11 +236,23 @@ public class NewIMServerBootstrap {
         new RemotingClientJoinOrLeaveGroupProcessor(groupService),
         null);
 
-    //    imServer.registerProcessor(ClusterClientCommand.CLIENT_PUSH_MESSAGE_READ_STATUS, new
-    // PushMessageReadStatusProcessor(), null);
+    // @since 2.2.0
+    imServer.registerProcessor(
+        ClusterClientCommand.CLIENT_PUSH_MESSAGE_READ_STATUS,
+        new RemotingClientPushMessageReadStatusProcessor(messageService),
+        null);
 
-    //    imServer.registerProcessor(ClusterClientCommand.CLIENT_PULL_SESSION_STATUS, new
-    // PullSessionStatusProcessor(), null);
+    // @since 2.2.0
+    imServer.registerProcessor(
+        ClusterClientCommand.CLIENT_PULL_GROUP_MESSAGE_READ_STATUS,
+        new RemotingClientPullGroupMessageReadStatusProcessor(messageService, groupService),
+        null);
+
+    // @since 2.2.0
+    imServer.registerProcessor(
+        ClusterClientCommand.CLIENT_PULL_GROUP_MEMBERS_ONLINE_STATUS,
+        new RemotingClientPullGroupMembersOnlineStatusProcessor(imSession),
+        null);
 
     // start imServer
     imServer.start();

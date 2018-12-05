@@ -64,6 +64,13 @@ public class BizCode {
   public static final int CLIENT_PUSH_MESSAGE_READ_STATUS = 0x40004;
 
   /**
+   * 客户端拉取消息读取详情
+   *
+   * <p>
+   */
+  public static final int CLIENT_PULL_GROUP_MESSAGE_READ_STATUS = 0x40005;
+
+  /**
    * 客户端发消息
    *
    * <pre>
@@ -86,6 +93,13 @@ public class BizCode {
    * <p>
    */
   public static final int CLIENT_QUIT_GROUP = 0x40008;
+
+  /**
+   * 客户端拉取群组人员在线状态
+   *
+   * <p>
+   */
+  public static final int CLIENT_PULL_GROUP_MEMBERS_ONLINE_STATUS = 0x40009;
 
   /**
    * 服务端推送消息
