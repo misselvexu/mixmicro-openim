@@ -63,7 +63,7 @@ public class GroupEndpoint {
           request.getGroupOwner(),
           request.getGroupBizTag(),
           request.getGroupExt(),
-          request.getMemberIds());
+          request.getMembers());
 
       return ResponseEntity.ok().build();
     } catch (InvalidRequestParamException | StorageException e) {
@@ -166,11 +166,11 @@ public class GroupEndpoint {
         throw new InvalidRequestParamException("群组标识ID不能为空");
       }
 
-      if (request.getMemberIds() == null || request.getMemberIds().isEmpty()) {
+      if (request.getMembers() == null || request.getMembers().isEmpty()) {
         throw new InvalidRequestParamException("添加群组成员列表不能为空");
       }
 
-      this.groupServices.addNewGroupMembers(request.getGroupId(), request.getMemberIds());
+      this.groupServices.addNewGroupMembers(request.getGroupId(), request.getMembers());
 
       return ResponseEntity.ok().build();
     } catch (InvalidRequestParamException | StorageException e) {

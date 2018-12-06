@@ -1,5 +1,6 @@
 package com.acmedcare.framework.newim.client.bean.request;
 
+import com.acmedcare.framework.newim.client.bean.Member;
 import java.io.Serializable;
 import java.util.List;
 import lombok.Getter;
@@ -25,5 +26,5 @@ public class NewGroupRequest implements Serializable {
   /** 群组扩展信息 */
   private String groupExt;
 
-  private List<String> memberIds;
+  private List<Member> members;
 }

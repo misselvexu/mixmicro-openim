@@ -112,7 +112,7 @@ public class MessageServices {
   public void sendGroupMessage(
       MessageAttribute attribute, String sender, String groupId, String type, String content) {
 
-    List<String> memberIds = this.groupRepository.queryGroupMembers(groupId);
+    List<String> memberIds = this.groupRepository.queryGroupMemberIds(groupId);
     //
     GroupMessage message = new GroupMessage();
     message.setBody(content.getBytes());

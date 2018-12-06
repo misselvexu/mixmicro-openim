@@ -2,6 +2,7 @@ package com.acmedcare.framework.newim.master.endpoint.client;
 
 import com.acmedcare.framework.newim.client.MessageBizType;
 import com.acmedcare.framework.newim.client.MessageContentType;
+import com.acmedcare.framework.newim.client.bean.Member;
 import com.acmedcare.framework.newim.client.bean.request.AddGroupMembersRequest;
 import com.acmedcare.framework.newim.client.bean.request.NewGroupRequest;
 import com.acmedcare.framework.newim.client.bean.request.RemoveGroupMembersRequest;
@@ -46,7 +47,10 @@ public class MasterEndpointClientTest {
 
     AddGroupMembersRequest request = new AddGroupMembersRequest();
     request.setGroupId("gid-20181123-1");
-    request.setMemberIds(Lists.newArrayList("3837142362366977", "3837142362366976"));
+    request.setMembers(
+        Lists.newArrayList(
+            Member.builder().memberId(3837142362366977L).memberName("7669用户").build(),
+            Member.builder().memberId(3837142362366976L).memberName("7666用户").build()));
     masterEndpointClient.joinGroup(request);
   }
 

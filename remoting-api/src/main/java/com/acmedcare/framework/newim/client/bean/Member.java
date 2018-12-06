@@ -1,0 +1,31 @@
+package com.acmedcare.framework.newim.client.bean;
+
+import java.io.Serializable;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+/**
+ * Member Detail
+ *
+ * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
+ * @version ${project.version} - 2018-12-06.
+ */
+@Getter
+@Setter
+@NoArgsConstructor
+public class Member implements Serializable {
+
+  private static final long serialVersionUID = 936762440477690671L;
+
+  private Long memberId;
+
+  private String memberName;
+
+  @Builder
+  public Member(Long memberId, String memberName) {
+    this.memberId = memberId;
+    this.memberName = memberName;
+  }
+}

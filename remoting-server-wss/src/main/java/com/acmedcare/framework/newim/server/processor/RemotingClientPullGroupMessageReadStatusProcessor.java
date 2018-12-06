@@ -1,6 +1,11 @@
 package com.acmedcare.framework.newim.server.processor;
 
+import com.acmedcare.framework.newim.BizResult;
+import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
+import com.acmedcare.framework.newim.MessageReadStatus.MessageStatusDetail;
 import com.acmedcare.framework.newim.server.core.IMSession;
+import com.acmedcare.framework.newim.server.core.SessionContextConstants.RemotePrincipal;
+import com.acmedcare.framework.newim.server.processor.header.PullGroupMessageReadStatusHeader;
 import com.acmedcare.framework.newim.server.service.GroupService;
 import com.acmedcare.framework.newim.server.service.MessageService;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
@@ -31,9 +36,54 @@ public class RemotingClientPullGroupMessageReadStatusProcessor
       ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand)
       throws Exception {
 
-    // TODO 拉取群消息读取状态
+    RemotingCommand response =
+        RemotingCommand.createResponseCommand(remotingCommand.getCode(), null);
 
-    return null;
+    try {
+
+      // valid
+      RemotePrincipal principal = validatePrincipal(channelHandlerContext.channel());
+
+      PullGroupMessageReadStatusHeader header =
+          (PullGroupMessageReadStatusHeader)
+              remotingCommand.decodeCommandCustomHeader(PullGroupMessageReadStatusHeader.class);
+      if (header == null) {
+
+        response.setBody(
+            BizResult.builder()
+                .code(-1)
+                .exception(
+                    ExceptionWrapper.builder()
+                        .message("拉取群组消息读取状态请求头参数异常")
+                        .type(NullPointerException.class)
+                        .build())
+                .build()
+                .bytes());
+
+        return response;
+      }
+
+      MessageStatusDetail detail =
+          this.messageService.queryGroupMessageReadStatusList(
+              header.getGroupId(), header.getMessageId());
+
+      response.setBody(BizResult.builder().code(0).data(detail).build().bytes());
+
+    } catch (Exception e) {
+      // set error response
+      response.setBody(
+          BizResult.builder()
+              .code(-1)
+              .exception(
+                  ExceptionWrapper.builder()
+                      .message(e.getMessage())
+                      .type(e.getCause().getClass())
+                      .build())
+              .build()
+              .bytes());
+    }
+
+    return response;
   }
 
   @Override

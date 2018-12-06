@@ -73,4 +73,13 @@ public interface MessageRepository {
    */
   void updateGroupMessageReadStatus(
       String passportId, String groupId, String messageId, long innerTimestamp);
+
+  /**
+   * 查询已读人员的编号
+   *
+   * @param groupId 群组编号
+   * @param messageId 消息编号
+   * @return 人员 IDS
+   */
+  List<Long> queryGroupMessageReaders(String groupId, String messageId);
 }

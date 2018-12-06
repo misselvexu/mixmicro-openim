@@ -1,8 +1,11 @@
 package com.acmedcare.framework.newim;
 
+import com.acmedcare.framework.newim.client.bean.Member;
 import com.acmedcare.framework.newim.storage.IMStorageCollections;
+import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -34,4 +37,16 @@ public class MessageReadStatus implements Serializable {
   private Long memberId;
 
   private Date readTimestamp = new Date();
+
+  @Getter
+  @Setter
+  @NoArgsConstructor
+  public static class MessageStatusDetail implements Serializable {
+
+    private static final long serialVersionUID = 2440349457913133704L;
+
+    private List<Member> readers = Lists.newArrayList(); // 已读人数
+
+    private List<Member> unReaders = Lists.newArrayList(); // 未读人数
+  }
 }

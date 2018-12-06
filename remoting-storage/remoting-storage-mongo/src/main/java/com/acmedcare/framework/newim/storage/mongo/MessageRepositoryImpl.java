@@ -311,4 +311,17 @@ public class MessageRepositoryImpl implements MessageRepository {
               }
             });
   }
+
+  /**
+   * 查询已读人员的编号
+   *
+   * @param groupId 群组编号
+   * @param messageId 消息编号
+   * @return 人员 IDS
+   */
+  @Override
+  public List<Long> queryGroupMessageReaders(String groupId, String messageId) {
+    Query query = new Query(Criteria.where("groupId").is(groupId).and("messageId").is(messageId));
+    return mongoTemplate.findDistinct(query, "memberId", MESSAGE_READ_STATUS, Long.class);
+  }
 }

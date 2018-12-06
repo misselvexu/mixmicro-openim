@@ -8,8 +8,9 @@ import static org.springframework.data.mongodb.SessionSynchronization.ON_ACTUAL_
 
 import com.acmedcare.framework.newim.Group;
 import com.acmedcare.framework.newim.Group.GroupMembers;
+import com.acmedcare.framework.newim.GroupMemberRef;
 import com.acmedcare.framework.newim.Status;
-import com.acmedcare.framework.newim.storage.IMStorageCollections;
+import com.acmedcare.framework.newim.client.bean.Member;
 import com.acmedcare.framework.newim.storage.api.GroupRepository;
 import com.acmedcare.framework.newim.storage.exception.StorageException;
 import com.google.common.collect.Lists;
@@ -19,14 +20,9 @@ import com.mongodb.client.result.UpdateResult;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.index.CompoundIndex;
-import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -111,19 +107,22 @@ public class GroupRepositoryImpl implements GroupRepository {
   @Override
   public void saveGroupMembers(GroupMembers members) {
     // REF_GROUP_MEMBER
-    if (members.getMemberIds() != null && members.getMemberIds().size() > 0) {
+    if (members.getMembers() != null && members.getMembers().size() > 0) {
 
       if (!mongoTemplate.exists(
           new Query(Criteria.where("groupId").is(members.getGroupId())), GROUP)) {
         throw new StorageException("群组:" + members.getGroupId() + "不存在");
       }
 
+      List<Member> memberList = members.getMembers();
+      List<Long> memberIds = Lists.newArrayList();
+      for (Member member : memberList) {
+        memberIds.add(member.getMemberId());
+      }
+
       Query query =
           new Query(
-              Criteria.where("groupId")
-                  .is(members.getGroupId())
-                  .and("memberId")
-                  .in(members.getMemberIds()));
+              Criteria.where("groupId").is(members.getGroupId()).and("memberId").in(memberIds));
 
       mongoTemplate.setSessionSynchronization(ALWAYS);
       transactionTemplate.execute(
@@ -134,13 +133,14 @@ public class GroupRepositoryImpl implements GroupRepository {
                 mongoTemplate.remove(query, REF_GROUP_MEMBER);
                 List<GroupMemberRef> refs = new ArrayList<>();
                 members
-                    .getMemberIds()
+                    .getMembers()
                     .forEach(
-                        memberId ->
+                        member ->
                             refs.add(
                                 GroupMemberRef.builder()
                                     .groupId(members.getGroupId())
-                                    .memberId(memberId)
+                                    .memberId(member.getMemberId().toString())
+                                    .memberName(member.getMemberName())
                                     .build()));
 
                 mongoTemplate.insert(refs, REF_GROUP_MEMBER);
@@ -166,9 +166,15 @@ public class GroupRepositoryImpl implements GroupRepository {
   }
 
   @Override
-  public List<String> queryGroupMembers(String groupId) {
+  public List<String> queryGroupMemberIds(String groupId) {
     Query query = new Query(Criteria.where("groupId").is(groupId));
     return mongoTemplate.findDistinct(query, "memberId", REF_GROUP_MEMBER, String.class);
+  }
+
+  @Override
+  public List<GroupMemberRef> queryGroupMembers(String groupId) {
+    Query query = new Query(Criteria.where("groupId").is(groupId));
+    return mongoTemplate.find(query, GroupMemberRef.class, REF_GROUP_MEMBER);
   }
 
   @Override
@@ -182,23 +188,5 @@ public class GroupRepositoryImpl implements GroupRepository {
       return this.mongoTemplate.find(groupDetailQuery, Group.class, GROUP);
     }
     return Lists.newArrayList();
-  }
-
-  @Getter
-  @Setter
-  @Document(value = IMStorageCollections.REF_GROUP_MEMBER)
-  @CompoundIndex(
-      name = "unique_index_4_group_id_and_member_id",
-      def = "{'groupId': 1, 'memberId': -1}")
-  private static class GroupMemberRef {
-
-    private String groupId;
-    private String memberId;
-
-    @Builder
-    public GroupMemberRef(String groupId, String memberId) {
-      this.groupId = groupId;
-      this.memberId = memberId;
-    }
   }
 }

@@ -2,6 +2,7 @@ package com.acmedcare.framework.newim.master.services;
 
 import com.acmedcare.framework.newim.Group;
 import com.acmedcare.framework.newim.Group.GroupMembers;
+import com.acmedcare.framework.newim.client.bean.Member;
 import com.acmedcare.framework.newim.storage.api.GroupRepository;
 import com.acmedcare.framework.newim.storage.exception.StorageException;
 import java.util.List;
@@ -30,7 +31,7 @@ public class GroupServices {
       String groupOwner,
       String groupBizTag,
       String groupExt,
-      List<String> memberIds) {
+      List<Member> members) {
     //
     Group group =
         Group.builder()
@@ -43,16 +44,16 @@ public class GroupServices {
 
     this.groupRepository.saveGroup(group);
 
-    if (memberIds != null && !memberIds.isEmpty()) {
+    if (members != null && !members.isEmpty()) {
       // members
-      GroupMembers members = GroupMembers.builder().groupId(groupId).memberIds(memberIds).build();
-      this.groupRepository.saveGroupMembers(members);
+      GroupMembers groupMembers = GroupMembers.builder().groupId(groupId).members(members).build();
+      this.groupRepository.saveGroupMembers(groupMembers);
     }
   }
 
-  public void addNewGroupMembers(String groupId, List<String> memberIds) {
+  public void addNewGroupMembers(String groupId, List<Member> members) {
     this.groupRepository.saveGroupMembers(
-        GroupMembers.builder().groupId(groupId).memberIds(memberIds).build());
+        GroupMembers.builder().groupId(groupId).members(members).build());
   }
 
   public void removeNewGroupMembers(String groupId, List<String> memberIds) {

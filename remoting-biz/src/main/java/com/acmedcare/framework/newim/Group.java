@@ -1,5 +1,6 @@
 package com.acmedcare.framework.newim;
 
+import com.acmedcare.framework.newim.client.bean.Member;
 import com.acmedcare.framework.newim.storage.IMStorageCollections;
 import java.io.Serializable;
 import java.util.List;
@@ -67,12 +68,12 @@ public class Group implements Serializable {
     private static final long serialVersionUID = 1474652111556171928L;
 
     private String groupId;
-    private List<String> memberIds;
+    private List<Member> members;
 
     @Builder
-    public GroupMembers(String groupId, List<String> memberIds) {
+    public GroupMembers(String groupId, List<Member> members) {
       this.groupId = groupId;
-      this.memberIds = memberIds;
+      this.members = members;
     }
   }
 }

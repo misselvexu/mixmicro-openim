@@ -155,9 +155,9 @@ public class MasterEndpointClient extends NasEndpointClient implements MasterEnd
           throw new EndpointException("Join group request params:[groupId] must not be null or ''");
         }
 
-        if (request.getMemberIds() == null || request.getMemberIds().isEmpty()) {
+        if (request.getMembers() == null || request.getMembers().isEmpty()) {
           throw new EndpointException(
-              "Join group request params:[memberIds] must not be null or empty");
+              "Join group request params:[members] must not be null or empty");
         }
 
         // build request
@@ -210,7 +210,7 @@ public class MasterEndpointClient extends NasEndpointClient implements MasterEnd
 
         if (request.getMemberIds() == null || request.getMemberIds().isEmpty()) {
           throw new EndpointException(
-              "Remove group member(s) request params:[memberIds] must not be null or empty");
+              "Remove group member(s) request params:[members] must not be null or empty");
         }
 
         // build request

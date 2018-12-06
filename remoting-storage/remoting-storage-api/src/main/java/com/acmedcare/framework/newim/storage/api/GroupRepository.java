@@ -2,6 +2,7 @@ package com.acmedcare.framework.newim.storage.api;
 
 import com.acmedcare.framework.newim.Group;
 import com.acmedcare.framework.newim.Group.GroupMembers;
+import com.acmedcare.framework.newim.GroupMemberRef;
 import java.util.List;
 
 /**
@@ -22,7 +23,9 @@ public interface GroupRepository {
 
   long removeGroupMembers(String groupId, List<String> memberIds);
 
-  List<String> queryGroupMembers(String groupId);
+  List<String> queryGroupMemberIds(String groupId);
+
+  List<GroupMemberRef> queryGroupMembers(String groupId);
 
   List<Group> queryMemberGroups(String passportId);
 

@@ -2,18 +2,23 @@ package com.acmedcare.framework.newim.server.service;
 
 import static com.acmedcare.framework.newim.server.ClusterLogger.imServerLog;
 
+import com.acmedcare.framework.newim.GroupMemberRef;
 import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.Message.GroupMessage;
 import com.acmedcare.framework.newim.Message.SingleMessage;
+import com.acmedcare.framework.newim.MessageReadStatus.MessageStatusDetail;
 import com.acmedcare.framework.newim.client.MessageAttribute;
+import com.acmedcare.framework.newim.client.bean.Member;
 import com.acmedcare.framework.newim.server.core.IMSession;
 import com.acmedcare.framework.newim.server.exception.BizException;
 import com.acmedcare.framework.newim.storage.api.GroupRepository;
 import com.acmedcare.framework.newim.storage.api.MessageRepository;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -65,7 +70,7 @@ public class MessageService {
       attribute.setRetryPeriod(groupMessage.getRetryPeriod());
 
       // check group receivers
-      List<String> groupIds = this.groupRepository.queryGroupMembers(groupMessage.getGroup());
+      List<String> groupIds = this.groupRepository.queryGroupMemberIds(groupMessage.getGroup());
       groupMessage.setReceivers(groupIds);
     }
 
@@ -155,6 +160,52 @@ public class MessageService {
 
     } catch (Exception e) {
       imServerLog.error("上报消息状态业务处理失败异常", e);
+      throw new BizException(e);
+    }
+  }
+
+  public MessageStatusDetail queryGroupMessageReadStatusList(String groupId, String messageId) {
+
+    try {
+      imServerLog.info("开始处理客户端请求拉取群组:{},消息:{},已读/未读状态...", groupId, messageId);
+
+      List<GroupMemberRef> memberRefs = this.groupRepository.queryGroupMembers(groupId);
+
+      Map<Long, Member> target = Maps.newHashMap();
+      for (GroupMemberRef memberRef : memberRefs) {
+        target.put(
+            Long.parseLong(memberRef.getMemberId()),
+            Member.builder()
+                .memberId(Long.parseLong(memberRef.getMemberId()))
+                .memberName(memberRef.getMemberName())
+                .build());
+      }
+
+      GroupMessage groupMessage = this.messageRepository.queryGroupMessage(groupId, messageId);
+
+      List<Long> readedMemberIds =
+          this.messageRepository.queryGroupMessageReaders(groupId, messageId);
+
+      MessageStatusDetail messageStatusDetail = new MessageStatusDetail();
+
+      for (String receiver : groupMessage.getReceivers()) {
+        if (readedMemberIds.contains(Long.parseLong(receiver))) {
+          // readed
+          messageStatusDetail.getReaders().add(target.get(Long.parseLong(receiver)));
+        } else {
+          messageStatusDetail.getUnReaders().add(target.get(Long.parseLong(receiver)));
+        }
+      }
+
+      imServerLog.info(
+          "群组:{},消息:{},已读/未读消息处理结果:{} ",
+          groupId,
+          messageId,
+          JSON.toJSONString(messageStatusDetail));
+
+      return messageStatusDetail;
+    } catch (Exception e) {
+      imServerLog.error("拉取群消息读取/未读人员状态列表失败异常", e);
       throw new BizException(e);
     }
   }

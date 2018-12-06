@@ -78,7 +78,7 @@ public class GroupRepositoryImpl {
     this.groupRepository.saveGroupMembers(groupMembers);
 
     // query
-    List<String> memberIds = this.groupRepository.queryGroupMembers("gid-20181122");
+    List<String> memberIds = this.groupRepository.queryGroupMemberIds("gid-20181122");
     Assert.assertEquals(2, memberIds.size());
   }
 
