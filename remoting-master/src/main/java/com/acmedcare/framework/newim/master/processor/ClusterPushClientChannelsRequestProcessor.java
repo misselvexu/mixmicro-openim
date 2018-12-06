@@ -57,8 +57,11 @@ public class ClusterPushClientChannelsRequestProcessor implements NettyRequestPr
 
       Assert.notNull(header, "Cluster:" + node.getHost() + "请求上报数据请求头参数异常");
 
-      ClusterPushSessionDataBody data =
-          JSON.parseObject(remotingCommand.getBody(), ClusterPushSessionDataBody.class);
+      byte[] body = remotingCommand.getBody();
+      ClusterPushSessionDataBody data = JSON.parseObject(body, ClusterPushSessionDataBody.class);
+
+      masterClusterAcceptorLog.info(
+          "Cluster: {} ,上报的数据内容:{} ", node.getHost(), JSON.toJSONString(data));
 
       masterClusterSession.merge(node, data);
 

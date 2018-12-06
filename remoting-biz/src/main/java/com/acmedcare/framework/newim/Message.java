@@ -138,7 +138,7 @@ public class Message implements Serializable {
     private int unReadSize;
 
     /** 已读人数 */
-    private int readedSize = 0;
+    private int readedSize = 1;
   }
 
   /** 推送消息 */

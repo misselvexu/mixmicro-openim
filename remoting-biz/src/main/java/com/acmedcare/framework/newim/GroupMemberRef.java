@@ -18,6 +18,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Setter
 @Document(value = IMStorageCollections.REF_GROUP_MEMBER)
 @CompoundIndex(
+    unique = true,
     name = "unique_index_4_group_id_and_member_id",
     def = "{'groupId': 1, 'memberId': -1}")
 public class GroupMemberRef implements Serializable {

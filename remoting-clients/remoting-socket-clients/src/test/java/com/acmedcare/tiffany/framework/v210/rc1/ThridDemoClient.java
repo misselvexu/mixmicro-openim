@@ -43,7 +43,7 @@ import java.util.List;
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version v1.0 - 11/08/2018.
  */
-public class FirstDemoClient {
+public class ThridDemoClient {
 
   public static void main(String[] args) throws IOException {
 
@@ -224,33 +224,32 @@ public class FirstDemoClient {
           continue;
         }
 
-        // 拉取群组成员
+        // 拉取群组成员 pullGroupMembers gid-20181122
         if (inputArgs[0].equals("pullGroupMembers")) {
           pullGroupMembers(inputArgs[1]);
           continue;
         }
 
-        // 拉取群组在线人员 pullGroupOnlineMembers
+        // 拉取群组在线人员 pullGroupOnlineMembers gid-20181122
         if (inputArgs[0].equals("pullGroupOnlineMembers")) {
           pullGroupOnlineMembers(inputArgs[1]);
           continue;
         }
 
-        // 上报群消息已读状态
+        // 上报群消息已读状态 pushSingleMessageReadStatus 3837142362366976 1047299624635136
         if (inputArgs[0].equals("pushSingleMessageReadStatus")) {
           pushSingleMessageReadStatus(inputArgs[1], inputArgs[2]);
           continue;
         }
 
-        // 上报群消息已读状态
+        // 上报群消息已读状态 pushGroupMessageReadStatus gid-20181122 1047261835348992
         if (inputArgs[0].equals("pushGroupMessageReadStatus")) {
           pushGroupMessageReadStatus(inputArgs[1], inputArgs[2]);
           continue;
         }
 
-        // 拉取群消息已读未读状态  pullGroupMessageReadStatus gid-20181122 1047261835348992
+        // 拉取群消息已读未读状态
         if (inputArgs[0].equals("pullGroupMessageReadStatus")) {
-          pullGroupMessageReadStatus(inputArgs[1],inputArgs[2]);
           continue;
         }
 
@@ -529,16 +528,16 @@ public class FirstDemoClient {
   private interface KnownParams {
 
     String accessToken =
-        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiJmZTk2NzFjZTI0MTc0OTFlYWFhMTk5MjRkNDYxYzAxOSIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NDM5MDY2NTUwMjcsImV4cCI6MTU0NDUxMjYyMTAyNywiYXVkIjpudWxsfQ.KrQgoqaxgzhnn9Y3Gd1zaH8EMETx4yaOCck9CxopDpeR54fg-nDAEaMhiEGHSgoz-9TLk414VZc-534rCBsfKwN6AMzla_M294YUR1s1FDJjHWR7KHxIhfdldiH27ggj0FWTWmr1-MFJKxQT02BYFJ6Lo3LwHaMf7GC_bEl5E7vTMESpuq5bMcZLj5Ot83imRctzKZqTQ3z6xakhWo3G1Ntjk_P1JL891IlT2zHALojr0IEBtGP-tQ3Im9rfFb8LzwlQYHvD9JPc4TZS-UFhEZnwFixxgT1W3NbrfW_8BjLLOHvKfgcZP9FGXl9cV5u7387_tXnZeKd6WSXAdutpOA";
+        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiJjN2QzZGIwZWJhNjk0YzNlYmI0MzExMGU5NmQ5MWNkNiIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlIcXc5TDdUU0gwVmlLTWNXNUp3RVd0ZXc5Rk12SVFZcGZDMG5CUUhOamVucmMyYndheHNwMk93NXVkSGM1ZllTcGd0a2FxRkV6U29Uck41S0kyaHZKRW52L1RHV0hLeDdFdTJRNEs1V3JrZTZTMjNIaUdhWXdvQ29ua3ZuSlVjWGQxNzNwV3pFbmF0bz0iLCJpYXQiOjE1NDQwODQwMDk4NTIsImV4cCI6MTU0NDY5NTEzMDg1MiwiYXVkIjpudWxsfQ.Cd6gA_15X94zrSzgl-7TxpsR7RWt4Mpau9Tgm6YI4N4UeVsvpEzDC7kBNe52gRLfhvOYEg56jDgbmRkjzZp6tBB0WzPJgkbEFzR3qy_aq7zlqM5bHwljWiKMk_zFww5Yem5WHsCuiClS5ivU19MxMk2miHsRBpzWx8mNoXw4zrjfd43i10VJHAFqi9mfyck9aboM0TCMpHGD8PaGYo_76jpI5wEHPWu91h09CKvIzHjupWc_4cXHrH4bn-l4lzxHiS9twNZpg-oU8dojSxMR_oac78m2uxQXh7mulg5O0DYnnbKwEsN36kQVB90-YaSkAHp9x15ioSQwqhsU1iTMKA";
 
     String areaNo = "320500";
 
     String orgId = "3910249034228736";
 
-    Long passportId = 3837142362366976L;
+    Long passportId = 3837142362366977L;
 
-    String passport = "13910187669";
+    String passport = "13910187666";
 
-    String deviceId = "DEVICE-ID-1";
+    String deviceId = "DEVICE-ID-2";
   }
 }

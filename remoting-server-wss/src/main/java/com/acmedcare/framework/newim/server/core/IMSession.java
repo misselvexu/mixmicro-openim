@@ -5,7 +5,6 @@ import static com.acmedcare.framework.newim.server.ClusterLogger.masterClusterLo
 
 import com.acmedcare.framework.kits.thread.DefaultThreadFactory;
 import com.acmedcare.framework.kits.thread.ThreadKit;
-import com.acmedcare.framework.newim.InstanceNode;
 import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.Message.MessageType;
 import com.acmedcare.framework.newim.client.MessageAttribute;
@@ -25,6 +24,7 @@ import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.common.eventbus.AsyncEventBus;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
@@ -74,8 +74,8 @@ public class IMSession implements InitializingBean, DisposableBean {
 
   private static volatile long lastDiffTimestamp = System.currentTimeMillis();
   private static Semaphore diffQuerySemaphore = new Semaphore(1);
-  private static Map<String, List<InstanceNode>> masterPassportSessions = Maps.newConcurrentMap();
-  private static Map<String, List<InstanceNode>> masterDeviceSessions = Maps.newConcurrentMap();
+  private static Set<String> masterPassportSessions = Sets.newConcurrentHashSet();
+  private static Set<String> masterDeviceSessions = Sets.newConcurrentHashSet();
 
   // ---------------------------------------------------------------------------------
 
@@ -335,6 +335,10 @@ public class IMSession implements InitializingBean, DisposableBean {
                         channel ->
                             channel == null || !channel.isActive() || !channel.isWritable()));
 
+            devicesTcpChannelContainer
+                .entrySet()
+                .removeIf(entry -> entry.getValue() == null || entry.getValue().isEmpty());
+
           } catch (Exception ignore) {
           }
 
@@ -345,6 +349,10 @@ public class IMSession implements InitializingBean, DisposableBean {
                     channels.removeIf(
                         channel ->
                             channel == null || !channel.isActive() || !channel.isWritable()));
+
+            passportsTcpChannelContainer
+                .entrySet()
+                .removeIf(entry -> entry.getValue() == null || entry.getValue().isEmpty());
 
           } catch (Exception ignore) {
           }
@@ -358,8 +366,7 @@ public class IMSession implements InitializingBean, DisposableBean {
 
     try {
       diffQuerySemaphore.acquire(1);
-      members.removeIf(
-          member -> !masterPassportSessions.containsKey(member.getMemberId().toString()));
+      members.removeIf(member -> !masterPassportSessions.contains(member.getMemberId().toString()));
       return members;
     } catch (Exception e) {
       imServerLog.warn("get online member list exception ", e);
@@ -369,9 +376,7 @@ public class IMSession implements InitializingBean, DisposableBean {
     }
   }
 
-  public void diff(
-      Map<InstanceNode, Set<String>> passportsConnections,
-      Map<InstanceNode, Set<String>> devicesConnections) {
+  public void diff(Set<String> passportsConnections, Set<String> devicesConnections) {
 
     // 2分钟 DIFF 一次
     if (System.currentTimeMillis() - lastDiffTimestamp > DIFF_PERIOD) {
@@ -381,29 +386,10 @@ public class IMSession implements InitializingBean, DisposableBean {
 
               diffQuerySemaphore.acquire(1);
               masterPassportSessions.clear();
-              passportsConnections.forEach(
-                  (instanceNode, passportIds) ->
-                      passportIds.forEach(
-                          passportId -> {
-                            if (masterPassportSessions.containsKey(passportId)) {
-                              masterPassportSessions.get(passportId).add(instanceNode);
-                            } else {
-                              masterPassportSessions.put(
-                                  passportId, Lists.newArrayList(instanceNode));
-                            }
-                          }));
+              masterPassportSessions.addAll(passportsConnections);
 
               masterDeviceSessions.clear();
-              devicesConnections.forEach(
-                  (instanceNode, deviceIds) ->
-                      deviceIds.forEach(
-                          deviceId -> {
-                            if (masterDeviceSessions.containsKey(deviceId)) {
-                              masterDeviceSessions.get(deviceId).add(instanceNode);
-                            } else {
-                              masterDeviceSessions.put(deviceId, Lists.newArrayList(instanceNode));
-                            }
-                          }));
+              masterDeviceSessions.addAll(devicesConnections);
 
               lastDiffTimestamp = System.currentTimeMillis();
             } catch (Exception e) {

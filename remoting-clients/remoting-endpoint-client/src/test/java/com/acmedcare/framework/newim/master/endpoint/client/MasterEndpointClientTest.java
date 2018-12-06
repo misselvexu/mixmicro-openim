@@ -9,7 +9,6 @@ import com.acmedcare.framework.newim.client.bean.request.RemoveGroupMembersReque
 import com.acmedcare.framework.newim.client.bean.request.UpdateGroupRequest;
 import com.acmedcare.framework.newim.client.bean.response.GroupResponse;
 import com.google.common.collect.Lists;
-import java.util.Random;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,9 +33,9 @@ public class MasterEndpointClientTest {
   public void testCreateNewGroup() {
 
     NewGroupRequest request = new NewGroupRequest();
-    request.setGroupId("gid-20181123-" + new Random().nextInt(10));
-    request.setGroupName("xxwss");
-    request.setGroupBizTag("tagss");
+    request.setGroupId("gid-20181122");
+    request.setGroupName("测试默认分组");
+    request.setGroupBizTag("CMFZ");
     request.setGroupExt("~");
     request.setGroupOwner("misselvexu");
     this.masterEndpointClient.createNewGroup(request);

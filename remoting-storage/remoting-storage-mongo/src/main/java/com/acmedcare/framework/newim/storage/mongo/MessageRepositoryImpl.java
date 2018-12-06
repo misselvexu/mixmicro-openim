@@ -4,8 +4,6 @@ import static com.acmedcare.framework.newim.CommonLogger.mongoLog;
 import static com.acmedcare.framework.newim.storage.IMStorageCollections.IM_MESSAGE;
 import static com.acmedcare.framework.newim.storage.IMStorageCollections.MESSAGE_READ_STATUS;
 import static com.acmedcare.framework.newim.storage.IMStorageCollections.REF_GROUP_MEMBER;
-import static org.springframework.data.mongodb.SessionSynchronization.ALWAYS;
-import static org.springframework.data.mongodb.SessionSynchronization.ON_ACTUAL_TRANSACTION;
 
 import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.Message.GroupMessage;
@@ -28,8 +26,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
@@ -266,7 +262,7 @@ public class MessageRepositoryImpl implements MessageRepository {
                     .and("messageType")
                     .is(MessageType.GROUP.name())
                     .and("mid")
-                    .is(messageId))
+                    .is(Long.parseLong(messageId)))
             .limit(1);
     return this.mongoTemplate.findOne(query, GroupMessage.class, IM_MESSAGE);
   }
@@ -283,54 +279,81 @@ public class MessageRepositoryImpl implements MessageRepository {
   public void updateGroupMessageReadStatus(
       String passportId, String groupId, String messageId, long innerTimestamp) {
 
+    try {
+      MessageReadStatus messageReadStatus = new MessageReadStatus();
+      messageReadStatus.setGroupId(groupId);
+      messageReadStatus.setMemberId(Long.parseLong(passportId));
+      messageReadStatus.setMessageId(Long.parseLong(messageId));
+      messageReadStatus.setReadTimestamp(new Date());
+
+      // save
+      mongoTemplate.insert(messageReadStatus, MESSAGE_READ_STATUS);
+
+      // update
+      Query query =
+          new Query(Criteria.where("group").is(groupId).and("innerTimestamp").lte(innerTimestamp));
+
+      Update update = new Update();
+      update.inc("readedSize", 1);
+      UpdateResult updateResult = mongoTemplate.updateMulti(query, update, IM_MESSAGE);
+
+      mongoLog.info(
+          "匹配行数:{} ,更新影响行数:{}", updateResult.getMatchedCount(), updateResult.getModifiedCount());
+
+      if (updateResult.getModifiedCount() == 0) {
+        throw new StorageException("更新消息主表已读数失败");
+      }
+
+    } catch (Exception e) {
+      mongoLog.error("用户:{},更新群组:{},消息:{},已读数操作异常回滚", passportId, groupId, messageId, e);
+    }
+
+    /*
     mongoTemplate.setSessionSynchronization(ALWAYS);
-    Boolean result =
-        transactionTemplate.execute(
-            new TransactionCallback<Boolean>() {
-              @Override
-              public Boolean doInTransaction(TransactionStatus transactionStatus) {
-                try {
-                  MessageReadStatus messageReadStatus = new MessageReadStatus();
-                  messageReadStatus.setGroupId(groupId);
-                  messageReadStatus.setMemberId(Long.parseLong(passportId));
-                  messageReadStatus.setMessageId(messageId);
-                  messageReadStatus.setReadTimestamp(new Date());
+    transactionTemplate.execute(
+        new TransactionCallbackWithoutResult() {
+          @Override
+          protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+            try {
+              MessageReadStatus messageReadStatus = new MessageReadStatus();
+              messageReadStatus.setGroupId(groupId);
+              messageReadStatus.setMemberId(Long.parseLong(passportId));
+              messageReadStatus.setMessageId(Long.parseLong(messageId));
+              messageReadStatus.setReadTimestamp(new Date());
 
-                  // save
-                  mongoTemplate.save(messageReadStatus, MESSAGE_READ_STATUS);
+              // save
+              mongoTemplate.insert(messageReadStatus, MESSAGE_READ_STATUS);
 
-                  // update
-                  Query query =
-                      new Query(
-                          Criteria.where("group")
-                              .is(groupId)
-                              .and("innerTimestamp")
-                              .lte(innerTimestamp));
+              // update
+              Query query =
+                  new Query(
+                      Criteria.where("group")
+                          .is(groupId)
+                          .and("innerTimestamp")
+                          .lte(innerTimestamp));
 
-                  Update update = new Update();
-                  update.inc("readedSize", 1);
-                  UpdateResult updateResult = mongoTemplate.updateMulti(query, update, IM_MESSAGE);
+              Update update = new Update();
+              update.inc("readedSize", 1);
+              UpdateResult updateResult = mongoTemplate.updateMulti(query, update, IM_MESSAGE);
 
-                  mongoLog.info(
-                      "匹配行数:{} ,更新影响行数:{}",
-                      updateResult.getMatchedCount(),
-                      updateResult.getModifiedCount());
+              mongoLog.info(
+                  "匹配行数:{} ,更新影响行数:{}",
+                  updateResult.getMatchedCount(),
+                  updateResult.getModifiedCount());
 
-                  if (updateResult.getModifiedCount() > 0) {
-                    return Boolean.TRUE;
-                  } else {
-                    throw new StorageException("更新消息主表已读数失败");
-                  }
-
-                } catch (Exception e) {
-                  mongoLog.error(
-                      "用户:{},更新群组:{},消息:{},已读数操作异常回滚", passportId, groupId, messageId, e);
-                  return Boolean.FALSE;
-                } finally {
-                  mongoTemplate.setSessionSynchronization(ON_ACTUAL_TRANSACTION);
-                }
+              if (updateResult.getModifiedCount() == 0) {
+                throw new StorageException("更新消息主表已读数失败");
               }
-            });
+
+            } catch (Exception e) {
+              mongoLog.error("用户:{},更新群组:{},消息:{},已读数操作异常回滚", passportId, groupId, messageId, e);
+              transactionStatus.setRollbackOnly();
+            } finally {
+              mongoTemplate.setSessionSynchronization(SessionSynchronization.ON_ACTUAL_TRANSACTION);
+            }
+          }
+        });
+        */
   }
 
   @Override
@@ -370,7 +393,7 @@ public class MessageRepositoryImpl implements MessageRepository {
     Query query =
         new Query(
                 Criteria.where("mid")
-                    .is(messageId)
+                    .is(Long.parseLong(messageId))
                     .and("messageType")
                     .is(MessageType.SINGLE.name()))
             .limit(1);
@@ -387,7 +410,9 @@ public class MessageRepositoryImpl implements MessageRepository {
    */
   @Override
   public List<Long> queryGroupMessageReaders(String groupId, String messageId) {
-    Query query = new Query(Criteria.where("groupId").is(groupId).and("messageId").is(messageId));
+    Query query =
+        new Query(
+            Criteria.where("groupId").is(groupId).and("messageId").is(Long.parseLong(messageId)));
     return mongoTemplate.findDistinct(query, "memberId", MESSAGE_READ_STATUS, Long.class);
   }
 }

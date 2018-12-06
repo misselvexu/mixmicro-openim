@@ -3,6 +3,7 @@ package com.acmedcare.framework.newim.mongo;
 import com.acmedcare.framework.newim.Group;
 import com.acmedcare.framework.newim.Group.GroupMembers;
 import com.acmedcare.framework.newim.TestApplication;
+import com.acmedcare.framework.newim.client.bean.Member;
 import com.acmedcare.framework.newim.storage.api.GroupRepository;
 import com.google.common.collect.Lists;
 import java.util.List;
@@ -52,12 +53,13 @@ public class GroupRepositoryImpl {
   @Test
   public void testSaveGroupMembers() {
 
-    List<String> members = Lists.newArrayList();
-    members.add("1010206815324416");
-    members.add("1033050009520384");
+    List<Member> members = Lists.newArrayList();
+    members.add(Member.builder().memberId(3934770676638720L).memberName("超级管理员").build());
+    members.add(Member.builder().memberId(3837142362366976L).memberName("7669用户").build());
+    members.add(Member.builder().memberId(3837142362366977L).memberName("7666用户").build());
 
     GroupMembers groupMembers =
-        GroupMembers.builder().groupId("gid-20181122").memberIds(members).build();
+        GroupMembers.builder().groupId("gid-20181122").members(members).build();
 
     this.groupRepository.saveGroupMembers(groupMembers);
   }
@@ -65,14 +67,12 @@ public class GroupRepositoryImpl {
   @Test
   public void testSaveGroupMembersFailTransaction() {
 
-    List<String> members = Lists.newArrayList();
-    members.add("mb1");
-    members.add("mb2");
-    members.add("mb3");
-    members.add("mb4");
+    List<Member> members = Lists.newArrayList();
+    members.add(Member.builder().memberId(1010206815324416L).memberName("AA").build());
+    members.add(Member.builder().memberId(1033050009520384L).memberName("BB").build());
 
     GroupMembers groupMembers =
-        GroupMembers.builder().groupId("gid-20181122").memberIds(members).build();
+        GroupMembers.builder().groupId("gid-20181122").members(members).build();
 
     // save
     this.groupRepository.saveGroupMembers(groupMembers);
@@ -83,8 +83,5 @@ public class GroupRepositoryImpl {
   }
 
   @Test
-  public void testQueryGroupList() {
-
-  }
-
+  public void testQueryGroupList() {}
 }

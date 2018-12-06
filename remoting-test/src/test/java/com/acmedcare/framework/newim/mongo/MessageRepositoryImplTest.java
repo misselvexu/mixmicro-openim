@@ -126,4 +126,12 @@ public class MessageRepositoryImplTest {
 
     Assert.assertEquals(2, messages.size());
   }
+
+  @Test
+  public void updateGroupMessageReadStatus() {
+
+    // pushGroupMessageReadStatus gid-20181122 1047261835348992
+    this.messageRepository.updateGroupMessageReadStatus(
+        "3837142362366977", "gid-20181122", "1047261835348992", 57101037550492L);
+  }
 }

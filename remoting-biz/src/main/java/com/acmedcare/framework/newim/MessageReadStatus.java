@@ -32,7 +32,7 @@ public class MessageReadStatus implements Serializable {
 
   private String groupId;
 
-  private String messageId;
+  private Long messageId;
 
   private Long memberId;
 

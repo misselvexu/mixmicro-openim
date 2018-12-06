@@ -715,7 +715,8 @@ public class JREBizExectuor extends BizExecutor {
                         if (callback != null) {
                           GroupMessageReadStatusResponse groupMessageReadStatusResponse =
                               JSON.parseObject(
-                                  response.getBody(), GroupMessageReadStatusResponse.class);
+                                  JSON.toJSONString(bizResult.getData()),
+                                  GroupMessageReadStatusResponse.class);
                           callback.onSuccess(
                               groupMessageReadStatusResponse.getReaders(),
                               groupMessageReadStatusResponse.getUnReaders());
@@ -787,7 +788,7 @@ public class JREBizExectuor extends BizExecutor {
                           if (callback != null) {
                             List<Member> members =
                                 JSON.parseObject(
-                                    new String(response.getBody(), "UTF-8"),
+                                    JSON.toJSONString(bizResult.getData()),
                                     new TypeReference<List<Member>>() {});
                             callback.onSuccess(members);
                           }
@@ -864,7 +865,7 @@ public class JREBizExectuor extends BizExecutor {
                           if (callback != null) {
                             List<Member> members =
                                 JSON.parseObject(
-                                    new String(response.getBody(), "UTF-8"),
+                                    JSON.toJSONString(bizResult.getData()),
                                     new TypeReference<List<Member>>() {});
                             callback.onSuccess(members);
                           }

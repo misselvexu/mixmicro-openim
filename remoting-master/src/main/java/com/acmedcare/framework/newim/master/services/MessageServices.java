@@ -127,6 +127,7 @@ public class MessageServices {
     message.setGroup(groupId);
     message.setReceivers(memberIds);
     message.setUnReadSize(memberIds.size());
+    message.setReadedSize(1); // 标记自己已读
 
     long result = this.messageRepository.saveMessage(message);
     endpointLog.info("保存群消息到数据库操作,返回值:{}", result);

@@ -129,6 +129,7 @@ public class MasterConnector {
                 asyncExecutor.execute(
                     () -> {
                       try {
+
                         ClusterPushSessionDataHeader header = new ClusterPushSessionDataHeader();
 
                         RemotingCommand requestCommand =
@@ -171,7 +172,7 @@ public class MasterConnector {
                             "cluster push remoting channels timer execute failed with request :{} ,will try next",
                             remoteMasterConnectorInstance.getMasterNode().getHost(),
                             e);
-                      } finally{
+                      } finally {
                         countDownLatch.countDown();
                       }
                     });

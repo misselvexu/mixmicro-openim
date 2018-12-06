@@ -115,9 +115,9 @@ public class GroupRepositoryImpl implements GroupRepository {
       }
 
       List<Member> memberList = members.getMembers();
-      List<Long> memberIds = Lists.newArrayList();
+      List<String> memberIds = Lists.newArrayList();
       for (Member member : memberList) {
-        memberIds.add(member.getMemberId());
+        memberIds.add(member.getMemberId().toString());
       }
 
       Query query =
@@ -130,7 +130,9 @@ public class GroupRepositoryImpl implements GroupRepository {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
               try {
-                mongoTemplate.remove(query, REF_GROUP_MEMBER);
+
+                DeleteResult deleteResult = mongoTemplate.remove(query, REF_GROUP_MEMBER);
+                mongoLog.info("预删除行数:{} ", deleteResult.getDeletedCount());
                 List<GroupMemberRef> refs = new ArrayList<>();
                 members
                     .getMembers()

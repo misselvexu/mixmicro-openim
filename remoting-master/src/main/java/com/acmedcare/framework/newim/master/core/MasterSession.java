@@ -302,19 +302,11 @@ public class MasterSession {
             try {
               if (clusterClientInstances.size() > 0) {
 
-                if (devicesConnections.size() == 0 && passportsConnections.size() == 0) {
+                if (devicesConnections.size() == 0 || passportsConnections.size() == 0) {
                   return;
                 }
 
                 CountDownLatch count = new CountDownLatch(clusterClientInstances.size());
-
-                RemotingCommand notifyRequest =
-                    RemotingCommand.createRequestCommand(
-                        MasterClusterCommand.MASTER_NOTICE_CLIENT_CHANNELS, null);
-                MasterNoticeSessionDataBody body = new MasterNoticeSessionDataBody();
-                body.setDevicesConnections(devicesConnections);
-                body.setPassportsConnections(passportsConnections);
-                notifyRequest.setBody(JSON.toJSONBytes(body));
 
                 clusterClientInstances.forEach(
                     (key, value) ->
@@ -324,6 +316,22 @@ public class MasterSession {
 
                                 if (value.getClusterClientChannel().isWritable()) {
 
+                                  RemotingCommand notifyRequest =
+                                      RemotingCommand.createRequestCommand(
+                                          MasterClusterCommand.MASTER_NOTICE_CLIENT_CHANNELS, null);
+                                  MasterNoticeSessionDataBody body =
+                                      new MasterNoticeSessionDataBody();
+
+                                  devicesConnections.forEach(
+                                      (instanceNode, deviceIds) ->
+                                          body.getDevicesConnections().addAll(deviceIds));
+
+                                  passportsConnections.forEach(
+                                      (instanceNode, passportIds) ->
+                                          body.getPassportsConnections().addAll(passportIds));
+
+                                  notifyRequest.setBody(JSON.toJSONBytes(body));
+
                                   RemotingCommand response =
                                       masterClusterAcceptorServer
                                           .getMasterClusterAcceptorServer()
@@ -331,16 +339,19 @@ public class MasterSession {
                                               value.getClusterClientChannel(), notifyRequest, 3000);
 
                                   if (response != null) {
-                                    BizResult bizResult =
-                                        RemotingSerializable.decode(
-                                            response.getBody(), BizResult.class);
-                                    if (bizResult != null && bizResult.getCode() == 0) {
-                                      masterClusterAcceptorLog.info(
-                                          "master notify push session data succeed.");
-                                    } else {
-                                      masterClusterAcceptorLog.warn(
-                                          "master notify push session data failed, cluster return response : {} "
-                                              + bizResult.json());
+                                    byte[] byteBody = response.getBody();
+                                    if (byteBody != null && byteBody.length > 0) {
+                                      BizResult bizResult =
+                                          RemotingSerializable.decode(
+                                              response.getBody(), BizResult.class);
+                                      if (bizResult != null && bizResult.getCode() == 0) {
+                                        masterClusterAcceptorLog.info(
+                                            "master notify push session data succeed.");
+                                      } else {
+                                        masterClusterAcceptorLog.warn(
+                                            "master notify push session data failed, cluster return response : {} "
+                                                + bizResult.json());
+                                      }
                                     }
                                   } else {
                                     masterClusterAcceptorLog.warn(
