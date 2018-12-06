@@ -32,9 +32,9 @@ String deviceId = "DEVICE-ID";
 
 ```
  
-> Usage 
+### Usage 
 
-- 初始化
+#### 初始化
 
 ```java
 
@@ -141,7 +141,7 @@ String deviceId = "DEVICE-ID";
 
 ```
 
-- 功能实现
+#### 功能实现
 
 ```java
 
