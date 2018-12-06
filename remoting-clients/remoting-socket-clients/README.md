@@ -38,6 +38,9 @@ String deviceId = "DEVICE-ID";
 
     // Android 默认不开启此选项
     // System.setProperty(AcmedcareLogger.NON_ANDROID_FLAG, "true");
+    
+    // 设置请求超时时间, 单位毫秒
+    // System.setProperty("tiffany.quantum.request.timeout", 5000);
 
     // Nas 文件服务器配置
     NasProperties nasProperties = new NasProperties();

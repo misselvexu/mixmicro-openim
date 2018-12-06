@@ -1,8 +1,14 @@
 package com.acmedcare.framework.newim.server.processor;
 
+import static com.acmedcare.framework.newim.server.ClusterLogger.masterClusterLog;
+
+import com.acmedcare.framework.newim.BizResult;
+import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
+import com.acmedcare.framework.newim.protocol.request.MasterNoticeSessionDataBody;
 import com.acmedcare.framework.newim.server.core.IMSession;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRequestProcessor;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
+import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
@@ -21,8 +27,36 @@ public class MasterNoticeClientChannelsRequestProcessor implements NettyRequestP
   public RemotingCommand processRequest(
       ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand)
       throws Exception {
-    // TODO 处理Master推送来的 Session 数据
-    return null;
+    masterClusterLog.info("接收到Master服务器分发全局链接");
+    RemotingCommand response =
+        RemotingCommand.createResponseCommand(remotingCommand.getCode(), null);
+
+    try {
+
+      byte[] sessions = remotingCommand.getBody();
+      masterClusterLog.debug("接受到的同步的数据为:{}", new String(sessions, "UTF-8"));
+      MasterNoticeSessionDataBody noticeSessionDataBody =
+          JSON.parseObject(sessions, MasterNoticeSessionDataBody.class);
+
+      this.imSession.diff(
+          noticeSessionDataBody.getPassportsConnections(),
+          noticeSessionDataBody.getDevicesConnections());
+
+      response.setBody(BizResult.builder().code(0).build().bytes());
+    } catch (Exception e) {
+      // exception
+      response.setBody(
+          BizResult.builder()
+              .code(-1)
+              .exception(
+                  ExceptionWrapper.builder()
+                      .message(e.getMessage())
+                      .type(e.getCause().getClass())
+                      .build())
+              .build()
+              .bytes());
+    }
+    return response;
   }
 
   @Override

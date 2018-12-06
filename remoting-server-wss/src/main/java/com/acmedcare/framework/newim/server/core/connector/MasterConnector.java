@@ -11,6 +11,8 @@ import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.InstanceNode;
 import com.acmedcare.framework.newim.InstanceNode.NodeType;
 import com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand;
+import com.acmedcare.framework.newim.protocol.request.ClusterPushSessionDataBody;
+import com.acmedcare.framework.newim.protocol.request.ClusterPushSessionDataHeader;
 import com.acmedcare.framework.newim.protocol.request.ClusterRegisterHeader;
 import com.acmedcare.framework.newim.server.config.IMProperties;
 import com.acmedcare.framework.newim.server.core.IMSession;
@@ -36,8 +38,12 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.Getter;
@@ -48,8 +54,8 @@ import lombok.Setter;
  *
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version ${project.version} - 12/11/2018.
- * @see IMProperties#masterNodes Master Node List
- * @see IMProperties#masterHeartbeat Master Heaerbeat Value
+ * @see IMProperties#getMasterNodes() Master Node List
+ * @see IMProperties#getMasterHeartbeat() Master Heaerbeat Value
  */
 public class MasterConnector {
 
@@ -61,6 +67,8 @@ public class MasterConnector {
   private List<RemoteMasterConnectorInstance> remoteMasterConnectorInstances = Lists.newArrayList();
 
   private ScheduledExecutorService rollingPullClusterListExecutor;
+  private ScheduledExecutorService rollingPushRemotingChannelsExecutor;
+  private ExecutorService asyncExecutor;
 
   public MasterConnector(IMProperties imProperties, IMSession imSession) {
     this.imProperties = imProperties;
@@ -88,6 +96,95 @@ public class MasterConnector {
 
       masterClusterLog.info("Startup schedule rolling pull cluster server list thread.");
       startupRollingPullCluster();
+      masterClusterLog.info("Startup schedule rolling push channels thread.");
+      startupRollingPushChannels();
+    }
+  }
+
+  private void startupRollingPushChannels() {
+
+    if (asyncExecutor == null) {
+      asyncExecutor =
+          new ThreadPoolExecutor(
+              4,
+              16,
+              0L,
+              TimeUnit.MILLISECONDS,
+              new LinkedBlockingQueue<>(16),
+              new com.acmedcare.framework.kits.thread.DefaultThreadFactory("notifier-executor"),
+              new CallerRunsPolicy());
+    }
+
+    if (rollingPushRemotingChannelsExecutor == null) {
+      rollingPushRemotingChannelsExecutor =
+          new ScheduledThreadPoolExecutor(1, new DefaultThreadFactory("rolling-push-thread"));
+      rollingPushRemotingChannelsExecutor.scheduleWithFixedDelay(
+          () -> {
+            try {
+              CountDownLatch countDownLatch =
+                  new CountDownLatch(remoteMasterConnectorInstances.size());
+              for (RemoteMasterConnectorInstance remoteMasterConnectorInstance :
+                  remoteMasterConnectorInstances) {
+
+                asyncExecutor.execute(
+                    () -> {
+                      try {
+                        ClusterPushSessionDataHeader header = new ClusterPushSessionDataHeader();
+
+                        RemotingCommand requestCommand =
+                            RemotingCommand.createRequestCommand(
+                                MasterClusterCommand.CLUSTER_PUSH_CLIENT_CHANNELS, header);
+
+                        ClusterPushSessionDataBody body = new ClusterPushSessionDataBody();
+
+                        body.setPassportIds(Lists.newArrayList(imSession.getOnlinePassports()));
+                        body.setDeviceIds(Lists.newArrayList(imSession.getOnlineDevices()));
+
+                        requestCommand.setBody(JSON.toJSONBytes(body));
+
+                        RemotingCommand response =
+                            remoteMasterConnectorInstance
+                                .getNettyRemotingSocketClient()
+                                .invokeSync(
+                                    remoteMasterConnectorInstance.getMasterNode().getHost(),
+                                    requestCommand,
+                                    3000);
+
+                        if (response != null) {
+                          BizResult bizResult =
+                              JSON.parseObject(response.getBody(), BizResult.class);
+                          if (bizResult != null && bizResult.getCode() == 0) {
+                            masterClusterLog.info(
+                                "cluster push remoting channels timer execute succeed.");
+                          } else {
+                            masterClusterLog.warn(
+                                "cluster push remoting channels timer execute failed ,response is : {}",
+                                JSON.toJSONString(bizResult));
+                          }
+                        } else {
+                          masterClusterLog.warn(
+                              "cluster push remoting channels timer execute failed without return response .");
+                        }
+
+                      } catch (Exception e) {
+                        masterClusterLog.error(
+                            "cluster push remoting channels timer execute failed with request :{} ,will try next",
+                            remoteMasterConnectorInstance.getMasterNode().getHost(),
+                            e);
+                      } finally{
+                        countDownLatch.countDown();
+                      }
+                    });
+              }
+
+              countDownLatch.await();
+            } catch (Exception e) {
+              masterClusterLog.error("cluster push remoting channels timer execute failed", e);
+            }
+          },
+          10,
+          20,
+          TimeUnit.SECONDS);
     }
   }
 
@@ -168,6 +265,15 @@ public class MasterConnector {
     if (rollingPullClusterListExecutor != null) {
       ThreadKit.gracefulShutdown(rollingPullClusterListExecutor, 5, 10, TimeUnit.SECONDS);
     }
+
+    if (rollingPushRemotingChannelsExecutor != null) {
+      ThreadKit.gracefulShutdown(rollingPushRemotingChannelsExecutor, 5, 10, TimeUnit.SECONDS);
+    }
+
+    if (asyncExecutor != null) {
+      ThreadKit.gracefulShutdown(asyncExecutor, 5, 10, TimeUnit.SECONDS);
+    }
+
     masterClusterLog.info("shutdown master client connections.");
     for (RemoteMasterConnectorInstance remoteMasterConnectorInstance :
         remoteMasterConnectorInstances) {

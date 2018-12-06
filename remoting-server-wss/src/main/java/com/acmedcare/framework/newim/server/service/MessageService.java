@@ -209,4 +209,8 @@ public class MessageService {
       throw new BizException(e);
     }
   }
+
+  public void updateSingleMessageReadStatus(String passportId, String sender, String messageId) {
+    this.messageRepository.updateSingleMessageReadStatus(passportId, sender, messageId);
+  }
 }

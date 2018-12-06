@@ -253,7 +253,7 @@ public class NewIMServerBootstrap {
     // @since 2.2.0
     imServer.registerProcessor(
         ClusterClientCommand.CLIENT_PULL_GROUP_MEMBERS_ONLINE_STATUS,
-        new RemotingClientPullGroupMembersOnlineStatusProcessor(imSession),
+        new RemotingClientPullGroupMembersOnlineStatusProcessor(groupService,imSession),
         null);
 
     // @since 2.2.0

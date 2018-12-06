@@ -1,5 +1,6 @@
 package com.acmedcare.framework.newim.server.processor.header;
 
+import com.acmedcare.framework.newim.Message.MessageType;
 import com.acmedcare.tiffany.framework.remoting.CommandCustomHeader;
 import com.acmedcare.tiffany.framework.remoting.annotation.CFNotNull;
 import com.acmedcare.tiffany.framework.remoting.exception.RemotingCommandException;
@@ -25,7 +26,7 @@ public class PushMessageReadStatusHeader implements CommandCustomHeader {
    *
    * <p>
    */
-  @CFNotNull private String groupId;
+  @CFNotNull private String sender;
 
   /**
    * 消息Id , 可理解为最新的消息,那么之前的消息都标识阅读
@@ -34,10 +35,18 @@ public class PushMessageReadStatusHeader implements CommandCustomHeader {
    */
   @CFNotNull private String messageId;
 
+  /** 消息类型 */
+  @CFNotNull private String messageType;
+
+  public MessageType decodeMessageType() {
+    return MessageType.valueOf(messageType.toUpperCase());
+  }
+
   @Override
   public void checkFields() throws RemotingCommandException {
-    if (StringUtils.isAnyBlank(passportId, groupId, messageId)) {
-      throw new RemotingCommandException("推送消息读取状态请求参数[passportId,groupId,messageId]不能为空");
+    if (StringUtils.isAnyBlank(passportId, sender, messageId, messageType)) {
+      throw new RemotingCommandException(
+          "推送消息读取状态请求参数[passportId,sender,messageId,messageType]不能为空");
     }
   }
 }

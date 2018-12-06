@@ -10,6 +10,7 @@ import static org.springframework.data.mongodb.SessionSynchronization.ON_ACTUAL_
 import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.Message.GroupMessage;
 import com.acmedcare.framework.newim.Message.InnerType;
+import com.acmedcare.framework.newim.Message.MessageType;
 import com.acmedcare.framework.newim.Message.SingleMessage;
 import com.acmedcare.framework.newim.MessageReadStatus;
 import com.acmedcare.framework.newim.storage.api.MessageRepository;
@@ -139,7 +140,9 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     // 默认查询最新的消息列表
-    Query messageQuery = new Query(Criteria.where("group").is(groupId));
+    Query messageQuery =
+        new Query(
+            Criteria.where("group").is(groupId).and("messageType").is(MessageType.GROUP.name()));
     messageQuery.with(new Sort(Direction.DESC, "innerTimestamp")).limit((int) limit);
 
     if (!queryLeast && leastMessageId > 0) {
@@ -157,6 +160,8 @@ public class MessageRepositoryImpl implements MessageRepository {
               new Query(
                   Criteria.where("group")
                       .is(groupId)
+                      .and("messageType")
+                      .is(MessageType.GROUP.name())
                       .and("innerType")
                       .ne(InnerType.COMMAND)
                       .and("innerTimestamp") // 查询的消息的时间小于客户端执行的最新消息的时间
@@ -196,7 +201,13 @@ public class MessageRepositoryImpl implements MessageRepository {
 
     // 默认查询最新的消息列表
     Query messageQuery =
-        new Query(Criteria.where("sender").is(sender).and("receiver").is(receiverId));
+        new Query(
+            Criteria.where("sender")
+                .is(sender)
+                .and("receiver")
+                .is(receiverId)
+                .and("messageType")
+                .is(MessageType.SINGLE.name()));
     messageQuery.with(new Sort(Direction.DESC, "innerTimestamp")).limit((int) limit);
 
     if (!queryLeast && leastMessageId > 0) {
@@ -216,6 +227,8 @@ public class MessageRepositoryImpl implements MessageRepository {
                       .is(sender)
                       .and("receiver")
                       .is(receiverId)
+                      .and("messageType")
+                      .is(MessageType.SINGLE.name())
                       .and("innerType")
                       .ne(InnerType.COMMAND)
                       .and("innerTimestamp") // 查询的消息的时间小于客户端执行的最新消息的时间
@@ -246,7 +259,15 @@ public class MessageRepositoryImpl implements MessageRepository {
    */
   @Override
   public GroupMessage queryGroupMessage(String groupId, String messageId) {
-    Query query = new Query(Criteria.where("group").is(groupId).and("mid").is(messageId)).limit(1);
+    Query query =
+        new Query(
+                Criteria.where("group")
+                    .is(groupId)
+                    .and("messageType")
+                    .is(MessageType.GROUP.name())
+                    .and("mid")
+                    .is(messageId))
+            .limit(1);
     return this.mongoTemplate.findOne(query, GroupMessage.class, IM_MESSAGE);
   }
 
@@ -310,6 +331,51 @@ public class MessageRepositoryImpl implements MessageRepository {
                 }
               }
             });
+  }
+
+  @Override
+  public void updateSingleMessageReadStatus(String passportId, String sender, String messageId) {
+
+    SingleMessage singleMessage = this.querySingleMessage(messageId);
+    if (singleMessage == null) {
+      throw new StorageException("无效的单聊消息ID");
+    }
+
+    Query query =
+        new Query(
+            Criteria.where("sender")
+                .is(sender)
+                .and("receiver")
+                .is(passportId)
+                .and("readFlag")
+                .is(false)
+                .and("messageType")
+                .is(MessageType.SINGLE.name())
+                .and("innerTimestamp")
+                .lte(singleMessage.getInnerTimestamp()));
+
+    Update update = new Update();
+    update.set("readFlag", true);
+    UpdateResult updateResult = mongoTemplate.updateMulti(query, update, IM_MESSAGE);
+    mongoLog.info(
+        "用户:{}更新消息:{},已读状态,匹配行数:{},影响行数:{}",
+        passportId,
+        messageId,
+        updateResult.getMatchedCount(),
+        updateResult.getModifiedCount());
+  }
+
+  @Override
+  public SingleMessage querySingleMessage(String messageId) {
+    Query query =
+        new Query(
+                Criteria.where("mid")
+                    .is(messageId)
+                    .and("messageType")
+                    .is(MessageType.SINGLE.name()))
+            .limit(1);
+
+    return mongoTemplate.findOne(query, SingleMessage.class, IM_MESSAGE);
   }
 
   /**

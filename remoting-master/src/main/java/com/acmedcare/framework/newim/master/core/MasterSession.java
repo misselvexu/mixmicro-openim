@@ -54,18 +54,21 @@ public class MasterSession {
 
     public static final AttributeKey<InstanceNode> CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY =
         AttributeKey.newInstance("CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY");
+
     /**
      * 通行证登录连接
      *
      * <p>
      */
     private static Map<InstanceNode, Set<String>> passportsConnections = Maps.newConcurrentMap();
+
     /**
      * 设备登录连接
      *
      * <p>
      */
     private static Map<InstanceNode, Set<String>> devicesConnections = Maps.newConcurrentMap();
+
     /**
      * 通讯服务器客户端链接对象池
      *
@@ -81,7 +84,7 @@ public class MasterSession {
     private ExecutorService distributeMessageExecutor;
     private MasterClusterAcceptorServer masterClusterAcceptorServer;
 
-    public MasterClusterSession() {
+    MasterClusterSession() {
       notifier();
 
       // init distributeMessageExecutor
@@ -279,7 +282,7 @@ public class MasterSession {
       distributeMessage(attribute, message, clusterClientInstances);
     }
 
-    public void notifier() {
+    void notifier() {
       notifierExecutor =
           new ScheduledThreadPoolExecutor(
               1, new DefaultThreadFactory("master-sessions-notifier-thread"));
@@ -296,63 +299,76 @@ public class MasterSession {
 
       notifierExecutor.scheduleWithFixedDelay(
           () -> {
-            if (clusterClientInstances.size() > 0) {
+            try {
+              if (clusterClientInstances.size() > 0) {
 
-              if (devicesConnections.size() == 0 && passportsConnections.size() == 0) {
-                return;
-              }
+                if (devicesConnections.size() == 0 && passportsConnections.size() == 0) {
+                  return;
+                }
 
-              CountDownLatch count = new CountDownLatch(clusterClientInstances.size());
+                CountDownLatch count = new CountDownLatch(clusterClientInstances.size());
 
-              RemotingCommand notifyRequest =
-                  RemotingCommand.createRequestCommand(
-                      MasterClusterCommand.MASTER_NOTICE_CLIENT_CHANNELS, null);
-              MasterNoticeSessionDataBody body = new MasterNoticeSessionDataBody();
-              body.setDevicesConnections(devicesConnections);
-              body.setPassportsConnections(passportsConnections);
-              notifyRequest.setBody(JSON.toJSONBytes(body));
+                RemotingCommand notifyRequest =
+                    RemotingCommand.createRequestCommand(
+                        MasterClusterCommand.MASTER_NOTICE_CLIENT_CHANNELS, null);
+                MasterNoticeSessionDataBody body = new MasterNoticeSessionDataBody();
+                body.setDevicesConnections(devicesConnections);
+                body.setPassportsConnections(passportsConnections);
+                notifyRequest.setBody(JSON.toJSONBytes(body));
 
-              clusterClientInstances.forEach(
-                  (key, value) ->
-                      asyncNotifierExecutor.execute(
-                          () -> {
-                            try {
+                clusterClientInstances.forEach(
+                    (key, value) ->
+                        asyncNotifierExecutor.execute(
+                            () -> {
+                              try {
 
-                              if (value.getClusterClientChannel().isWritable()) {
+                                if (value.getClusterClientChannel().isWritable()) {
 
-                                RemotingCommand response =
-                                    masterClusterAcceptorServer
-                                        .getMasterClusterAcceptorServer()
-                                        .invokeSync(
-                                            value.getClusterClientChannel(), notifyRequest, 3000);
+                                  RemotingCommand response =
+                                      masterClusterAcceptorServer
+                                          .getMasterClusterAcceptorServer()
+                                          .invokeSync(
+                                              value.getClusterClientChannel(), notifyRequest, 3000);
 
-                                if (response != null) {
-                                  BizResult bizResult =
-                                      RemotingSerializable.decode(
-                                          response.getBody(), BizResult.class);
-                                  if (bizResult.getCode() == 0) {
-                                    masterClusterAcceptorLog.info(
-                                        "master notify push session data succeed.");
+                                  if (response != null) {
+                                    BizResult bizResult =
+                                        RemotingSerializable.decode(
+                                            response.getBody(), BizResult.class);
+                                    if (bizResult != null && bizResult.getCode() == 0) {
+                                      masterClusterAcceptorLog.info(
+                                          "master notify push session data succeed.");
+                                    } else {
+                                      masterClusterAcceptorLog.warn(
+                                          "master notify push session data failed, cluster return response : {} "
+                                              + bizResult.json());
+                                    }
                                   } else {
-                                    // TODO failed
+                                    masterClusterAcceptorLog.warn(
+                                        "master notify push session data failed, without cluster response");
                                   }
                                 } else {
-                                  // TODO failed
-
+                                  masterClusterAcceptorLog.warn(
+                                      "master notify push session data fail , cause by cluster client channel is un-writable");
                                 }
-                              } else {
-                                masterClusterAcceptorLog.warn(
-                                    "master notify push session data fail , cause by cluster client channel is un-writable");
-                              }
 
-                            } catch (Exception e) {
-                              masterClusterAcceptorLog.error(
-                                  "master notify push session data exception", e);
-                            } finally {
-                              // release
-                              count.countDown();
-                            }
-                          }));
+                              } catch (Exception e) {
+                                masterClusterAcceptorLog.error(
+                                    "master notify push session data exception", e);
+                              } finally {
+                                // release
+                                count.countDown();
+                              }
+                            }));
+
+                try {
+                  count.await();
+                } catch (InterruptedException e) {
+                  masterClusterAcceptorLog.info("wait current round execute finished failed.", e);
+                }
+              }
+            } catch (Exception e) {
+              masterClusterAcceptorLog.error(
+                  "master notify push session time executor execute failed", e);
             }
           },
           10,
@@ -360,7 +376,7 @@ public class MasterSession {
           TimeUnit.SECONDS);
     }
 
-    public void shutdownAll() {
+    void shutdownAll() {
       clusterClientInstances.forEach(
           (key, value) -> {
             try {

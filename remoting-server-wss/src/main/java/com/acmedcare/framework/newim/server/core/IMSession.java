@@ -1,9 +1,11 @@
 package com.acmedcare.framework.newim.server.core;
 
 import static com.acmedcare.framework.newim.server.ClusterLogger.imServerLog;
+import static com.acmedcare.framework.newim.server.ClusterLogger.masterClusterLog;
 
 import com.acmedcare.framework.kits.thread.DefaultThreadFactory;
 import com.acmedcare.framework.kits.thread.ThreadKit;
+import com.acmedcare.framework.newim.InstanceNode;
 import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.Message.MessageType;
 import com.acmedcare.framework.newim.client.MessageAttribute;
@@ -11,6 +13,7 @@ import com.acmedcare.framework.newim.client.bean.Member;
 import com.acmedcare.framework.newim.protocol.Command.ClusterClientCommand;
 import com.acmedcare.framework.newim.protocol.Command.Retriable;
 import com.acmedcare.framework.newim.protocol.request.ClusterForwardMessageHeader;
+import com.acmedcare.framework.newim.server.core.SessionContextConstants.RemotePrincipal;
 import com.acmedcare.framework.newim.server.core.connector.ClusterReplicaConnector;
 import com.acmedcare.framework.newim.server.endpoint.WssSessionContext;
 import com.acmedcare.framework.newim.server.event.AbstractEventHandler;
@@ -27,12 +30,14 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
@@ -50,18 +55,30 @@ import org.springframework.beans.factory.InitializingBean;
 @ThreadSafe
 public class IMSession implements InitializingBean, DisposableBean {
 
+  private static final long DIFF_PERIOD = 2 * 60 * 1000;
   /**
    * 设备->远程连接(TCPs)
    *
    * <p>
    */
   private static Map<String, List<Channel>> devicesTcpChannelContainer = Maps.newConcurrentMap();
+
   /**
    * 通行证->远程连接(TCPs)
    *
    * <p>
    */
   private static Map<String, List<Channel>> passportsTcpChannelContainer = Maps.newConcurrentMap();
+
+  // ----------------------------- Master 服务器同步过来的缓存数据------------------------
+
+  private static volatile long lastDiffTimestamp = System.currentTimeMillis();
+  private static Semaphore diffQuerySemaphore = new Semaphore(1);
+  private static Map<String, List<InstanceNode>> masterPassportSessions = Maps.newConcurrentMap();
+  private static Map<String, List<InstanceNode>> masterDeviceSessions = Maps.newConcurrentMap();
+
+  // ---------------------------------------------------------------------------------
+
   /**
    * 记录通行证登录在某台通讯服务器映射关系
    *
@@ -84,11 +101,18 @@ public class IMSession implements InitializingBean, DisposableBean {
 
   private static ScheduledExecutorService cleaner =
       new ScheduledThreadPoolExecutor(1, new DefaultThreadFactory("channel-cleaner-thread"));
-
   @Getter private AsyncEventBus asyncEventBus;
   private NettyRemotingSocketServer imServer;
   @Getter private ClusterReplicaConnector clusterReplicaConnector;
   private WssSessionContext wssSessionContext;
+
+  public Set<String> getOnlinePassports() {
+    return passportsTcpChannelContainer.keySet();
+  }
+
+  public Set<String> getOnlineDevices() {
+    return devicesTcpChannelContainer.keySet();
+  }
 
   public void registerNewIMServer(NettyRemotingSocketServer imServer) {
     this.imServer = imServer;
@@ -108,11 +132,13 @@ public class IMSession implements InitializingBean, DisposableBean {
   /**
    * 绑定链接
    *
+   * @param remotePrincipal 通行证相关信息
    * @param deviceId 设备编号
    * @param passportId 通行证编号
    * @param channel 链接对象
    */
-  public void bindTcpSession(String deviceId, String passportId, Channel channel) {
+  public void bindTcpSession(
+      RemotePrincipal remotePrincipal, String deviceId, String passportId, Channel channel) {
 
     imServerLog.debug("[NEW-IM-SESSION] Bind Session , {} {} {}", deviceId, passportId, channel);
     if (devicesTcpChannelContainer.containsKey(deviceId)) {
@@ -328,8 +354,64 @@ public class IMSession implements InitializingBean, DisposableBean {
         TimeUnit.SECONDS);
   }
 
-  public List<Member> getOnlineMemberList(String groupId) {
-    // TODO 筛选在线人员
-    return null;
+  public List<Member> getOnlineMemberList(List<Member> members, String groupId) {
+
+    try {
+      diffQuerySemaphore.acquire(1);
+      members.removeIf(
+          member -> !masterPassportSessions.containsKey(member.getMemberId().toString()));
+      return members;
+    } catch (Exception e) {
+      imServerLog.warn("get online member list exception ", e);
+      return Lists.newArrayList();
+    } finally {
+      diffQuerySemaphore.release(1);
+    }
+  }
+
+  public void diff(
+      Map<InstanceNode, Set<String>> passportsConnections,
+      Map<InstanceNode, Set<String>> devicesConnections) {
+
+    // 2分钟 DIFF 一次
+    if (System.currentTimeMillis() - lastDiffTimestamp > DIFF_PERIOD) {
+      asyncExecutor.execute(
+          () -> {
+            try {
+
+              diffQuerySemaphore.acquire(1);
+              masterPassportSessions.clear();
+              passportsConnections.forEach(
+                  (instanceNode, passportIds) ->
+                      passportIds.forEach(
+                          passportId -> {
+                            if (masterPassportSessions.containsKey(passportId)) {
+                              masterPassportSessions.get(passportId).add(instanceNode);
+                            } else {
+                              masterPassportSessions.put(
+                                  passportId, Lists.newArrayList(instanceNode));
+                            }
+                          }));
+
+              masterDeviceSessions.clear();
+              devicesConnections.forEach(
+                  (instanceNode, deviceIds) ->
+                      deviceIds.forEach(
+                          deviceId -> {
+                            if (masterDeviceSessions.containsKey(deviceId)) {
+                              masterDeviceSessions.get(deviceId).add(instanceNode);
+                            } else {
+                              masterDeviceSessions.put(deviceId, Lists.newArrayList(instanceNode));
+                            }
+                          }));
+
+              lastDiffTimestamp = System.currentTimeMillis();
+            } catch (Exception e) {
+              masterClusterLog.error("cluster process master session data failed,ignore");
+            } finally {
+              diffQuerySemaphore.release(1);
+            }
+          });
+    }
   }
 }

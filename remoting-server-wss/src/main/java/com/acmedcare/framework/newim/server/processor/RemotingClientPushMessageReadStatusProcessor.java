@@ -3,6 +3,7 @@ package com.acmedcare.framework.newim.server.processor;
 import com.acmedcare.framework.kits.Assert;
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
+import com.acmedcare.framework.newim.Message.MessageType;
 import com.acmedcare.framework.newim.server.core.IMSession;
 import com.acmedcare.framework.newim.server.core.SessionContextConstants.RemotePrincipal;
 import com.acmedcare.framework.newim.server.processor.header.PushMessageReadStatusHeader;
@@ -46,8 +47,18 @@ public class RemotingClientPushMessageReadStatusProcessor extends AbstractNormal
 
       Assert.notNull(header, "推送消息已读状态请求头参数异常");
 
-      this.messageService.updateGroupMessageReadStatus(
-          header.getPassportId(), header.getGroupId(), header.getMessageId());
+      MessageType messageType = header.decodeMessageType();
+
+      switch (messageType) {
+        case GROUP:
+          this.messageService.updateGroupMessageReadStatus(
+              header.getPassportId(), header.getSender(), header.getMessageId());
+          break;
+        case SINGLE:
+          this.messageService.updateSingleMessageReadStatus(
+              header.getPassportId(), header.getSender(), header.getMessageId());
+          break;
+      }
 
       // return success
       response.setBody(BizResult.SUCCESS.bytes());

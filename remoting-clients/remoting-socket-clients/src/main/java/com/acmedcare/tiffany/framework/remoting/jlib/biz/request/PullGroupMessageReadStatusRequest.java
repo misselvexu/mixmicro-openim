@@ -1,5 +1,7 @@
 package com.acmedcare.tiffany.framework.remoting.jlib.biz.request;
 
+import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Member;
+import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,22 +15,25 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class PushMessageReadStatusRequest extends BaseRequest {
+public class PullGroupMessageReadStatusRequest extends BaseRequest {
 
   /**
-   * 最新消息 ID
+   * 群组编号
    *
-   * <pre>根据客户端群组最后一条消息的编号,反推,界限不是显示,而是全部</pre>
+   * <p>
    */
-  private long leastMessageId;
+  private String groupId;
 
-  /** 此处 ID 标识单聊(发送人) / 群组的标识 */
-  private String sender;
-
-  private String messageType;
+  /**
+   * 消息Id , 可理解为最新的消息,那么之前的消息都标识阅读
+   *
+   * <p>
+   */
+  private String messageId;
 
   public interface Callback {
-    void onSuccess();
+
+    void onSuccess(List<Member> readedMembers, List<Member> unReadMembers);
 
     void onFailed(int code, String message);
   }

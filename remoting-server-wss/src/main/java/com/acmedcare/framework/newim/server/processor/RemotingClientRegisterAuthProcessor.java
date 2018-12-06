@@ -72,7 +72,7 @@ public class RemotingClientRegisterAuthProcessor extends AbstractNormalRequestPr
       remotePrincipal.setOrgId(authHeader.getOrgId());
 
       // bind
-      imSession.bindTcpSession(
+      imSession.bindTcpSession(remotePrincipal,
           authHeader.getDeviceId(), authHeader.getPassportId(), channelHandlerContext.channel());
 
       // set session info

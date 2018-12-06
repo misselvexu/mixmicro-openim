@@ -4,6 +4,9 @@ import com.acmedcare.nas.client.NasClient;
 import com.acmedcare.nas.client.NasClientFactory;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.AuthRequest;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.JoinOrLeaveGroupRequest;
+import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullGroupMembersOnlineStatusRequest;
+import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullGroupMembersRequest;
+import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullGroupMessageReadStatusRequest;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullMessageRequest;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullOwnerGroupListRequest;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PushMessageReadStatusRequest;
@@ -21,13 +24,13 @@ import javax.annotation.Nullable;
  */
 public abstract class BizExecutor {
 
+  /** 请求超时时间 */
+  protected static long requestTimeout =
+      Long.parseLong(System.getProperty("tiffany.quantum.request.timeout", "5000"));
+
   protected AcmedcareRemoting remoting;
 
   protected NasClient nasClient;
-
-  public NasClient nasClient() {
-    return this.nasClient;
-  }
 
   public BizExecutor(AcmedcareRemoting remoting) {
     this.remoting = remoting;
@@ -41,6 +44,10 @@ public abstract class BizExecutor {
       e.printStackTrace();
       AcmedcareLogger.e(null, e, "Acmedcare Nas Init failed");
     }
+  }
+
+  public NasClient nasClient() {
+    return this.nasClient;
   }
 
   protected String remotingAddress() {
@@ -134,5 +141,40 @@ public abstract class BizExecutor {
    */
   public abstract void joinOrLeaveGroup(
       JoinOrLeaveGroupRequest request, JoinOrLeaveGroupRequest.Callback callback)
+      throws BizException;
+
+  /**
+   * 拉取群组消息已读/未读状态
+   *
+   * @param request 请求对象
+   * @param callback 回调
+   * @throws BizException exception
+   */
+  public abstract void pullGroupMessageReadStatus(
+      PullGroupMessageReadStatusRequest request,
+      PullGroupMessageReadStatusRequest.Callback callback)
+      throws BizException;
+
+  /**
+   * 拉取群组人员列表
+   *
+   * @param request 请求对象
+   * @param callback 回调
+   * @throws BizException exception
+   */
+  public abstract void pullGroupMembersList(
+      PullGroupMembersRequest request, PullGroupMembersRequest.Callback callback)
+      throws BizException;
+
+  /**
+   * 拉取群组在线人员列表
+   *
+   * @param request 请求对象
+   * @param callback 回调
+   * @throws BizException exception
+   */
+  public abstract void pullGroupOnlineMembers(
+      PullGroupMembersOnlineStatusRequest request,
+      PullGroupMembersOnlineStatusRequest.Callback callback)
       throws BizException;
 }

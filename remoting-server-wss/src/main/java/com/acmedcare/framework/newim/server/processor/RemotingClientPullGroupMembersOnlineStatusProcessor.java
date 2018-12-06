@@ -1,11 +1,13 @@
 package com.acmedcare.framework.newim.server.processor;
 
+import com.acmedcare.framework.kits.Assert;
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
 import com.acmedcare.framework.newim.client.bean.Member;
 import com.acmedcare.framework.newim.server.core.IMSession;
 import com.acmedcare.framework.newim.server.core.SessionContextConstants.RemotePrincipal;
 import com.acmedcare.framework.newim.server.processor.header.PullGroupMembersOnlineStatusHeader;
+import com.acmedcare.framework.newim.server.service.GroupService;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import io.netty.channel.ChannelHandlerContext;
 import java.util.List;
@@ -20,8 +22,12 @@ import java.util.List;
 public class RemotingClientPullGroupMembersOnlineStatusProcessor
     extends AbstractNormalRequestProcessor {
 
-  public RemotingClientPullGroupMembersOnlineStatusProcessor(IMSession imSession) {
+  private final GroupService groupService;
+
+  public RemotingClientPullGroupMembersOnlineStatusProcessor(
+      GroupService groupService, IMSession imSession) {
     super(imSession);
+    this.groupService = groupService;
   }
 
   @Override
@@ -56,7 +62,13 @@ public class RemotingClientPullGroupMembersOnlineStatusProcessor
         return response;
       }
 
-      List<Member> onlineMemberLists = this.imSession.getOnlineMemberList(header.getGroupId());
+      List<Member> groupMembers = this.groupService.queryGroupMembers(header.getGroupId());
+      Assert.isTrue(
+          groupMembers != null && !groupMembers.isEmpty(),
+          "群组:[" + header.getGroupId() + "]中没有任何成员");
+
+      List<Member> onlineMemberLists =
+          this.imSession.getOnlineMemberList(groupMembers, header.getGroupId());
 
       response.setBody(BizResult.builder().code(0).data(onlineMemberLists).build().bytes());
 
