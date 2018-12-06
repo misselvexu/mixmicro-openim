@@ -85,7 +85,7 @@ public class FirstDemoClient {
                   @Override
                   public List<RemotingAddress> remotingAddressList() {
                     return Lists.newArrayList(
-                        new RemotingAddress(false, "127.0.0.1", 13110, false));
+                        new RemotingAddress(false, "192.168.1.227", 13110, false));
                   }
                 })
             .build();
@@ -224,7 +224,7 @@ public class FirstDemoClient {
           continue;
         }
 
-        // 拉取群组成员
+        // 拉取群组成员 pullGroupMembers gid-20181122
         if (inputArgs[0].equals("pullGroupMembers")) {
           pullGroupMembers(inputArgs[1]);
           continue;
@@ -248,7 +248,7 @@ public class FirstDemoClient {
           continue;
         }
 
-        // 拉取群消息已读未读状态  pullGroupMessageReadStatus gid-20181122 1047261835348992
+        // 拉取群消息已读未读状态  pullGroupMessageReadStatus gid-20181122 1047341427755264
         if (inputArgs[0].equals("pullGroupMessageReadStatus")) {
           pullGroupMessageReadStatus(inputArgs[1],inputArgs[2]);
           continue;

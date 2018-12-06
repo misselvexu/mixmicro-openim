@@ -85,7 +85,7 @@ public class ThridDemoClient {
                   @Override
                   public List<RemotingAddress> remotingAddressList() {
                     return Lists.newArrayList(
-                        new RemotingAddress(false, "127.0.0.1", 13110, false));
+                        new RemotingAddress(false, "192.168.1.227", 13110, false));
                   }
                 })
             .build();
@@ -242,7 +242,7 @@ public class ThridDemoClient {
           continue;
         }
 
-        // 上报群消息已读状态 pushGroupMessageReadStatus gid-20181122 1047261835348992
+        // 上报群消息已读状态 pushGroupMessageReadStatus gid-20181122 1047341427755264
         if (inputArgs[0].equals("pushGroupMessageReadStatus")) {
           pushGroupMessageReadStatus(inputArgs[1], inputArgs[2]);
           continue;
