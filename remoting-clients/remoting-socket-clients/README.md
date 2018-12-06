@@ -34,6 +34,8 @@ String deviceId = "DEVICE-ID";
  
 > Usage 
 
+- 初始化
+
 ```java
 
     // Android 默认不开启此选项
@@ -135,6 +137,279 @@ String deviceId = "DEVICE-ID";
       //TODO SDK初始化异常 客户端自行处理
       e.printStackTrace();
     }
+
+
+```
+
+- 功能实现
+
+```java
+
+
+// 拉取群组成员
+  private static void pullGroupMembers(String groupId) {
+
+    PullGroupMembersRequest request = new PullGroupMembersRequest();
+    request.setGroupId(groupId);
+    request.setPassport(KnownParams.passport);
+    request.setPassportId(KnownParams.passportId.toString());
+
+    AcmedcareRemoting.getInstance()
+        .executor()
+        .pullGroupMembersList(
+            request,
+            new PullGroupMembersRequest.Callback() {
+              @Override
+              public void onSuccess(List<Member> members) {
+                System.out.println("返回值:" + JSON.toJSONString(members));
+              }
+
+              @Override
+              public void onFailed(int code, String message) {
+                System.out.println("失败,Code = " + code + ", Message = " + message);
+              }
+            });
+  }
+
+  // 拉取群组成员在线成员
+  private static void pullGroupOnlineMembers(String groupId) {
+    PullGroupMembersOnlineStatusRequest request = new PullGroupMembersOnlineStatusRequest();
+    request.setGroupId(groupId);
+    request.setPassport(KnownParams.passport);
+    request.setPassportId(KnownParams.passportId.toString());
+
+    AcmedcareRemoting.getInstance()
+        .executor()
+        .pullGroupOnlineMembers(
+            request,
+            new PullGroupMembersOnlineStatusRequest.Callback() {
+              @Override
+              public void onSuccess(List<Member> members) {
+                System.out.println("返回值:" + JSON.toJSONString(members));
+              }
+
+              @Override
+              public void onFailed(int code, String message) {
+                System.out.println("失败,Code = " + code + ", Message = " + message);
+              }
+            });
+  }
+
+  // 推送单聊消息已读状态
+  private static void pushSingleMessageReadStatus(String sender, String messageId) {
+
+    PushMessageReadStatusRequest request = new PushMessageReadStatusRequest();
+    request.setLeastMessageId(Long.parseLong(messageId));
+    request.setMessageType(MessageType.SINGLE.name());
+    request.setSender(sender);
+    request.setPassport(KnownParams.passport);
+    request.setPassportId(KnownParams.passportId.toString());
+
+    AcmedcareRemoting.getInstance()
+        .executor()
+        .pushMessageReadStatus(
+            request,
+            new PushMessageReadStatusRequest.Callback() {
+              @Override
+              public void onSuccess() {
+                System.out.println("处理成功");
+              }
+
+              @Override
+              public void onFailed(int code, String message) {
+                System.out.println("失败,Code = " + code + ", Message = " + message);
+              }
+            });
+  }
+
+
+  // 推送群里消息已读状态
+  private static void pushGroupMessageReadStatus(String groupId, String messageId) {
+
+    PushMessageReadStatusRequest request = new PushMessageReadStatusRequest();
+    request.setLeastMessageId(Long.parseLong(messageId));
+    request.setMessageType(MessageType.GROUP.name());
+    request.setSender(groupId);
+    request.setPassport(KnownParams.passport);
+    request.setPassportId(KnownParams.passportId.toString());
+
+    AcmedcareRemoting.getInstance()
+        .executor()
+        .pushMessageReadStatus(
+            request,
+            new PushMessageReadStatusRequest.Callback() {
+              @Override
+              public void onSuccess() {
+                System.out.println("处理成功");
+              }
+
+              @Override
+              public void onFailed(int code, String message) {
+                System.out.println("失败,Code = " + code + ", Message = " + message);
+              }
+            });
+  }
+
+
+  // 拉取群组消息已读状态
+  private static void pullGroupMessageReadStatus(String groupId, String messageId) {
+
+    PullGroupMessageReadStatusRequest request = new PullGroupMessageReadStatusRequest();
+    request.setGroupId(groupId);
+    request.setMessageId(messageId);
+    request.setPassport(KnownParams.passport);
+    request.setPassportId(KnownParams.passportId.toString());
+
+    AcmedcareRemoting.getInstance()
+        .executor()
+        .pullGroupMessageReadStatus(
+            request,
+            new PullGroupMessageReadStatusRequest.Callback() {
+              @Override
+              public void onSuccess(List<Member> readedMembers, List<Member> unReadMembers) {
+                System.out.println("已读人员: " + JSON.toJSONString(readedMembers));
+                System.out.println("未读人员: " + JSON.toJSONString(unReadMembers));
+              }
+
+              @Override
+              public void onFailed(int code, String message) {
+                System.out.println("失败,Code = " + code + ", Message = " + message);
+              }
+            });
+  }
+
+  /** 拉取消息列表(个人) */
+  private static void pullMessageList(String sender, long leastMessageId) {
+    PullMessageRequest pullMessageRequest = new PullMessageRequest();
+    pullMessageRequest.setLeastMessageId(leastMessageId);
+    pullMessageRequest.setLimit(10);
+    pullMessageRequest.setPassportId(KnownParams.passportId.toString());
+    pullMessageRequest.setSender(sender);
+    pullMessageRequest.setType(0);
+    pullMessageRequest.setUsername(KnownParams.passport);
+
+    AcmedcareRemoting.getInstance()
+        .executor()
+        .pullMessage(
+            pullMessageRequest,
+            new Callback<SingleMessage>() {
+              @Override
+              public void onSuccess(List<SingleMessage> messages) {
+                System.out.println("拉取消息返回值: " + JSON.toJSONString(messages));
+              }
+
+              @Override
+              public void onFailed(int code, String message) {
+                System.out.println("拉取消息列表失败,Code = " + code + ", Message = " + message);
+              }
+            });
+  }
+
+  /** 拉取消息列表(群组) */
+  private static void pullMessageList2(String sender, long leastMessageId) {
+    PullMessageRequest pullMessageRequest = new PullMessageRequest();
+    pullMessageRequest.setLeastMessageId(leastMessageId);
+    pullMessageRequest.setLimit(10);
+    pullMessageRequest.setPassportId(KnownParams.passportId.toString());
+    pullMessageRequest.setSender(sender);
+    pullMessageRequest.setType(1);
+    pullMessageRequest.setUsername(KnownParams.passport);
+
+    AcmedcareRemoting.getInstance()
+        .executor()
+        .pullMessage(
+            pullMessageRequest,
+            new Callback<SingleMessage>() {
+              @Override
+              public void onSuccess(List<SingleMessage> messages) {
+                System.out.println("拉取消息返回值: " + JSON.toJSONString(messages));
+              }
+
+              @Override
+              public void onFailed(int code, String message) {
+                System.out.println("拉取消息列表失败,Code = " + code + ", Message = " + message);
+              }
+            });
+  }
+
+  /** 拉取群组列表 */
+  private static void pullOwnGroupList() {
+    PullOwnerGroupListRequest pullOwnerGroupListRequest = new PullOwnerGroupListRequest();
+    pullOwnerGroupListRequest.setPassport(KnownParams.passport);
+    pullOwnerGroupListRequest.setPassportId(KnownParams.passportId.toString());
+    AcmedcareRemoting.getInstance()
+        .executor()
+        .pullOwnerGroupList(
+            pullOwnerGroupListRequest,
+            new PullOwnerGroupListRequest.Callback() {
+              @Override
+              public void onSuccess(List<Group> groups) {
+                System.out.println("拉取群组返回值: " + JSON.toJSONString(groups));
+              }
+
+              @Override
+              public void onFailed(int code, String message) {
+                System.out.println("拉取群组列表失败,Code = " + code + ", Message = " + message);
+              }
+            });
+  }
+
+  /**
+   * 发送消息
+   *
+   * @param message
+   */
+  private static void sendMessage(Message message) {
+
+    PushMessageRequest pushMessageRequest = new PushMessageRequest();
+    pushMessageRequest.setPassport(KnownParams.passport);
+    pushMessageRequest.setMessage(message);
+    pushMessageRequest.setMessageType(message.getMessageType().name());
+    pushMessageRequest.setPassportId(KnownParams.passportId.toString());
+
+    AcmedcareRemoting.getInstance()
+        .executor()
+        .pushMessage(
+            pushMessageRequest,
+            new PushMessageRequest.Callback() {
+              @Override
+              public void onSuccess(long messageId) {
+                System.out.println("发送消息成功, 生成的消息编号:" + messageId);
+              }
+
+              @Override
+              public void onFailed(int code, String message) {
+                System.out.println("发送消息失败,Code = " + code + ", Message = " + message);
+              }
+            });
+  }
+
+  private static void sendMediaMessage(Message message, String fileName) {
+
+    PushMessageRequest pushMessageRequest = new PushMessageRequest();
+    pushMessageRequest.setPassport(KnownParams.passport);
+    pushMessageRequest.setMessage(message);
+    pushMessageRequest.setMessageType(message.getMessageType().name());
+    pushMessageRequest.setPassportId(KnownParams.passportId.toString());
+    pushMessageRequest.setFile(new File(fileName));
+
+    AcmedcareRemoting.getInstance()
+        .executor()
+        .pushMessage(
+            pushMessageRequest,
+            new PushMessageRequest.Callback() {
+              @Override
+              public void onSuccess(long messageId) {
+                System.out.println("发送消息成功, 生成的消息编号:" + messageId);
+              }
+
+              @Override
+              public void onFailed(int code, String message) {
+                System.out.println("发送消息失败,Code = " + code + ", Message = " + message);
+              }
+            });
+  }
+
 
 
 ```
