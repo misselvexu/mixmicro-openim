@@ -5,23 +5,24 @@ import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
 import com.acmedcare.framework.newim.client.bean.Member;
 import com.acmedcare.framework.newim.server.core.IMSession;
 import com.acmedcare.framework.newim.server.core.SessionContextConstants.RemotePrincipal;
-import com.acmedcare.framework.newim.server.processor.header.JoinOrLeaveGroupHeader;
+import com.acmedcare.framework.newim.server.processor.header.PullGroupMembersHeader;
 import com.acmedcare.framework.newim.server.service.GroupService;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
-import com.google.common.collect.Lists;
 import io.netty.channel.ChannelHandlerContext;
+import java.util.List;
 
 /**
- * Remoting Client Join Or Leave Group Processor
+ * Pull Group Members Processor
  *
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
- * @version ${project.version} - 2018-12-03.
+ * @version ${project.version} - 2018-12-05.
+ * @since 2.2.0
  */
-public class RemotingClientJoinOrLeaveGroupProcessor extends AbstractNormalRequestProcessor {
+public class RemotingClientPullGroupMembersProcessor extends AbstractNormalRequestProcessor {
 
   private final GroupService groupService;
 
-  public RemotingClientJoinOrLeaveGroupProcessor(GroupService groupService, IMSession imSession) {
+  public RemotingClientPullGroupMembersProcessor(IMSession imSession, GroupService groupService) {
     super(imSession);
     this.groupService = groupService;
   }
@@ -39,14 +40,17 @@ public class RemotingClientJoinOrLeaveGroupProcessor extends AbstractNormalReque
       // valid
       RemotePrincipal principal = validatePrincipal(channelHandlerContext.channel());
 
-      Object header = remotingCommand.decodeCommandCustomHeader(JoinOrLeaveGroupHeader.class);
+      PullGroupMembersHeader header =
+          (PullGroupMembersHeader)
+              remotingCommand.decodeCommandCustomHeader(PullGroupMembersHeader.class);
       if (header == null) {
+
         response.setBody(
             BizResult.builder()
                 .code(-1)
                 .exception(
                     ExceptionWrapper.builder()
-                        .message("加群/退群列表请求头参数异常")
+                        .message("拉取群组成员列表请求头参数异常")
                         .type(NullPointerException.class)
                         .build())
                 .build()
@@ -55,29 +59,12 @@ public class RemotingClientJoinOrLeaveGroupProcessor extends AbstractNormalReque
         return response;
       }
 
-      JoinOrLeaveGroupHeader joinOrLeaveGroupHeader = (JoinOrLeaveGroupHeader) header;
+      List<Member> members = this.groupService.queryGroupMembers(header.getGroupId());
 
-      switch (joinOrLeaveGroupHeader.getOperateType()) {
-        case JOIN:
-          this.groupService.joinGroup(
-              joinOrLeaveGroupHeader.getGroupId(),
-              Lists.newArrayList(
-                  Member.builder()
-                      .memberId(Long.parseLong(joinOrLeaveGroupHeader.getPassportId()))
-                      .memberName(joinOrLeaveGroupHeader.getMemberName())
-                      .build()));
-          break;
-        case LEAVE:
-          this.groupService.leaveGroup(
-              joinOrLeaveGroupHeader.getGroupId(),
-              Lists.newArrayList(joinOrLeaveGroupHeader.getPassportId()));
-          break;
-      }
-
-      response.setBody(BizResult.builder().code(0).build().bytes());
+      response.setBody(BizResult.builder().code(0).data(members).build().bytes());
 
     } catch (Exception e) {
-      // exception
+      // set error response
       response.setBody(
           BizResult.builder()
               .code(-1)
@@ -89,6 +76,7 @@ public class RemotingClientJoinOrLeaveGroupProcessor extends AbstractNormalReque
               .build()
               .bytes());
     }
+
     return response;
   }
 

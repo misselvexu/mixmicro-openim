@@ -7,6 +7,7 @@ import com.acmedcare.framework.kits.thread.ThreadKit;
 import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.Message.MessageType;
 import com.acmedcare.framework.newim.client.MessageAttribute;
+import com.acmedcare.framework.newim.client.bean.Member;
 import com.acmedcare.framework.newim.protocol.Command.ClusterClientCommand;
 import com.acmedcare.framework.newim.protocol.Command.Retriable;
 import com.acmedcare.framework.newim.protocol.request.ClusterForwardMessageHeader;
@@ -325,5 +326,10 @@ public class IMSession implements InitializingBean, DisposableBean {
         30,
         30,
         TimeUnit.SECONDS);
+  }
+
+  public List<Member> getOnlineMemberList(String groupId) {
+    // TODO 筛选在线人员
+    return null;
   }
 }

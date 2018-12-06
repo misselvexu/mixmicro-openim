@@ -18,12 +18,14 @@ public class JoinOrLeaveGroupRequest {
 
   private String groupId;
   private String passportId;
+  private String memberName;
   private OperateType operateType;
 
   @Builder
-  public JoinOrLeaveGroupRequest(String groupId, String passportId, OperateType operateType) {
+  public JoinOrLeaveGroupRequest(String groupId, String passportId, String memberName,OperateType operateType) {
     this.groupId = groupId;
     this.passportId = passportId;
+    this.memberName = memberName;
     this.operateType = operateType;
   }
 

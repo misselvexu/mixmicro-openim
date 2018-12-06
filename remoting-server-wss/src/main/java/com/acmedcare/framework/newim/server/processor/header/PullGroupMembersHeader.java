@@ -8,27 +8,27 @@ import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Join Group Header
+ * Pull Group Members
  *
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
- * @version ${project.version} - 2018-12-03.
+ * @version ${project.version} - 2018-12-05.
+ * @since 2.2.0
  */
 @Getter
 @Setter
-public class JoinOrLeaveGroupHeader implements CommandCustomHeader {
+public class PullGroupMembersHeader implements CommandCustomHeader {
 
+  /**
+   * 群组编号
+   *
+   * <p>
+   */
   @CFNotNull private String groupId;
-  @CFNotNull private String passportId;
-  @CFNotNull private String memberName;
-  @CFNotNull private OperateType operateType;
 
   @Override
   public void checkFields() throws RemotingCommandException {
-    if (StringUtils.isAnyBlank(groupId, passportId, memberName)) {
-      throw new RemotingCommandException("请求参数[groupId,passportId,memberName]不能为空");
-    }
-    if (operateType == null) {
-      throw new RemotingCommandException("请求参数[operateType]不能为空");
+    if (StringUtils.isAnyBlank(groupId)) {
+      throw new RemotingCommandException("拉取群组成员列表请求参数[groupId不能为空]");
     }
   }
 }

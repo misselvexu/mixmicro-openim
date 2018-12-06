@@ -10,6 +10,7 @@ import com.acmedcare.framework.newim.server.processor.ClusterForwardMessageReque
 import com.acmedcare.framework.newim.server.processor.DefaultIMProcessor;
 import com.acmedcare.framework.newim.server.processor.RemotingClientJoinOrLeaveGroupProcessor;
 import com.acmedcare.framework.newim.server.processor.RemotingClientPullGroupMembersOnlineStatusProcessor;
+import com.acmedcare.framework.newim.server.processor.RemotingClientPullGroupMembersProcessor;
 import com.acmedcare.framework.newim.server.processor.RemotingClientPullGroupMessageReadStatusProcessor;
 import com.acmedcare.framework.newim.server.processor.RemotingClientPullGroupProcessor;
 import com.acmedcare.framework.newim.server.processor.RemotingClientPullMessageProcessor;
@@ -253,6 +254,12 @@ public class NewIMServerBootstrap {
     imServer.registerProcessor(
         ClusterClientCommand.CLIENT_PULL_GROUP_MEMBERS_ONLINE_STATUS,
         new RemotingClientPullGroupMembersOnlineStatusProcessor(imSession),
+        null);
+
+    // @since 2.2.0
+    imServer.registerProcessor(
+        ClusterClientCommand.CLIENT_PULL_GROUP_MEMBERS,
+        new RemotingClientPullGroupMembersProcessor(imSession, groupService),
         null);
 
     // start imServer

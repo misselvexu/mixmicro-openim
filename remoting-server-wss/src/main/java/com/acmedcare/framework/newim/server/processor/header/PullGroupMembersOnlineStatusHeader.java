@@ -25,17 +25,10 @@ public class PullGroupMembersOnlineStatusHeader implements CommandCustomHeader {
    */
   @CFNotNull private String groupId;
 
-  /**
-   * 消息Id , 可理解为最新的消息,那么之前的消息都标识阅读
-   *
-   * <p>
-   */
-  @CFNotNull private String messageId;
-
   @Override
   public void checkFields() throws RemotingCommandException {
-    if (StringUtils.isAnyBlank(groupId, messageId)) {
-      throw new RemotingCommandException("推送消息读取状态请求参数[groupId,messageId]不能为空");
+    if (StringUtils.isAnyBlank(groupId)) {
+      throw new RemotingCommandException("拉取群组成员在线状态请求参数[groupId不能为空]");
     }
   }
 }
