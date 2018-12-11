@@ -26,6 +26,7 @@ public class GroupServices {
   }
 
   public void createGroup(
+      String namespace,
       String groupId,
       String groupName,
       String groupOwner,
@@ -35,6 +36,7 @@ public class GroupServices {
     //
     Group group =
         Group.builder()
+            .namespace(namespace)
             .groupId(groupId)
             .groupName(groupName)
             .groupOwner(groupOwner)
@@ -51,19 +53,24 @@ public class GroupServices {
     }
   }
 
-  public void addNewGroupMembers(String groupId, List<Member> members) {
+  public void addNewGroupMembers(String namespace, String groupId, List<Member> members) {
     this.groupRepository.saveGroupMembers(
-        GroupMembers.builder().groupId(groupId).members(members).build());
+        GroupMembers.builder().namespace(namespace).groupId(groupId).members(members).build());
   }
 
-  public void removeNewGroupMembers(String groupId, List<String> memberIds) {
-    this.groupRepository.removeGroupMembers(groupId, memberIds);
+  public void removeNewGroupMembers(String namespace, String groupId, List<String> memberIds) {
+    this.groupRepository.removeGroupMembers(namespace, groupId, memberIds);
   }
 
   public Group updateGroup(
-      String groupId, String groupName, String groupOwner, String groupBizTag, String groupExt) {
+      String namespace,
+      String groupId,
+      String groupName,
+      String groupOwner,
+      String groupBizTag,
+      String groupExt) {
 
-    Group group = this.groupRepository.queryGroup(groupId);
+    Group group = this.groupRepository.queryGroup(namespace, groupId);
 
     if (group == null) {
       throw new StorageException("无效的群组ID");
@@ -81,14 +88,14 @@ public class GroupServices {
     return group;
   }
 
-  public Group removeGroup(String groupId) {
-    Group group = this.groupRepository.queryGroup(groupId);
+  public Group removeGroup(String namespace, String groupId) {
+    Group group = this.groupRepository.queryGroup(namespace, groupId);
 
     if (group == null) {
       throw new StorageException("无效的群组ID");
     }
 
-    long row = this.groupRepository.removeGroup(groupId);
+    long row = this.groupRepository.removeGroup(namespace, groupId);
 
     return group;
   }

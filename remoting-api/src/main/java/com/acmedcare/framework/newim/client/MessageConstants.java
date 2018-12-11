@@ -10,6 +10,9 @@ import java.util.concurrent.TimeUnit;
  */
 public interface MessageConstants {
 
+  /** 默认命名空间 */
+  String DEFAULT_NAMESPACE = "DEFAULT";
+
   /** 最大重试次数,系统默认为:3次 */
   int DEFAULT_QOS_MAX_RETRY_TIMES = 3;
 

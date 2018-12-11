@@ -99,11 +99,12 @@ public class WssSessionContext {
     }
   }
 
-  public void forwardMessage(List<String> passportIds, Object message) {
+  public void forwardMessage(String namespace, List<String> passportIds, Object message) {
     convertLog.info(
         "[WS<->TCP] forward message:{} to passports: {}",
         JSON.toJSONString(message),
         JSON.toJSONString(passportIds));
-    imSession.sendMessageToPassport(passportIds, MessageType.SINGLE, JSON.toJSONBytes(message));
+    imSession.sendMessageToPassport(
+        namespace, passportIds, MessageType.SINGLE, JSON.toJSONBytes(message));
   }
 }

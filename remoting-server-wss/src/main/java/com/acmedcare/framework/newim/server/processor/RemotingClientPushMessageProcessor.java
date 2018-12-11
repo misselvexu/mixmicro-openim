@@ -69,6 +69,7 @@ public class RemotingClientPushMessageProcessor extends AbstractNormalRequestPro
           long mid = Ids.snowflake.nextId();
           ret.put("mid", mid);
           singleMessage.setMid(mid);
+          singleMessage.setNamespace(header.getNamespace());
 
           imServerLog.info("[NEW-IM-CLIENT] 服务器处理客户端消息,开始发送单聊消息给接受客户端");
           this.messageService.processMessage(imSession, singleMessage);
@@ -80,6 +81,7 @@ public class RemotingClientPushMessageProcessor extends AbstractNormalRequestPro
           mid = Ids.snowflake.nextId();
           ret.put("mid", mid);
           groupMessage.setMid(mid);
+          groupMessage.setNamespace(header.getNamespace());
 
           imServerLog.info("[NEW-IM-CLIENT] 服务器处理客户端消息,开始发送群组消息给接受客户端");
           this.messageService.processMessage(imSession, groupMessage);

@@ -61,6 +61,7 @@ public class RemotingClientPullMessageProcessor extends AbstractNormalRequestPro
       // 拉取用户组消息列表
       List<? extends Message> list =
           this.messageService.queryAccountMessages(
+              pullMessageHeader.getNamespace(),
               pullMessageHeader.getPassport(),
               pullMessageHeader.getPassportId(),
               pullMessageHeader.getSender(),

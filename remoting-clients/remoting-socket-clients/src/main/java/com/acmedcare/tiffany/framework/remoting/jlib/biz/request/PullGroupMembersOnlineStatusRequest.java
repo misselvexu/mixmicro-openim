@@ -1,5 +1,6 @@
 package com.acmedcare.tiffany.framework.remoting.jlib.biz.request;
 
+import com.acmedcare.tiffany.framework.remoting.jlib.Constants;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Member;
 import java.util.List;
 import lombok.Getter;
@@ -16,6 +17,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class PullGroupMembersOnlineStatusRequest extends BaseRequest {
+  private String namespace = Constants.DEFAULT_NAMESPACE;
 
   private String groupId;
 

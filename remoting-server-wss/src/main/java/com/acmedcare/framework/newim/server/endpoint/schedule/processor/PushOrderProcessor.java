@@ -61,6 +61,7 @@ public class PushOrderProcessor implements WssMessageRequestProcessor {
 
         // push biz
         context.pushMessage(
+            pushOrderRequest.getNamespace(),
             pushOrderRequest.getAreaNo(), //  区域编号
             pushOrderRequest.getSubOrgId(), // 接收的分站标识
             pushOrderRequest.getOrderDetail()); // 订单信息

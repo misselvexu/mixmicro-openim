@@ -26,21 +26,21 @@ public class GroupService {
     this.groupRepository = groupRepository;
   }
 
-  public List<Group> queryAccountGroups(String passportId) {
-    return this.groupRepository.queryMemberGroups(passportId);
+  public List<Group> queryAccountGroups(String namespace, String passportId) {
+    return this.groupRepository.queryMemberGroups(namespace, passportId);
   }
 
-  public void joinGroup(String groupId, List<Member> members) {
-    GroupMembers groupMembers = new GroupMembers(groupId, members);
+  public void joinGroup(String namespace, String groupId, List<Member> members) {
+    GroupMembers groupMembers = new GroupMembers(namespace, groupId, members);
     this.groupRepository.saveGroupMembers(groupMembers);
   }
 
-  public void leaveGroup(String groupId, List<String> memberIds) {
-    this.groupRepository.removeGroupMembers(groupId, memberIds);
+  public void leaveGroup(String namespace, String groupId, List<String> memberIds) {
+    this.groupRepository.removeGroupMembers(namespace, groupId, memberIds);
   }
 
-  public List<Member> queryGroupMembers(String groupId) {
-    List<GroupMemberRef> refs = this.groupRepository.queryGroupMembers(groupId);
+  public List<Member> queryGroupMembers(String namespace, String groupId) {
+    List<GroupMemberRef> refs = this.groupRepository.queryGroupMembers(namespace, groupId);
     List<Member> members = Lists.newArrayList();
     for (GroupMemberRef ref : refs) {
       members.add(

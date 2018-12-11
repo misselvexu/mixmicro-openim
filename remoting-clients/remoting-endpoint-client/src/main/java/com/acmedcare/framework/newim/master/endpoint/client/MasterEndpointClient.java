@@ -13,6 +13,7 @@ import com.acmedcare.framework.newim.client.EndpointConstants.MessageRequest;
 import com.acmedcare.framework.newim.client.MasterEndpointService;
 import com.acmedcare.framework.newim.client.MessageAttribute;
 import com.acmedcare.framework.newim.client.MessageBizType;
+import com.acmedcare.framework.newim.client.MessageConstants;
 import com.acmedcare.framework.newim.client.MessageContentType;
 import com.acmedcare.framework.newim.client.bean.MediaPayload;
 import com.acmedcare.framework.newim.client.bean.request.AddGroupMembersRequest;
@@ -310,7 +311,11 @@ public class MasterEndpointClient extends NasEndpointClient implements MasterEnd
    */
   @Override
   public GroupResponse removeGroup(String groupId) throws EndpointException {
+    return removeGroup(groupId, MessageConstants.DEFAULT_NAMESPACE);
+  }
 
+  @Override
+  public GroupResponse removeGroup(String groupId, String namespace) throws EndpointException {
     try {
       if (StringUtils.isAnyBlank(groupId)) {
         throw new EndpointException("Remove group request params:[groupId] must not be null or ''");
@@ -321,6 +326,7 @@ public class MasterEndpointClient extends NasEndpointClient implements MasterEnd
       HttpParams httpParams = new HttpParams();
       httpParams.setEntity(ENTITY.FORM);
       httpParams.put("groupId", groupId);
+      httpParams.put("namespace", namespace);
 
       HttpResponse httpResponse = new HttpResponse();
       httpClient.request(

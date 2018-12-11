@@ -1,5 +1,6 @@
 package com.acmedcare.framework.newim.client.bean.request;
 
+import com.acmedcare.framework.newim.client.MessageConstants;
 import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +16,8 @@ import lombok.Setter;
 public class UpdateGroupRequest implements Serializable {
 
   private static final long serialVersionUID = 5788630159245539329L;
+
+  private String namespace = MessageConstants.DEFAULT_NAMESPACE;
 
   private String groupId;
   private String groupName;

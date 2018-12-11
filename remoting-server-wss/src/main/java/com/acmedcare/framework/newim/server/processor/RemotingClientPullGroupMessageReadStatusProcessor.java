@@ -65,7 +65,7 @@ public class RemotingClientPullGroupMessageReadStatusProcessor
 
       MessageStatusDetail detail =
           this.messageService.queryGroupMessageReadStatusList(
-              header.getGroupId(), header.getMessageId());
+              header.getNamespace(), header.getGroupId(), header.getMessageId());
 
       response.setBody(BizResult.builder().code(0).data(detail).build().bytes());
 

@@ -1,5 +1,6 @@
 package com.acmedcare.tiffany.framework.remoting.jlib.biz.request;
 
+import com.acmedcare.tiffany.framework.remoting.jlib.Constants;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +23,7 @@ public class AuthRequest {
   private String orgId;
   private String accessToken;
   private String deviceId;
+  private String namespace = Constants.DEFAULT_NAMESPACE;
 
   @Builder
   public AuthRequest(
@@ -30,13 +32,15 @@ public class AuthRequest {
       String areaNo,
       String orgId,
       String accessToken,
-      String deviceId) {
+      String deviceId,
+      String namespace) {
     this.username = username;
     this.passportId = passportId;
     this.areaNo = areaNo;
     this.orgId = orgId;
     this.accessToken = accessToken;
     this.deviceId = deviceId;
+    this.namespace = namespace;
   }
 
   /** AuthCallback */

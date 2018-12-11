@@ -57,11 +57,12 @@ public class MasterPushMessageRequestProcessor implements NettyRequestProcessor 
           GroupMessage groupMessage = JSON.parseObject(message, GroupMessage.class);
           List<String> receivers = Lists.newArrayList(groupMessage.getReceivers());
           groupMessage.getReceivers().clear();
-          imSession.sendMessageToPassport(receivers, messageType, message);
+          imSession.sendMessageToPassport(header.getNamespace(), receivers, messageType, message);
           break;
         case SINGLE:
           SingleMessage singleMessage = JSON.parseObject(message, SingleMessage.class);
-          imSession.sendMessageToPassport(singleMessage.getReceiver(), messageType, message);
+          imSession.sendMessageToPassport(
+              header.getNamespace(), singleMessage.getReceiver(), messageType, message);
           break;
       }
 

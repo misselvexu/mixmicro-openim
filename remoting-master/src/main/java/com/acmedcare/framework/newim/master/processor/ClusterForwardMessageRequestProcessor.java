@@ -71,6 +71,7 @@ public class ClusterForwardMessageRequestProcessor implements NettyRequestProces
           SingleMessage singleMessage = JSON.parseObject(message, SingleMessage.class);
           MessageAttribute attribute =
               MessageAttribute.builder()
+                  .namespace(header.getNamespace())
                   .maxRetryTimes(singleMessage.getMaxRetryTimes())
                   .persistent(singleMessage.isPersistent())
                   .qos(singleMessage.isQos())
@@ -81,6 +82,7 @@ public class ClusterForwardMessageRequestProcessor implements NettyRequestProces
           GroupMessage groupMessage = JSON.parseObject(message, GroupMessage.class);
           attribute =
               MessageAttribute.builder()
+                  .namespace(header.getNamespace())
                   .maxRetryTimes(groupMessage.getMaxRetryTimes())
                   .persistent(groupMessage.isPersistent())
                   .qos(groupMessage.isQos())

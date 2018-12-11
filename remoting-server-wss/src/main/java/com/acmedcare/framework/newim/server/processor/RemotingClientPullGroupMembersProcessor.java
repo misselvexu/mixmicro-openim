@@ -59,7 +59,8 @@ public class RemotingClientPullGroupMembersProcessor extends AbstractNormalReque
         return response;
       }
 
-      List<Member> members = this.groupService.queryGroupMembers(header.getGroupId());
+      List<Member> members =
+          this.groupService.queryGroupMembers(header.getNamespace(), header.getGroupId());
 
       response.setBody(BizResult.builder().code(0).data(members).build().bytes());
 

@@ -1,5 +1,6 @@
 package com.acmedcare.framework.newim.protocol.request;
 
+import com.acmedcare.framework.newim.SessionBean;
 import com.google.common.collect.Sets;
 import java.io.Serializable;
 import java.util.Set;
@@ -19,7 +20,7 @@ public class MasterNoticeSessionDataBody implements Serializable {
   private static final long serialVersionUID = -5706666156157170632L;
 
   /** 同步登陆的通行证数据 */
-  private Set<String> passportsConnections = Sets.newHashSet();
+  private Set<SessionBean> passportsConnections = Sets.newHashSet();
   /** 同步登陆的设备数据 */
-  private Set<String> devicesConnections = Sets.newHashSet();
+  private Set<SessionBean> devicesConnections = Sets.newHashSet();
 }

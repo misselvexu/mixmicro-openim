@@ -54,13 +54,23 @@ public interface MasterEndpointService {
   GroupResponse updateGroup(UpdateGroupRequest request) throws EndpointException;
 
   /**
-   * Remove Group Api
+   * Remove Default Namespace Group Api
    *
    * @param groupId group id
    * @return removed {@link Group} instance
    * @throws EndpointException throw failed exception
    */
   GroupResponse removeGroup(String groupId) throws EndpointException;
+
+  /**
+   * Remove Namespace Group Api
+   *
+   * @param groupId group id
+   * @param namespace namespace
+   * @return removed {@link Group} instance
+   * @throws EndpointException throw failed exception
+   */
+  GroupResponse removeGroup(String groupId, String namespace) throws EndpointException;
 
   /**
    * Send Single Message

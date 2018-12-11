@@ -1,5 +1,6 @@
 package com.acmedcare.framework.newim;
 
+import com.acmedcare.framework.newim.client.MessageConstants;
 import com.acmedcare.framework.newim.storage.IMStorageCollections;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
@@ -29,6 +30,9 @@ public class Message implements Serializable {
   public static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
 
   private static final long serialVersionUID = 1213375068246340023L;
+
+  private String namespace = MessageConstants.DEFAULT_NAMESPACE;
+
   /** Message Id */
   @Indexed(unique = true)
   private Long mid;

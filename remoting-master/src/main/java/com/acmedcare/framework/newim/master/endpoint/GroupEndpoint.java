@@ -11,6 +11,7 @@ import com.acmedcare.framework.exception.defined.InvalidRequestParamException;
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
 import com.acmedcare.framework.newim.Group;
+import com.acmedcare.framework.newim.client.MessageConstants;
 import com.acmedcare.framework.newim.client.bean.request.AddGroupMembersRequest;
 import com.acmedcare.framework.newim.client.bean.request.NewGroupRequest;
 import com.acmedcare.framework.newim.client.bean.request.RemoveGroupMembersRequest;
@@ -58,6 +59,7 @@ public class GroupEndpoint {
       }
 
       this.groupServices.createGroup(
+          request.getNamespace(),
           request.getGroupId(),
           request.getGroupName(),
           request.getGroupOwner(),
@@ -98,6 +100,7 @@ public class GroupEndpoint {
 
       Group oldGroup =
           this.groupServices.updateGroup(
+              request.getNamespace(),
               request.getGroupId(),
               request.getGroupName(),
               request.getGroupOwner(),
@@ -126,7 +129,10 @@ public class GroupEndpoint {
   }
 
   @PostMapping(REMOVE_GROUP)
-  ResponseEntity removeGroup(@RequestParam String groupId) {
+  ResponseEntity removeGroup(
+      @RequestParam String groupId,
+      @RequestParam(required = false, defaultValue = MessageConstants.DEFAULT_NAMESPACE)
+          String namespace) {
     try {
       endpointLog.info("remove group request params: {}", groupId);
 
@@ -134,7 +140,7 @@ public class GroupEndpoint {
         throw new InvalidRequestParamException("删除群组参数异常");
       }
 
-      Group oldGroup = this.groupServices.removeGroup(groupId);
+      Group oldGroup = this.groupServices.removeGroup(namespace, groupId);
 
       return ResponseEntity.ok(BizResult.builder().code(0).data(oldGroup).build());
     } catch (InvalidRequestParamException | StorageException e) {
@@ -170,7 +176,7 @@ public class GroupEndpoint {
         throw new InvalidRequestParamException("添加群组成员列表不能为空");
       }
 
-      this.groupServices.addNewGroupMembers(request.getGroupId(), request.getMembers());
+      this.groupServices.addNewGroupMembers(request.getNamespace(),request.getGroupId(), request.getMembers());
 
       return ResponseEntity.ok().build();
     } catch (InvalidRequestParamException | StorageException e) {
@@ -202,7 +208,7 @@ public class GroupEndpoint {
         throw new InvalidRequestParamException("群组标识ID不能为空");
       }
 
-      this.groupServices.removeNewGroupMembers(request.getGroupId(), request.getMemberIds());
+      this.groupServices.removeNewGroupMembers(request.getNamespace(),request.getGroupId(), request.getMemberIds());
 
       return ResponseEntity.ok().build();
     } catch (InvalidRequestParamException | StorageException e) {

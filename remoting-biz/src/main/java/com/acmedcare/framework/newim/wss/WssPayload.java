@@ -1,5 +1,6 @@
 package com.acmedcare.framework.newim.wss;
 
+import com.acmedcare.framework.newim.client.MessageConstants;
 import com.alibaba.fastjson.JSON;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -28,6 +29,8 @@ public class WssPayload {
   @Getter
   @Setter
   public static class WssRequest extends WssPayload {
+
+    private String namespace = MessageConstants.DEFAULT_NAMESPACE;
     /**
      * Biz Code Request
      *

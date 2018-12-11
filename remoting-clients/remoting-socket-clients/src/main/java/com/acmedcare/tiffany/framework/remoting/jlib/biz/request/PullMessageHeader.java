@@ -3,6 +3,7 @@ package com.acmedcare.tiffany.framework.remoting.jlib.biz.request;
 import com.acmedcare.tiffany.framework.remoting.android.core.CFNotNull;
 import com.acmedcare.tiffany.framework.remoting.android.core.exception.RemotingCommandException;
 import com.acmedcare.tiffany.framework.remoting.android.core.protocol.CommandCustomHeader;
+import com.acmedcare.tiffany.framework.remoting.jlib.Constants;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class PullMessageHeader extends BaseHeader implements CommandCustomHeader {
+
+  @CFNotNull private String namespace = Constants.DEFAULT_NAMESPACE;
 
   @CFNotNull private String passport;
 
@@ -50,13 +53,15 @@ public class PullMessageHeader extends BaseHeader implements CommandCustomHeader
       int type,
       long leastMessageId,
       long limit,
-      String passportId) {
+      String passportId,
+      String namespace) {
     this.passport = passport;
     this.sender = sender;
     this.type = type;
     this.leastMessageId = leastMessageId;
     this.limit = limit;
     this.passportId = passportId;
+    this.namespace = namespace;
   }
 
   @Override

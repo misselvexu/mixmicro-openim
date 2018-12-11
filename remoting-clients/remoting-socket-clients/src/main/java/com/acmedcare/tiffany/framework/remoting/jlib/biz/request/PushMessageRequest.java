@@ -1,6 +1,7 @@
 package com.acmedcare.tiffany.framework.remoting.jlib.biz.request;
 
 import com.acmedcare.nas.api.ProgressCallback;
+import com.acmedcare.tiffany.framework.remoting.jlib.Constants;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message;
 import java.io.File;
 import lombok.Getter;
@@ -17,6 +18,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class PushMessageRequest extends BaseRequest {
+  private String namespace = Constants.DEFAULT_NAMESPACE;
 
   private String messageType;
 

@@ -30,6 +30,8 @@ public class BaseMessageRequest implements Serializable {
   /** 是否持久化消息 */
   private boolean persistent = true;
 
+  private String namespace = MessageConstants.DEFAULT_NAMESPACE;
+
   /**
    * Get Message Attributes
    *
@@ -41,6 +43,7 @@ public class BaseMessageRequest implements Serializable {
         .persistent(persistent)
         .qos(qos)
         .retryPeriod(retryPeriod)
+        .namespace(namespace)
         .build();
   }
 }

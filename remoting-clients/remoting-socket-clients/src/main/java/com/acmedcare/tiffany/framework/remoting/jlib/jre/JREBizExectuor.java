@@ -13,6 +13,7 @@ import com.acmedcare.tiffany.framework.remoting.jlib.AcmedcareLogger;
 import com.acmedcare.tiffany.framework.remoting.jlib.AcmedcareRemoting;
 import com.acmedcare.tiffany.framework.remoting.jlib.AsyncRuntimeExecutor;
 import com.acmedcare.tiffany.framework.remoting.jlib.BizExecutor;
+import com.acmedcare.tiffany.framework.remoting.jlib.Constants;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.BizCode;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.BizResult;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Group;
@@ -73,6 +74,8 @@ public class JREBizExectuor extends BizExecutor {
       throws BizException {
 
     AuthHeader authHeader = new AuthHeader();
+    authHeader.setNamespace(
+        request.getNamespace() != null ? request.getNamespace() : Constants.DEFAULT_NAMESPACE);
     authHeader.setPassport(request.getUsername());
     authHeader.setAccessToken(request.getAccessToken());
     authHeader.setAreaNo(request.getAreaNo());
@@ -148,6 +151,10 @@ public class JREBizExectuor extends BizExecutor {
 
     PullMessageHeader header =
         PullMessageHeader.builder()
+            .namespace(
+                request.getNamespace() == null
+                    ? Constants.DEFAULT_NAMESPACE
+                    : request.getNamespace())
             .leastMessageId(request.getLeastMessageId())
             .limit(request.getLimit())
             .sender(request.getSender())
@@ -238,6 +245,10 @@ public class JREBizExectuor extends BizExecutor {
 
     PushMessageStatusHeader header =
         PushMessageStatusHeader.builder()
+            .namespace(
+                request.getNamespace() == null
+                    ? Constants.DEFAULT_NAMESPACE
+                    : request.getNamespace())
             .messageId(String.valueOf(request.getLeastMessageId()))
             .messageType(request.getMessageType())
             .sender(request.getSender())
@@ -330,6 +341,10 @@ public class JREBizExectuor extends BizExecutor {
 
     PullGroupHeader header =
         PullGroupHeader.builder()
+            .namespace(
+                request.getNamespace() == null
+                    ? Constants.DEFAULT_NAMESPACE
+                    : request.getNamespace())
             .passport(request.getPassport())
             .passportId(request.getPassportId())
             .build();
@@ -421,6 +436,10 @@ public class JREBizExectuor extends BizExecutor {
 
     PushMessageHeader header =
         PushMessageHeader.builder()
+            .namespace(
+                request.getNamespace() == null
+                    ? Constants.DEFAULT_NAMESPACE
+                    : request.getNamespace())
             .passport(request.getPassport())
             .messageType(request.getMessageType())
             .maxRetryTimes(request.getAttribute().getMaxRetryTimes())
@@ -604,6 +623,8 @@ public class JREBizExectuor extends BizExecutor {
 
     JoinOrLeaveGroupHeader header = new JoinOrLeaveGroupHeader();
     header.setGroupId(request.getGroupId());
+    header.setNamespace(
+        request.getNamespace() == null ? Constants.DEFAULT_NAMESPACE : request.getNamespace());
     header.setOperateType(request.getOperateType());
     header.setPassportId(request.getPassportId());
     header.setMemberName(request.getMemberName());
@@ -679,6 +700,10 @@ public class JREBizExectuor extends BizExecutor {
 
     PullGroupMessageReadStatusHeader header =
         PullGroupMessageReadStatusHeader.builder()
+            .namespace(
+                request.getNamespace() == null
+                    ? Constants.DEFAULT_NAMESPACE
+                    : request.getNamespace())
             .groupId(request.getGroupId())
             .messageId(request.getMessageId())
             .build();
@@ -755,7 +780,13 @@ public class JREBizExectuor extends BizExecutor {
       throws BizException {
 
     PullGroupMembersHeader header =
-        PullGroupMembersHeader.builder().groupId(request.getGroupId()).build();
+        PullGroupMembersHeader.builder()
+            .namespace(
+                request.getNamespace() == null
+                    ? Constants.DEFAULT_NAMESPACE
+                    : request.getNamespace())
+            .groupId(request.getGroupId())
+            .build();
 
     AcmedcareLogger.i(
         this.getClass().getSimpleName(), "拉取群组人员列表操作请求头:" + JSON.toJSONString(header));
@@ -831,7 +862,13 @@ public class JREBizExectuor extends BizExecutor {
       throws BizException {
 
     PullGroupMembersOnlineStatusHeader header =
-        PullGroupMembersOnlineStatusHeader.builder().groupId(request.getGroupId()).build();
+        PullGroupMembersOnlineStatusHeader.builder()
+            .namespace(
+                request.getNamespace() == null
+                    ? Constants.DEFAULT_NAMESPACE
+                    : request.getNamespace())
+            .groupId(request.getGroupId())
+            .build();
 
     AcmedcareLogger.i(
         this.getClass().getSimpleName(), "拉取群组在线人员列表操作请求头:" + JSON.toJSONString(header));

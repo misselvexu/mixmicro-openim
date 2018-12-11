@@ -58,7 +58,9 @@ public class RemotingClientPullGroupProcessor extends AbstractNormalRequestProce
       }
 
       // 查询当前用户名下的群组信息
-      List<Group> list = this.groupService.queryAccountGroups(pullGroupHeader.getPassportId());
+      List<Group> list =
+          this.groupService.queryAccountGroups(
+              pullGroupHeader.getNamespace(), pullGroupHeader.getPassportId());
 
       response.setBody(BizResult.builder().code(0).data(list).build().bytes());
 

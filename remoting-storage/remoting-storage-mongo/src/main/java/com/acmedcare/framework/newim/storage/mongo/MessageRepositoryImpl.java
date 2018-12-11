@@ -124,11 +124,22 @@ public class MessageRepositoryImpl implements MessageRepository {
    */
   @Override
   public List<? extends Message> queryGroupMessages(
-      String groupId, String receiverId, long limit, boolean queryLeast, long leastMessageId) {
+      String namespace,
+      String groupId,
+      String receiverId,
+      long limit,
+      boolean queryLeast,
+      long leastMessageId) {
 
     // 用户是否属于该群组
     Query checkQuery =
-        new Query(Criteria.where("groupId").is(groupId).and("memberId").is(receiverId));
+        new Query(
+            Criteria.where("groupId")
+                .is(groupId)
+                .and("memberId")
+                .is(receiverId)
+                .and("namespace")
+                .is(namespace));
     boolean result = this.mongoTemplate.exists(checkQuery, REF_GROUP_MEMBER);
     if (!result) {
       mongoLog.warn("用户:{} ,不属于群组:{}", receiverId, groupId);
@@ -138,7 +149,12 @@ public class MessageRepositoryImpl implements MessageRepository {
     // 默认查询最新的消息列表
     Query messageQuery =
         new Query(
-            Criteria.where("group").is(groupId).and("messageType").is(MessageType.GROUP.name()));
+            Criteria.where("group")
+                .is(groupId)
+                .and("namespace")
+                .is(namespace)
+                .and("messageType")
+                .is(MessageType.GROUP.name()));
     messageQuery.with(new Sort(Direction.DESC, "innerTimestamp")).limit((int) limit);
 
     if (!queryLeast && leastMessageId > 0) {
@@ -156,6 +172,8 @@ public class MessageRepositoryImpl implements MessageRepository {
               new Query(
                   Criteria.where("group")
                       .is(groupId)
+                      .and("namespace")
+                      .is(namespace)
                       .and("messageType")
                       .is(MessageType.GROUP.name())
                       .and("innerType")
@@ -191,7 +209,12 @@ public class MessageRepositoryImpl implements MessageRepository {
    */
   @Override
   public List<? extends Message> querySingleMessages(
-      String sender, String receiverId, long limit, boolean queryLeast, long leastMessageId) {
+      String namespace,
+      String sender,
+      String receiverId,
+      long limit,
+      boolean queryLeast,
+      long leastMessageId) {
     mongoLog.info(
         "查询消息列表,参数:{},{},{},{},{}", sender, receiverId, limit, queryLeast, leastMessageId);
 
@@ -202,6 +225,8 @@ public class MessageRepositoryImpl implements MessageRepository {
                 .is(sender)
                 .and("receiver")
                 .is(receiverId)
+                .and("namespace")
+                .is(namespace)
                 .and("messageType")
                 .is(MessageType.SINGLE.name()));
     messageQuery.with(new Sort(Direction.DESC, "innerTimestamp")).limit((int) limit);
@@ -223,6 +248,8 @@ public class MessageRepositoryImpl implements MessageRepository {
                       .is(sender)
                       .and("receiver")
                       .is(receiverId)
+                      .and("namespace")
+                      .is(namespace)
                       .and("messageType")
                       .is(MessageType.SINGLE.name())
                       .and("innerType")

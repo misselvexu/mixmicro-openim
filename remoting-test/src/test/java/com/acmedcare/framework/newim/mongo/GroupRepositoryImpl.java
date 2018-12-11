@@ -29,7 +29,7 @@ public class GroupRepositoryImpl {
   @Test
   public void queryGroup() {
 
-    Group group = this.groupRepository.queryGroup("gid-20181122");
+    Group group = this.groupRepository.queryGroup("DEFAULT", "gid-20181122");
     Assert.assertEquals("gid-20181122", group.getGroupId());
     Assert.assertEquals("misselvexu", group.getGroupOwner());
     Assert.assertEquals("gname-test-group", group.getGroupName());
@@ -78,7 +78,7 @@ public class GroupRepositoryImpl {
     this.groupRepository.saveGroupMembers(groupMembers);
 
     // query
-    List<String> memberIds = this.groupRepository.queryGroupMemberIds("gid-20181122");
+    List<String> memberIds = this.groupRepository.queryGroupMemberIds("DEFAULT", "gid-20181122");
     Assert.assertEquals(2, memberIds.size());
   }
 

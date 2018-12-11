@@ -7,6 +7,7 @@ import com.acmedcare.framework.kits.thread.ThreadKit;
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.InstanceNode;
 import com.acmedcare.framework.newim.Message;
+import com.acmedcare.framework.newim.SessionBean;
 import com.acmedcare.framework.newim.client.MessageAttribute;
 import com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand;
 import com.acmedcare.framework.newim.protocol.request.ClusterPushSessionDataBody;
@@ -60,14 +61,15 @@ public class MasterSession {
      *
      * <p>
      */
-    private static Map<InstanceNode, Set<String>> passportsConnections = Maps.newConcurrentMap();
+    private static Map<InstanceNode, Set<SessionBean>> passportsConnections =
+        Maps.newConcurrentMap();
 
     /**
      * 设备登录连接
      *
      * <p>
      */
-    private static Map<InstanceNode, Set<String>> devicesConnections = Maps.newConcurrentMap();
+    private static Map<InstanceNode, Set<SessionBean>> devicesConnections = Maps.newConcurrentMap();
 
     /**
      * 通讯服务器客户端链接对象池
@@ -239,6 +241,7 @@ public class MasterSession {
                     header.setPersistent(attribute.isPersistent());
                     header.setQos(attribute.isQos());
                     header.setRetryPeriod(attribute.getRetryPeriod());
+                    header.setNamespace(attribute.getNamespace());
 
                     RemotingCommand distributeRequest =
                         RemotingCommand.createRequestCommand(

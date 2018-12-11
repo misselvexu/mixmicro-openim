@@ -3,6 +3,7 @@ package com.acmedcare.tiffany.framework.remoting.jlib.biz.request;
 import com.acmedcare.tiffany.framework.remoting.android.core.CFNotNull;
 import com.acmedcare.tiffany.framework.remoting.android.core.exception.RemotingCommandException;
 import com.acmedcare.tiffany.framework.remoting.android.core.protocol.CommandCustomHeader;
+import com.acmedcare.tiffany.framework.remoting.jlib.Constants;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +18,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PullGroupMessageReadStatusHeader implements CommandCustomHeader {
+
+  @CFNotNull private String namespace = Constants.DEFAULT_NAMESPACE;
 
   /**
    * 群组编号
@@ -33,9 +36,10 @@ public class PullGroupMessageReadStatusHeader implements CommandCustomHeader {
   @CFNotNull private String messageId;
 
   @Builder
-  public PullGroupMessageReadStatusHeader(String groupId, String messageId) {
+  public PullGroupMessageReadStatusHeader(String groupId, String messageId,String namespace) {
     this.groupId = groupId;
     this.messageId = messageId;
+    this.namespace = namespace;
   }
 
   @Override

@@ -52,6 +52,7 @@ public class MessageServices {
 
     // 1. build message
     SingleMessage singleMessage = new SingleMessage();
+    singleMessage.setNamespace(attribute.getNamespace());
     singleMessage.setReadFlag(false);
     singleMessage.setReceiver(receiver);
     singleMessage.setBody(content.getBytes());
@@ -85,6 +86,7 @@ public class MessageServices {
     for (String receiver : receivers) {
       // 1. build message
       SingleMessage singleMessage = new SingleMessage();
+      singleMessage.setNamespace(attribute.getNamespace());
       singleMessage.setReadFlag(false);
       singleMessage.setReceiver(receiver);
       singleMessage.setBody(content.getBytes());
@@ -112,9 +114,10 @@ public class MessageServices {
   public void sendGroupMessage(
       MessageAttribute attribute, String sender, String groupId, String type, String content) {
 
-    List<String> memberIds = this.groupRepository.queryGroupMemberIds(groupId);
+    List<String> memberIds = this.groupRepository.queryGroupMemberIds(attribute.getNamespace(),groupId);
     //
     GroupMessage message = new GroupMessage();
+    message.setNamespace(attribute.getNamespace());
     message.setBody(content.getBytes());
     message.setInnerType(InnerType.valueOf(type.toUpperCase()));
     message.setMaxRetryTimes(attribute.getMaxRetryTimes());

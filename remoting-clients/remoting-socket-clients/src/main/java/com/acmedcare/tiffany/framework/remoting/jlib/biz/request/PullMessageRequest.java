@@ -1,5 +1,6 @@
 package com.acmedcare.tiffany.framework.remoting.jlib.biz.request;
 
+import com.acmedcare.tiffany.framework.remoting.jlib.Constants;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,6 +17,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class PullMessageRequest {
+
+  private String namespace = Constants.DEFAULT_NAMESPACE;
 
   private String sender;
 
@@ -48,13 +51,15 @@ public class PullMessageRequest {
       long leastMessageId,
       long limit,
       String username,
-      String passportId) {
+      String passportId,
+      String namespace) {
     this.sender = sender;
     this.type = type;
     this.leastMessageId = leastMessageId;
     this.limit = limit;
     this.username = username;
     this.passportId = passportId;
+    this.namespace = namespace;
   }
 
   public interface Callback<T> {

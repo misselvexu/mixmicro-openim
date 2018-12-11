@@ -1,5 +1,6 @@
 package com.acmedcare.framework.newim;
 
+import com.acmedcare.framework.newim.client.MessageConstants;
 import com.acmedcare.framework.newim.client.bean.Member;
 import com.acmedcare.framework.newim.storage.IMStorageCollections;
 import java.io.Serializable;
@@ -41,6 +42,8 @@ public class Group implements Serializable {
 
   private Status groupStatus;
 
+  private String namespace = MessageConstants.DEFAULT_NAMESPACE;
+
   @Builder
   public Group(
       String groupId,
@@ -48,7 +51,8 @@ public class Group implements Serializable {
       String groupName,
       String groupBizTag,
       String groupExt,
-      Status groupStatus) {
+      Status groupStatus,
+      String namespace) {
     this.groupId = groupId;
     this.groupOwner = groupOwner;
     this.groupName = groupName;
@@ -57,6 +61,10 @@ public class Group implements Serializable {
     this.groupStatus = groupStatus;
     if (this.groupStatus == null) {
       this.groupStatus = Status.ENABLED;
+    }
+    this.namespace = namespace;
+    if (this.namespace == null) {
+      this.namespace = MessageConstants.DEFAULT_NAMESPACE;
     }
   }
 
@@ -67,11 +75,13 @@ public class Group implements Serializable {
 
     private static final long serialVersionUID = 1474652111556171928L;
 
+    private String namespace;
     private String groupId;
     private List<Member> members;
 
     @Builder
-    public GroupMembers(String groupId, List<Member> members) {
+    public GroupMembers(String namespace, String groupId, List<Member> members) {
+      this.namespace = namespace;
       this.groupId = groupId;
       this.members = members;
     }

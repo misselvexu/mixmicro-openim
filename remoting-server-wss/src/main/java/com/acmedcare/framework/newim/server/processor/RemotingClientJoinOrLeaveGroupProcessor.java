@@ -60,6 +60,7 @@ public class RemotingClientJoinOrLeaveGroupProcessor extends AbstractNormalReque
       switch (joinOrLeaveGroupHeader.getOperateType()) {
         case JOIN:
           this.groupService.joinGroup(
+              joinOrLeaveGroupHeader.getNamespace(),
               joinOrLeaveGroupHeader.getGroupId(),
               Lists.newArrayList(
                   Member.builder()
@@ -69,6 +70,7 @@ public class RemotingClientJoinOrLeaveGroupProcessor extends AbstractNormalReque
           break;
         case LEAVE:
           this.groupService.leaveGroup(
+              joinOrLeaveGroupHeader.getNamespace(),
               joinOrLeaveGroupHeader.getGroupId(),
               Lists.newArrayList(joinOrLeaveGroupHeader.getPassportId()));
           break;

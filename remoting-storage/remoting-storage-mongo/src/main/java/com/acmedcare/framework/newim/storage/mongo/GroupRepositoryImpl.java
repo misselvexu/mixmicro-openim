@@ -55,15 +55,23 @@ public class GroupRepositoryImpl implements GroupRepository {
   }
 
   @Override
-  public Group queryGroup(String groupId) {
+  public Group queryGroup(String namespace, String groupId) {
     return mongoTemplate.findOne(
-        new Query(Criteria.where("groupId").is(groupId)), Group.class, GROUP);
+        new Query(Criteria.where("groupId").is(groupId).and("namespace").is(namespace)),
+        Group.class,
+        GROUP);
   }
 
   @Override
   public void saveGroup(Group group) {
     boolean exist =
-        mongoTemplate.exists(new Query(Criteria.where("groupId").is(group.getGroupId())), GROUP);
+        mongoTemplate.exists(
+            new Query(
+                Criteria.where("groupId")
+                    .is(group.getGroupId())
+                    .and("namespace")
+                    .is(group.getNamespace())),
+            GROUP);
 
     if (!exist) {
       mongoTemplate.save(group, GROUP);
@@ -74,7 +82,12 @@ public class GroupRepositoryImpl implements GroupRepository {
 
   @Override
   public void updateGroup(Group group) {
-    Query query = new Query(Criteria.where("groupId").is(group.getGroupId()));
+    Query query =
+        new Query(
+            Criteria.where("groupId")
+                .is(group.getGroupId())
+                .and("namespace")
+                .is(group.getNamespace()));
     Update update = new Update();
     update.set("groupName", group.getGroupName());
     update.set("groupOwner", group.getGroupOwner());
@@ -86,9 +99,9 @@ public class GroupRepositoryImpl implements GroupRepository {
   }
 
   @Override
-  public long removeGroup(String groupId) {
+  public long removeGroup(String namespace, String groupId) {
     mongoLog.info("请求删除群组:{}", groupId);
-    Query query = new Query(Criteria.where("groupId").is(groupId));
+    Query query = new Query(Criteria.where("groupId").is(groupId).and("namespace").is(namespace));
     Update update = new Update();
     update.set("status", Status.DISABLED);
     UpdateResult updateResult = this.mongoTemplate.updateFirst(query, update, GROUP);
@@ -110,7 +123,12 @@ public class GroupRepositoryImpl implements GroupRepository {
     if (members.getMembers() != null && members.getMembers().size() > 0) {
 
       if (!mongoTemplate.exists(
-          new Query(Criteria.where("groupId").is(members.getGroupId())), GROUP)) {
+          new Query(
+              Criteria.where("groupId")
+                  .is(members.getGroupId())
+                  .and("namespace")
+                  .is(members.getNamespace())),
+          GROUP)) {
         throw new StorageException("群组:" + members.getGroupId() + "不存在");
       }
 
@@ -122,7 +140,12 @@ public class GroupRepositoryImpl implements GroupRepository {
 
       Query query =
           new Query(
-              Criteria.where("groupId").is(members.getGroupId()).and("memberId").in(memberIds));
+              Criteria.where("groupId")
+                  .is(members.getGroupId())
+                  .and("namespace")
+                  .is(members.getNamespace())
+                  .and("memberId")
+                  .in(memberIds));
 
       mongoTemplate.setSessionSynchronization(ALWAYS);
       transactionTemplate.execute(
@@ -140,6 +163,7 @@ public class GroupRepositoryImpl implements GroupRepository {
                         member ->
                             refs.add(
                                 GroupMemberRef.builder()
+                                    .namespace(members.getNamespace())
                                     .groupId(members.getGroupId())
                                     .memberId(member.getMemberId().toString())
                                     .memberName(member.getMemberName())
@@ -158,31 +182,39 @@ public class GroupRepositoryImpl implements GroupRepository {
   }
 
   @Override
-  public long removeGroupMembers(String groupId, List<String> memberIds) {
+  public long removeGroupMembers(String namespace, String groupId, List<String> memberIds) {
 
     mongoLog.info("请求删除群组:{},成员列表:{}", groupId, Arrays.toString(memberIds.toArray()));
-    Query query = new Query(Criteria.where("groupId").is(groupId).and("memberId").in(memberIds));
+    Query query =
+        new Query(
+            Criteria.where("groupId")
+                .is(groupId)
+                .and("namespace")
+                .is(namespace)
+                .and("memberId")
+                .in(memberIds));
     DeleteResult deleteResult = mongoTemplate.remove(query, REF_GROUP_MEMBER);
     mongoLog.info("删除群组成员影响行数:{}", deleteResult.getDeletedCount());
     return deleteResult.getDeletedCount();
   }
 
   @Override
-  public List<String> queryGroupMemberIds(String groupId) {
-    Query query = new Query(Criteria.where("groupId").is(groupId));
+  public List<String> queryGroupMemberIds(String namespace, String groupId) {
+    Query query = new Query(Criteria.where("groupId").is(groupId).and("namespace").is(namespace));
     return mongoTemplate.findDistinct(query, "memberId", REF_GROUP_MEMBER, String.class);
   }
 
   @Override
-  public List<GroupMemberRef> queryGroupMembers(String groupId) {
-    Query query = new Query(Criteria.where("groupId").is(groupId));
+  public List<GroupMemberRef> queryGroupMembers(String namespace, String groupId) {
+    Query query = new Query(Criteria.where("groupId").is(groupId).and("namespace").is(namespace));
     return mongoTemplate.find(query, GroupMemberRef.class, REF_GROUP_MEMBER);
   }
 
   @Override
-  public List<Group> queryMemberGroups(String passportId) {
+  public List<Group> queryMemberGroups(String namespace, String passportId) {
 
-    Query groupIdsQuery = new Query(Criteria.where("memberId").is(passportId));
+    Query groupIdsQuery =
+        new Query(Criteria.where("memberId").is(passportId).and("namespace").is(namespace));
     List<String> groupIds =
         this.mongoTemplate.findDistinct(groupIdsQuery, "groupId", REF_GROUP_MEMBER, String.class);
     if (!groupIds.isEmpty()) {

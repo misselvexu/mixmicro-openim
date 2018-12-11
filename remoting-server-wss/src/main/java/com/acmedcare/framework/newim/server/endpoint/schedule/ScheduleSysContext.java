@@ -127,7 +127,7 @@ public class ScheduleSysContext extends WssSessionContext implements DisposableB
     }
   }
 
-  public void pushMessage(String areaNo, String subOrgId, String orderDetail) {
+  public void pushMessage(String namespace,String areaNo, String subOrgId, String orderDetail) {
     ScheduleWssClientInstance instance =
         ScheduleWssClientInstance.builder().areaNo(areaNo).orgId(subOrgId).build();
 
@@ -155,7 +155,7 @@ public class ScheduleSysContext extends WssSessionContext implements DisposableB
                   }));
 
       // push to tcp
-      forwardMessage(passports, orderDetail);
+      forwardMessage(namespace,passports, orderDetail);
     }
   }
 }

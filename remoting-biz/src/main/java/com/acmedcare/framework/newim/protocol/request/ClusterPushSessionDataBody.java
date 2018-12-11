@@ -1,5 +1,6 @@
 package com.acmedcare.framework.newim.protocol.request;
 
+import com.acmedcare.framework.newim.SessionBean;
 import java.io.Serializable;
 import java.util.List;
 import lombok.Getter;
@@ -18,7 +19,7 @@ public class ClusterPushSessionDataBody implements Serializable {
   private static final long serialVersionUID = -5706666156157170632L;
 
   /** 同步登陆的通行证数据 */
-  private List<String> passportIds;
+  private List<SessionBean> passportIds;
   /** 同步登陆的设备数据 */
-  private List<String> deviceIds;
+  private List<SessionBean> deviceIds;
 }

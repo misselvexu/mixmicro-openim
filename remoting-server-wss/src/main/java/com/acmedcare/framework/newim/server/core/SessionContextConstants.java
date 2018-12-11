@@ -1,6 +1,7 @@
 package com.acmedcare.framework.newim.server.core;
 
 import com.acmedcare.framework.aorp.beans.Principal;
+import com.acmedcare.framework.newim.client.MessageConstants;
 import io.netty.util.AttributeKey;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +22,7 @@ public class SessionContextConstants {
   public static class RemotePrincipal extends Principal {
     private static final long serialVersionUID = -8974853632565363647L;
 
+    private String namespace = MessageConstants.DEFAULT_NAMESPACE;
     private String deviceId;
     private String areaNo;
     private String orgId;

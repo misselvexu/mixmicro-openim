@@ -1,5 +1,6 @@
 package com.acmedcare.framework.newim.client.bean.request;
 
+import com.acmedcare.framework.newim.client.MessageConstants;
 import java.io.Serializable;
 import java.util.List;
 import lombok.Getter;
@@ -16,7 +17,7 @@ import lombok.Setter;
 public class PushNoticeRequest implements Serializable {
 
   private static final long serialVersionUID = -4880453865084170588L;
-
+  private String namespace = MessageConstants.DEFAULT_NAMESPACE;
   /** 是否定时发送 */
   private boolean useTimer;
 

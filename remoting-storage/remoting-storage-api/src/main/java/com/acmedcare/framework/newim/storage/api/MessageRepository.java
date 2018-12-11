@@ -40,7 +40,12 @@ public interface MessageRepository {
    * @return 列表
    */
   List<? extends Message> queryGroupMessages(
-      String groupId, String receiverId, long limit, boolean queryLeast, long leastMessageId);
+      String namespace,
+      String groupId,
+      String receiverId,
+      long limit,
+      boolean queryLeast,
+      long leastMessageId);
 
   /**
    * 查询消息列表
@@ -53,7 +58,12 @@ public interface MessageRepository {
    * @return 列表
    */
   List<? extends Message> querySingleMessages(
-      String sender, String receiverId, long limit, boolean queryLeast, long leastMessageId);
+      String namespace,
+      String sender,
+      String receiverId,
+      long limit,
+      boolean queryLeast,
+      long leastMessageId);
 
   /**
    * 查询群组消息
@@ -66,6 +76,7 @@ public interface MessageRepository {
 
   /**
    * 查询单聊消息
+   *
    * @param messageId 消息 id
    * @return 消息
    */

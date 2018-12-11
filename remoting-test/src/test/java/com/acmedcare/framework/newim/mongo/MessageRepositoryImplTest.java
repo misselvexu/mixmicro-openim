@@ -93,7 +93,8 @@ public class MessageRepositoryImplTest {
   public void testQueryNewestSingleMessageList() {
 
     List<? extends Message> messages =
-        this.messageRepository.querySingleMessages("13910187666", "13910187669", 5, true, -1);
+        this.messageRepository.querySingleMessages(
+            "DEFAULT", "13910187666", "13910187669", 5, true, -1);
 
     Assert.assertEquals(5, messages.size());
   }
@@ -103,7 +104,7 @@ public class MessageRepositoryImplTest {
 
     List<? extends Message> messages =
         this.messageRepository.querySingleMessages(
-            "13910187666", "13910187669", 10, false, 1034352586066177L);
+            "DEFAULT", "13910187666", "13910187669", 10, false, 1034352586066177L);
 
     Assert.assertEquals(1, messages.size());
   }
@@ -112,7 +113,8 @@ public class MessageRepositoryImplTest {
   public void testQueryNewestGroupMessageList() {
 
     List<? extends Message> messages =
-        this.messageRepository.queryGroupMessages("gid-20181122", "13910187669", 5, true, -1);
+        this.messageRepository.queryGroupMessages(
+            "DEFAULT", "gid-20181122", "13910187669", 5, true, -1);
 
     Assert.assertEquals(5, messages.size());
   }
@@ -122,7 +124,7 @@ public class MessageRepositoryImplTest {
 
     List<? extends Message> messages =
         this.messageRepository.queryGroupMessages(
-            "gid-20181122", "13910187669", 5, false, 1034352586115330L);
+            "DEFAULT", "gid-20181122", "13910187669", 5, false, 1034352586115330L);
 
     Assert.assertEquals(2, messages.size());
   }

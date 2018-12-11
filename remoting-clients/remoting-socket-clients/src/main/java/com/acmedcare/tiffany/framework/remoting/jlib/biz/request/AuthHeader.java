@@ -3,6 +3,7 @@ package com.acmedcare.tiffany.framework.remoting.jlib.biz.request;
 import com.acmedcare.tiffany.framework.remoting.android.core.CFNotNull;
 import com.acmedcare.tiffany.framework.remoting.android.core.exception.RemotingCommandException;
 import com.acmedcare.tiffany.framework.remoting.android.core.protocol.CommandCustomHeader;
+import com.acmedcare.tiffany.framework.remoting.jlib.Constants;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,6 +18,8 @@ import lombok.Setter;
 public class AuthHeader implements CommandCustomHeader {
 
   private static final long serialVersionUID = 8394184386412740132L;
+
+  @CFNotNull private String namespace = Constants.DEFAULT_NAMESPACE;
 
   @CFNotNull private String passport;
 

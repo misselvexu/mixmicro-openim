@@ -19,20 +19,22 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(value = IMStorageCollections.REF_GROUP_MEMBER)
 @CompoundIndex(
     unique = true,
-    name = "unique_index_4_group_id_and_member_id",
-    def = "{'groupId': 1, 'memberId': -1}")
+    name = "unique_index_4_group_id_and_member_id_and_namespace",
+    def = "{'groupId': 1, 'memberId': -1, 'namespace': 1}")
 public class GroupMemberRef implements Serializable {
 
   private static final long serialVersionUID = 3547117751363118726L;
 
+  private String namespace;
   private String groupId;
   private String memberId;
   private String memberName;
 
   @Builder
-  public GroupMemberRef(String groupId, String memberId, String memberName) {
+  public GroupMemberRef(String groupId, String memberId, String memberName, String namespace) {
     this.groupId = groupId;
     this.memberId = memberId;
     this.memberName = memberName;
+    this.namespace = namespace;
   }
 }

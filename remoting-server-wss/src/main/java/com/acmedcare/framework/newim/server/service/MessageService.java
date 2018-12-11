@@ -70,7 +70,8 @@ public class MessageService {
       attribute.setRetryPeriod(groupMessage.getRetryPeriod());
 
       // check group receivers
-      List<String> groupIds = this.groupRepository.queryGroupMemberIds(groupMessage.getGroup());
+      List<String> groupIds =
+          this.groupRepository.queryGroupMemberIds(message.getNamespace(), groupMessage.getGroup());
       groupMessage.setReceivers(groupIds);
     }
 
@@ -89,7 +90,10 @@ public class MessageService {
         try {
           SingleMessage singleMessage = (SingleMessage) message;
           imSession.sendMessageToPassport(
-              singleMessage.getReceiver(), singleMessage.getMessageType(), message.bytes());
+              message.getNamespace(),
+              singleMessage.getReceiver(),
+              singleMessage.getMessageType(),
+              message.bytes());
           imServerLog.info(
               "本机发送单聊消息到客户端完成, 消息编号:{} , 接收人:{}",
               singleMessage.getMid(),
@@ -102,7 +106,10 @@ public class MessageService {
         try {
           GroupMessage groupMessage = (GroupMessage) message;
           imSession.sendMessageToPassport(
-              groupMessage.getReceivers(), groupMessage.getMessageType(), message.bytes());
+              message.getNamespace(),
+              groupMessage.getReceivers(),
+              groupMessage.getMessageType(),
+              message.bytes());
 
           imServerLog.info(
               "本机批量发送单聊消息到客户端完成, 消息编号:{} , 接收人列表:{}",
@@ -116,6 +123,7 @@ public class MessageService {
   }
 
   public List<? extends Message> queryAccountMessages(
+      String namespace,
       String username,
       String passportId,
       String sender, // type == 1 时候, 标识群组的 ID , == 0 时候,标识是发送人的 ID
@@ -129,13 +137,13 @@ public class MessageService {
     if (type == 1) {
       // 群聊信息
       messages =
-          this.messageRepository.queryGroupMessages(
+          this.messageRepository.queryGroupMessages(namespace,
               sender, passportId, limit, leastMessageId > 0, leastMessageId);
 
     } else if (type == 0) {
       // 单聊信息
       messages =
-          this.messageRepository.querySingleMessages(
+          this.messageRepository.querySingleMessages(namespace,
               sender, passportId, limit, leastMessageId > 0, leastMessageId);
     }
     return messages;
@@ -164,12 +172,13 @@ public class MessageService {
     }
   }
 
-  public MessageStatusDetail queryGroupMessageReadStatusList(String groupId, String messageId) {
+  public MessageStatusDetail queryGroupMessageReadStatusList(
+      String namespace, String groupId, String messageId) {
 
     try {
       imServerLog.info("开始处理客户端请求拉取群组:{},消息:{},已读/未读状态...", groupId, messageId);
 
-      List<GroupMemberRef> memberRefs = this.groupRepository.queryGroupMembers(groupId);
+      List<GroupMemberRef> memberRefs = this.groupRepository.queryGroupMembers(namespace, groupId);
 
       Map<Long, Member> target = Maps.newHashMap();
       for (GroupMemberRef memberRef : memberRefs) {

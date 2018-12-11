@@ -62,13 +62,15 @@ public class RemotingClientPullGroupMembersOnlineStatusProcessor
         return response;
       }
 
-      List<Member> groupMembers = this.groupService.queryGroupMembers(header.getGroupId());
+      List<Member> groupMembers =
+          this.groupService.queryGroupMembers(header.getNamespace(), header.getGroupId());
       Assert.isTrue(
           groupMembers != null && !groupMembers.isEmpty(),
           "群组:[" + header.getGroupId() + "]中没有任何成员");
 
       List<Member> onlineMemberLists =
-          this.imSession.getOnlineMemberList(groupMembers, header.getGroupId());
+          this.imSession.getOnlineMemberList(
+              header.getNamespace(), groupMembers, header.getGroupId());
 
       response.setBody(BizResult.builder().code(0).data(onlineMemberLists).build().bytes());
 

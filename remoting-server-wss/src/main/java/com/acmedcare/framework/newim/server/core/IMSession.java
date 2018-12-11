@@ -7,6 +7,7 @@ import com.acmedcare.framework.kits.thread.DefaultThreadFactory;
 import com.acmedcare.framework.kits.thread.ThreadKit;
 import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.Message.MessageType;
+import com.acmedcare.framework.newim.SessionBean;
 import com.acmedcare.framework.newim.client.MessageAttribute;
 import com.acmedcare.framework.newim.client.bean.Member;
 import com.acmedcare.framework.newim.protocol.Command.ClusterClientCommand;
@@ -61,21 +62,23 @@ public class IMSession implements InitializingBean, DisposableBean {
    *
    * <p>
    */
-  private static Map<String, List<Channel>> devicesTcpChannelContainer = Maps.newConcurrentMap();
+  private static Map<SessionBean, List<Channel>> devicesTcpChannelContainer =
+      Maps.newConcurrentMap();
 
   /**
    * 通行证->远程连接(TCPs)
    *
    * <p>
    */
-  private static Map<String, List<Channel>> passportsTcpChannelContainer = Maps.newConcurrentMap();
+  private static Map<SessionBean, List<Channel>> passportsTcpChannelContainer =
+      Maps.newConcurrentMap();
 
   // ----------------------------- Master 服务器同步过来的缓存数据------------------------
 
   private static volatile long lastDiffTimestamp = System.currentTimeMillis();
   private static Semaphore diffQuerySemaphore = new Semaphore(1);
-  private static Set<String> masterPassportSessions = Sets.newConcurrentHashSet();
-  private static Set<String> masterDeviceSessions = Sets.newConcurrentHashSet();
+  private static Set<SessionBean> masterPassportSessions = Sets.newConcurrentHashSet();
+  private static Set<SessionBean> masterDeviceSessions = Sets.newConcurrentHashSet();
 
   // ---------------------------------------------------------------------------------
 
@@ -106,11 +109,11 @@ public class IMSession implements InitializingBean, DisposableBean {
   @Getter private ClusterReplicaConnector clusterReplicaConnector;
   private WssSessionContext wssSessionContext;
 
-  public Set<String> getOnlinePassports() {
+  public Set<SessionBean> getOnlinePassports() {
     return passportsTcpChannelContainer.keySet();
   }
 
-  public Set<String> getOnlineDevices() {
+  public Set<SessionBean> getOnlineDevices() {
     return devicesTcpChannelContainer.keySet();
   }
 
@@ -140,27 +143,34 @@ public class IMSession implements InitializingBean, DisposableBean {
   public void bindTcpSession(
       RemotePrincipal remotePrincipal, String deviceId, String passportId, Channel channel) {
 
+    SessionBean deviceSession =
+        SessionBean.builder().sessionId(deviceId).namespace(remotePrincipal.getNamespace()).build();
     imServerLog.debug("[NEW-IM-SESSION] Bind Session , {} {} {}", deviceId, passportId, channel);
-    if (devicesTcpChannelContainer.containsKey(deviceId)) {
+    if (devicesTcpChannelContainer.containsKey(deviceSession)) {
       // yes
-      boolean result = devicesTcpChannelContainer.get(deviceId).add(channel);
+      boolean result = devicesTcpChannelContainer.get(deviceSession).add(channel);
       if (!result) {
         throw new SessionBindException("Channel:" + channel + " ,绑定失败");
       }
     } else {
       // nop
-      devicesTcpChannelContainer.put(deviceId, Lists.newArrayList(channel));
+      devicesTcpChannelContainer.put(deviceSession, Lists.newArrayList(channel));
     }
 
-    if (passportsTcpChannelContainer.containsKey(passportId)) {
+    SessionBean passportSession =
+        SessionBean.builder()
+            .sessionId(passportId)
+            .namespace(remotePrincipal.getNamespace())
+            .build();
+    if (passportsTcpChannelContainer.containsKey(passportSession)) {
       // yes
-      boolean result = passportsTcpChannelContainer.get(passportId).add(channel);
+      boolean result = passportsTcpChannelContainer.get(passportSession).add(channel);
       if (!result) {
         throw new SessionBindException("Channel:" + channel + " ,绑定失败");
       }
     } else {
       // nop
-      passportsTcpChannelContainer.put(passportId, Lists.newArrayList(channel));
+      passportsTcpChannelContainer.put(passportSession, Lists.newArrayList(channel));
     }
   }
 
@@ -172,7 +182,8 @@ public class IMSession implements InitializingBean, DisposableBean {
    * @param passportId 通行证编号
    * @param message 消息
    */
-  public void sendMessageToPassport(String passportId, MessageType messageType, byte[] message) {
+  public void sendMessageToPassport(
+      String namespace, String passportId, MessageType messageType, byte[] message) {
 
     try {
       asyncExecutor.execute(
@@ -187,8 +198,10 @@ public class IMSession implements InitializingBean, DisposableBean {
       imServerLog.error("[TCP-WSS] 转发消息到 WebSocket 异常", e);
     }
 
-    if (passportsTcpChannelContainer.containsKey(passportId)) {
-      List<Channel> channels = passportsTcpChannelContainer.get(passportId);
+    SessionBean sessionBean =
+        SessionBean.builder().namespace(namespace).sessionId(passportId).build();
+    if (passportsTcpChannelContainer.containsKey(sessionBean)) {
+      List<Channel> channels = passportsTcpChannelContainer.get(sessionBean);
       ServerPushMessageHeader serverPushMessageHeader = new ServerPushMessageHeader();
       serverPushMessageHeader.setMessageType(messageType.name());
       if (channels.size() > 0) {
@@ -234,7 +247,7 @@ public class IMSession implements InitializingBean, DisposableBean {
    * @param message 消息
    */
   public void sendMessageToPassport(
-      List<String> passportIds, MessageType messageType, byte[] message) {
+      String namespace, List<String> passportIds, MessageType messageType, byte[] message) {
     if (passportIds != null && passportIds.size() > 0) {
       CountDownLatch countDownLatch = new CountDownLatch(passportIds.size());
 
@@ -243,7 +256,7 @@ public class IMSession implements InitializingBean, DisposableBean {
         asyncExecutor.execute(
             () -> {
               try {
-                sendMessageToPassport(passportId, messageType, message);
+                sendMessageToPassport(namespace, passportId, messageType, message);
               } catch (Exception e) {
                 imServerLog.error("[NEW-IM-SEND-TASK] 异步发送消息任务执行异常");
               } finally {
@@ -290,6 +303,7 @@ public class IMSession implements InitializingBean, DisposableBean {
     header.setPersistent(attribute.isPersistent());
     header.setQos(attribute.isQos());
     header.setRetryPeriod(attribute.getRetryPeriod());
+    header.setNamespace(attribute.getNamespace());
 
     imServerLog.info("服务器分发消息,请求头信息:{}", JSON.toJSONString(header));
     this.clusterReplicaConnector.forwardMessage(
@@ -362,11 +376,17 @@ public class IMSession implements InitializingBean, DisposableBean {
         TimeUnit.SECONDS);
   }
 
-  public List<Member> getOnlineMemberList(List<Member> members, String groupId) {
+  public List<Member> getOnlineMemberList(String namespace, List<Member> members, String groupId) {
 
     try {
       diffQuerySemaphore.acquire(1);
-      members.removeIf(member -> !masterPassportSessions.contains(member.getMemberId().toString()));
+      members.removeIf(
+          member ->
+              !masterPassportSessions.contains(
+                  SessionBean.builder()
+                      .sessionId(member.getMemberId().toString())
+                      .namespace(namespace)
+                      .build()));
       return members;
     } catch (Exception e) {
       imServerLog.warn("get online member list exception ", e);
@@ -376,7 +396,7 @@ public class IMSession implements InitializingBean, DisposableBean {
     }
   }
 
-  public void diff(Set<String> passportsConnections, Set<String> devicesConnections) {
+  public void diff(Set<SessionBean> passportsConnections, Set<SessionBean> devicesConnections) {
 
     // 2分钟 DIFF 一次
     if (System.currentTimeMillis() - lastDiffTimestamp > DIFF_PERIOD) {

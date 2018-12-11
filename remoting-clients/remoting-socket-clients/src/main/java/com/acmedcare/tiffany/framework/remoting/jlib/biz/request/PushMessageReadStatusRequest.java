@@ -1,5 +1,6 @@
 package com.acmedcare.tiffany.framework.remoting.jlib.biz.request;
 
+import com.acmedcare.tiffany.framework.remoting.jlib.Constants;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,6 +16,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class PushMessageReadStatusRequest extends BaseRequest {
 
+  private String namespace = Constants.DEFAULT_NAMESPACE;
   /**
    * 最新消息 ID
    *

@@ -3,6 +3,7 @@ package com.acmedcare.tiffany.framework.remoting.jlib.biz.request;
 import com.acmedcare.tiffany.framework.remoting.android.core.CFNotNull;
 import com.acmedcare.tiffany.framework.remoting.android.core.exception.RemotingCommandException;
 import com.acmedcare.tiffany.framework.remoting.android.core.protocol.CommandCustomHeader;
+import com.acmedcare.tiffany.framework.remoting.jlib.Constants;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,6 +22,8 @@ import lombok.Setter;
 public class PushMessageHeader extends BaseHeader implements CommandCustomHeader {
 
   private static final long serialVersionUID = -5953866493854736706L;
+  @CFNotNull private String namespace = Constants.DEFAULT_NAMESPACE;
+
   @CFNotNull private String messageType;
 
   @CFNotNull private String passport;
@@ -47,7 +50,8 @@ public class PushMessageHeader extends BaseHeader implements CommandCustomHeader
       boolean qos,
       int maxRetryTimes,
       long retryPeriod,
-      boolean persistent) {
+      boolean persistent,
+      String namespace) {
     this.messageType = messageType;
     this.passport = passport;
     this.passportId = passportId;
@@ -55,6 +59,7 @@ public class PushMessageHeader extends BaseHeader implements CommandCustomHeader
     this.maxRetryTimes = maxRetryTimes;
     this.retryPeriod = retryPeriod;
     this.persistent = persistent;
+    this.namespace = namespace;
   }
 
   /**

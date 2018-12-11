@@ -13,21 +13,21 @@ import java.util.List;
  */
 public interface GroupRepository {
 
-  Group queryGroup(String groupId);
+  Group queryGroup(String namespace, String groupId);
 
   void saveGroup(Group group);
 
-  long removeGroup(String groupId);
+  long removeGroup(String namespace, String groupId);
 
   void saveGroupMembers(GroupMembers members);
 
-  long removeGroupMembers(String groupId, List<String> memberIds);
+  long removeGroupMembers(String namespace,String groupId, List<String> memberIds);
 
-  List<String> queryGroupMemberIds(String groupId);
+  List<String> queryGroupMemberIds(String namespace,String groupId);
 
-  List<GroupMemberRef> queryGroupMembers(String groupId);
+  List<GroupMemberRef> queryGroupMembers(String namespace,String groupId);
 
-  List<Group> queryMemberGroups(String passportId);
+  List<Group> queryMemberGroups(String namespace,String passportId);
 
   void updateGroup(Group group);
 }

@@ -1,6 +1,7 @@
 package com.acmedcare.framework.newim.server.processor.header;
 
 import com.acmedcare.framework.newim.Message.MessageType;
+import com.acmedcare.framework.newim.client.MessageConstants;
 import com.acmedcare.tiffany.framework.remoting.CommandCustomHeader;
 import com.acmedcare.tiffany.framework.remoting.annotation.CFNotNull;
 import com.acmedcare.tiffany.framework.remoting.exception.RemotingCommandException;
@@ -18,7 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 @Getter
 @Setter
 public class PushMessageReadStatusHeader implements CommandCustomHeader {
-
+  private String namespace = MessageConstants.DEFAULT_NAMESPACE;
   @CFNotNull private String passportId;
 
   /**
