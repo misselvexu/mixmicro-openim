@@ -9,7 +9,7 @@ package com.acmedcare.framework.newim.server.mq;
 public class MQCommand {
 
   /** 采样段数据协议 */
-  interface SamplingClient {
+  public interface SamplingClient {
 
     /** 握手协议 */
     int HANDSHAKE = 0x50001;
@@ -25,7 +25,7 @@ public class MQCommand {
   }
 
   /** 监护端数据协议 */
-  interface MonitorClient {
+  public interface MonitorClient {
 
     /** 握手协议 */
     int HANDSHAKE = 0x60001;
