@@ -14,7 +14,7 @@
     <version>2.2.0.BUILD-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>remoting-storage ${project.version}</name>
+    <name>Acmedcare+ Remoting NewIM Storage Parent Module :: ${project.version}</name>
 
     <properties>
         <deploy.skip>true</deploy.skip>

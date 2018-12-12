@@ -13,7 +13,7 @@
     <version>2.2.0.BUILD-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>remoting-master ${project.version}</name>
+    <name>Acmedcare+ Remoting NewIM Master Server Module :: ${project.version}</name>
     <description>Remote Master Server</description>
 
     <properties>

@@ -14,7 +14,7 @@
     <version>2.2.0.BUILD-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>remoting-clients ${project.version}</name>
+    <name>Acmedcare+ Remoting NewIM Clients Parent Module :: ${project.version}</name>
 
     <modules>
         <module>remoting-websocket-clients</module>

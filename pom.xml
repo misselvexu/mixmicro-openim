@@ -12,6 +12,8 @@
         <module>remoting-biz</module>
         <module>remoting-storage</module>
         <module>remoting-master</module>
+        <module>remoting-master-connector</module>
+        <module>remoting-server-api</module>
         <module>remoting-server-wss</module>
         <module>remoting-clients</module>
         <module>remoting-test</module>
@@ -19,7 +21,7 @@
 
     <packaging>pom</packaging>
 
-    <name>remoting-newim ${project.version}</name>
+    <name>Acmedcare+ Remoting NewIM Parent :: ${project.version}</name>
 
     <properties>
         <deploy.skip>false</deploy.skip>

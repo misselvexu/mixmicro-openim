@@ -13,7 +13,7 @@
     <version>2.2.0.BUILD-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>remoting-server-wss ${project.version}</name>
+    <name>Acmedcare+ Remoting NewIM Wss Server Implements :: ${project.version}</name>
     <description>Remote Server ,WebSocket &amp; Socket</description>
 
     <properties>
