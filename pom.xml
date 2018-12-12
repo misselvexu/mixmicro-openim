@@ -10,10 +10,13 @@
     <modules>
         <module>remoting-api</module>
         <module>remoting-biz</module>
+        <module>remoting-spi</module>
         <module>remoting-storage</module>
         <module>remoting-master</module>
         <module>remoting-master-connector</module>
         <module>remoting-server-api</module>
+        <module>remoting-server-mq</module>
+        <module>remoting-server-runner</module>
         <module>remoting-server-wss</module>
         <module>remoting-clients</module>
         <module>remoting-test</module>
@@ -126,6 +129,12 @@
 
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>remoting-spi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>remoting-biz</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -163,6 +172,24 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>remoting-storage-mongo</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>remoting-server-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>remoting-server-mq</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>remoting-master-connector</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

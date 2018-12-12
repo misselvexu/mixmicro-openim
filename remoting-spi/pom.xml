@@ -9,12 +9,12 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>remoting-server-api</artifactId>
+    <artifactId>remoting-spi</artifactId>
     <version>2.2.0.BUILD-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Acmedcare+ Remoting NewIM Cluster Server Api Defined Module :: ${project.version}</name>
-    <description>Remote Server Api Defined</description>
+    <name>Acmedcare+ Remoting SPI Common Module :: ${project.version}</name>
+    <description>Remote SPI Common Module</description>
 
     <properties>
         <deploy.skip>false</deploy.skip>
@@ -24,11 +24,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.acmedcare.microservices.im</groupId>
-            <artifactId>remoting-spi</artifactId>
         </dependency>
     </dependencies>
 </project>

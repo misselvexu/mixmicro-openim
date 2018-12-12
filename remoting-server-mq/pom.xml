@@ -9,12 +9,12 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>remoting-server-api</artifactId>
+    <artifactId>remoting-server-mq</artifactId>
     <version>2.2.0.BUILD-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Acmedcare+ Remoting NewIM Cluster Server Api Defined Module :: ${project.version}</name>
-    <description>Remote Server Api Defined</description>
+    <name>Acmedcare+ Remoting NewIM Queue Server Module :: ${project.version}</name>
+    <description>Remote Queue Server</description>
 
     <properties>
         <deploy.skip>false</deploy.skip>
@@ -29,6 +29,11 @@
         <dependency>
             <groupId>com.acmedcare.microservices.im</groupId>
             <artifactId>remoting-spi</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.acmedcare.microservices.im</groupId>
+            <artifactId>remoting-server-api</artifactId>
         </dependency>
     </dependencies>
 </project>
