@@ -92,7 +92,7 @@
         <dependency>
             <groupId>com.acmedcare.framework.kits</groupId>
             <artifactId>common-kits</artifactId>
-            <version>Antarctica.RC1</version>
+            <version>Antarctica.RC2</version>
         </dependency>
 
         <dependency>

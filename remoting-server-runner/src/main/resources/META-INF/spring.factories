@@ -1,2 +1,5 @@
 org.springframework.context.ApplicationListener=\
   com.acmedcare.framework.newim.server.runner.listener.AwaitingNonWebApplicationListener
+
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.acmedcare.framework.newim.server.runner.loader.RemotingServicesAutoConfiguration

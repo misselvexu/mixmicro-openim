@@ -8,6 +8,9 @@ import com.acmedcare.framework.newim.spi.ExtensionLoaderListener;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.Getter;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 
 /**
  * Server Service Factory
@@ -19,7 +22,14 @@ public class ServerServiceFactory {
 
   private static final Map<String, Server> SERVER_MAP = new ConcurrentHashMap<>();
 
-  private static final ExtensionLoader<Server> SERVER_EXTENSION_LOADER = buildServerLoader();
+  @Getter private static ExtensionLoader<Server> serverExtensionLoader;
+
+  private static BeanFactory beanFactory;
+
+  public static void refresh(BeanFactory beanFactory) {
+    ServerServiceFactory.beanFactory = beanFactory;
+    serverExtensionLoader = buildServerLoader();
+  }
 
   private static ExtensionLoader<Server> buildServerLoader() {
     return ExtensionLoaderFactory.getExtensionLoader(
@@ -27,7 +37,11 @@ public class ServerServiceFactory {
         new ExtensionLoaderListener<Server>() {
           @Override
           public void onLoad(ExtensionClass<Server> extensionClass) {
-            SERVER_MAP.put(extensionClass.getAlias(), extensionClass.getExtInstance());
+            Server server = extensionClass.getExtInstance();
+            AutowiredAnnotationBeanPostProcessor processor =
+                beanFactory.getBean(AutowiredAnnotationBeanPostProcessor.class);
+            processor.postProcessProperties(null, server, null);
+            SERVER_MAP.put(extensionClass.getAlias(), server);
           }
         });
   }
@@ -36,7 +50,7 @@ public class ServerServiceFactory {
     return SERVER_MAP.keySet();
   }
 
-  public static Collection<Server> instances() {
+  static Collection<Server> instances() {
     return SERVER_MAP.values();
   }
 }

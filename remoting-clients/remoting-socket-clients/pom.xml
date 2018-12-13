@@ -17,6 +17,12 @@
     <name>Acmedcare+ Remoting NewIM Jre Socket Client :: ${project.version}</name>
 
     <dependencies>
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.acmedcare.tiffany.framework</groupId>
             <artifactId>remoting-android-jarlib-nio</artifactId>

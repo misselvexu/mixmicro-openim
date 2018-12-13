@@ -119,6 +119,9 @@ public class Message implements Serializable {
     private List<String> receivers;
     /** 未读人数 */
     private int unReadSize;
+
+    /** 已读数量 */
+    private int readedSize = 1;
   }
 
   /** 推送消息 */

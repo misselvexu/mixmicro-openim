@@ -29,6 +29,7 @@ public class SampleApplication {
     @Autowired private MasterEndpointClient masterEndpointClient;
 
 
+
     @GetMapping("/")
     String test() {
 

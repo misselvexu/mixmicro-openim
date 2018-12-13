@@ -1,6 +1,5 @@
 package com.acmedcare.framework.newim.server;
 
-import com.acmedcare.framework.newim.Namespace;
 import com.acmedcare.framework.newim.spi.Extensible;
 import java.io.Serializable;
 import java.util.Objects;
@@ -19,10 +18,9 @@ public interface Server {
   /**
    * Server Startup Method
    *
-   * @param properties server config properties
    * @return server instance
    */
-  Server startup(ServerProperties properties);
+  Server startup();
 
   /**
    * Shutdown Server
@@ -49,9 +47,6 @@ public interface Server {
     /** Server Port Defined */
     private int port;
 
-    /** Server Namespace Defined */
-    private Namespace namespace;
-
     @Override
     public boolean equals(Object o) {
       if (this == o) {
@@ -61,14 +56,12 @@ public interface Server {
         return false;
       }
       ServerProperties that = (ServerProperties) o;
-      return getPort() == that.getPort()
-          && getHost().equals(that.getHost())
-          && getNamespace() == that.getNamespace();
+      return getPort() == that.getPort() && getHost().equals(that.getHost());
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(getHost(), getPort(), getNamespace());
+      return Objects.hash(getHost(), getPort());
     }
   }
 }

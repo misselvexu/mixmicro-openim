@@ -15,7 +15,7 @@
     <packaging>jar</packaging>
 
     <name>Acmedcare+ Remoting NewIM Jre MQ Client :: ${project.version}</name>
-    l
+
     <dependencies>
         <dependency>
             <groupId>com.acmedcare.tiffany.framework</groupId>
