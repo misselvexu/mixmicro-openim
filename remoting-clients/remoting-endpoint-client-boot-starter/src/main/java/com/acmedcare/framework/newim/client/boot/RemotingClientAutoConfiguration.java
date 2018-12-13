@@ -35,7 +35,7 @@ public class RemotingClientAutoConfiguration {
   private static final Logger LOG = LoggerFactory.getLogger(RemotingClientAutoConfiguration.class);
 
   @Bean
-  @ConditionalOnProperty(name = "remoting.nas.endpoint.enabled", havingValue = "false")
+  @ConditionalOnProperty(name = "remoting.nas.endpoint.enabled", havingValue = "false" ,matchIfMissing = true)
   public MasterEndpointClient masterEndpointClient(
       RemotingMasterEndpointClientServiceProperties properties) {
 
