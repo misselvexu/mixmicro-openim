@@ -41,6 +41,7 @@ public class MQServer implements Server {
   private ExecutorService defaultProcessorExecutor; // processor
   private int corePoolSize = Runtime.getRuntime().availableProcessors() << 1;
   private int maximumPoolSize = corePoolSize << 2;
+  private MQContext context = new MQContext();
 
   /**
    * Server Startup Method
@@ -90,7 +91,7 @@ public class MQServer implements Server {
 
       logger.info("[MQServer] create new mq server instance :{} ", server);
 
-      MQProcessor processor = new MQProcessor(mqService);
+      MQProcessor processor = new MQProcessor(context,mqService);
       server.registerDefaultProcessor(processor, defaultProcessorExecutor);
       logger.info("[MQServer] register-ed default processor :{} ", processor);
 

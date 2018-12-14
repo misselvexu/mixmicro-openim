@@ -4,6 +4,7 @@ import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
 import com.acmedcare.framework.newim.server.mq.MQCommand.MonitorClient;
 import com.acmedcare.framework.newim.server.mq.MQCommand.SamplingClient;
+import com.acmedcare.framework.newim.server.mq.MQContext;
 import com.acmedcare.framework.newim.server.mq.service.MQService;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRequestProcessor;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
@@ -21,10 +22,12 @@ public class MQProcessor implements NettyRequestProcessor {
 
   private static final Logger logger = LoggerFactory.getLogger(MQProcessor.class);
 
+  private final MQContext context;
   private final MQService mqService;
 
-  public MQProcessor(MQService mqService) {
+  public MQProcessor(MQContext context, MQService mqService) {
     this.mqService = mqService;
+    this.context = context;
   }
 
   @Override
@@ -47,21 +50,30 @@ public class MQProcessor implements NettyRequestProcessor {
       switch (code) {
           // monitor client biz code
         case MonitorClient.HANDSHAKE:
+          return this.monitorClientHandShake(channelHandlerContext, remotingCommand);
         case MonitorClient.REGISTER:
+          return this.monitorClientRegister(channelHandlerContext, remotingCommand);
         case MonitorClient.SHUTDOWN:
+          return this.monitorClientShutdown(channelHandlerContext, remotingCommand);
         case MonitorClient.TOPIC_SUBSCRIBE:
+          return this.monitorClientTopicSubscribe(channelHandlerContext, remotingCommand);
         case MonitorClient.REVOKE_TOPIC_SUBSCRIBE:
+          return this.monitorClientRevokeTopicSubscribe(channelHandlerContext, remotingCommand);
         case MonitorClient.FIX_MESSAGE:
-          break;
+          return this.monitorClientFixMessages(channelHandlerContext, remotingCommand);
 
           // sampling client biz code
         case SamplingClient.HANDSHAKE:
+          return this.samplingClientHandShake(channelHandlerContext, remotingCommand);
         case SamplingClient.REGISTER:
+          return this.samplingClientRegister(channelHandlerContext, remotingCommand);
         case SamplingClient.SHUTDOWN:
+          return this.samplingClientShutdown(channelHandlerContext, remotingCommand);
         case SamplingClient.PULL_TOPIC_SUBSCRIBE_MAPPING:
-          break;
+          return this.samplingClientPullTopicSubscibeMapping(
+              channelHandlerContext, remotingCommand);
 
-          // no processor
+          // no processor c8410635
         default:
           defaultResponse.setBody(
               BizResult.builder()
@@ -83,5 +95,92 @@ public class MQProcessor implements NettyRequestProcessor {
   @Override
   public boolean rejectRequest() {
     return false;
+  }
+
+  /**
+   * Client Handshake Process
+   *
+   * @param channelHandlerContext channel context
+   * @param remotingCommand remote command
+   * @return response
+   */
+  private RemotingCommand monitorClientHandShake(
+      ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand) {
+
+    // TODO
+
+    return null;
+  }
+
+  private RemotingCommand monitorClientRegister(
+      ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand) {
+
+    // TODO
+
+    return null;
+  }
+
+  private RemotingCommand monitorClientShutdown(
+      ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand) {
+
+    // TODO
+
+    return null;
+  }
+
+  private RemotingCommand monitorClientTopicSubscribe(
+      ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand) {
+
+    // TODO
+
+    return null;
+  }
+
+  private RemotingCommand monitorClientRevokeTopicSubscribe(
+      ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand) {
+
+    // TODO
+
+    return null;
+  }
+
+  private RemotingCommand monitorClientFixMessages(
+      ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand) {
+
+    // TODO
+
+    return null;
+  }
+
+  private RemotingCommand samplingClientHandShake(
+      ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand) {
+
+    // TODO
+
+    return null;
+  }
+
+  private RemotingCommand samplingClientRegister(
+      ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand) {
+
+    // TODO
+
+    return null;
+  }
+
+  private RemotingCommand samplingClientShutdown(
+      ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand) {
+
+    // TODO
+
+    return null;
+  }
+
+  private RemotingCommand samplingClientPullTopicSubscibeMapping(
+      ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand) {
+
+    // TODO
+
+    return null;
   }
 }
