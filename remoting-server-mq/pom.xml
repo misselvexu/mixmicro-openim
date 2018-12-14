@@ -39,6 +39,11 @@
         </dependency>
 
         <dependency>
+            <groupId>com.acmedcare.framework.kits</groupId>
+            <artifactId>common-kits</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.acmedcare.microservices.im</groupId>
             <artifactId>remoting-spi</artifactId>
         </dependency>
@@ -61,6 +66,16 @@
         <dependency>
             <groupId>com.acmedcare.microservices.im</groupId>
             <artifactId>remoting-biz</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.acmedcare.microservices.im</groupId>
+            <artifactId>remoting-storage-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.acmedcare.microservices.im</groupId>
+            <artifactId>remoting-storage-mongo</artifactId>
         </dependency>
 
         <!-- Spring boot-->

@@ -18,14 +18,12 @@ import com.mongodb.client.result.UpdateResult;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
@@ -34,13 +32,11 @@ import org.springframework.transaction.support.TransactionTemplate;
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version ${project.version} - 13/11/2018.
  */
-@Repository
 public class MessageRepositoryImpl implements MessageRepository {
 
   private final MongoTemplate mongoTemplate;
   private final TransactionTemplate transactionTemplate;
 
-  @Autowired
   public MessageRepositoryImpl(
       MongoTemplate mongoTemplate, TransactionTemplate transactionTemplate) {
     this.mongoTemplate = mongoTemplate;

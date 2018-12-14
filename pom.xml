@@ -77,11 +77,22 @@
             </dependency>
 
             <dependency>
-                <groupId>xyz.vopen.microservices</groupId>
-                <artifactId>tiffany-surface</artifactId>
-                <version>Asia.RC4</version>
+                <groupId>com.acmedcare.framework.kits</groupId>
+                <artifactId>common-kits</artifactId>
+                <version>Antarctica.RC2</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.acmedcare.framework</groupId>
+                <artifactId>constants-api</artifactId>
+                <version>2.1.0-RC1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.acmedcare.framework</groupId>
+                <artifactId>exception-api</artifactId>
+                <version>2.1.0-RC1</version>
+            </dependency>
 
             <dependency>
                 <groupId>mysql</groupId>
@@ -98,7 +109,7 @@
             <dependency>
                 <groupId>xyz.vopen.tiffany</groupId>
                 <artifactId>spring-boot-starter-swagger</artifactId>
-                <version>0.8-RELEASE</version>
+                <version>0.8.1-RELEASE</version>
             </dependency>
 
             <dependency>

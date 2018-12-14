@@ -47,6 +47,9 @@ public interface Server {
     /** Server Port Defined */
     private int port;
 
+    /** Server Idle Time (Second) */
+    private int idleTime = 120;
+
     @Override
     public boolean equals(Object o) {
       if (this == o) {

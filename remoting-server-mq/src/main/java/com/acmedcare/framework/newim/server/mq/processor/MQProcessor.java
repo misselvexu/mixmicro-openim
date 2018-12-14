@@ -4,6 +4,7 @@ import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
 import com.acmedcare.framework.newim.server.mq.MQCommand.MonitorClient;
 import com.acmedcare.framework.newim.server.mq.MQCommand.SamplingClient;
+import com.acmedcare.framework.newim.server.mq.service.MQService;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRequestProcessor;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import io.netty.channel.ChannelHandlerContext;
@@ -19,6 +20,12 @@ import org.slf4j.LoggerFactory;
 public class MQProcessor implements NettyRequestProcessor {
 
   private static final Logger logger = LoggerFactory.getLogger(MQProcessor.class);
+
+  private final MQService mqService;
+
+  public MQProcessor(MQService mqService) {
+    this.mqService = mqService;
+  }
 
   @Override
   public RemotingCommand processRequest(

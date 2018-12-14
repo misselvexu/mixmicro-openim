@@ -127,6 +127,9 @@ public class JREBizExectuor extends BizExecutor {
                         if (authCallback != null) {
                           authCallback.onFailed(
                               bizResult.getCode(), bizResult.getException().getMessage());
+
+                          // close connection
+                          AcmedcareRemoting.getInstance().shutdownNow();
                         }
                       }
                     }

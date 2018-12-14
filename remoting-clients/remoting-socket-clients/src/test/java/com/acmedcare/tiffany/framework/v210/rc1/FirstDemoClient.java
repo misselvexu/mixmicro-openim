@@ -149,6 +149,11 @@ public class FirstDemoClient {
         // functions
         String[] inputArgs = input.split("\\s+");
 
+        if(inputArgs[0].equals("auth")) {
+          AcmedcareRemoting.getInstance().auth();
+          continue;
+        }
+
         // 拉取消息请求参数:  pullMessageList 3837142362366977 -1
         if (inputArgs[0].equals("pullMessageList")) {
           pullMessageList(inputArgs[1], Long.parseLong(inputArgs[2]));
@@ -529,7 +534,7 @@ public class FirstDemoClient {
   private interface KnownParams {
 
     String accessToken =
-        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiJmZTk2NzFjZTI0MTc0OTFlYWFhMTk5MjRkNDYxYzAxOSIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NDM5MDY2NTUwMjcsImV4cCI6MTU0NDUxMjYyMTAyNywiYXVkIjpudWxsfQ.KrQgoqaxgzhnn9Y3Gd1zaH8EMETx4yaOCck9CxopDpeR54fg-nDAEaMhiEGHSgoz-9TLk414VZc-534rCBsfKwN6AMzla_M294YUR1s1FDJjHWR7KHxIhfdldiH27ggj0FWTWmr1-MFJKxQT02BYFJ6Lo3LwHaMf7GC_bEl5E7vTMESpuq5bMcZLj5Ot83imRctzKZqTQ3z6xakhWo3G1Ntjk_P1JL891IlT2zHALojr0IEBtGP-tQ3Im9rfFb8LzwlQYHvD9JPc4TZS-UFhEZnwFixxgT1W3NbrfW_8BjLLOHvKfgcZP9FGXl9cV5u7387_tXnZeKd6WSXAdutpOA";
+        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiI0YTNlYTc5MjZhZjI0ODhlOTkwNjBkZmQ2NDAzZjczMCIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NDQ3NjY3NDg0NzYsImV4cCI6MTU0NTM3NTUyNTQ3NiwiYXVkIjpudWxsfQ.efE6sJLPxr_pUZeMAXQ_CFrIo6U6VmyUvALjnJmJVIH423UVEv_NoyXv1Zo4PcwZF8wptr_S2p1f5TH6ySXFUbhMdv88S_ME6AefdqDXLgZKpzqOM4cotqSpVgmROnjAuRs91SW8W51_eA8rHiqsQ_U520wf-lh3zJkVGSItQnX2Lbi6lrLB4ty0tHqzk1Be7ZK8QpXJGz0jDV18hx9NXOjj71CbIyfB8ghQlKdPX1sWcp4l9LqmuoEAecvMxJ0xJ_6t3m8r6MhbWFeToe1AH6_dKV53sRmULeBoTVqezrGS58uMOLHgmYAdcRG5ca0EzQWJypf5ZYMLVi0qmtPR-Q";
 
     String areaNo = "320500";
 

@@ -58,26 +58,22 @@
         <dependency>
             <groupId>com.acmedcare.microservices.im</groupId>
             <artifactId>remoting-server-mq</artifactId>
-            <optional>true</optional>
         </dependency>
 
         <!-- Common Kits -->
         <dependency>
             <groupId>com.acmedcare.framework.kits</groupId>
             <artifactId>common-kits</artifactId>
-            <version>Antarctica.RC2</version>
         </dependency>
 
         <dependency>
             <groupId>com.acmedcare.framework</groupId>
             <artifactId>constants-api</artifactId>
-            <version>2.1.0-RC1</version>
         </dependency>
 
         <dependency>
             <groupId>com.acmedcare.framework</groupId>
             <artifactId>exception-api</artifactId>
-            <version>2.1.0-RC1</version>
         </dependency>
 
     </dependencies>

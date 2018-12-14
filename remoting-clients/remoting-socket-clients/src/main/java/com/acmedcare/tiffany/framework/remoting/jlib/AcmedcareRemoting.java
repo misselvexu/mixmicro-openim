@@ -398,16 +398,7 @@ public final class AcmedcareRemoting implements Serializable {
 
                   AcmedcareRemoting.this.remotingSession = ioSession;
                   // auth automatic
-                  AcmedcareRemoting.this.bizExecutor.auth(
-                      AuthRequest.builder()
-                          .accessToken(AcmedcareRemoting.parameters.getAccessToken())
-                          .areaNo(AcmedcareRemoting.parameters.getAreaNo())
-                          .orgId(AcmedcareRemoting.parameters.getOrgId())
-                          .deviceId(AcmedcareRemoting.parameters.getDeviceId())
-                          .username(AcmedcareRemoting.parameters.getUsername())
-                          .passportId(AcmedcareRemoting.parameters.getPassportId())
-                          .build(),
-                      AcmedcareRemoting.parameters.getAuthCallback());
+                  auth();
                 }
               }
 
@@ -489,6 +480,20 @@ public final class AcmedcareRemoting implements Serializable {
           }
         },
         null);
+  }
+
+  /** Auth Method */
+  public void auth() {
+    AcmedcareRemoting.this.bizExecutor.auth(
+        AuthRequest.builder()
+            .accessToken(AcmedcareRemoting.parameters.getAccessToken())
+            .areaNo(AcmedcareRemoting.parameters.getAreaNo())
+            .orgId(AcmedcareRemoting.parameters.getOrgId())
+            .deviceId(AcmedcareRemoting.parameters.getDeviceId())
+            .username(AcmedcareRemoting.parameters.getUsername())
+            .passportId(AcmedcareRemoting.parameters.getPassportId())
+            .build(),
+        AcmedcareRemoting.parameters.getAuthCallback());
   }
 
   private void doConnect(final boolean now) {

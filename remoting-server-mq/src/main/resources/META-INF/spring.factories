@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.acmedcare.framework.newim.server.mq.MQServerPropertiesAutoConfiguration
+  com.acmedcare.framework.newim.server.mq.MQServerAutoConfiguration

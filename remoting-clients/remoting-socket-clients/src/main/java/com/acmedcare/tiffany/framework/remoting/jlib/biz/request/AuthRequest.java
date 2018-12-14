@@ -45,8 +45,18 @@ public class AuthRequest {
 
   /** AuthCallback */
   public interface AuthCallback {
+
+    /** auth succeed. */
     void onSuccess();
 
+    /**
+     * Auth Failed ,
+     *
+     * <p><b><font style='color:red;'>then client will close remoting connection.</font></b>
+     *
+     * @param code error code
+     * @param message error message
+     */
     void onFailed(int code, String message);
   }
 }
