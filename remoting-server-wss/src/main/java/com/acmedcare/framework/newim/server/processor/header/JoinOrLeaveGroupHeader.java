@@ -21,7 +21,11 @@ public class JoinOrLeaveGroupHeader implements CommandCustomHeader {
   @CFNotNull private String groupId;
   @CFNotNull private String passportId;
   @CFNotNull private String memberName;
-  @CFNotNull private OperateType operateType;
+  @CFNotNull private String operateType;
+
+  public OperateType decodeOperateType() {
+    return OperateType.valueOf(this.operateType);
+  }
 
   @Override
   public void checkFields() throws RemotingCommandException {

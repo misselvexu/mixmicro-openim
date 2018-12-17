@@ -57,7 +57,7 @@ public class RemotingClientJoinOrLeaveGroupProcessor extends AbstractNormalReque
 
       JoinOrLeaveGroupHeader joinOrLeaveGroupHeader = (JoinOrLeaveGroupHeader) header;
 
-      switch (joinOrLeaveGroupHeader.getOperateType()) {
+      switch (joinOrLeaveGroupHeader.decodeOperateType()) {
         case JOIN:
           this.groupService.joinGroup(
               joinOrLeaveGroupHeader.getNamespace(),
@@ -83,11 +83,7 @@ public class RemotingClientJoinOrLeaveGroupProcessor extends AbstractNormalReque
       response.setBody(
           BizResult.builder()
               .code(-1)
-              .exception(
-                  ExceptionWrapper.builder()
-                      .message(e.getMessage())
-                      .type(e.getCause().getClass())
-                      .build())
+              .exception(ExceptionWrapper.builder().message(e.getMessage()).build())
               .build()
               .bytes());
     }
