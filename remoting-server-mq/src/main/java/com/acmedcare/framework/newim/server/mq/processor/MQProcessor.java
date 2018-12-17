@@ -50,7 +50,8 @@ public class MQProcessor implements NettyRequestProcessor {
       switch (code) {
           // monitor client biz code
         case MonitorClient.HANDSHAKE:
-          return this.monitorClientHandShake(channelHandlerContext, remotingCommand);
+          // handshake request type recommended: oneway
+          break;
         case MonitorClient.REGISTER:
           return this.monitorClientRegister(channelHandlerContext, remotingCommand);
         case MonitorClient.SHUTDOWN:
@@ -64,7 +65,8 @@ public class MQProcessor implements NettyRequestProcessor {
 
           // sampling client biz code
         case SamplingClient.HANDSHAKE:
-          return this.samplingClientHandShake(channelHandlerContext, remotingCommand);
+          // handshake request type recommended: oneway
+          break;
         case SamplingClient.REGISTER:
           return this.samplingClientRegister(channelHandlerContext, remotingCommand);
         case SamplingClient.SHUTDOWN:
@@ -95,21 +97,6 @@ public class MQProcessor implements NettyRequestProcessor {
   @Override
   public boolean rejectRequest() {
     return false;
-  }
-
-  /**
-   * Client Handshake Process
-   *
-   * @param channelHandlerContext channel context
-   * @param remotingCommand remote command
-   * @return response
-   */
-  private RemotingCommand monitorClientHandShake(
-      ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand) {
-
-    // TODO
-
-    return null;
   }
 
   private RemotingCommand monitorClientRegister(
@@ -145,14 +132,6 @@ public class MQProcessor implements NettyRequestProcessor {
   }
 
   private RemotingCommand monitorClientFixMessages(
-      ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand) {
-
-    // TODO
-
-    return null;
-  }
-
-  private RemotingCommand samplingClientHandShake(
       ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand) {
 
     // TODO
