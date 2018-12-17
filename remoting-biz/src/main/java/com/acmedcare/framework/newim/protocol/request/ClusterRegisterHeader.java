@@ -20,6 +20,7 @@ public class ClusterRegisterHeader implements CommandCustomHeader {
 
   @CFNotNull private String clusterServerHost;
   @CFNotNull private String clusterReplicaAddress;
+  @CFNotNull private boolean hasWssEndpoints = false;
 
   public InstanceNode instance() {
     return InstanceNode.builder().host(clusterServerHost).nodeType(NodeType.CLUSTER).build();

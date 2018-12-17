@@ -153,13 +153,14 @@ public class MasterSession {
                   .clusterClientChannel(channel)
                   .build());
 
-      // process wss
-      Map<String, WssInstance> temp = Maps.newHashMap();
-      for (WssInstance wssNode : wssNodes) {
-        temp.put(wssNode.getWssName(), wssNode);
+      if (wssNodes != null && !wssNodes.isEmpty()) {
+        // process wss
+        Map<String, WssInstance> temp = Maps.newHashMap();
+        for (WssInstance wssNode : wssNodes) {
+          temp.put(wssNode.getWssName(), wssNode);
+        }
+        clusterWssServerInstance.put(clusterAddress, temp);
       }
-
-      clusterWssServerInstance.put(clusterAddress, temp);
 
       if (original != null) {
         masterClusterAcceptorLog.info(

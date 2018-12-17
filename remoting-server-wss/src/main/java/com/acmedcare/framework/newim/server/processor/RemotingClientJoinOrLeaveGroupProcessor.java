@@ -86,7 +86,7 @@ public class RemotingClientJoinOrLeaveGroupProcessor extends AbstractNormalReque
               .exception(
                   ExceptionWrapper.builder()
                       .message(e.getMessage())
-                      .type(e.getCause().getClass())
+
                       .build())
               .build()
               .bytes());

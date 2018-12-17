@@ -122,7 +122,7 @@ public class ServerPushMessageProcessor implements XLMRRequestProcessor {
               .exception(
                   BizResult.ExceptionWrapper.builder()
                       .message(e.getMessage())
-                      .type(e.getCause().getClass())
+
                       .build())
               .build()
               .bytes());

@@ -79,11 +79,7 @@ public class ClusterForwardMessageRequestProcessor extends AbstractClusterReques
       response.setBody(
           BizResult.builder()
               .code(-1)
-              .exception(
-                  ExceptionWrapper.builder()
-                      .message(e.getMessage())
-                      .type(e.getCause().getClass())
-                      .build())
+              .exception(ExceptionWrapper.builder().message(e.getMessage()).build())
               .build()
               .bytes());
     }

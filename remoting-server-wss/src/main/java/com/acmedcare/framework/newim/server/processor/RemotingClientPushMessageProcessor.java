@@ -99,7 +99,7 @@ public class RemotingClientPushMessageProcessor extends AbstractNormalRequestPro
               .exception(
                   ExceptionWrapper.builder()
                       .message(e.getMessage())
-                      .type(e.getCause().getClass())
+
                       .build())
               .build()
               .bytes());

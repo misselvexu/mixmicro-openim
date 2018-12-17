@@ -150,14 +150,19 @@ public class MasterClusterAcceptorServer {
 
             InstanceNode replica = header.replica();
 
-            String bodyContent = new String(remotingCommand.getBody(), "UTF-8");
-            // wss instance body
-            List<WssInstance> instances =
-                JSON.parseObject(bodyContent, new TypeReference<List<WssInstance>>() {});
+            if (header.isHasWssEndpoints()) {
+              String bodyContent = new String(remotingCommand.getBody(), "UTF-8");
+              // wss instance body
+              List<WssInstance> instances =
+                  JSON.parseObject(bodyContent, new TypeReference<List<WssInstance>>() {});
 
-            // register new remote client
-            masterClusterSession.registerClusterInstance(
-                node.getHost(), replica.getHost(), instances, channelHandlerContext.channel());
+              // register new remote client
+              masterClusterSession.registerClusterInstance(
+                  node.getHost(), replica.getHost(), instances, channelHandlerContext.channel());
+            } else {
+              masterClusterSession.registerClusterInstance(
+                  node.getHost(), replica.getHost(), null, channelHandlerContext.channel());
+            }
 
             channelHandlerContext.channel().attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).set(node);
 

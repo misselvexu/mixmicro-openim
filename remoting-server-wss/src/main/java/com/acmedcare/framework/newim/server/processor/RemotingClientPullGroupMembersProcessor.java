@@ -72,7 +72,7 @@ public class RemotingClientPullGroupMembersProcessor extends AbstractNormalReque
               .exception(
                   ExceptionWrapper.builder()
                       .message(e.getMessage())
-                      .type(e.getCause().getClass())
+
                       .build())
               .build()
               .bytes());
