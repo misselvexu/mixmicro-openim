@@ -26,7 +26,7 @@ public class MasterEndpointClientTest {
   @Before
   public void init() {
     this.masterEndpointClient =
-        new MasterEndpointClient(Lists.newArrayList("192.168.1.227:13110"), false);
+        new MasterEndpointClient(Lists.newArrayList("127.0.0.1:13110"), false);
   }
 
   @Test

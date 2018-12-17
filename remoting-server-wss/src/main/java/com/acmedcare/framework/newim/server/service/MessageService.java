@@ -61,6 +61,9 @@ public class MessageService {
       attribute.setQos(singleMessage.isQos());
       attribute.setRetryPeriod(singleMessage.getRetryPeriod());
 
+      // (根据消息类型)存储消息
+      this.messageRepository.saveMessage(singleMessage);
+
     } else if (message instanceof GroupMessage) {
       // 群组消息
       GroupMessage groupMessage = (GroupMessage) message;
@@ -70,13 +73,15 @@ public class MessageService {
       attribute.setRetryPeriod(groupMessage.getRetryPeriod());
 
       // check group receivers
-      List<String> groupIds =
+      List<String> memberIds =
           this.groupRepository.queryGroupMemberIds(message.getNamespace(), groupMessage.getGroup());
-      groupMessage.setReceivers(groupIds);
+      memberIds.remove(message.getSender()); // 排除发送者本身
+      groupMessage.setReceivers(memberIds);
+      groupMessage.setUnReadSize(memberIds.size() - 1); // 排除发送者本身
+
+      this.messageRepository.saveMessage(groupMessage);
     }
 
-    // 1. (根据消息类型)存储消息
-    this.messageRepository.saveMessage(message);
     imServerLog.info("消息,ID:{},内容:{},存储成功", message.getMid(), JSON.toJSONString(message));
 
     // 分发
@@ -137,14 +142,14 @@ public class MessageService {
     if (type == 1) {
       // 群聊信息
       messages =
-          this.messageRepository.queryGroupMessages(namespace,
-              sender, passportId, limit, leastMessageId > 0, leastMessageId);
+          this.messageRepository.queryGroupMessages(
+              namespace, sender, passportId, limit, leastMessageId > 0, leastMessageId);
 
     } else if (type == 0) {
       // 单聊信息
       messages =
-          this.messageRepository.querySingleMessages(namespace,
-              sender, passportId, limit, leastMessageId > 0, leastMessageId);
+          this.messageRepository.querySingleMessages(
+              namespace, sender, passportId, limit, leastMessageId > 0, leastMessageId);
     }
     return messages;
   }
@@ -198,6 +203,9 @@ public class MessageService {
       MessageStatusDetail messageStatusDetail = new MessageStatusDetail();
 
       for (String receiver : groupMessage.getReceivers()) {
+        if (receiver.equals(groupMessage.getSender())) {
+          continue;
+        }
         if (readedMemberIds.contains(Long.parseLong(receiver))) {
           // readed
           messageStatusDetail.getReaders().add(target.get(Long.parseLong(receiver)));

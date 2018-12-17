@@ -1,6 +1,5 @@
 package com.acmedcare.tiffany.framework.v210.rc1;
 
-import com.acmedcare.nas.client.NasProperties;
 import com.acmedcare.tiffany.framework.remoting.android.core.xlnio.XLMRRemotingClient;
 import com.acmedcare.tiffany.framework.remoting.jlib.AcmedcareLogger;
 import com.acmedcare.tiffany.framework.remoting.jlib.AcmedcareRemoting;
@@ -51,9 +50,9 @@ public class FirstDemoClient {
 
     System.setProperty(AcmedcareLogger.NON_ANDROID_FLAG, "true");
 
-    NasProperties nasProperties = new NasProperties();
-    nasProperties.setServerAddrs(Lists.<String>newArrayList("192.168.1.226:18848"));
-    nasProperties.setHttps(false);
+//    NasProperties nasProperties = new NasProperties();
+//    nasProperties.setServerAddrs(Lists.<String>newArrayList("192.168.1.226:18848"));
+//    nasProperties.setHttps(false);
 
     RemotingParameters temp =
         RemotingParameters.builder()
@@ -75,7 +74,7 @@ public class FirstDemoClient {
                     "/Users/ive/git-acmedcare/Acmedcare-NewIM/remoting-certs/client/keystore.jks"))
             .jksPassword("1qaz2wsx")
             .username(KnownParams.passport)
-            .nasProperties(nasProperties)
+//            .nasProperties(nasProperties)
             .accessToken(KnownParams.accessToken)
             .areaNo(KnownParams.areaNo)
             .orgId(KnownParams.orgId)
@@ -87,7 +86,7 @@ public class FirstDemoClient {
                   @Override
                   public List<RemotingAddress> remotingAddressList() {
                     return Lists.newArrayList(
-                        new RemotingAddress(false, "192.168.1.227", 13110, false));
+                        new RemotingAddress(false, "127.0.0.1", 13110, false));
                   }
                 })
             .build();
@@ -255,7 +254,7 @@ public class FirstDemoClient {
           continue;
         }
 
-        // 拉取群消息已读未读状态  pullGroupMessageReadStatus gid-20181122 1047341427755264
+        // 拉取群消息已读未读状态  pullGroupMessageReadStatus gid-20181122 1063193418451712
         if (inputArgs[0].equals("pullGroupMessageReadStatus")) {
           pullGroupMessageReadStatus(inputArgs[1], inputArgs[2]);
           continue;
@@ -263,6 +262,11 @@ public class FirstDemoClient {
 
         if (inputArgs[0].equals("joinGroup")) {
           joinGroup();
+          continue;
+        }
+
+        if (inputArgs[0].equals("leaveGroup")) {
+          leaveGroup();
           continue;
         }
 
@@ -441,9 +445,9 @@ public class FirstDemoClient {
         .executor()
         .pullMessage(
             pullMessageRequest,
-            new Callback<SingleMessage>() {
+            new Callback<GroupMessage>() {
               @Override
-              public void onSuccess(List<SingleMessage> messages) {
+              public void onSuccess(List<GroupMessage> messages) {
                 System.out.println("拉取消息返回值: " + JSON.toJSONString(messages));
               }
 
@@ -536,10 +540,35 @@ public class FirstDemoClient {
   private static void joinGroup() {
 
     JoinOrLeaveGroupRequest request = new JoinOrLeaveGroupRequest();
-    request.setGroupId("test-issac");
+    request.setGroupId("gid-20181122");
     request.setMemberName("test-member-name");
     request.setOperateType(OperateType.JOIN);
-    request.setPassportId("3837142362366976");
+    request.setPassportId("3837142362366977");
+
+    AcmedcareRemoting.getInstance()
+        .executor()
+        .joinOrLeaveGroup(
+            request,
+            new JoinOrLeaveGroupRequest.Callback() {
+              @Override
+              public void onSuccess() {
+                System.out.println("加群成功");
+              }
+
+              @Override
+              public void onFailed(int code, String message) {
+                System.out.println("发送消息失败,Code = " + code + ", Message = " + message);
+              }
+            });
+  }
+
+  private static void leaveGroup() {
+
+    JoinOrLeaveGroupRequest request = new JoinOrLeaveGroupRequest();
+    request.setGroupId("gid-20181122");
+    request.setMemberName("test-member-name");
+    request.setOperateType(OperateType.LEAVE);
+    request.setPassportId("3837142362366978");
 
     AcmedcareRemoting.getInstance()
         .executor()
@@ -567,7 +596,7 @@ public class FirstDemoClient {
   private interface KnownParams {
 
     String accessToken =
-        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiI0YTNlYTc5MjZhZjI0ODhlOTkwNjBkZmQ2NDAzZjczMCIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NDQ3NjY3NDg0NzYsImV4cCI6MTU0NTM3NTUyNTQ3NiwiYXVkIjpudWxsfQ.efE6sJLPxr_pUZeMAXQ_CFrIo6U6VmyUvALjnJmJVIH423UVEv_NoyXv1Zo4PcwZF8wptr_S2p1f5TH6ySXFUbhMdv88S_ME6AefdqDXLgZKpzqOM4cotqSpVgmROnjAuRs91SW8W51_eA8rHiqsQ_U520wf-lh3zJkVGSItQnX2Lbi6lrLB4ty0tHqzk1Be7ZK8QpXJGz0jDV18hx9NXOjj71CbIyfB8ghQlKdPX1sWcp4l9LqmuoEAecvMxJ0xJ_6t3m8r6MhbWFeToe1AH6_dKV53sRmULeBoTVqezrGS58uMOLHgmYAdcRG5ca0EzQWJypf5ZYMLVi0qmtPR-Q";
+        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiIyMDc5M2RlOTkxMWY0ODFkOTJkMGZlNWJhOTQ2MWU2YSIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NDUwNTQzMDg0MTMsImV4cCI6MTU0NTY2NzYwOTM4NiwiYXVkIjpudWxsfQ.IETXX6VcfccRU29rtoutQs9XKn1HjOQ0fI7ohqjeA1Bg3Um0AMD_j6RYjs8g-YM2FzCeVfLcL6WiLtINQpFmGF81KpK7-ugWe0GMuPXOwEHWhXtkUJF8ZdhuSVLkUNxk9jaoy04cmYUws2poH1j77K1CpEmLQUpZQ3nAWdtCmRHmBg5uSha5HZj2pcDOlIDGHC-K-ziDVGup5QOhS7jiCU7SYZu346jXYBaDfzrMNgUvYOukGkijM1PGoc1npWOc_GyTlAHyAgTET3ay3lsK5VatpyxiXJvKZllrGPEKrHUnf7QSJwdzw0LS5nddBeHTelIoC8mWQZ8adgiqW25_Aw";
 
     String areaNo = "320500";
 

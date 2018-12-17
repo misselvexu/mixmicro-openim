@@ -1,6 +1,5 @@
 package com.acmedcare.tiffany.framework.v210.rc1;
 
-import com.acmedcare.nas.client.NasProperties;
 import com.acmedcare.tiffany.framework.remoting.android.core.xlnio.XLMRRemotingClient;
 import com.acmedcare.tiffany.framework.remoting.jlib.AcmedcareLogger;
 import com.acmedcare.tiffany.framework.remoting.jlib.AcmedcareRemoting;
@@ -49,9 +48,9 @@ public class ThridDemoClient {
 
     System.setProperty(AcmedcareLogger.NON_ANDROID_FLAG, "true");
 
-    NasProperties nasProperties = new NasProperties();
-    nasProperties.setServerAddrs(Lists.<String>newArrayList("192.168.1.226:18848"));
-    nasProperties.setHttps(false);
+//    NasProperties nasProperties = new NasProperties();
+//    nasProperties.setServerAddrs(Lists.<String>newArrayList("192.168.1.226:18848"));
+//    nasProperties.setHttps(false);
 
     RemotingParameters temp =
         RemotingParameters.builder()
@@ -73,7 +72,7 @@ public class ThridDemoClient {
                     "/Users/ive/git-acmedcare/Acmedcare-NewIM/remoting-certs/client/keystore.jks"))
             .jksPassword("1qaz2wsx")
             .username(KnownParams.passport)
-            .nasProperties(nasProperties)
+//            .nasProperties(nasProperties)
             .accessToken(KnownParams.accessToken)
             .areaNo(KnownParams.areaNo)
             .orgId(KnownParams.orgId)
@@ -85,7 +84,7 @@ public class ThridDemoClient {
                   @Override
                   public List<RemotingAddress> remotingAddressList() {
                     return Lists.newArrayList(
-                        new RemotingAddress(false, "192.168.1.227", 13110, false));
+                        new RemotingAddress(false, "127.0.0.1", 13110, false));
                   }
                 })
             .build();
@@ -242,7 +241,7 @@ public class ThridDemoClient {
           continue;
         }
 
-        // 上报群消息已读状态 pushGroupMessageReadStatus gid-20181122 1047341427755264
+        // 上报群消息已读状态 pushGroupMessageReadStatus gid-20181122 1063193418451712
         if (inputArgs[0].equals("pushGroupMessageReadStatus")) {
           pushGroupMessageReadStatus(inputArgs[1], inputArgs[2]);
           continue;
@@ -528,7 +527,7 @@ public class ThridDemoClient {
   private interface KnownParams {
 
     String accessToken =
-        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiJjN2QzZGIwZWJhNjk0YzNlYmI0MzExMGU5NmQ5MWNkNiIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlIcXc5TDdUU0gwVmlLTWNXNUp3RVd0ZXc5Rk12SVFZcGZDMG5CUUhOamVucmMyYndheHNwMk93NXVkSGM1ZllTcGd0a2FxRkV6U29Uck41S0kyaHZKRW52L1RHV0hLeDdFdTJRNEs1V3JrZTZTMjNIaUdhWXdvQ29ua3ZuSlVjWGQxNzNwV3pFbmF0bz0iLCJpYXQiOjE1NDQwODQwMDk4NTIsImV4cCI6MTU0NDY5NTEzMDg1MiwiYXVkIjpudWxsfQ.Cd6gA_15X94zrSzgl-7TxpsR7RWt4Mpau9Tgm6YI4N4UeVsvpEzDC7kBNe52gRLfhvOYEg56jDgbmRkjzZp6tBB0WzPJgkbEFzR3qy_aq7zlqM5bHwljWiKMk_zFww5Yem5WHsCuiClS5ivU19MxMk2miHsRBpzWx8mNoXw4zrjfd43i10VJHAFqi9mfyck9aboM0TCMpHGD8PaGYo_76jpI5wEHPWu91h09CKvIzHjupWc_4cXHrH4bn-l4lzxHiS9twNZpg-oU8dojSxMR_oac78m2uxQXh7mulg5O0DYnnbKwEsN36kQVB90-YaSkAHp9x15ioSQwqhsU1iTMKA";
+        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiJjMDliNGJiYjRmZTM0OWM4OTczYThkMTIwNmNkM2YxMCIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlIcXc5TDdUU0gwVmlLTWNXNUp3RVd0ZXc5Rk12SVFZcGZDMG5CUUhOamVucmMyYndheHNwMk93NXVkSGM1ZllTcGd0a2FxRkV6U29Uck41S0kyaHZKRW52L1RHV0hLeDdFdTJRNEs1V3JrZTZTMjNIaUdhWXdvQ29ua3ZuSlVjWGQxNzNwV3pFbmF0bz0iLCJpYXQiOjE1NDUwNTQzNjE3MzYsImV4cCI6MTU0NTY2MzkyNTczNiwiYXVkIjpudWxsfQ.I9khaPuBswKcLHr2Wczzyna3c_uOIfv4H4aXwOWMNifMsTIC63BJXjaG97GA6-dz1hQA_wFFLzkGjWxxjyzINNZmSareZrzIjVAdPi56KYrcPiAl42XR2jNyYALYPU-H0orea7BSjovkIMIpDJKdg1UBS95ZnF3keOPFNKmjgNjo_ocs8gLdQ6HOy35nahJA5bVaAgNQskZ48Vl7JUZBuNTf9wnk7SlJj3DzMSICWMUG1-QowWJMOmQ42cFUve-ie864F1QSvlREmX1XKda2sTt1ALDrG7vx3Ppd1fom2FvxausEBtf4dInAhpXE4yPzYXeEmlNGCa67A6KwBnkS3w";
 
     String areaNo = "320500";
 

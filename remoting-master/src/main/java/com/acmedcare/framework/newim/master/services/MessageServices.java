@@ -114,7 +114,9 @@ public class MessageServices {
   public void sendGroupMessage(
       MessageAttribute attribute, String sender, String groupId, String type, String content) {
 
-    List<String> memberIds = this.groupRepository.queryGroupMemberIds(attribute.getNamespace(),groupId);
+    List<String> memberIds =
+        this.groupRepository.queryGroupMemberIds(attribute.getNamespace(), groupId);
+    memberIds.remove(sender);
     //
     GroupMessage message = new GroupMessage();
     message.setNamespace(attribute.getNamespace());
@@ -129,8 +131,8 @@ public class MessageServices {
     message.setSendTimestamp(new Date());
     message.setGroup(groupId);
     message.setReceivers(memberIds);
-    message.setUnReadSize(memberIds.size());
-    message.setReadedSize(1); // 标记自己已读
+    message.setUnReadSize(memberIds.size() - 1);
+    message.setReadedSize(0); // 标记自己已读
 
     long result = this.messageRepository.saveMessage(message);
     endpointLog.info("保存群消息到数据库操作,返回值:{}", result);
