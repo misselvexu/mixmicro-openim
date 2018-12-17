@@ -10,6 +10,7 @@ import com.acmedcare.framework.kits.thread.ThreadKit;
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.InstanceNode;
 import com.acmedcare.framework.newim.InstanceNode.NodeType;
+import com.acmedcare.framework.newim.InstanceType;
 import com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand;
 import com.acmedcare.framework.newim.protocol.request.ClusterPushSessionDataBody;
 import com.acmedcare.framework.newim.protocol.request.ClusterPushSessionDataHeader;
@@ -76,7 +77,7 @@ public class MasterConnector {
     this.localReplicaNode =
         InstanceNode.builder()
             .host(imProperties.getHost() + ":" + imProperties.getClusterPort())
-            .nodeType(NodeType.REPLICA)
+            .nodeType(NodeType.DEFAULT_REPLICA)
             .build();
   }
 
@@ -283,13 +284,16 @@ public class MasterConnector {
   }
 
   private RemoteMasterConnectorInstance newMasterConnectorInstance(String nodeAddress) {
-    InstanceNode node = new InstanceNode(nodeAddress, NodeType.MASTER, null);
+    InstanceNode node = new InstanceNode(nodeAddress, NodeType.MASTER, null, InstanceType.MASTER);
 
     RemoteMasterConnectorInstance instance = new RemoteMasterConnectorInstance(imProperties);
     instance.registerEventPostHolder(imSession.getAsyncEventBus());
     InstanceNode localNode =
         new InstanceNode(
-            imProperties.getHost() + ":" + imProperties.getPort(), NodeType.CLUSTER, null);
+            imProperties.getHost() + ":" + imProperties.getPort(),
+            NodeType.DEFAULT,
+            null,
+            InstanceType.DEFAULT);
     instance.setLocalNode(localNode);
     NettyClientConfig config = new NettyClientConfig();
     config.setEnableHeartbeat(false);

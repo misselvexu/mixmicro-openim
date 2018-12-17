@@ -216,6 +216,7 @@ public final class MasterInstance {
     Object body = this.context.getWssEndpoints();
 
     ClusterRegisterHeader header = new ClusterRegisterHeader();
+    header.setClusterServerType(this.properties.getConnectorType().name());
     header.setClusterServerHost(
         this.properties.getConnectorHost() + ":" + this.properties.getConnectorPort());
     header.setClusterReplicaAddress(
@@ -247,7 +248,9 @@ public final class MasterInstance {
       resetConnectParams();
 
       // heartbeat startup
-      heartbeat();
+      if (this.properties.isHeartbeatEnabled()) {
+        heartbeat();
+      }
     }
   }
 

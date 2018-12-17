@@ -78,6 +78,11 @@
             <artifactId>remoting-storage-mongo</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.acmedcare.microservices.im</groupId>
+            <artifactId>remoting-master-connector</artifactId>
+        </dependency>
+
         <!-- Spring boot-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

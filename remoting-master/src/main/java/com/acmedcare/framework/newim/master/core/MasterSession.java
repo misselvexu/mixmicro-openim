@@ -6,6 +6,7 @@ import com.acmedcare.framework.kits.thread.DefaultThreadFactory;
 import com.acmedcare.framework.kits.thread.ThreadKit;
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.InstanceNode;
+import com.acmedcare.framework.newim.InstanceType;
 import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.SessionBean;
 import com.acmedcare.framework.newim.client.MessageAttribute;
@@ -119,15 +120,25 @@ public class MasterSession {
       return channel.attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).get();
     }
 
-    public Set<String> clusterList() {
-      return clusterClientInstances.keySet();
+    public Set<String> clusterList(InstanceType instanceType) {
+      Set<String> result = Sets.newHashSet();
+      clusterClientInstances.forEach(
+          (s, remoteClusterClientInstance) -> {
+            if (remoteClusterClientInstance.getInstanceType().equals(instanceType)) {
+              result.add(s);
+            }
+          });
+
+      return result;
     }
 
-    public Set<String> clusterReplicaList() {
+    public Set<String> clusterReplicaList(InstanceType instanceType) {
       Set<String> replicas = Sets.newHashSet();
       clusterClientInstances.forEach(
           (s, remoteClusterClientInstance) -> {
-            replicas.add(remoteClusterClientInstance.getClusterReplicaAddress());
+            if (remoteClusterClientInstance.getInstanceType().equals(instanceType)) {
+              replicas.add(remoteClusterClientInstance.getClusterReplicaAddress());
+            }
           });
       return replicas;
     }
@@ -141,14 +152,19 @@ public class MasterSession {
     }
 
     public void registerClusterInstance(
+        InstanceNode remoteNode,
         String clusterAddress,
         String clusterReplicaAddress,
         List<WssInstance> wssNodes,
         Channel channel) {
+
+      InstanceType instanceType = remoteNode.getInstanceType();
+
       RemoteClusterClientInstance original =
           clusterClientInstances.put(
               clusterAddress,
               RemoteClusterClientInstance.builder()
+                  .instanceType(instanceType)
                   .clusterReplicaAddress(clusterReplicaAddress)
                   .clusterClientChannel(channel)
                   .build());
@@ -318,6 +334,9 @@ public class MasterSession {
                             () -> {
                               try {
 
+                                // type
+                                InstanceType instanceType = value.getInstanceType();
+
                                 if (value.getClusterClientChannel().isWritable()) {
 
                                   RemotingCommand notifyRequest =
@@ -327,12 +346,26 @@ public class MasterSession {
                                       new MasterNoticeSessionDataBody();
 
                                   devicesConnections.forEach(
-                                      (instanceNode, deviceIds) ->
-                                          body.getDevicesConnections().addAll(deviceIds));
+                                      (instanceNode, sessionBeans) -> {
+                                        for (SessionBean sessionBean : sessionBeans) {
+                                          if (sessionBean
+                                              .getNamespace()
+                                              .equals(instanceType.name())) {
+                                            body.getDevicesConnections().add(sessionBean);
+                                          }
+                                        }
+                                      });
 
                                   passportsConnections.forEach(
-                                      (instanceNode, passportIds) ->
-                                          body.getPassportsConnections().addAll(passportIds));
+                                      (instanceNode, sessionBeans) -> {
+                                        for (SessionBean sessionBean : sessionBeans) {
+                                          if (sessionBean
+                                              .getNamespace()
+                                              .equals(instanceType.name())) {
+                                            body.getPassportsConnections().add(sessionBean);
+                                          }
+                                        }
+                                      });
 
                                   notifyRequest.setBody(JSON.toJSONBytes(body));
 
@@ -396,7 +429,9 @@ public class MasterSession {
           (key, value) -> {
             try {
               masterClusterAcceptorLog.info(
-                  "shutdown remote client channel:{}", value.getClusterClientChannel());
+                  "shutdown remote client channel: {} - {}",
+                  value.getInstanceType(),
+                  value.getClusterClientChannel());
               value.getClusterClientChannel().close();
             } catch (Exception ignore) {
             }
@@ -417,6 +452,8 @@ public class MasterSession {
   @Setter
   @Builder
   public static class RemoteClusterClientInstance {
+
+    private InstanceType instanceType;
 
     /** 客户端 Channel对象 */
     private Channel clusterClientChannel;

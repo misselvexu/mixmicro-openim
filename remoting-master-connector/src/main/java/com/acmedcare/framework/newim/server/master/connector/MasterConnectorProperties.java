@@ -1,5 +1,6 @@
 package com.acmedcare.framework.newim.server.master.connector;
 
+import com.acmedcare.framework.newim.InstanceType;
 import com.google.common.collect.Lists;
 import java.util.List;
 import lombok.Getter;
@@ -16,6 +17,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Setter
 @ConfigurationProperties(prefix = "remoting.server.master")
 public class MasterConnectorProperties {
+
+  private boolean enabled = false;
 
   /** Master节点配置 */
   private List<String> nodes = Lists.newArrayList();
@@ -37,6 +40,9 @@ public class MasterConnectorProperties {
 
   /** 客户端服务地址 */
   private String connectorHost;
+
+  /** 客户端实例类型 */
+  private InstanceType connectorType = InstanceType.DEFAULT;
 
   /** 客户端服务端口 */
   private int connectorPort;
@@ -71,12 +77,42 @@ public class MasterConnectorProperties {
   /** 客户端上报节点链接数据时间间隔 */
   private long connectorClusterChannelsSyncPeriod = 20;
 
-  /** 客户端的命名空间 */
-  private String connectorNamespace = "DEFAULT";
-
   /** 客户端是否开启 SSL */
   private boolean connectorEnableTls = false;
 
   /** 客户端链接事件监听器 */
   private String connectorChannelEventListener;
+
+  @Override
+  public String toString() {
+    final StringBuffer sb = new StringBuffer("MasterConnectorProperties{");
+    sb.append("enabled=").append(enabled);
+    sb.append(", nodes=").append(nodes);
+    sb.append(", heartbeatEnabled=").append(heartbeatEnabled);
+    sb.append(", heartbeatDelay=").append(heartbeatDelay);
+    sb.append(", heartbeatInterval=").append(heartbeatInterval);
+    sb.append(", connectDelay=").append(connectDelay);
+    sb.append(", connectionRetryDelayInterval=").append(connectionRetryDelayInterval);
+    sb.append(", connectorHost='").append(connectorHost).append('\'');
+    sb.append(", connectorType=").append(connectorType);
+    sb.append(", connectorPort=").append(connectorPort);
+    sb.append(", connectorReplicaPort=").append(connectorReplicaPort);
+    sb.append(", connectionCheckPeriod=").append(connectionCheckPeriod);
+    sb.append(", connectorRequestTimeout=").append(connectorRequestTimeout);
+    sb.append(", connectorRequestMaxRetryTimes=").append(connectorRequestMaxRetryTimes);
+    sb.append(", connectorRequestRetryPeriod=").append(connectorRequestRetryPeriod);
+    sb.append(", connectorIdleTime=").append(connectorIdleTime);
+    sb.append(", connectorClusterReplicaRollingPullDelay=")
+        .append(connectorClusterReplicaRollingPullDelay);
+    sb.append(", connectorClusterReplicaRollingPullPeriod=")
+        .append(connectorClusterReplicaRollingPullPeriod);
+    sb.append(", connectorClusterChannelsSyncDelay=").append(connectorClusterChannelsSyncDelay);
+    sb.append(", connectorClusterChannelsSyncPeriod=").append(connectorClusterChannelsSyncPeriod);
+    sb.append(", connectorEnableTls=").append(connectorEnableTls);
+    sb.append(", connectorChannelEventListener='")
+        .append(connectorChannelEventListener)
+        .append('\'');
+    sb.append('}');
+    return sb.toString();
+  }
 }

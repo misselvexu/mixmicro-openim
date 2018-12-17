@@ -49,6 +49,7 @@ public final class MasterConnector {
   private ScheduledExecutorService syncChannelsExecutor;
 
   MasterConnector(MasterConnectorProperties properties) {
+    logger.info("master connector properties : {}", properties);
     this.masterConnectorProperties = properties;
     logger.info("master connector is created by framework.");
     this.masterConnectorContext = new MasterConnectorContext();
@@ -84,7 +85,7 @@ public final class MasterConnector {
     config.setUseTLS(this.masterConnectorProperties.isConnectorEnableTls());
     config.setClientChannelMaxIdleTimeSeconds(
         (int) this.masterConnectorProperties.getConnectorIdleTime());
-    config.setEnableHeartbeat(this.masterConnectorProperties.isHeartbeatEnabled());
+    config.setEnableHeartbeat(!this.masterConnectorProperties.isHeartbeatEnabled());
 
     ChannelEventListener listener = null;
 
@@ -296,6 +297,9 @@ public final class MasterConnector {
         CountDownLatch countDownLatch = new CountDownLatch(masterInstances.size());
         for (MasterInstance masterInstance : masterInstances) {
 
+          if (!masterInstance.isConnected()) {
+            continue;
+          }
           AsyncRuntimeExecutor.getAsyncThreadPool()
               .execute(
                   () -> {

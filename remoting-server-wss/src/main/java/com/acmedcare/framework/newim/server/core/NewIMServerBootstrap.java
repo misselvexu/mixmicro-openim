@@ -112,7 +112,7 @@ public class NewIMServerBootstrap {
     running = false;
 
     try {
-      imServerLog.info("Ready to shutdown cluster replica acceptor server.");
+      imServerLog.info("Ready to shutdown cluster defaultReplica acceptor server.");
       clusterServer.shutdown();
     } catch (Exception ignore) {
     }
