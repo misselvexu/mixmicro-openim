@@ -15,6 +15,8 @@ import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message.InnerType;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message.MessageType;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message.SingleMessage;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.AuthRequest.AuthCallback;
+import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.JoinOrLeaveGroupRequest;
+import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.OperateType;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullGroupMembersOnlineStatusRequest;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullGroupMembersRequest;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullGroupMessageReadStatusRequest;
@@ -149,7 +151,7 @@ public class FirstDemoClient {
         // functions
         String[] inputArgs = input.split("\\s+");
 
-        if(inputArgs[0].equals("auth")) {
+        if (inputArgs[0].equals("auth")) {
           AcmedcareRemoting.getInstance().auth();
           continue;
         }
@@ -255,7 +257,12 @@ public class FirstDemoClient {
 
         // 拉取群消息已读未读状态  pullGroupMessageReadStatus gid-20181122 1047341427755264
         if (inputArgs[0].equals("pullGroupMessageReadStatus")) {
-          pullGroupMessageReadStatus(inputArgs[1],inputArgs[2]);
+          pullGroupMessageReadStatus(inputArgs[1], inputArgs[2]);
+          continue;
+        }
+
+        if (inputArgs[0].equals("joinGroup")) {
+          joinGroup();
           continue;
         }
 
@@ -516,6 +523,32 @@ public class FirstDemoClient {
               @Override
               public void onSuccess(long messageId) {
                 System.out.println("发送消息成功, 生成的消息编号:" + messageId);
+              }
+
+              @Override
+              public void onFailed(int code, String message) {
+                System.out.println("发送消息失败,Code = " + code + ", Message = " + message);
+              }
+            });
+  }
+
+
+  private static void joinGroup() {
+
+    JoinOrLeaveGroupRequest request = new JoinOrLeaveGroupRequest();
+    request.setGroupId("test-issac");
+    request.setMemberName("test-member-name");
+    request.setOperateType(OperateType.JOIN);
+    request.setPassportId("3837142362366976");
+
+    AcmedcareRemoting.getInstance()
+        .executor()
+        .joinOrLeaveGroup(
+            request,
+            new JoinOrLeaveGroupRequest.Callback() {
+              @Override
+              public void onSuccess() {
+                System.out.println("加群成功");
               }
 
               @Override
