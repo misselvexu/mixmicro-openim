@@ -119,7 +119,8 @@ public final class MasterConnector {
     client.updateNameServerAddressList(Lists.newArrayList(nodeAddress));
 
     // register
-    masterInstance.registerClientInstance(this.masterConnectorProperties, config, client);
+    masterInstance.registerClientInstance(
+        this.masterConnectorContext, this.masterConnectorProperties, config, client);
     return masterInstance;
   }
 
