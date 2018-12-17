@@ -1,6 +1,9 @@
 package com.acmedcare.framework.newim.master.endpoint;
 
+import com.acmedcare.framework.exception.defined.InvalidRequestParamException;
+import com.acmedcare.framework.kits.StringUtils;
 import com.acmedcare.framework.kits.Strings;
+import com.acmedcare.framework.newim.InstanceType;
 import com.acmedcare.framework.newim.master.core.MasterClusterAcceptorServer;
 import com.acmedcare.framework.newim.protocol.request.ClusterRegisterBody.WssInstance;
 import java.util.List;
@@ -31,11 +34,22 @@ public class MasterEndpoint {
   }
 
   @GetMapping("/available-cluster-servers")
-  ResponseEntity availableClusterServerList() {
+  ResponseEntity availableClusterServerList(
+      @RequestParam(required = false, defaultValue = "DEFAULT") String type) {
     try {
+      InstanceType instanceType = InstanceType.DEFAULT;
+      try {
+        if (StringUtils.isNotBlank(type)) {
+          instanceType = InstanceType.valueOf(type.toUpperCase());
+        }
+      } catch (Exception e) {
+        throw new InvalidRequestParamException("无效的服务类型[DEFAULT,MQ...]");
+      }
       Set<String> servers =
-          this.masterClusterAcceptorServer.getMasterClusterSession().clusterList();
+          this.masterClusterAcceptorServer.getMasterClusterSession().clusterList(instanceType);
       return ResponseEntity.ok(servers);
+    } catch (InvalidRequestParamException e) {
+      return ResponseEntity.badRequest().body(e.getMessage());
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
     }

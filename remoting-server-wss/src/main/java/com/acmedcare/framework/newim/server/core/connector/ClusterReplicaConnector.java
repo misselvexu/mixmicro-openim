@@ -102,13 +102,13 @@ public class ClusterReplicaConnector {
               List<String> addresses = event.data();
               if (addresses != null && addresses.size() > 0) {
                 clusterReplicaLog.info(
-                    "Find some replica servers,ready to connect them: {}",
+                    "Find some defaultReplica servers,ready to connect them: {}",
                     JSON.toJSONString(addresses));
 
                 for (String address : addresses) {
                   if (!replicaServerInstancesMap.containsKey(address)) {
                     //
-                    clusterReplicaLog.info("Find new replica server,ready to connect {}", address);
+                    clusterReplicaLog.info("Find new defaultReplica server,ready to connect {}", address);
 
                     String name = "[Connector:" + address + "]";
                     RetriableAttribute retriableAttribute =
@@ -121,13 +121,13 @@ public class ClusterReplicaConnector {
                             new ExecutorCallback<NettyRemotingSocketClient>() {
                               @Override
                               public void onCompleted(NettyRemotingSocketClient result) {
-                                clusterReplicaLog.info("new replica:{} connect succeed.", address);
+                                clusterReplicaLog.info("new defaultReplica:{} connect succeed.", address);
                               }
 
                               @Override
                               public void onFailed(String message) {
                                 clusterReplicaLog.warn(
-                                    "a new replica server :{} ,connect failed", address);
+                                    "a new defaultReplica server :{} ,connect failed", address);
                               }
                             });
 
@@ -184,7 +184,7 @@ public class ClusterReplicaConnector {
 
                   try {
                     clusterReplicaLog.info(
-                        "shutdown & remove local replica server address set :{} cache.",
+                        "shutdown & remove local defaultReplica server address set :{} cache.",
                         remoteAddr);
                     replicaServerAddressList.remove(remoteAddr);
                   } catch (Exception ignore) {
@@ -203,14 +203,14 @@ public class ClusterReplicaConnector {
                 }
               });
 
-      // update replica address list
+      // update defaultReplica address list
       nettyRemotingSocketClient.updateNameServerAddressList(Lists.newArrayList(address));
 
       // startup
       nettyRemotingSocketClient.start();
 
       //
-      clusterReplicaLog.info("send handshake request to replica server :{} ", address);
+      clusterReplicaLog.info("send handshake request to defaultReplica server :{} ", address);
       RemotingCommand handshakeRequest =
           RemotingCommand.createRequestCommand(ClusterWithClusterCommand.CLUSTER_HANDSHAKE, null);
       nettyRemotingSocketClient.invokeOneway(
@@ -222,13 +222,13 @@ public class ClusterReplicaConnector {
             public void operationComplete(boolean b) {
               if (b) {
                 clusterReplicaLog.info(
-                    "handshake request to replica server :{} ,send succeed.", address);
+                    "handshake request to defaultReplica server :{} ,send succeed.", address);
 
                 replicaServerInstancesMap.put(address, nettyRemotingSocketClient);
 
                 ScheduledThreadPoolExecutor executor =
                     new ScheduledThreadPoolExecutor(
-                        1, new DefaultThreadFactory("cluster-replica-connector-timer-" + address));
+                        1, new DefaultThreadFactory("cluster-defaultReplica-connector-timer-" + address));
 
                 clusterReplicaLog.info(
                     "startup schedule thread for server:{} to keep-alive ", address);

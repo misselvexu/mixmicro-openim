@@ -8,6 +8,6 @@ package com.acmedcare.framework.newim.server.core;
  */
 public class ClusterReplicaSession {
 
-  // TODO replica session context
+  // TODO defaultReplica session context
 
 }

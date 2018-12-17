@@ -70,8 +70,8 @@ public class RemotingWssServer {
                   } catch (Exception ignore) {
                   }
 
-                  // shutdown cluster replica connector
-                  startLog.info("[WSS] jvm shutdown hook, shutdown cluster replica connector.");
+                  // shutdown cluster defaultReplica connector
+                  startLog.info("[WSS] jvm shutdown hook, shutdown cluster defaultReplica connector.");
                   try {
                     clusterReplicaConnector.shutdown();
                   } catch (Exception ignore) {

@@ -46,7 +46,7 @@ public class ClusterForwardMessageRequestProcessor extends AbstractClusterReques
       Assert.notNull(header, "转发消息请求对象不能为空");
       MessageType messageType = header.decodeType();
 
-      innerReplicaServerLog.info("[CLUSTER-PROCESSOR] 通讯服务器接收到转发消息的请求, 消息类型:{}", messageType);
+      innerReplicaServerLog.info("[DEFAULT-PROCESSOR] 通讯服务器接收到转发消息的请求, 消息类型:{}", messageType);
 
       long start = System.currentTimeMillis();
       switch (messageType) {
@@ -68,13 +68,13 @@ public class ClusterForwardMessageRequestProcessor extends AbstractClusterReques
       }
 
       innerReplicaServerLog.info(
-          "[CLUSTER-PROCESSOR] 通讯服务器转发消息完成,耗时:{} ms", (System.currentTimeMillis() - start));
+          "[DEFAULT-PROCESSOR] 通讯服务器转发消息完成,耗时:{} ms", (System.currentTimeMillis() - start));
 
       // response
       response.setBody(BizResult.builder().code(0).build().bytes());
 
     } catch (Exception e) {
-      innerReplicaServerLog.error("[CLUSTER-PROCESSOR] 通讯服务器转发消息处理异常", e);
+      innerReplicaServerLog.error("[DEFAULT-PROCESSOR] 通讯服务器转发消息处理异常", e);
       // exception
       response.setBody(
           BizResult.builder()
