@@ -384,6 +384,7 @@ String deviceId = "DEVICE-ID";
             });
   }
 
+// 发送媒体消息
   private static void sendMediaMessage(Message message, String fileName) {
 
     PushMessageRequest pushMessageRequest = new PushMessageRequest();
@@ -411,5 +412,56 @@ String deviceId = "DEVICE-ID";
   }
 
 
+// 加群操作
+private static void joinGroup() {
+
+    JoinOrLeaveGroupRequest request = new JoinOrLeaveGroupRequest();
+    request.setGroupId("gid-20181122");
+    request.setMemberName("test-member-name");
+    request.setOperateType(OperateType.JOIN);
+    request.setPassportId("3837142362366977");
+
+    AcmedcareRemoting.getInstance()
+        .executor()
+        .joinOrLeaveGroup(
+            request,
+            new JoinOrLeaveGroupRequest.Callback() {
+              @Override
+              public void onSuccess() {
+                System.out.println("加群成功");
+              }
+
+              @Override
+              public void onFailed(int code, String message) {
+                System.out.println("发送消息失败,Code = " + code + ", Message = " + message);
+              }
+            });
+  }
+
+// 退群操作
+  private static void leaveGroup() {
+
+    JoinOrLeaveGroupRequest request = new JoinOrLeaveGroupRequest();
+    request.setGroupId("gid-20181122");
+    request.setMemberName("test-member-name");
+    request.setOperateType(OperateType.LEAVE);
+    request.setPassportId("3837142362366978");
+
+    AcmedcareRemoting.getInstance()
+        .executor()
+        .joinOrLeaveGroup(
+            request,
+            new JoinOrLeaveGroupRequest.Callback() {
+              @Override
+              public void onSuccess() {
+                System.out.println("加群成功");
+              }
+
+              @Override
+              public void onFailed(int code, String message) {
+                System.out.println("发送消息失败,Code = " + code + ", Message = " + message);
+              }
+            });
+  }
 
 ```
