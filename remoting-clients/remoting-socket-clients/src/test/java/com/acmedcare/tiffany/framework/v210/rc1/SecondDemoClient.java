@@ -69,7 +69,7 @@ public class SecondDemoClient {
                   @Override
                   public List<RemotingAddress> remotingAddressList() {
                     return Lists.newArrayList(
-                        new RemotingAddress(false, "127.0.0.1", 13110, false));
+                        new RemotingAddress(false, "192.168.1.227", 13110, false));
                   }
                 })
             .build();
@@ -269,7 +269,7 @@ public class SecondDemoClient {
   private interface KnownParams {
 
     String accessToken =
-        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiJjMDliNGJiYjRmZTM0OWM4OTczYThkMTIwNmNkM2YxMCIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlIcXc5TDdUU0gwVmlLTWNXNUp3RVd0ZXc5Rk12SVFZcGZDMG5CUUhOamVucmMyYndheHNwMk93NXVkSGM1ZllTcGd0a2FxRkV6U29Uck41S0kyaHZKRW52L1RHV0hLeDdFdTJRNEs1V3JrZTZTMjNIaUdhWXdvQ29ua3ZuSlVjWGQxNzNwV3pFbmF0bz0iLCJpYXQiOjE1NDUwNTQzNjE3MzYsImV4cCI6MTU0NTY2MzkyNTczNiwiYXVkIjpudWxsfQ.I9khaPuBswKcLHr2Wczzyna3c_uOIfv4H4aXwOWMNifMsTIC63BJXjaG97GA6-dz1hQA_wFFLzkGjWxxjyzINNZmSareZrzIjVAdPi56KYrcPiAl42XR2jNyYALYPU-H0orea7BSjovkIMIpDJKdg1UBS95ZnF3keOPFNKmjgNjo_ocs8gLdQ6HOy35nahJA5bVaAgNQskZ48Vl7JUZBuNTf9wnk7SlJj3DzMSICWMUG1-QowWJMOmQ42cFUve-ie864F1QSvlREmX1XKda2sTt1ALDrG7vx3Ppd1fom2FvxausEBtf4dInAhpXE4yPzYXeEmlNGCa67A6KwBnkS3w";
+        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiJmYjRiZDgxN2EwYTU0ZjBiODY4NGNiMGU2NzJhMWJmYyIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlIcXc5TDdUU0gwVmlLTWNXNUp3RVd0ZXc5Rk12SVFZcGZDMG5CUUhOamVucmMyYndheHNwMk93NXVkSGM1ZllTcGd0a2FxRkV6U29Uck41S0kyaHZKRW52L1RHV0hLeDdFdTJRNEs1V3JrZTZTMjNIaUdhWXdvQ29ua3ZuSlVjWGQxNzNwV3pFbmF0bz0iLCJpYXQiOjE1NDUwOTc0MDU2NTIsImV4cCI6MTU0NTcwNDA1ODY1MiwiYXVkIjpudWxsfQ.hdASpNqbvu19iXvOFgPTTuk1SB1Mej3p8MOQySJmqvtOR_ozRVlLgAyHjNhlmfBcbbSiGltXy5gzZsAm16KV7o6lIT0q4vKjPlAZpDv3yTqdmyO_p2mqgCNlHCyG0juHh72pe3UeiGP39xLqU0941KkT29uthzodgg_AXQYtcM4dCG1NxkMjZ2t9DqDf0DYomxZMKre8BRxiJUohoujJHtgRSCIe__SN5D2KJJJ9JWDRpjdT5rIb_OwqJ-26exMKEnhq6NmjtpXCig8x1FGPFoTMcc3eTBUxLHRLrqgRVB_u5Ao3FGPqiMmxx2E16CRA0MNo5A2qheaTZrBZhKRyaw";
 
     String areaNo = "320500";
 
