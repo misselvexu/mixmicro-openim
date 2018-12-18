@@ -131,7 +131,7 @@ public class MessageServices {
     message.setSendTimestamp(new Date());
     message.setGroup(groupId);
     message.setReceivers(memberIds);
-    message.setUnReadSize(memberIds.size() - 1);
+    message.setUnReadSize(memberIds.size() - 1 < 0 ? 0 : memberIds.size() - 1);
     message.setReadedSize(0); // 标记自己已读
 
     long result = this.messageRepository.saveMessage(message);

@@ -77,7 +77,7 @@ public class MessageService {
           this.groupRepository.queryGroupMemberIds(message.getNamespace(), groupMessage.getGroup());
       memberIds.remove(message.getSender()); // 排除发送者本身
       groupMessage.setReceivers(memberIds);
-      groupMessage.setUnReadSize(memberIds.size() - 1); // 排除发送者本身
+      groupMessage.setUnReadSize(memberIds.size() - 1 < 0 ? 0 : memberIds.size() - 1); // 排除发送者本身
 
       this.messageRepository.saveMessage(groupMessage);
     }
