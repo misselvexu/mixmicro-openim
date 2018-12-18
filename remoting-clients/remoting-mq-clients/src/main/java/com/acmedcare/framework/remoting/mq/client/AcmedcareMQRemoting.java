@@ -1,9 +1,9 @@
 package com.acmedcare.framework.remoting.mq.client;
 
-import static com.acmedcare.framework.remoting.mq.client.biz.BizCode.CLIENT_HANDSHAKE;
-
 import android.content.Context;
 import com.acmedcare.framework.remoting.mq.client.ServerAddressHandler.RemotingAddress;
+import com.acmedcare.framework.remoting.mq.client.biz.BizCode.MonitorClient;
+import com.acmedcare.framework.remoting.mq.client.biz.BizCode.SamplingClient;
 import com.acmedcare.framework.remoting.mq.client.biz.request.AuthRequest;
 import com.acmedcare.framework.remoting.mq.client.events.AcmedcareEvent;
 import com.acmedcare.framework.remoting.mq.client.events.BasicListenerHandler;
@@ -84,9 +84,7 @@ public final class AcmedcareMQRemoting implements Serializable {
 
   @Getter @Setter private String currentRemotingAddress;
   private RemotingConnectListener listener;
-  /** Heartbeat config */
-  @Deprecated private ScheduledExecutorService heartbeatExecutor;
-
+  @Getter private TopicMessageListener topicMessageListener;
   @Deprecated private IoSession remotingSession;
 
   private AcmedcareMQRemoting() {
@@ -167,6 +165,10 @@ public final class AcmedcareMQRemoting implements Serializable {
 
       AcmedcareLogger.i(TAG, "Remoting Client init-ed.");
     }
+  }
+
+  public boolean isMonitor() {
+    return MQType.MONITOR.equals(parameters.getMqType());
   }
 
   /** Register Connection Status Change Listener */
@@ -481,7 +483,11 @@ public final class AcmedcareMQRemoting implements Serializable {
   private void handshake() {
     try {
       RemotingCommand handshakeRequest =
-          RemotingCommand.createRequestCommand(CLIENT_HANDSHAKE, null);
+          RemotingCommand.createRequestCommand(
+              parameters.getMqType().equals(MQType.MONITOR)
+                  ? MonitorClient.HANDSHAKE
+                  : SamplingClient.HANDSHAKE,
+              null);
       AcmedcareMQRemoting.remotingClient.invokeOneway(
           this.currentRemotingAddress, handshakeRequest, 3000);
     } catch (Exception ignore) {
@@ -654,15 +660,7 @@ public final class AcmedcareMQRemoting implements Serializable {
   private void releaseResources() {
     AcmedcareLogger.i(null, "Ready to release sdk framework resouces ~");
     AcmedcareMQRemoting.connecting = false;
-
     runOnce.compareAndSet(true, false);
-
-    if (heartbeatExecutor != null) {
-      try {
-        this.heartbeatExecutor.shutdownNow();
-      } catch (Exception ignore) {
-      }
-    }
   }
 
   /** Register Message Handler */
@@ -672,6 +670,11 @@ public final class AcmedcareMQRemoting implements Serializable {
       eventBus().register(eventHandler);
       AcmedcareLogger.i(null, "application register event listener handler :" + eventHandler);
     }
+  }
+
+  public void registerTopicMessageListener(TopicMessageListener listener) {
+    this.topicMessageListener = listener;
+    AcmedcareLogger.i(null, "Topic Message Listener :" + listener);
   }
 
   private String streamToString(InputStream is) {

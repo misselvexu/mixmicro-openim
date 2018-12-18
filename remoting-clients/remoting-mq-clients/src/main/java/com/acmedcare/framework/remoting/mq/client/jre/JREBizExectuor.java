@@ -4,10 +4,13 @@ import com.acmedcare.framework.remoting.mq.client.AcmedcareLogger;
 import com.acmedcare.framework.remoting.mq.client.AcmedcareMQRemoting;
 import com.acmedcare.framework.remoting.mq.client.BizExecutor;
 import com.acmedcare.framework.remoting.mq.client.Constants;
-import com.acmedcare.framework.remoting.mq.client.biz.BizCode;
+import com.acmedcare.framework.remoting.mq.client.biz.BizCode.MonitorClient;
+import com.acmedcare.framework.remoting.mq.client.biz.BizCode.SamplingClient;
 import com.acmedcare.framework.remoting.mq.client.biz.BizResult;
 import com.acmedcare.framework.remoting.mq.client.biz.request.AuthHeader;
 import com.acmedcare.framework.remoting.mq.client.biz.request.AuthRequest;
+import com.acmedcare.framework.remoting.mq.client.biz.request.SubscribeTopicRequest;
+import com.acmedcare.framework.remoting.mq.client.biz.request.SubscribeTopicRequest.Callback;
 import com.acmedcare.framework.remoting.mq.client.exception.BizException;
 import com.acmedcare.tiffany.framework.remoting.android.core.InvokeCallback;
 import com.acmedcare.tiffany.framework.remoting.android.core.exception.RemotingConnectException;
@@ -50,7 +53,10 @@ public class JREBizExectuor extends BizExecutor {
     authHeader.setPassportId(request.getPassportId());
 
     AcmedcareLogger.i(this.getClass().getSimpleName(), "授权请求头:" + JSON.toJSONString(authHeader));
-    RemotingCommand command = RemotingCommand.createRequestCommand(BizCode.CLIENT_AUTH, authHeader);
+    RemotingCommand command =
+        RemotingCommand.createRequestCommand(
+            this.remoting.isMonitor() ? MonitorClient.REGISTER : SamplingClient.REGISTER,
+            authHeader);
 
     try {
       AcmedcareMQRemoting.getRemotingClient()
@@ -109,4 +115,7 @@ public class JREBizExectuor extends BizExecutor {
       throw new BizException(e);
     }
   }
+
+  @Override
+  protected void subscribe(SubscribeTopicRequest request, Callback callback) throws BizException {}
 }
