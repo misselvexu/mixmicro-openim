@@ -18,10 +18,17 @@
     <description>Remote Raft</description>
 
     <properties>
-        <atomix.version>3.1.0-beta4</atomix.version>
+        <atomix.version>3.0.8</atomix.version>
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>com.acmedcare.framework</groupId>
+            <artifactId>spring-boot-starter-atomix</artifactId>
+            <version>2.1.0-RC1</version>
+        </dependency>
+
         <dependency>
             <groupId>io.atomix</groupId>
             <artifactId>atomix</artifactId>

@@ -176,7 +176,6 @@ public class RaftServerTest {
 
     RaftServer.Builder builder =
         RaftServer.builder(member.memberId())
-            .withMembershipService(null)
             .withProtocol(
                 new RaftServerMessagingProtocol(
                     messagingManager, protocolSerializer, addressMap::get))
@@ -185,7 +184,7 @@ public class RaftServerTest {
                     .withStorageLevel(StorageLevel.DISK)
                     .withDirectory(
                         new File(String.format("target/fuzz-logs/%s", member.memberId())))
-                    .withNamespace(storageNamespace)
+//                    .withNamespace(storageNamespace)
                     .withMaxSegmentSize(1024 * 1024)
                     .build());
 
