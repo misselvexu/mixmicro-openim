@@ -543,7 +543,7 @@ public class FirstDemoClient {
     request.setGroupId("gid-20181122");
     request.setMemberName("test-member-name");
     request.setOperateType(OperateType.JOIN);
-    request.setPassportId("3837142362366977");
+    request.setPassportId("3837142362366990");
 
     AcmedcareRemoting.getInstance()
         .executor()
