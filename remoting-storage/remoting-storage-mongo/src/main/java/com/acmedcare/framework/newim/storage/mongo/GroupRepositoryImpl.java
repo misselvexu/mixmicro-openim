@@ -20,13 +20,14 @@ import com.mongodb.client.result.UpdateResult;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
@@ -144,36 +145,84 @@ public class GroupRepositoryImpl implements GroupRepository {
                   .in(memberIds));
 
       mongoTemplate.setSessionSynchronization(ALWAYS);
-      transactionTemplate.execute(
-          new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
-              try {
+      AtomicBoolean reset = new AtomicBoolean(false);
+      Boolean result =
+          transactionTemplate.execute(
+              new TransactionCallback<Boolean>() {
+                @Override
+                public Boolean doInTransaction(TransactionStatus transactionStatus) {
+                  try {
 
-                DeleteResult deleteResult = mongoTemplate.remove(query, REF_GROUP_MEMBER);
-                mongoLog.info("预删除行数:{} ", deleteResult.getDeletedCount());
-                List<GroupMemberRef> refs = new ArrayList<>();
-                members
-                    .getMembers()
-                    .forEach(
-                        member ->
-                            refs.add(
-                                GroupMemberRef.builder()
-                                    .namespace(members.getNamespace())
-                                    .groupId(members.getGroupId())
-                                    .memberId(member.getMemberId().toString())
-                                    .memberName(member.getMemberName())
-                                    .build()));
+                    DeleteResult deleteResult = mongoTemplate.remove(query, REF_GROUP_MEMBER);
+                    mongoLog.info("预删除行数:{} ", deleteResult.getDeletedCount());
+                    List<GroupMemberRef> refs = new ArrayList<>();
+                    members
+                        .getMembers()
+                        .forEach(
+                            member ->
+                                refs.add(
+                                    GroupMemberRef.builder()
+                                        .namespace(members.getNamespace())
+                                        .groupId(members.getGroupId())
+                                        .memberId(member.getMemberId().toString())
+                                        .memberName(member.getMemberName())
+                                        .build()));
 
-                mongoTemplate.insert(refs, REF_GROUP_MEMBER);
-              } catch (Exception e) {
-                mongoLog.error("添加群组成员方法异常回滚", e);
-                transactionStatus.setRollbackOnly();
-              } finally {
-                mongoTemplate.setSessionSynchronization(ON_ACTUAL_TRANSACTION);
-              }
-            }
-          });
+                    mongoTemplate.insert(refs, REF_GROUP_MEMBER);
+
+                    return true;
+                  } catch (Exception e) {
+                    mongoLog.error("添加群组成员方法异常回滚", e);
+                    transactionStatus.setRollbackOnly();
+
+                    mongoLog.info("[FIX-ED MONGO-4.0.4] 尝试非事务执行操作[不安全]");
+                    // TODO FIX: PROCESS FAILED WITH
+                    //  REASON `It is illegal to run command createIndexes in a multi-document
+                    //  transaction`
+                    //  Maybe is mongo-4.0.4 bug
+                    //  retry:
+                    if (reset.compareAndSet(false, true)) {
+
+                      try {
+                        mongoTemplate.setSessionSynchronization(ON_ACTUAL_TRANSACTION);
+
+                        // WARN : here is no transaction
+                        DeleteResult deleteResult = mongoTemplate.remove(query, REF_GROUP_MEMBER);
+                        mongoLog.info("预删除行数:{} ", deleteResult.getDeletedCount());
+                        List<GroupMemberRef> refs = new ArrayList<>();
+                        members
+                            .getMembers()
+                            .forEach(
+                                member ->
+                                    refs.add(
+                                        GroupMemberRef.builder()
+                                            .namespace(members.getNamespace())
+                                            .groupId(members.getGroupId())
+                                            .memberId(member.getMemberId().toString())
+                                            .memberName(member.getMemberName())
+                                            .build()));
+
+                        mongoTemplate.insert(refs, REF_GROUP_MEMBER);
+                        return true;
+
+                      } catch (Exception ex) {
+                        return false;
+                      }
+                    } else {
+                      return false;
+                    }
+
+                  } finally {
+                    if (reset.compareAndSet(false, true)) {
+                      mongoTemplate.setSessionSynchronization(ON_ACTUAL_TRANSACTION);
+                    }
+                  }
+                }
+              });
+
+      if (result == null || !result) {
+        throw new StorageException("群组添加人员失败");
+      }
     }
   }
 
