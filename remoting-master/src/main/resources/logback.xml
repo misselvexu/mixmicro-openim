@@ -120,7 +120,7 @@
 
     <logger name="org.springframework">
         <appender-ref ref="CONSOLE"/>
-        <level value="DEBUG"/>
+        <level value="INFO"/>
     </logger>
 
     <logger name="io.undertow">

@@ -19,7 +19,11 @@ import org.springframework.core.env.Environment;
 @Setter
 @Configuration
 @ConfigurationProperties(prefix = "master", ignoreInvalidFields = true)
-@PropertySource(value = "classpath:master.properties")
+@PropertySource(
+    value = {
+      "classpath:master.properties",
+      "classpath:master-${spring.profiles.active}.properties"
+    })
 public class MasterConfig implements Serializable, EnvironmentAware {
 
   private static final long serialVersionUID = -6963594195541525813L;

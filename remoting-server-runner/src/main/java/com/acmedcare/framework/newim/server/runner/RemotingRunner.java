@@ -36,14 +36,16 @@ public class RemotingRunner {
           System.out.println("获取值: " + raftClientService.nextUniformMessageId());
           ThreadKit.sleep(2000);
         } catch (Exception e) {
-
+          e.printStackTrace();
         }
       }
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-      new Thread(this).start();
+      Thread thread = new Thread(this);
+      thread.setName("dog-thread");
+      thread.start();
     }
   }
 }

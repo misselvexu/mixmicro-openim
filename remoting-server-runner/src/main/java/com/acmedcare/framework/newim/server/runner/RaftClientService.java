@@ -3,7 +3,6 @@ package com.acmedcare.framework.newim.server.runner;
 import com.acmedcare.framework.boot.snowflake.Snowflake;
 import io.atomix.AtomixClient;
 import io.atomix.variables.DistributedLong;
-import io.atomix.variables.DistributedValue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,16 +29,20 @@ public class RaftClientService {
     this.snowflake = snowflake;
   }
 
-  private boolean inited() {
+  private void doInit() {
+
     try {
-      DistributedValue<Object> value = atomixClient.getValue(ID_INITED_KEY).get();
-      if (value == null) {
-        return false;
-      } else {
-        return Boolean.parseBoolean(value.toString());
+      System.out.println(atomixClient.getValue(ID_INITED_KEY).get().get());
+      if (atomixClient.getValue(ID_INITED_KEY).get().get() == null) {
+        System.out.println("----->");
+        if (inited.compareAndSet(false, true)) {
+          atomixClient.getLong(UNIFORM_MESSAGE_ID_KEY).get().set(snowflake.nextId()).join();
+          atomixClient.getValue(ID_INITED_KEY).get().set(true);
+        }
       }
+
     } catch (Exception e) {
-      return false;
+      e.printStackTrace();
     }
   }
 
@@ -51,14 +54,9 @@ public class RaftClientService {
    * @throws InterruptedException exception
    */
   public long nextUniformMessageId() throws ExecutionException, InterruptedException {
-
-    if (inited.compareAndSet(false, true)) {
-      if (!inited()) {
-        atomixClient.getLong(UNIFORM_MESSAGE_ID_KEY).get().set(snowflake.nextId()).join();
-        atomixClient.getValue(ID_INITED_KEY).get().set(true);
-      }
+    if (!inited.get()) {
+      doInit();
     }
-
     DistributedLong distributedLong = atomixClient.getLong(UNIFORM_MESSAGE_ID_KEY).get();
     return atomixClient.getLong(UNIFORM_MESSAGE_ID_KEY).get().incrementAndGet().get();
   }
