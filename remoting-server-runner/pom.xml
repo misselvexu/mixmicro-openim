@@ -76,5 +76,11 @@
             <artifactId>exception-api</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.acmedcare.framework</groupId>
+            <artifactId>spring-boot-starter-atomix-client</artifactId>
+            <version>2.1.0-RC1</version>
+        </dependency>
+
     </dependencies>
 </project>
