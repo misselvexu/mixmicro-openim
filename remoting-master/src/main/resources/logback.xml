@@ -138,6 +138,11 @@
         <level value="DEBUG"/>
     </logger>
 
+    <logger level="DEBUG" name="io.atomix">
+        <appender-ref ref="CONSOLE"/>
+        <level value="DEBUG"/>
+    </logger>
+
     <root>
         <level value="DEBUG"/>
         <appender-ref ref="rootFile"/>

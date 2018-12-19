@@ -12,6 +12,7 @@
         <module>remoting-biz</module>
         <module>remoting-spi</module>
         <module>remoting-storage</module>
+        <module>remoting-raft</module>
         <module>remoting-master</module>
         <module>remoting-master-connector</module>
         <module>remoting-server-api</module>
