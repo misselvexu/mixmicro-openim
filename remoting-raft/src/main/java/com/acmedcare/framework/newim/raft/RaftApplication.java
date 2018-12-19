@@ -1,10 +1,17 @@
 package com.acmedcare.framework.newim.raft;
 
+import com.google.common.collect.Lists;
 import io.atomix.cluster.ClusterConfig;
+import io.atomix.cluster.ClusterMembershipEvent;
+import io.atomix.cluster.ClusterMembershipEventListener;
+import io.atomix.cluster.MemberId;
 import io.atomix.cluster.Node;
 import io.atomix.cluster.discovery.BootstrapDiscoveryProvider;
 import io.atomix.core.Atomix;
+import io.atomix.primitive.partition.PartitionId;
 import io.atomix.protocols.backup.partition.PrimaryBackupPartitionGroup;
+import io.atomix.protocols.raft.RaftClient;
+import io.atomix.protocols.raft.impl.DefaultRaftClient;
 import io.atomix.protocols.raft.partition.RaftPartitionGroup;
 import java.io.File;
 
@@ -26,18 +33,17 @@ public class RaftApplication {
             .withMembershipProvider(
                 BootstrapDiscoveryProvider.builder()
                     .withNodes(
-                        Node.builder()
-                            .withId("raft-server-1")
-                            .withAddress("127.0.0.1:3444")
-                            .build(),
-                        Node.builder()
-                            .withId("raft-server-2")
-                            .withAddress("127.0.0.1:3445")
-                            .build(),
-                        Node.builder()
-                            .withId("raft-server-3")
-                            .withAddress("127.0.0.1:3446")
-                            .build())
+                        Node.builder().withId("raft-server-1").withAddress("127.0.0.1:3444").build()
+                        //                        ,
+                        //                        Node.builder()
+                        //                            .withId("raft-server-2")
+                        //                            .withAddress("127.0.0.1:3445")
+                        //                            .build(),
+                        //                        Node.builder()
+                        //                            .withId("raft-server-3")
+                        //                            .withAddress("127.0.0.1:3446")
+                        //                            .build()
+                        )
                     .build())
             .withManagementGroup(
                 RaftPartitionGroup.builder("master")
@@ -51,5 +57,28 @@ public class RaftApplication {
             .build();
 
     atomix.start().join();
+
+    atomix
+        .getMembershipService()
+        .addListener(
+            new ClusterMembershipEventListener() {
+              @Override
+              public void event(ClusterMembershipEvent event) {
+                System.out.println(event);
+              }
+            });
+  }
+
+  public static class RaftClientApplication {
+    public static void main(String[] args) {
+      RaftClient raftClient =
+          new DefaultRaftClient.Builder(Lists.newArrayList(MemberId.from("raft-cluster-1")))
+              .withClientId("raft-client-id")
+              .withMemberId(MemberId.from("raft-client-id"))
+              .withPartitionId(PartitionId.from("master", 1))
+              .build();
+
+      raftClient.connect().join();
+    }
   }
 }
