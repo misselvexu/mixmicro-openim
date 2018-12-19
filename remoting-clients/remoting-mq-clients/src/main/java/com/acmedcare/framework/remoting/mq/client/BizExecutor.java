@@ -1,6 +1,8 @@
 package com.acmedcare.framework.remoting.mq.client;
 
 import com.acmedcare.framework.remoting.mq.client.biz.request.AuthRequest;
+import com.acmedcare.framework.remoting.mq.client.biz.request.SubscribeTopicRequest;
+import com.acmedcare.framework.remoting.mq.client.biz.request.SubscribeTopicRequest.Callback;
 import com.acmedcare.framework.remoting.mq.client.exception.BizException;
 import com.acmedcare.nas.client.NasClient;
 import com.acmedcare.nas.client.NasClientFactory;
@@ -70,5 +72,15 @@ public abstract class BizExecutor {
    * @throws BizException exception
    */
   protected abstract void auth(AuthRequest request, AuthRequest.AuthCallback authCallback)
+      throws BizException;
+
+  /**
+   * Subscribe Topic (订阅主题)
+   *
+   * @param request 订阅请求对象
+   * @param callback 订阅结果
+   * @throws BizException exception
+   */
+  protected abstract void subscribe(SubscribeTopicRequest request, Callback callback)
       throws BizException;
 }

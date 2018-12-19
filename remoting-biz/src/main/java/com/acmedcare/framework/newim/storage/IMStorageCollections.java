@@ -14,6 +14,9 @@ public interface IMStorageCollections {
   /** 群组 */
   String GROUP = "im_group";
 
+  /** 主题 */
+  String TOPIC = "mq_topic";
+
   /** 群组成员管理 */
   String REF_GROUP_MEMBER = "im_refs_group_member";
 

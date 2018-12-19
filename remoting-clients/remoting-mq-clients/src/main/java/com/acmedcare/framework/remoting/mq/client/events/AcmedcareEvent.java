@@ -39,35 +39,14 @@ public abstract class AcmedcareEvent {
   public enum SystemEvent implements Event {
     SDK_INIT,
 
-    RE_CONNECT_FAILED,
-
-    /** 其他设备登录了改账号(服务端延迟3秒关闭连接) */
-    LOGIN_ON_OTHER_DEVICE
+    RE_CONNECT_FAILED
   }
 
   /** Biz Event */
   public enum BizEvent implements Event {
 
-    // 拉取信息的返回值事件
-    PULL_MESSAGE_RESPONSE,
-
-    // 推送消息已读状态返回事件
-    PUSH_MESSAGE_READ_STATUS_RESPONSE,
-
-    // 拉取会话列表
-    PULL_SESSION_LIST_RESPONSE,
-
-    // 拉取具体的会话的状态信息
-    PULL_SESSION_STATUS_RESPONSE,
-
-    // 拉取群组列表返回值事件
-    PULL_GROUPS_LIST_RESPONSE,
-
-    // 发送消息回执事件
-    PUSH_MESSAGE_RESPONSE,
-
-    // 服务端推送消息事件
-    SERVER_PUSH_MESSAGE,
+    /** 收到主题消息事件 */
+    ON_TOPIC_MESSAGE_EVENT
   }
 
   public interface Event {}

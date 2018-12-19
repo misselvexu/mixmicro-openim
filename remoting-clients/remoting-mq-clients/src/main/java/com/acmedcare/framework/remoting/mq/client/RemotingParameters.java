@@ -28,6 +28,8 @@ public final class RemotingParameters {
 
   @Getter private String accessToken;
 
+  @Getter private MQType mqType;
+
   @Getter private String username;
 
   @Getter private Long passportId;
@@ -66,6 +68,10 @@ public final class RemotingParameters {
           RemotingLogger.warn(null, "load default jks failed.(ignore)");
         }
       }
+    }
+
+    if(mqType == null) {
+      return false;
     }
 
     boolean and = false;
