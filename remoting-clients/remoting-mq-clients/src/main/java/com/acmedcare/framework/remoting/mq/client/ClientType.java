@@ -1,12 +1,12 @@
 package com.acmedcare.framework.remoting.mq.client;
 
 /**
- * MQType
+ * ClientType
  *
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version ${project.version} - 2018-12-18.
  */
-public enum MQType {
+public enum ClientType {
 
   /** 监测端 */
   MONITOR,

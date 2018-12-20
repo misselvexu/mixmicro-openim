@@ -168,7 +168,7 @@ public final class AcmedcareMQRemoting implements Serializable {
   }
 
   public boolean isMonitor() {
-    return MQType.MONITOR.equals(parameters.getMqType());
+    return ClientType.MONITOR.equals(parameters.getClientType());
   }
 
   /** Register Connection Status Change Listener */
@@ -484,7 +484,7 @@ public final class AcmedcareMQRemoting implements Serializable {
     try {
       RemotingCommand handshakeRequest =
           RemotingCommand.createRequestCommand(
-              parameters.getMqType().equals(MQType.MONITOR)
+              parameters.getClientType().equals(ClientType.MONITOR)
                   ? MonitorClient.HANDSHAKE
                   : SamplingClient.HANDSHAKE,
               null);

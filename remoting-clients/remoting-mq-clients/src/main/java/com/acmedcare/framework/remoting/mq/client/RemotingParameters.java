@@ -28,7 +28,7 @@ public final class RemotingParameters {
 
   @Getter private String accessToken;
 
-  @Getter private MQType mqType;
+  @Getter private ClientType clientType;
 
   @Getter private String username;
 
@@ -61,7 +61,7 @@ public final class RemotingParameters {
         try {
           // load default
           this.jksFile =
-              Paths.get(RemotingCommand.class.getResource("/META-INF/keystore.jks").toURI())
+              Paths.get(RemotingCommand.class.getResource("/META-INF/mq-keystore.jks").toURI())
                   .toFile();
           this.jksPassword = DEFAULT_JKS_PD;
         } catch (Exception e) {
@@ -70,7 +70,7 @@ public final class RemotingParameters {
       }
     }
 
-    if(mqType == null) {
+    if(clientType == null) {
       return false;
     }
 
