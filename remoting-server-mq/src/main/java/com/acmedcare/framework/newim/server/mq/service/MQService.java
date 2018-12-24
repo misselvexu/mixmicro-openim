@@ -1,9 +1,12 @@
 package com.acmedcare.framework.newim.server.mq.service;
 
 import com.acmedcare.framework.boot.snowflake.Snowflake;
+import com.acmedcare.framework.newim.Message.MQMessage;
 import com.acmedcare.framework.newim.Topic;
+import com.acmedcare.framework.newim.server.mq.processor.body.TopicSubscribeMapping;
 import com.acmedcare.framework.newim.storage.api.TopicRepository;
 import java.util.Arrays;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +33,7 @@ public class MQService {
    *
    * @param topics topic list
    */
-  public void createNewTopic(Topic... topics) {
+  public Long[] createNewTopic(Topic... topics) {
 
     logger.info("request to create topics: {}", Arrays.toString(topics));
     for (Topic topic : topics) {
@@ -38,5 +41,33 @@ public class MQService {
     }
 
     this.topicRepository.save(topics);
+
+    Long[] result = new Long[topics.length];
+    for (int i = 0; i < topics.length; i++) {
+      result[i] = topics[i].getTopicId();
+    }
+
+    return result;
+  }
+
+  public List<Topic> pullTopicsList() {
+    return null;
+  }
+
+  public void subscribeTopics(String passportId, String passport, String[] topicIds) {}
+
+  public void ubSubscribeTopics(String passportId, String passport, String[] topicIds) {}
+
+  public List<TopicSubscribeMapping> pullTopicSubscribedMapping(
+      String passportId, String passport) {
+    return null;
+  }
+
+  public void broadcastTopicMessages(MQMessage mqMessage) {
+
+  }
+
+  public List<MQMessage> queryMessageList(Long lastTopicMessageId, int limit, Long topicId) {
+    return null;
   }
 }

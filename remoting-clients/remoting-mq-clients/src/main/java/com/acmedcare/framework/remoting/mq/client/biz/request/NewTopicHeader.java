@@ -25,6 +25,12 @@ public class NewTopicHeader implements CommandCustomHeader {
   /** 主题名称 */
   @CFNotNull private String topicName;
 
+  /** 主题描述 */
+  private String topicDesc;
+
+  /** 主题扩展信息 */
+  private String topicExt;
+
   @Override
   public void checkFields() throws RemotingCommandException {}
 }

@@ -23,6 +23,12 @@ public class NewTopicRequest extends BaseRequest {
   /** 主题标识 */
   private String topicTag;
 
+  /** 主题描述 */
+  private String topicDesc;
+
+  /** 主题扩展信息 */
+  private String topicExt;
+
   @Override
   public void validateFields() throws BizException {
     if (Serializables.isAnyBlank(

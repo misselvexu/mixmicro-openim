@@ -1,10 +1,10 @@
 package com.acmedcare.framework.newim.server.runner;
 
 import com.acmedcare.framework.boot.snowflake.Snowflake;
+import com.acmedcare.framework.newim.server.IdService;
 import io.atomix.AtomixClient;
 import io.atomix.variables.DistributedLong;
 import io.atomix.variables.DistributedValue;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
  * @version ${project.version} - 2018-12-19.
  */
 @Component
-public class RaftClientService {
+public class RaftClientService implements IdService {
 
   private static final String UNIFORM_MESSAGE_ID_KEY = "mq_message_id_key";
   private static final String ID_INITED_KEY = "mq_message_id_inited_key";
@@ -51,10 +51,10 @@ public class RaftClientService {
    * 获取下一组消息递增编号
    *
    * @return 编号
-   * @throws ExecutionException exception
-   * @throws InterruptedException exception
+   * @throws Exception exception
    */
-  public long nextUniformMessageId() throws ExecutionException, InterruptedException {
+  @Override
+  public long nextId() throws Exception {
     if (!inited.get()) {
       doInit();
     }

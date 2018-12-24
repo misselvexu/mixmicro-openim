@@ -33,7 +33,7 @@ public class RemotingRunner {
       ThreadKit.sleep(5000);
       while (true) {
         try {
-          System.out.println("获取值: " + raftClientService.nextUniformMessageId());
+          System.out.println("获取值: " + raftClientService.nextId());
           ThreadKit.sleep(2000);
         } catch (Exception e) {
           e.printStackTrace();

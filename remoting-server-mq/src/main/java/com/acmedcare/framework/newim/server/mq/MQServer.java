@@ -6,6 +6,7 @@ import com.acmedcare.framework.kits.thread.ThreadKit;
 import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.Message.MessageType;
 import com.acmedcare.framework.newim.SessionBean;
+import com.acmedcare.framework.newim.server.IdService;
 import com.acmedcare.framework.newim.server.Server;
 import com.acmedcare.framework.newim.server.master.connector.MasterConnector;
 import com.acmedcare.framework.newim.server.master.connector.MasterConnectorHandler;
@@ -46,6 +47,9 @@ public class MQServer implements Server {
   @Autowired private MQService mqService;
   @Autowired private MasterConnector masterConnector;
   @Autowired private AorpClient aorpClient;
+
+  @Autowired(required = false)
+  private IdService idService;
 
   private NettyRemotingSocketServer server;
   private NettyServerConfig config;
@@ -102,7 +106,7 @@ public class MQServer implements Server {
 
       logger.info("[MQServer] create new mq server instance :{} ", server);
 
-      MQProcessor processor = new MQProcessor(context, mqService, aorpClient);
+      MQProcessor processor = new MQProcessor(context, mqService, aorpClient, idService);
       server.registerDefaultProcessor(processor, defaultProcessorExecutor);
       logger.info("[MQServer] register-ed default processor :{} ", processor);
 

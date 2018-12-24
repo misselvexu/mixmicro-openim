@@ -290,13 +290,15 @@ public class JREBizExectuor extends BizExecutor {
     SendTopicMessageHeader header = new SendTopicMessageHeader();
     header.setPassport(request.getPassport());
     header.setPassportId(request.getPassportId());
-    header.setContent(request.getContent());
+    //header.setContent(request.getContent());
     header.setTopicId(request.getTopicId());
     header.setTopicTag(request.getTopicTag());
 
     AcmedcareLogger.i(this.getClass().getSimpleName(), "发送主题消息请求头:" + JSON.toJSONString(header));
     RemotingCommand command =
         RemotingCommand.createRequestCommand(SamplingClient.SEND_TOPIC_MESSAGE, header);
+
+    command.setBody(request.getContent());
 
     try {
       AcmedcareMQRemoting.getRemotingClient()
@@ -523,6 +525,8 @@ public class JREBizExectuor extends BizExecutor {
     header.setPassport(request.getPassport());
     header.setTopicName(request.getTopicName());
     header.setTopicTag(request.getTopicTag());
+    header.setTopicDesc(request.getTopicDesc());
+    header.setTopicExt(request.getTopicExt());
 
     AcmedcareLogger.i(this.getClass().getSimpleName(), "创建主题请求头:" + JSON.toJSONString(header));
     RemotingCommand command = RemotingCommand.createRequestCommand(Common.CREATE_TOPIC, header);
