@@ -1,6 +1,6 @@
 package com.acmedcare.framework.remoting.mq.client.biz.request;
 
-import com.acmedcare.framework.remoting.mq.client.biz.MessageAttribute;
+import com.acmedcare.framework.remoting.mq.client.exception.BizException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,9 +20,6 @@ public abstract class BaseRequest {
 
   private String passportId;
 
-  /** Default Attribute */
-  private MessageAttribute attribute = MessageAttribute.builder().build();
-
   public BaseRequest(String passport) {
     this.passport = passport;
   }
@@ -32,9 +29,10 @@ public abstract class BaseRequest {
     this.passportId = passportId;
   }
 
-  public BaseRequest(String passport, String passportId, MessageAttribute attribute) {
-    this.passport = passport;
-    this.passportId = passportId;
-    this.attribute = attribute;
-  }
+  /**
+   * Check request fields
+   *
+   * @throws BizException exception
+   */
+  public abstract void validateFields() throws BizException;
 }

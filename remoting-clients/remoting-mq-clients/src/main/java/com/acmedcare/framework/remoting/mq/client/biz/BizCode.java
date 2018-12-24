@@ -28,6 +28,8 @@ public class BizCode {
 
     /** 拉取订阅主题列表 */
     int PULL_TOPIC_SUBSCRIBE_MAPPING = 0x50004;
+
+    int SEND_TOPIC_MESSAGE = 0x50005;
   }
 
   /** 监护端数据协议 */
@@ -50,5 +52,17 @@ public class BizCode {
 
     /** 填补数据协议 */
     int FIX_MESSAGE = 0x60006;
+  }
+
+  public interface Common {
+
+    /** 队列服务器推送消息请求 */
+    int TOPIC_MESSAGE_PUSH = 0x70001;
+
+    /** 创建主题请求 */
+    int CREATE_TOPIC = 0x70002;
+
+    /** 拉取主题列表 */
+    int PULL_TOPICS = 0x70003;
   }
 }

@@ -8,5 +8,5 @@ package com.acmedcare.framework.remoting.mq.client;
  */
 public interface Issues {
   String URL =
-      "http://115.29.47.72:8082/acmedback/Acmedcare-NewIM/blob/2.1.x/remoting-clients/remoting-mq-clients/README.md";
+      "http://115.29.47.72:8082/acmedback/Acmedcare-NewIM/blob/master/remoting-clients/remoting-mq-clients/README.md";
 }

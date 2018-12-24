@@ -1,43 +1,39 @@
 package com.acmedcare.framework.remoting.mq.client.biz.request;
 
 import com.acmedcare.framework.remoting.mq.client.Serializables;
+import com.acmedcare.framework.remoting.mq.client.biz.body.TopicSubscribeMapping;
 import com.acmedcare.framework.remoting.mq.client.exception.BizException;
+import java.util.List;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * SubscribeTopicRequest
+ * PullTopicSubscribedMappingsRequest
  *
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
- * @version ${project.version} - 2018-12-18.
+ * @version ${project.version} - 2018-12-24.
  */
 @Getter
 @Setter
-public class SubscribeTopicRequest extends BaseRequest {
-
-  /** 定于的主题标识 */
-  private String[] topicIds;
-
-  public SubscribeTopicRequest(String passport, String passportId, String[] topicIds) {
-    super(passport, passportId);
-    this.topicIds = topicIds;
-  }
+@NoArgsConstructor
+public class PullTopicSubscribedMappingsRequest extends BaseRequest {
 
   @Override
   public void validateFields() throws BizException {
-    if (topicIds == null || topicIds.length == 0) {
-      throw new BizException("topicIds must not be null.");
-    }
-
     if (Serializables.isAnyBlank(getPassport(), getPassportId())) {
-      throw new BizException("passport & passportId must not be null.");
+      throw new BizException("拉取主题订阅关系请求参数:[passport,passportId]不能为空");
     }
   }
 
   public interface Callback {
 
-    /** Sub Succeed callback */
-    void onSuccess();
+    /**
+     * Succeed callback
+     *
+     * @param mappings Subscribe mappings
+     */
+    void onSuccess(List<TopicSubscribeMapping> mappings);
 
     /**
      * Sub failed callback

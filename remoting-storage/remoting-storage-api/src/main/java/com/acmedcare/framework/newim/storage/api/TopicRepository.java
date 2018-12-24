@@ -1,5 +1,7 @@
 package com.acmedcare.framework.newim.storage.api;
 
+import com.acmedcare.framework.newim.Topic;
+
 /**
  * Topic Repository
  *
@@ -8,6 +10,11 @@ package com.acmedcare.framework.newim.storage.api;
  */
 public interface TopicRepository {
 
-
-
+  /**
+   * Save new topics
+   *
+   * @param topics topics instance
+   * @see Topic
+   */
+  void save(Topic[] topics);
 }

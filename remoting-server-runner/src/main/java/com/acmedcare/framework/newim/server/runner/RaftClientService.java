@@ -1,8 +1,11 @@
 package com.acmedcare.framework.newim.server.runner;
 
+import com.acmedcare.framework.boot.snowflake.Snowflake;
 import io.atomix.AtomixClient;
 import io.atomix.variables.DistributedLong;
+import io.atomix.variables.DistributedValue;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,11 +19,32 @@ import org.springframework.stereotype.Component;
 public class RaftClientService {
 
   private static final String UNIFORM_MESSAGE_ID_KEY = "mq_message_id_key";
+  private static final String ID_INITED_KEY = "mq_message_id_inited_key";
+  private static final String ID_INITED_LOCK_KEY = "mq_message_id_inited_lock_key";
+  private static volatile AtomicBoolean inited = new AtomicBoolean(false);
   private final AtomixClient atomixClient;
+  private final Snowflake snowflake;
 
   @Autowired
-  public RaftClientService(AtomixClient atomixClient) {
+  public RaftClientService(AtomixClient atomixClient, Snowflake snowflake) {
     this.atomixClient = atomixClient;
+    this.snowflake = snowflake;
+  }
+
+  private void doInit() {
+
+    DistributedValue<Boolean> booleanDistributedValue =
+        atomixClient.<Boolean>getValue(ID_INITED_KEY).join();
+    if (booleanDistributedValue.compareAndSet(false, true).join()) {
+      try {
+        if (inited.compareAndSet(false, true)) {
+          atomixClient.getLong(UNIFORM_MESSAGE_ID_KEY).get().set(snowflake.nextId()).join();
+          atomixClient.getValue(ID_INITED_KEY).get().set(true);
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
   }
 
   /**
@@ -31,8 +55,10 @@ public class RaftClientService {
    * @throws InterruptedException exception
    */
   public long nextUniformMessageId() throws ExecutionException, InterruptedException {
+    if (!inited.get()) {
+      doInit();
+    }
     DistributedLong distributedLong = atomixClient.getLong(UNIFORM_MESSAGE_ID_KEY).get();
-    distributedLong.set(1L).join();
-    return distributedLong.incrementAndGet().get();
+    return atomixClient.getLong(UNIFORM_MESSAGE_ID_KEY).get().incrementAndGet().get();
   }
 }

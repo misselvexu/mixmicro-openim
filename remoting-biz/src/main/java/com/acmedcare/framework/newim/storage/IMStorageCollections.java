@@ -11,6 +11,9 @@ public interface IMStorageCollections {
   /** 消息 */
   String IM_MESSAGE = "im_message";
 
+  /** 队列消息 */
+  String MQ_MESSAGE = "mq_message";
+
   /** 群组 */
   String GROUP = "im_group";
 

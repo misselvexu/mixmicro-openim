@@ -23,6 +23,9 @@ public class Topic implements Serializable {
   /** 主题名称 */
   private String topicName;
 
+  /** 主题标识 */
+  private String topicTag;
+
   /** 主题描述 */
   private String topicDesc;
 

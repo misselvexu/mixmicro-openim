@@ -1,5 +1,6 @@
 package com.acmedcare.framework.newim.server.runner;
 
+import com.acmedcare.framework.boot.snowflake.EnableSnowflake;
 import com.acmedcare.framework.kits.thread.ThreadKit;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
  * @version ${project.version} - 2018-12-12.
  */
 @SpringBootApplication
+@EnableSnowflake
 public class RemotingRunner {
 
   public static void main(String[] args) {
@@ -28,20 +30,22 @@ public class RemotingRunner {
     @Override
     public void run() {
       System.out.println("等待程序启动完成");
-      ThreadKit.sleep(20000);
+      ThreadKit.sleep(5000);
       while (true) {
         try {
           System.out.println("获取值: " + raftClientService.nextUniformMessageId());
           ThreadKit.sleep(2000);
         } catch (Exception e) {
-
+          e.printStackTrace();
         }
       }
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-      new Thread(this).start();
+      Thread thread = new Thread(this);
+      thread.setName("dog-thread");
+      thread.start();
     }
   }
 }

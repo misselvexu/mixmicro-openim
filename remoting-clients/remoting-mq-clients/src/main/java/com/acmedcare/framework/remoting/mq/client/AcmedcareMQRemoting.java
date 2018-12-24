@@ -1,5 +1,7 @@
 package com.acmedcare.framework.remoting.mq.client;
 
+import static com.acmedcare.framework.remoting.mq.client.biz.BizCode.Common.TOPIC_MESSAGE_PUSH;
+
 import android.content.Context;
 import com.acmedcare.framework.remoting.mq.client.ServerAddressHandler.RemotingAddress;
 import com.acmedcare.framework.remoting.mq.client.biz.BizCode.MonitorClient;
@@ -10,6 +12,7 @@ import com.acmedcare.framework.remoting.mq.client.events.BasicListenerHandler;
 import com.acmedcare.framework.remoting.mq.client.exception.NoServerAddressException;
 import com.acmedcare.framework.remoting.mq.client.exception.SdkInitException;
 import com.acmedcare.framework.remoting.mq.client.jre.JREBizExectuor;
+import com.acmedcare.framework.remoting.mq.client.processor.MQTopicMessagesProcessor;
 import com.acmedcare.nas.client.NasProperties;
 import com.acmedcare.tiffany.framework.remoting.android.core.IoSessionEventListener;
 import com.acmedcare.tiffany.framework.remoting.android.core.protocol.RemotingCommand;
@@ -168,7 +171,7 @@ public final class AcmedcareMQRemoting implements Serializable {
   }
 
   public boolean isMonitor() {
-    return MQType.MONITOR.equals(parameters.getMqType());
+    return ClientType.MONITOR.equals(parameters.getClientType());
   }
 
   /** Register Connection Status Change Listener */
@@ -451,6 +454,16 @@ public final class AcmedcareMQRemoting implements Serializable {
                 }
               }
             });
+
+    if (isMonitor()) {
+      AcmedcareMQRemoting.remotingClient.registerProcessor(
+          TOPIC_MESSAGE_PUSH, new MQTopicMessagesProcessor(this), null);
+      AcmedcareLogger.i(
+          null,
+          "[Monitor] Register-ed MQ Topic Biz Code: 0x"
+              + Integer.toHexString(TOPIC_MESSAGE_PUSH)
+              + " processor.");
+    }
   }
 
   private void doConnect(final boolean now) {
@@ -484,7 +497,7 @@ public final class AcmedcareMQRemoting implements Serializable {
     try {
       RemotingCommand handshakeRequest =
           RemotingCommand.createRequestCommand(
-              parameters.getMqType().equals(MQType.MONITOR)
+              parameters.getClientType().equals(ClientType.MONITOR)
                   ? MonitorClient.HANDSHAKE
                   : SamplingClient.HANDSHAKE,
               null);

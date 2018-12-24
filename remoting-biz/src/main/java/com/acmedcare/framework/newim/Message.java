@@ -87,7 +87,9 @@ public class Message implements Serializable {
     /** 发群组消息 */
     GROUP,
     /** 推送消息 */
-    PUSH
+    PUSH,
+    /** 队列消息 */
+    MQ
   }
 
   @Getter
@@ -160,5 +162,20 @@ public class Message implements Serializable {
      * <p>不指定设备列表,默认推送所有的设备
      */
     private List<String> deviceIds;
+  }
+
+  @Getter
+  @Setter
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class MQMessage extends QosMessage {
+
+    private static final long serialVersionUID = -4709282162851905984L;
+
+    /** 主题ID */
+    private Long topicId;
+
+    /** 主题标识 */
+    private String topicTag;
   }
 }

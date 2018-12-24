@@ -294,10 +294,11 @@ public final class MasterConnector {
     @Override
     public void run() {
       try {
-        CountDownLatch countDownLatch = new CountDownLatch(masterInstances.size());
+        final CountDownLatch countDownLatch = new CountDownLatch(masterInstances.size());
         for (MasterInstance masterInstance : masterInstances) {
 
           if (!masterInstance.isConnected()) {
+            countDownLatch.countDown();
             continue;
           }
           AsyncRuntimeExecutor.getAsyncThreadPool()
