@@ -1,5 +1,6 @@
 package com.acmedcare.framework.newim.server.mq;
 
+import com.acmedcare.framework.boot.snowflake.Snowflake;
 import com.acmedcare.framework.newim.server.mq.service.MQService;
 import com.acmedcare.framework.newim.storage.api.TopicRepository;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -17,7 +18,7 @@ public class MQServerAutoConfiguration {
 
   @Bean
   @Primary
-  private MQService mqService(TopicRepository topicRepository) {
+  private MQService mqService(TopicRepository topicRepository, Snowflake snowflake) {
     return new MQService(topicRepository, snowflake);
   }
 }
