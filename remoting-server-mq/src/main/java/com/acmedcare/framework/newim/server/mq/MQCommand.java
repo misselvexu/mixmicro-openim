@@ -23,6 +23,7 @@ public class MQCommand {
     /** 拉取订阅主题列表 */
     int PULL_TOPIC_SUBSCRIBE_MAPPING = 0x50004;
 
+    /** 发送主题消息 */
     int SEND_TOPIC_MESSAGE = 0x50005;
   }
 
@@ -48,7 +49,7 @@ public class MQCommand {
     int FIX_MESSAGE = 0x60006;
   }
 
-  public interface BroadcastCommand {
+  public interface Common {
 
     /** 队列服务器推送消息请求 */
     int TOPIC_MESSAGE_PUSH = 0x70001;

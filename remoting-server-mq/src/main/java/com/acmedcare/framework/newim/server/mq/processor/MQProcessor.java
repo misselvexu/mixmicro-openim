@@ -1,5 +1,6 @@
 package com.acmedcare.framework.newim.server.mq.processor;
 
+import com.acmedcare.framework.aorp.client.AorpClient;
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
 import com.acmedcare.framework.newim.server.mq.MQCommand.MonitorClient;
@@ -24,10 +25,12 @@ public class MQProcessor implements NettyRequestProcessor {
 
   private final MQContext context;
   private final MQService mqService;
+  private final AorpClient aorpClient;
 
-  public MQProcessor(MQContext context, MQService mqService) {
+  public MQProcessor(MQContext context, MQService mqService, AorpClient aorpClient) {
     this.mqService = mqService;
     this.context = context;
+    this.aorpClient = aorpClient;
   }
 
   @Override

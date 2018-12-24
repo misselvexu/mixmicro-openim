@@ -1,5 +1,6 @@
 package com.acmedcare.framework.newim.server.mq;
 
+import com.acmedcare.framework.aorp.client.AorpClient;
 import com.acmedcare.framework.kits.thread.DefaultThreadFactory;
 import com.acmedcare.framework.kits.thread.ThreadKit;
 import com.acmedcare.framework.newim.Message;
@@ -44,6 +45,7 @@ public class MQServer implements Server {
   @Autowired private MQServerProperties mqServerProperties;
   @Autowired private MQService mqService;
   @Autowired private MasterConnector masterConnector;
+  @Autowired private AorpClient aorpClient;
 
   private NettyRemotingSocketServer server;
   private NettyServerConfig config;
@@ -100,7 +102,7 @@ public class MQServer implements Server {
 
       logger.info("[MQServer] create new mq server instance :{} ", server);
 
-      MQProcessor processor = new MQProcessor(context, mqService);
+      MQProcessor processor = new MQProcessor(context, mqService, aorpClient);
       server.registerDefaultProcessor(processor, defaultProcessorExecutor);
       logger.info("[MQServer] register-ed default processor :{} ", processor);
 
