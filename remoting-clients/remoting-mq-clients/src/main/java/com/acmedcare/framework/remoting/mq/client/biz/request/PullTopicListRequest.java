@@ -1,5 +1,7 @@
 package com.acmedcare.framework.remoting.mq.client.biz.request;
 
+import com.acmedcare.framework.remoting.mq.client.biz.bean.Topic;
+import com.acmedcare.framework.remoting.mq.client.exception.BizException;
 import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,6 +18,9 @@ import lombok.Setter;
 @NoArgsConstructor
 public class PullTopicListRequest extends BaseRequest {
 
+  @Override
+  public void validateFields() throws BizException {}
+
   public interface Callback {
 
     /**
@@ -23,7 +28,7 @@ public class PullTopicListRequest extends BaseRequest {
      *
      * @param topics topic list
      */
-    void onSuccess(List<?> topics);
+    void onSuccess(List<Topic> topics);
 
     /**
      * Sub failed callback
@@ -32,5 +37,7 @@ public class PullTopicListRequest extends BaseRequest {
      * @param message error message
      */
     void onFailed(int code, String message);
+
+    void onException(BizException e);
   }
 }

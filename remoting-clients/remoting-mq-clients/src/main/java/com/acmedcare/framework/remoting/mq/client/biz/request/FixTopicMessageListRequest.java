@@ -1,5 +1,6 @@
 package com.acmedcare.framework.remoting.mq.client.biz.request;
 
+import com.acmedcare.framework.remoting.mq.client.exception.BizException;
 import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,11 @@ public class FixTopicMessageListRequest extends BaseRequest {
   private Long lastTopicMessageId;
 
   private int limit = 10;
+
+  @Override
+  public void validateFields() throws BizException {
+
+  }
 
   public interface Callback {
 

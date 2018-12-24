@@ -1,6 +1,6 @@
 package com.acmedcare.framework.remoting.mq.client;
 
-import static com.acmedcare.framework.remoting.mq.client.biz.BizCode.BroadcastCommand.TOPIC_MESSAGE_PUSH;
+import static com.acmedcare.framework.remoting.mq.client.biz.BizCode.Common.TOPIC_MESSAGE_PUSH;
 
 import android.content.Context;
 import com.acmedcare.framework.remoting.mq.client.ServerAddressHandler.RemotingAddress;

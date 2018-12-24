@@ -52,9 +52,15 @@ public class BizCode {
     int FIX_MESSAGE = 0x60006;
   }
 
-  public interface BroadcastCommand {
+  public interface Common {
 
     /** 队列服务器推送消息请求 */
     int TOPIC_MESSAGE_PUSH = 0x70001;
+
+    /** 创建主题请求 */
+    int CREATE_TOPIC = 0x70002;
+
+    /** 拉取主题列表 */
+    int PULL_TOPICS = 0x70003;
   }
 }

@@ -1,5 +1,6 @@
 package com.acmedcare.framework.remoting.mq.client.biz.request;
 
+import com.acmedcare.framework.remoting.mq.client.exception.BizException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,4 +28,11 @@ public abstract class BaseRequest {
     this.passport = passport;
     this.passportId = passportId;
   }
+
+  /**
+   * Check request fields
+   *
+   * @throws BizException exception
+   */
+  public abstract void validateFields() throws BizException;
 }

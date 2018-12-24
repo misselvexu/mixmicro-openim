@@ -1,5 +1,6 @@
 package com.acmedcare.framework.remoting.mq.client.biz.request;
 
+import com.acmedcare.framework.remoting.mq.client.exception.BizException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,6 +24,11 @@ public class SendTopicMessageRequest extends BaseRequest {
 
   /** Topic Message Content */
   private byte[] content;
+
+  @Override
+  public void validateFields() throws BizException {
+
+  }
 
   public interface Callback {
 

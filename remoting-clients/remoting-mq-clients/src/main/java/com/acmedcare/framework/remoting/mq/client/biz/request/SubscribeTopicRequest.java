@@ -1,5 +1,6 @@
 package com.acmedcare.framework.remoting.mq.client.biz.request;
 
+import com.acmedcare.framework.remoting.mq.client.exception.BizException;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,6 +20,11 @@ public class SubscribeTopicRequest extends BaseRequest {
   public SubscribeTopicRequest(String passport, String passportId, String[] topicIds) {
     super(passport, passportId);
     this.topicIds = topicIds;
+  }
+
+  @Override
+  public void validateFields() throws BizException {
+
   }
 
   public interface Callback {

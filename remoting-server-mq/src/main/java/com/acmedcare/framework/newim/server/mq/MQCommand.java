@@ -50,5 +50,11 @@ public class MQCommand {
 
     /** 队列服务器推送消息请求 */
     int TOPIC_MESSAGE_PUSH = 0x70001;
+
+    /** 创建主题请求 */
+    int CREATE_TOPIC = 0x70002;
+
+    /** 拉取主题列表 */
+    int PULL_TOPICS = 0x70003;
   }
 }
