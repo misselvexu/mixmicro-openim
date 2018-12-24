@@ -298,6 +298,7 @@ public final class MasterConnector {
         for (MasterInstance masterInstance : masterInstances) {
 
           if (!masterInstance.isConnected()) {
+            countDownLatch.countDown();
             continue;
           }
           AsyncRuntimeExecutor.getAsyncThreadPool()
