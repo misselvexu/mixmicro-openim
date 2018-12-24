@@ -28,6 +28,8 @@ public class BizCode {
 
     /** 拉取订阅主题列表 */
     int PULL_TOPIC_SUBSCRIBE_MAPPING = 0x50004;
+
+    int SEND_TOPIC_MESSAGE = 0x50005;
   }
 
   /** 监护端数据协议 */

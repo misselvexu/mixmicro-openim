@@ -1,5 +1,7 @@
 package com.acmedcare.framework.remoting.mq.client.biz.request;
 
+import com.acmedcare.framework.remoting.mq.client.Serializables;
+import com.acmedcare.framework.remoting.mq.client.biz.bean.Message;
 import com.acmedcare.framework.remoting.mq.client.exception.BizException;
 import java.util.List;
 import lombok.Getter;
@@ -17,6 +19,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class FixTopicMessageListRequest extends BaseRequest {
 
+  private Long topicId;
+
   /** last message id */
   private Long lastTopicMessageId;
 
@@ -25,6 +29,13 @@ public class FixTopicMessageListRequest extends BaseRequest {
   @Override
   public void validateFields() throws BizException {
 
+    if (Serializables.isAnyBlank(getPassport(), getPassportId())) {
+      throw new BizException("补漏消息请求参数:[passportId,passport]不能为空");
+    }
+
+    if (topicId <= 0 || lastTopicMessageId <= 0) {
+      throw new BizException("补漏消息请求参数:[topicId,lastTopicMessageId]不能为空");
+    }
   }
 
   public interface Callback {
@@ -34,7 +45,7 @@ public class FixTopicMessageListRequest extends BaseRequest {
      *
      * @param messages message list
      */
-    void onSuccess(List<?> messages);
+    void onSuccess(List<Message> messages);
 
     /**
      * Sub failed callback
@@ -43,5 +54,7 @@ public class FixTopicMessageListRequest extends BaseRequest {
      * @param message error message
      */
     void onFailed(int code, String message);
+
+    void onException(BizException e);
   }
 }
