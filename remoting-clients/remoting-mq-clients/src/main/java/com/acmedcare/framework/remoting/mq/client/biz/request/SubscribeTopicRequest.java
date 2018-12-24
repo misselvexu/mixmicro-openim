@@ -1,5 +1,6 @@
 package com.acmedcare.framework.remoting.mq.client.biz.request;
 
+import com.acmedcare.framework.remoting.mq.client.Serializables;
 import com.acmedcare.framework.remoting.mq.client.exception.BizException;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,7 +25,13 @@ public class SubscribeTopicRequest extends BaseRequest {
 
   @Override
   public void validateFields() throws BizException {
+    if (topicIds == null || topicIds.length == 0) {
+      throw new BizException("topicIds must not be null.");
+    }
 
+    if (Serializables.isAnyBlank(getPassport(), getPassportId())) {
+      throw new BizException("passport & passportId must not be null.");
+    }
   }
 
   public interface Callback {
@@ -39,5 +46,7 @@ public class SubscribeTopicRequest extends BaseRequest {
      * @param message error message
      */
     void onFailed(int code, String message);
+
+    void onException(BizException e);
   }
 }

@@ -1,5 +1,6 @@
 package com.acmedcare.framework.remoting.mq.client.biz.request;
 
+import com.acmedcare.framework.remoting.mq.client.Serializables;
 import com.acmedcare.framework.remoting.mq.client.exception.BizException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,7 +28,17 @@ public class SendTopicMessageRequest extends BaseRequest {
 
   @Override
   public void validateFields() throws BizException {
+    if (Serializables.isAnyBlank(topicTag, getPassport(), getPassportId())) {
+      throw new BizException("发送主题消息参数:[topicTag,passport,passportId]不能为空");
+    }
 
+    if (topicId == null || topicId < 0) {
+      throw new BizException("主题标识ID不能为空");
+    }
+
+    if (content == null || content.length == 0) {
+      throw new BizException("主题消息内容不能为空");
+    }
   }
 
   public interface Callback {
@@ -46,5 +57,7 @@ public class SendTopicMessageRequest extends BaseRequest {
      * @param message error message
      */
     void onFailed(int code, String message);
+
+    void onException(BizException e);
   }
 }
