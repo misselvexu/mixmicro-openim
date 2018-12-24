@@ -45,4 +45,10 @@ public class MQCommand {
     /** 填补数据协议 */
     int FIX_MESSAGE = 0x60006;
   }
+
+  public interface BroadcastCommand {
+
+    /** 队列服务器推送消息请求 */
+    int TOPIC_MESSAGE_PUSH = 0x70001;
+  }
 }
