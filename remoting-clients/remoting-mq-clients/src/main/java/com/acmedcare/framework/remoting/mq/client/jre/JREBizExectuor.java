@@ -9,6 +9,10 @@ import com.acmedcare.framework.remoting.mq.client.biz.BizCode.SamplingClient;
 import com.acmedcare.framework.remoting.mq.client.biz.BizResult;
 import com.acmedcare.framework.remoting.mq.client.biz.request.AuthHeader;
 import com.acmedcare.framework.remoting.mq.client.biz.request.AuthRequest;
+import com.acmedcare.framework.remoting.mq.client.biz.request.FixTopicMessageListRequest;
+import com.acmedcare.framework.remoting.mq.client.biz.request.PullTopicListRequest;
+import com.acmedcare.framework.remoting.mq.client.biz.request.PullTopicSubscribedMappingsRequest;
+import com.acmedcare.framework.remoting.mq.client.biz.request.SendTopicMessageRequest;
 import com.acmedcare.framework.remoting.mq.client.biz.request.SubscribeTopicRequest;
 import com.acmedcare.framework.remoting.mq.client.biz.request.SubscribeTopicRequest.Callback;
 import com.acmedcare.framework.remoting.mq.client.exception.BizException;
@@ -117,5 +121,28 @@ public class JREBizExectuor extends BizExecutor {
   }
 
   @Override
-  protected void subscribe(SubscribeTopicRequest request, Callback callback) throws BizException {}
+  public void subscribe(SubscribeTopicRequest request, Callback callback) throws BizException {}
+
+  @Override
+  public void unsubscribe(SubscribeTopicRequest request, Callback callback) throws BizException {}
+
+  @Override
+  public void sendTopicMessage(
+      SendTopicMessageRequest request, SendTopicMessageRequest.Callback callback)
+      throws BizException {}
+
+  @Override
+  public void pullTopicSubscribedMappings(
+      PullTopicSubscribedMappingsRequest request,
+      PullTopicSubscribedMappingsRequest.Callback callback)
+      throws BizException {}
+
+  @Override
+  public void pullAllTopics(PullTopicListRequest request, PullTopicListRequest.Callback callback)
+      throws BizException {}
+
+  @Override
+  public void fixTopicMessage(
+      FixTopicMessageListRequest request, FixTopicMessageListRequest.Callback callback)
+      throws BizException {}
 }
