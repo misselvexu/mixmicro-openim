@@ -4,6 +4,7 @@ import com.acmedcare.framework.aorp.client.AorpClient;
 import com.acmedcare.framework.kits.thread.DefaultThreadFactory;
 import com.acmedcare.framework.kits.thread.ThreadKit;
 import com.acmedcare.framework.newim.Message;
+import com.acmedcare.framework.newim.Message.MQMessage;
 import com.acmedcare.framework.newim.Message.MessageType;
 import com.acmedcare.framework.newim.SessionBean;
 import com.acmedcare.framework.newim.server.IdService;
@@ -165,6 +166,11 @@ public class MQServer implements Server {
     public void processMasterForwardMessage(
         String namespace, MessageType messageType, Message message) {
       logger.info("Rvd Master Message : {} , {} ,{}", namespace, messageType, message.toString());
+      if (message instanceof MQMessage) {
+        MQMessage mqMessage = (MQMessage) message;
+        logger.info(">>>> Master forward mq message to subscribe topic's client(s)");
+        mqService.broadcastTopicMessages(context, mqMessage);
+      }
     }
 
     @Override

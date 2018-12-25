@@ -429,6 +429,7 @@ public class MQProcessor implements NettyRequestProcessor {
     mqMessage.setInnerType(InnerType.NORMAL);
     mqMessage.setSender(header.getPassportId());
     mqMessage.setMid(idService.nextId());
+    mqMessage.setPersistent(false);
 
     this.mqService.broadcastTopicMessages(context, mqMessage);
 

@@ -4,20 +4,25 @@ import com.acmedcare.framework.boot.snowflake.Snowflake;
 import com.acmedcare.framework.newim.Message.MQMessage;
 import com.acmedcare.framework.newim.Topic;
 import com.acmedcare.framework.newim.Topic.TopicSubscribe;
+import com.acmedcare.framework.newim.server.master.connector.MasterConnector;
 import com.acmedcare.framework.newim.server.mq.MQContext;
 import com.acmedcare.framework.newim.server.mq.exception.MQServiceException;
 import com.acmedcare.framework.newim.server.mq.processor.body.TopicSubscribeMapping;
 import com.acmedcare.framework.newim.server.mq.processor.body.TopicSubscribeMapping.TopicMapping;
 import com.acmedcare.framework.newim.storage.api.TopicRepository;
 import com.alibaba.fastjson.JSON;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * MQService Implement
@@ -32,9 +37,14 @@ public class MQService {
   private final TopicRepository topicRepository;
   private final Snowflake snowflake;
 
+  @Autowired private MasterConnector masterConnector;
+  private Cache<Long, MQMessage> cache;
+
   public MQService(TopicRepository topicRepository, Snowflake snowflake) {
     this.topicRepository = topicRepository;
     this.snowflake = snowflake;
+    cache =
+        CacheBuilder.newBuilder().maximumSize(1024).expireAfterWrite(30, TimeUnit.SECONDS).build();
   }
 
   /**
@@ -124,11 +134,23 @@ public class MQService {
     List<TopicSubscribe> subscribes =
         this.topicRepository.queryTopicSubscribes(mqMessage.getNamespace(), topicId);
 
-    // TODO save cache
+    try {
+      // TODO save cache
+      cache.put(mqMessage.getMid(), mqMessage);
+    } catch (Exception ignore) {
+      logger.warn("[ignore] flush to cache failed.");
+    }
 
     // broadcast
     if (subscribes != null && !subscribes.isEmpty()) {
+      logger.info("分发主题[{}]订阅消息到订阅客户端", mqMessage.getTopicId());
       context.broadcastTopicMessages(subscribes, mqMessage);
+    }
+
+    // -> master
+    if (masterConnector != null) {
+      logger.info("转发主题消息到Master服务器");
+      masterConnector.broadcastMessage(mqMessage);
     }
   }
 
