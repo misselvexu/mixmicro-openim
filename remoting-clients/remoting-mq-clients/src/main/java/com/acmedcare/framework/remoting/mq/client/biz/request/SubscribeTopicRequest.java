@@ -3,6 +3,7 @@ package com.acmedcare.framework.remoting.mq.client.biz.request;
 import com.acmedcare.framework.remoting.mq.client.Serializables;
 import com.acmedcare.framework.remoting.mq.client.exception.BizException;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -13,6 +14,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@NoArgsConstructor
 public class SubscribeTopicRequest extends BaseRequest {
 
   /** 定于的主题标识 */
