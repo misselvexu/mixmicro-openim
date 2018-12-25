@@ -1,6 +1,5 @@
 package com.acmedcare.framework.newim.server.mq.processor.header;
 
-import com.acmedcare.framework.newim.InstanceType;
 import com.acmedcare.tiffany.framework.remoting.CommandCustomHeader;
 import com.acmedcare.tiffany.framework.remoting.annotation.CFNotNull;
 import com.acmedcare.tiffany.framework.remoting.exception.RemotingCommandException;
@@ -18,7 +17,7 @@ import lombok.Setter;
 public class MonitorClientTopicSubscribeHeader implements CommandCustomHeader {
 
   /** Namespace */
-  private String namespace = InstanceType.MQ_SERVER.name();
+  @CFNotNull private String namespace = "MQ-DEFAULT";
   // account fields
   @CFNotNull private String passport;
   @CFNotNull private Long passportId;

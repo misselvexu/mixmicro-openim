@@ -1,5 +1,6 @@
 package com.acmedcare.framework.remoting.mq.client.biz.request;
 
+import com.acmedcare.tiffany.framework.remoting.android.core.CFNotNull;
 import com.acmedcare.tiffany.framework.remoting.android.core.exception.RemotingCommandException;
 import com.acmedcare.tiffany.framework.remoting.android.core.protocol.CommandCustomHeader;
 import lombok.Getter;
@@ -17,6 +18,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class SendTopicMessageHeader implements CommandCustomHeader {
 
+  @CFNotNull private String namespace = "MQ-DEFAULT";
+
   private String passport;
 
   private String passportId;
@@ -28,7 +31,7 @@ public class SendTopicMessageHeader implements CommandCustomHeader {
   private String topicTag;
 
   /** Topic Message Content */
-  //private byte[] content;
+  // private byte[] content;
 
   @Override
   public void checkFields() throws RemotingCommandException {}

@@ -24,7 +24,7 @@ public class SendTopicMessageRequest extends BaseRequest {
   private String topicTag;
 
   /** Topic Message Content */
-  //private byte[] content;
+  private byte[] content;
 
   @Override
   public void validateFields() throws BizException {
@@ -36,9 +36,9 @@ public class SendTopicMessageRequest extends BaseRequest {
       throw new BizException("主题标识ID不能为空");
     }
 
-//    if (content == null || content.length == 0) {
-//      throw new BizException("主题消息内容不能为空");
-//    }
+    if (content == null || content.length == 0) {
+      throw new BizException("主题消息内容不能为空");
+    }
   }
 
   public interface Callback {

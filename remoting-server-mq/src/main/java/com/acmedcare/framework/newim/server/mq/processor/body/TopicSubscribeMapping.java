@@ -1,6 +1,7 @@
 package com.acmedcare.framework.newim.server.mq.processor.body;
 
 import com.acmedcare.framework.newim.Topic;
+import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.List;
 import lombok.Getter;
@@ -29,6 +30,6 @@ public class TopicSubscribeMapping implements Serializable {
     private static final long serialVersionUID = 6574460621468394583L;
 
     /** subscribe passport ids */
-    private List<String> subscribeIdsList;
+    private List<String> subscribeIdsList = Lists.newArrayList();
   }
 }

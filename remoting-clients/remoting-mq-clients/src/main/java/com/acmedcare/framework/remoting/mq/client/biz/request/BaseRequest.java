@@ -16,6 +16,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public abstract class BaseRequest {
 
+  private String namespace = "MQ-DEFAULT";
+
   private String passport;
 
   private String passportId;

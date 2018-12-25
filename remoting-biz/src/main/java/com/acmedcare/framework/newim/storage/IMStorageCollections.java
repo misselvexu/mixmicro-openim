@@ -20,6 +20,9 @@ public interface IMStorageCollections {
   /** 主题 */
   String TOPIC = "mq_topic";
 
+  /** 主题订阅 */
+  String TOPIC_SUBSCRIBE = "mq_topic_subscribe";
+
   /** 群组成员管理 */
   String REF_GROUP_MEMBER = "im_refs_group_member";
 

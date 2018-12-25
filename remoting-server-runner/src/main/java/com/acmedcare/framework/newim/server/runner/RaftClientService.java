@@ -7,6 +7,9 @@ import io.atomix.variables.DistributedLong;
 import io.atomix.variables.DistributedValue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
@@ -16,6 +19,8 @@ import org.springframework.stereotype.Component;
  * @version ${project.version} - 2018-12-19.
  */
 @Component
+@ConditionalOnClass({Snowflake.class, AtomixClient.class})
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class RaftClientService implements IdService {
 
   private static final String UNIFORM_MESSAGE_ID_KEY = "mq_message_id_key";

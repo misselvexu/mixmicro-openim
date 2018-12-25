@@ -3,12 +3,21 @@ package com.acmedcare.framework.newim.server.mq.service;
 import com.acmedcare.framework.boot.snowflake.Snowflake;
 import com.acmedcare.framework.newim.Message.MQMessage;
 import com.acmedcare.framework.newim.Topic;
+import com.acmedcare.framework.newim.Topic.TopicSubscribe;
+import com.acmedcare.framework.newim.server.mq.MQContext;
+import com.acmedcare.framework.newim.server.mq.exception.MQServiceException;
 import com.acmedcare.framework.newim.server.mq.processor.body.TopicSubscribeMapping;
+import com.acmedcare.framework.newim.server.mq.processor.body.TopicSubscribeMapping.TopicMapping;
 import com.acmedcare.framework.newim.storage.api.TopicRepository;
+import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 
 /**
  * MQService Implement
@@ -35,7 +44,7 @@ public class MQService {
    */
   public Long[] createNewTopic(Topic... topics) {
 
-    logger.info("request to create topics: {}", Arrays.toString(topics));
+    logger.info("创建主题: {}", Arrays.toString(topics));
     for (Topic topic : topics) {
       topic.setTopicId(snowflake.nextId());
     }
@@ -50,24 +59,81 @@ public class MQService {
     return result;
   }
 
-  public List<Topic> pullTopicsList() {
-    return null;
+  public List<Topic> pullTopicsList(String namespace) {
+    return this.topicRepository.queryTopics(namespace);
   }
 
-  public void subscribeTopics(String passportId, String passport, String[] topicIds) {}
+  public void subscribeTopics(
+      String namespace, String passportId, String passport, String[] topicIds) {
 
-  public void ubSubscribeTopics(String passportId, String passport, String[] topicIds) {}
+    logger.info("请求订阅主题:{},{},{}", namespace, passportId, Arrays.toString(topicIds));
+    List<TopicSubscribe> subscribes = Lists.newArrayList();
+    if (ArrayUtils.isNotEmpty(topicIds)) {
+      for (String topicId : topicIds) {
+        subscribes.add(
+            TopicSubscribe.builder()
+                .namespace(namespace)
+                .passportId(Long.parseLong(passportId))
+                .topicId(Long.parseLong(topicId))
+                .build());
+      }
 
-  public List<TopicSubscribeMapping> pullTopicSubscribedMapping(
-      String passportId, String passport) {
-    return null;
+      this.topicRepository.saveSubscribes(subscribes.toArray(new Topic.TopicSubscribe[0]));
+    }
   }
 
-  public void broadcastTopicMessages(MQMessage mqMessage) {
-
+  public void unSubscribeTopics(
+      String namespace, String passportId, String passport, String[] topicIds) {
+    this.topicRepository.removeSubscribes(namespace, passportId, topicIds);
   }
 
-  public List<MQMessage> queryMessageList(Long lastTopicMessageId, int limit, Long topicId) {
+  public TopicSubscribeMapping pullTopicSubscribedMapping(
+      String namespace, Long topicId, String passportId, String passport) {
+
+    logger.info("查询主题订阅明细:{},{},{}", namespace, topicId);
+    Topic topic = this.topicRepository.queryTopicDetail(namespace, topicId);
+
+    if (topic == null) {
+      throw new MQServiceException("无效的主题编号:" + topicId + " ,命名空间:" + namespace);
+    }
+
+    List<TopicSubscribe> subscribes = this.topicRepository.queryTopicSubscribes(namespace, topicId);
+
+    TopicSubscribeMapping mapping = new TopicSubscribeMapping();
+    if (subscribes != null && !subscribes.isEmpty()) {
+      List<TopicMapping> mappings = new ArrayList<>();
+      TopicMapping topicMapping = new TopicMapping();
+      BeanUtils.copyProperties(topic, topicMapping);
+      for (TopicSubscribe subscribe : subscribes) {
+        topicMapping.getSubscribeIdsList().add(subscribe.getPassportId().toString());
+      }
+      mappings.add(topicMapping);
+      mapping.setMappings(mappings);
+    }
+
+    logger.info("订阅明细:{}", JSON.toJSONString(mapping));
+
+    return mapping;
+  }
+
+  public void broadcastTopicMessages(MQContext context, MQMessage mqMessage) {
+
+    logger.info("广播主题消息:{}", mqMessage.toString());
+    Long topicId = mqMessage.getTopicId();
+
+    List<TopicSubscribe> subscribes =
+        this.topicRepository.queryTopicSubscribes(mqMessage.getNamespace(), topicId);
+
+    // TODO save cache
+
+    // broadcast
+    if (subscribes != null && !subscribes.isEmpty()) {
+      context.broadcastTopicMessages(subscribes, mqMessage);
+    }
+  }
+
+  public List<MQMessage> queryMessageList(
+      String namespace, Long lastTopicMessageId, int limit, Long topicId) {
     return null;
   }
 }

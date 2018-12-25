@@ -1,7 +1,9 @@
 package com.acmedcare.framework.newim.storage.mongo;
 
 import com.acmedcare.framework.newim.Topic;
+import com.acmedcare.framework.newim.Topic.TopicSubscribe;
 import com.acmedcare.framework.newim.storage.api.TopicRepository;
+import java.util.List;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -25,4 +27,15 @@ public class TopicRepositoryImpl implements TopicRepository {
   public void save(Topic[] topics) {
     // todo
   }
+
+  @Override
+  public List<Topic> queryTopics(String namespace) {
+    return null;
+  }
+
+  @Override
+  public void saveSubscribes(TopicSubscribe... subscribes) {}
+
+  @Override
+  public void removeSubscribes(String namespace, String passportId, String[] topicIds) {}
 }

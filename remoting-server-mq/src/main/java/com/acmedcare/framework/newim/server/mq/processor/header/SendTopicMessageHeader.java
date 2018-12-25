@@ -18,6 +18,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class SendTopicMessageHeader implements CommandCustomHeader {
 
+  @CFNotNull private String namespace = "MQ-DEFAULT";
+
   @CFNotNull private String passport;
 
   @CFNotNull private String passportId;

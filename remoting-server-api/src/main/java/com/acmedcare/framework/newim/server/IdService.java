@@ -14,5 +14,5 @@ public interface IdService {
    * @return next unique id
    * @throws Exception exception
    */
-  public long nextId() throws Exception;
+  long nextId() throws Exception;
 }

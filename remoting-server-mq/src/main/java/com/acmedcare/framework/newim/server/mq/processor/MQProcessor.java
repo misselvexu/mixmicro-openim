@@ -236,7 +236,7 @@ public class MQProcessor implements NettyRequestProcessor {
     Assert.notNull(header, "Request header must not be null.");
 
     this.mqService.subscribeTopics(
-        header.getPassportId(), header.getPassport(), header.getTopicIds());
+        header.getNamespace(), header.getPassportId(), header.getPassport(), header.getTopicIds());
 
     // return success
     response.setBody(BizResult.builder().code(0).build().bytes());
@@ -259,8 +259,8 @@ public class MQProcessor implements NettyRequestProcessor {
 
     Assert.notNull(header, "Request header must not be null.");
 
-    this.mqService.ubSubscribeTopics(
-        header.getPassportId(), header.getPassport(), header.getTopicIds());
+    this.mqService.unSubscribeTopics(
+        header.getNamespace(), header.getPassportId(), header.getPassport(), header.getTopicIds());
 
     // return success
     response.setBody(BizResult.builder().code(0).build().bytes());
@@ -285,7 +285,10 @@ public class MQProcessor implements NettyRequestProcessor {
 
     List<MQMessage> messages =
         this.mqService.queryMessageList(
-            header.getLastTopicMessageId(), header.getLimit(), header.getTopicId());
+            header.getNamespace(),
+            header.getLastTopicMessageId(),
+            header.getLimit(),
+            header.getTopicId());
 
     // return success
     response.setBody(BizResult.builder().code(0).data(messages).build().bytes());
@@ -362,8 +365,12 @@ public class MQProcessor implements NettyRequestProcessor {
 
     Assert.notNull(header, "Request header must not be null.");
 
-    List<TopicSubscribeMapping> result =
-        this.mqService.pullTopicSubscribedMapping(header.getPassportId(), header.getPassport());
+    TopicSubscribeMapping result =
+        this.mqService.pullTopicSubscribedMapping(
+            header.getNamespace(),
+            Long.parseLong(header.getTopicId()),
+            header.getPassportId(),
+            header.getPassport());
 
     // return success
     response.setBody(BizResult.builder().code(0).data(result).build().bytes());
@@ -390,6 +397,7 @@ public class MQProcessor implements NettyRequestProcessor {
     topic.setTopicName(header.getTopicName());
     topic.setTopicExt(header.getTopicExt());
     topic.setTopicDesc(header.getTopicDesc());
+    topic.setNamespace(header.getNamespace());
 
     Long[] ids = this.mqService.createNewTopic(topic);
 
@@ -422,7 +430,7 @@ public class MQProcessor implements NettyRequestProcessor {
     mqMessage.setSender(header.getPassportId());
     mqMessage.setMid(idService.nextId());
 
-    this.mqService.broadcastTopicMessages(mqMessage);
+    this.mqService.broadcastTopicMessages(context, mqMessage);
 
     // return success
     response.setBody(BizResult.builder().code(0).data(mqMessage.getMid()).build().bytes());
@@ -443,7 +451,7 @@ public class MQProcessor implements NettyRequestProcessor {
 
     Assert.notNull(header, "Request header must not be null.");
 
-    List<Topic> topics = this.mqService.pullTopicsList();
+    List<Topic> topics = this.mqService.pullTopicsList(header.getNamespace());
 
     // return success
     response.setBody(BizResult.builder().code(0).data(topics).build().bytes());

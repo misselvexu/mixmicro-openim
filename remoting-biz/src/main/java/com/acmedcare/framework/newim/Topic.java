@@ -3,9 +3,11 @@ package com.acmedcare.framework.newim;
 import com.acmedcare.framework.newim.storage.IMStorageCollections;
 import java.io.Serializable;
 import java.util.Objects;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -38,6 +40,9 @@ public class Topic implements Serializable {
   /** 主题扩展信息 */
   private String topicExt;
 
+  /** 命名空间 */
+  private String namespace = "MQ-DEFAULT";
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -65,5 +70,26 @@ public class Topic implements Serializable {
     sb.append(", topicExt='").append(topicExt).append('\'');
     sb.append('}');
     return sb.toString();
+  }
+
+  @Getter
+  @Setter
+  @NoArgsConstructor
+  @Document(value = IMStorageCollections.TOPIC_SUBSCRIBE)
+  @CompoundIndex(
+      unique = true,
+      name = "topicId_passport_id_and_namespace_index",
+      def = "{'topicId': 1, 'passportId': -1, 'namespace': 1}")
+  public static class TopicSubscribe implements Serializable {
+    private String namespace;
+    private Long topicId;
+    private Long passportId;
+
+    @Builder
+    public TopicSubscribe(String namespace, Long topicId, Long passportId) {
+      this.namespace = namespace;
+      this.topicId = topicId;
+      this.passportId = passportId;
+    }
   }
 }

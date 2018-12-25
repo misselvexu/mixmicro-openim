@@ -169,7 +169,7 @@ public class MQServer implements Server {
 
     @Override
     public void onClusterReplicas(Set<String> clusterReplicas) {
-      logger.info("Rvd CLuster Replicas Data : {}", clusterReplicas);
+      logger.info("Rvd Cluster Replicas Data : {}", clusterReplicas);
     }
 
     @Override

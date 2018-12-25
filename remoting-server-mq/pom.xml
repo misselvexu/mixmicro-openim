@@ -44,6 +44,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.acmedcare.framework.kits</groupId>
+            <artifactId>executor-kit</artifactId>
+            <version>Antarctica.RC2</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.acmedcare.microservices.im</groupId>
             <artifactId>remoting-spi</artifactId>
         </dependency>

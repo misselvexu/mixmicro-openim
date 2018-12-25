@@ -1,6 +1,5 @@
 package com.acmedcare.framework.remoting.mq.client.biz.request;
 
-import com.acmedcare.framework.remoting.mq.client.Constants;
 import com.acmedcare.tiffany.framework.remoting.android.core.CFNotNull;
 import com.acmedcare.tiffany.framework.remoting.android.core.exception.RemotingCommandException;
 import com.acmedcare.tiffany.framework.remoting.android.core.protocol.CommandCustomHeader;
@@ -19,7 +18,7 @@ public class AuthHeader implements CommandCustomHeader {
 
   private static final long serialVersionUID = 8394184386412740132L;
 
-  @CFNotNull private String namespace = Constants.DEFAULT_NAMESPACE;
+  @CFNotNull private String namespace = "MQ-DEFAULT";
 
   @CFNotNull private String passport;
 

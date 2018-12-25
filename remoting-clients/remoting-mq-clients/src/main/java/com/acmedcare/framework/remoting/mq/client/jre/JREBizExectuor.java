@@ -63,6 +63,8 @@ public class JREBizExectuor extends BizExecutor {
     AuthHeader authHeader = new AuthHeader();
     authHeader.setNamespace(
         request.getNamespace() != null ? request.getNamespace() : Constants.DEFAULT_NAMESPACE);
+
+    authHeader.setNamespace(request.getNamespace());
     authHeader.setPassport(request.getUsername());
     authHeader.setAccessToken(request.getAccessToken());
     authHeader.setAreaNo(request.getAreaNo());
@@ -145,6 +147,7 @@ public class JREBizExectuor extends BizExecutor {
     request.validateFields();
 
     SubscribeTopicOperateHeader header = new SubscribeTopicOperateHeader();
+    header.setNamespace(request.getNamespace());
     header.setPassport(request.getPassport());
     header.setPassportId(request.getPassportId());
     header.setOperateType(OperateType.SUBSCRIBE.name());
@@ -216,6 +219,7 @@ public class JREBizExectuor extends BizExecutor {
     request.validateFields();
 
     SubscribeTopicOperateHeader header = new SubscribeTopicOperateHeader();
+    header.setNamespace(request.getNamespace());
     header.setPassport(request.getPassport());
     header.setPassportId(request.getPassportId());
     header.setOperateType(OperateType.UB_SUBSCRIBE.name());
@@ -288,9 +292,9 @@ public class JREBizExectuor extends BizExecutor {
     request.validateFields();
 
     SendTopicMessageHeader header = new SendTopicMessageHeader();
+    header.setNamespace(request.getNamespace());
     header.setPassport(request.getPassport());
     header.setPassportId(request.getPassportId());
-    //header.setContent(request.getContent());
     header.setTopicId(request.getTopicId());
     header.setTopicTag(request.getTopicTag());
 
@@ -365,8 +369,10 @@ public class JREBizExectuor extends BizExecutor {
     request.validateFields();
 
     PullTopicSubscribedMappingsHeader header = new PullTopicSubscribedMappingsHeader();
+    header.setNamespace(request.getNamespace());
     header.setPassport(request.getPassport());
     header.setPassportId(request.getPassportId());
+    header.setTopicId(request.getTopicId());
 
     AcmedcareLogger.i(this.getClass().getSimpleName(), "拉取主题订阅关系请求头:" + JSON.toJSONString(header));
     RemotingCommand command =
@@ -396,14 +402,12 @@ public class JREBizExectuor extends BizExecutor {
 
                         Object o = bizResult.getData();
 
-                        List<TopicSubscribeMapping> mappings =
-                            JSON.parseObject(
-                                JSON.toJSONString(o),
-                                new TypeReference<List<TopicSubscribeMapping>>() {});
+                        TopicSubscribeMapping mapping =
+                            JSON.parseObject(JSON.toJSONString(o), TopicSubscribeMapping.class);
 
                         // callback
                         if (callback != null) {
-                          callback.onSuccess(mappings);
+                          callback.onSuccess(mapping.getMappings());
                         }
                       } else {
                         if (callback != null) {
@@ -443,6 +447,7 @@ public class JREBizExectuor extends BizExecutor {
     request.validateFields();
 
     PullTopicListHeader header = new PullTopicListHeader();
+    header.setNamespace(request.getNamespace());
     header.setPassport(request.getPassport());
     header.setPassportId(request.getPassportId());
 
@@ -521,6 +526,7 @@ public class JREBizExectuor extends BizExecutor {
     request.validateFields();
 
     NewTopicHeader header = new NewTopicHeader();
+    header.setNamespace(request.getNamespace());
     header.setPassportId(request.getPassportId());
     header.setPassport(request.getPassport());
     header.setTopicName(request.getTopicName());
@@ -599,6 +605,7 @@ public class JREBizExectuor extends BizExecutor {
     request.validateFields();
 
     FixTopicMessageListHeader header = new FixTopicMessageListHeader();
+    header.setNamespace(request.getNamespace());
     header.setPassportId(request.getPassportId());
     header.setPassport(request.getPassport());
     header.setLastTopicMessageId(request.getLastTopicMessageId());

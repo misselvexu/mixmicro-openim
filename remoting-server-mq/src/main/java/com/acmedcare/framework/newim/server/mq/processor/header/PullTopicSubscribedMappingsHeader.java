@@ -18,9 +18,13 @@ import lombok.Setter;
 @NoArgsConstructor
 public class PullTopicSubscribedMappingsHeader implements CommandCustomHeader {
 
+  @CFNotNull private String namespace = "MQ-DEFAULT";
+
   @CFNotNull private String passport;
 
   @CFNotNull private String passportId;
+
+  @CFNotNull private String topicId;
 
   @Override
   public void checkFields() throws RemotingCommandException {}

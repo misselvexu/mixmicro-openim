@@ -168,7 +168,7 @@ public class Message implements Serializable {
   @Setter
   @NoArgsConstructor
   @AllArgsConstructor
-  public static class MQMessage extends QosMessage {
+  public static class MQMessage extends Message {
 
     private static final long serialVersionUID = -4709282162851905984L;
 

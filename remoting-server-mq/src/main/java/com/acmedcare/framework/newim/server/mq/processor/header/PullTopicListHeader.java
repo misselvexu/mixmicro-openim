@@ -16,6 +16,8 @@ import lombok.Setter;
 @Setter
 public class PullTopicListHeader implements CommandCustomHeader {
 
+  @CFNotNull private String namespace = "MQ-DEFAULT";
+
   @CFNotNull private String passport;
 
   @CFNotNull private String passportId;

@@ -6,6 +6,7 @@ import android.content.Context;
 import com.acmedcare.framework.remoting.mq.client.ServerAddressHandler.RemotingAddress;
 import com.acmedcare.framework.remoting.mq.client.biz.BizCode.MonitorClient;
 import com.acmedcare.framework.remoting.mq.client.biz.BizCode.SamplingClient;
+import com.acmedcare.framework.remoting.mq.client.biz.bean.Message;
 import com.acmedcare.framework.remoting.mq.client.biz.request.AuthRequest;
 import com.acmedcare.framework.remoting.mq.client.events.AcmedcareEvent;
 import com.acmedcare.framework.remoting.mq.client.events.BasicListenerHandler;
@@ -87,7 +88,18 @@ public final class AcmedcareMQRemoting implements Serializable {
 
   @Getter @Setter private String currentRemotingAddress;
   private RemotingConnectListener listener;
-  @Getter private TopicMessageListener topicMessageListener;
+
+  @Getter
+  private TopicMessageListener topicMessageListener =
+      new TopicMessageListener() {
+        @Override
+        public ConsumeResult onMessages(List<Message> messages) {
+          AcmedcareLogger.i(
+              null, "[DEFAULT-LISTENER] Consume message: " + JSON.toJSONString(messages));
+          return ConsumeResult.CONSUMED;
+        }
+      };
+
   @Deprecated private IoSession remotingSession;
 
   private AcmedcareMQRemoting() {
