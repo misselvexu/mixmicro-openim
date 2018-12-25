@@ -9,6 +9,7 @@ import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
 import com.acmedcare.framework.newim.InstanceNode;
 import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.Message.GroupMessage;
+import com.acmedcare.framework.newim.Message.MQMessage;
 import com.acmedcare.framework.newim.Message.SingleMessage;
 import com.acmedcare.framework.newim.client.MessageAttribute;
 import com.acmedcare.framework.newim.master.core.MasterSession.MasterClusterSession;
@@ -89,6 +90,12 @@ public class ClusterForwardMessageRequestProcessor implements NettyRequestProces
                   .retryPeriod(groupMessage.getRetryPeriod())
                   .build();
           masterClusterSession.distributeMessage(attribute, groupMessage, instanceNode.getHost());
+          break;
+
+        case MQ:
+          MQMessage mqMessage = JSON.parseObject(message, MQMessage.class);
+          attribute = MessageAttribute.builder().persistent(false).build();
+          masterClusterSession.distributeMessage(attribute, mqMessage, instanceNode.getHost());
           break;
       }
 
