@@ -4,6 +4,7 @@ import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
 import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.Message.GroupMessage;
+import com.acmedcare.framework.newim.Message.MQMessage;
 import com.acmedcare.framework.newim.Message.MessageType;
 import com.acmedcare.framework.newim.Message.SingleMessage;
 import com.acmedcare.framework.newim.protocol.request.MasterPushMessageHeader;
@@ -60,6 +61,10 @@ public class MasterPushMessageRequestProcessor implements NettyRequestProcessor 
         case SINGLE:
           SingleMessage singleMessage = JSON.parseObject(message, SingleMessage.class);
           this.context.onMasterMessage(header.getNamespace(), messageType, singleMessage);
+          break;
+        case MQ:
+          MQMessage mqMessage = JSON.parseObject(message, MQMessage.class);
+          this.context.onMasterMessage(header.getNamespace(), messageType, mqMessage);
           break;
       }
 

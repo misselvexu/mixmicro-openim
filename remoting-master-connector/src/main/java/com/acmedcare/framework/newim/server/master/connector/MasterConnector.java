@@ -3,9 +3,14 @@ package com.acmedcare.framework.newim.server.master.connector;
 import com.acmedcare.framework.kits.event.Event;
 import com.acmedcare.framework.kits.event.EventBus;
 import com.acmedcare.framework.kits.executor.AsyncRuntimeExecutor;
+import com.acmedcare.framework.kits.executor.RetriableThreadExecutor;
+import com.acmedcare.framework.kits.executor.RetriableThreadExecutor.ExecutorCallback;
+import com.acmedcare.framework.kits.executor.RetriableThreadExecutor.RetriableAttribute;
 import com.acmedcare.framework.kits.thread.ThreadKit;
 import com.acmedcare.framework.newim.BizResult;
+import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand;
+import com.acmedcare.framework.newim.protocol.request.ClusterForwardMessageHeader;
 import com.acmedcare.framework.newim.protocol.request.ClusterPushSessionDataBody;
 import com.acmedcare.framework.newim.protocol.request.ClusterPushSessionDataHeader;
 import com.acmedcare.framework.newim.server.master.connector.event.PullClusterEvent;
@@ -191,6 +196,55 @@ public final class MasterConnector {
       } else {
         logger.warn("not config master server node(s) address.");
       }
+    }
+  }
+
+  /**
+   * Broadcast connector message
+   *
+   * @param message instance of {@link Message}
+   */
+  public void broadcastMessage(Message message) {
+    for (MasterInstance masterInstance : masterInstances) {
+      RetriableThreadExecutor<Boolean> executor =
+          new RetriableThreadExecutor<>(
+              "BROADCAST-MQ-MESSAGE",
+              () -> {
+                ClusterForwardMessageHeader header = new ClusterForwardMessageHeader();
+                header.setNamespace(message.getNamespace());
+                RemotingCommand remotingCommand =
+                    RemotingCommand.createRequestCommand(
+                        MasterClusterCommand.CLUSTER_FORWARD_MESSAGES, header);
+                if (masterInstance.isConnected()) {
+                  RemotingCommand response =
+                      masterInstance
+                          .getClient()
+                          .invokeSync(
+                              masterInstance.serverAddress(),
+                              remotingCommand,
+                              masterConnectorProperties.getConnectorRequestTimeout());
+                  if (response != null && response.getBody() != null) {
+                    BizResult result = BizResult.fromBytes(response.getBody(), BizResult.class);
+                    return result.getCode() == 0;
+                  }
+                }
+                return false;
+              },
+              new RetriableAttribute(2, 1, TimeUnit.SECONDS),
+              new ExecutorCallback<Boolean>() {
+                @Override
+                public void onCompleted(Boolean result) {
+                  logger.info("Broadcast mq -> Master completed.");
+                }
+
+                @Override
+                public void onFailed(String message) {
+                  logger.warn("Broadcast -> Master failed ,{}", message);
+                }
+              });
+
+      // execute
+      executor.execute();
     }
   }
 

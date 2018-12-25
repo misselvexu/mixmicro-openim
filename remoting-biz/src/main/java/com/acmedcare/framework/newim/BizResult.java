@@ -66,7 +66,7 @@ public class BizResult<T> implements Serializable {
    * @param <O> Class
    * @return Object
    */
-  public <O> O fromJSON(String json, Class<O> clazz) {
+  public static <O> O fromJSON(String json, Class<O> clazz) {
     if (json == null || json.trim().length() <= 0 || clazz == null) {
       return null;
     }
@@ -81,7 +81,7 @@ public class BizResult<T> implements Serializable {
    * @param <O> Class
    * @return Object
    */
-  public <O> O fromBytes(byte[] bytes, Class<O> clazz) {
+  public static <O> O fromBytes(byte[] bytes, Class<O> clazz) {
     if (bytes == null || bytes.length <= 0 || clazz == null) {
       return null;
     }
