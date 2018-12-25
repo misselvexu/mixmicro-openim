@@ -10,6 +10,7 @@ import com.acmedcare.framework.newim.storage.api.TopicRepository;
 import com.google.common.collect.Lists;
 import com.mongodb.client.result.DeleteResult;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,9 +38,10 @@ public class TopicRepositoryImpl implements TopicRepository {
 
   @Override
   public void save(Topic[] topics) {
-    Topic[] result = this.mongoTemplate.insert(topics, IMStorageCollections.TOPIC);
-    if (result != null && result.length > 0) {
-      logger.info("主题存储成功,{}", result.length);
+    List<Topic> list = Lists.newArrayList(topics);
+    Collection<Topic> result = this.mongoTemplate.insert(list, IMStorageCollections.TOPIC);
+    if (result != null && !result.isEmpty()) {
+      logger.info("主题存储成功,{}", result.size());
     }
   }
 
@@ -51,7 +53,8 @@ public class TopicRepositoryImpl implements TopicRepository {
 
   @Override
   public void saveSubscribes(TopicSubscribe... subscribes) {
-    this.mongoTemplate.insert(subscribes, TOPIC_SUBSCRIBE);
+    List<TopicSubscribe> list = Lists.newArrayList(subscribes);
+    this.mongoTemplate.insert(list, TOPIC_SUBSCRIBE);
   }
 
   @Override

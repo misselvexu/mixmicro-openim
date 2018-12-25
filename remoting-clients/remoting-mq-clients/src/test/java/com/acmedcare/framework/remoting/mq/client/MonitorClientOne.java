@@ -55,13 +55,13 @@ public class MonitorClientOne extends BaseClient {
             .passportId(KnownParams.passportId)
             .deviceId(KnownParams.deviceId)
             .heartbeatPeriod(10)
-            .clientType(ClientType.SAMPLING)
+            .clientType(ClientType.MONITOR)
             .serverAddressHandler(
                 new ServerAddressHandler() {
                   @Override
                   public List<RemotingAddress> remotingAddressList() {
                     return Lists.newArrayList(
-                        new RemotingAddress(false, "127.0.0.1", 13110, false));
+                        new RemotingAddress(false, "127.0.0.1", 13310, false));
                   }
                 })
             .build();
@@ -191,7 +191,7 @@ public class MonitorClientOne extends BaseClient {
   private interface KnownParams {
 
     String accessToken =
-        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiIyMDc5M2RlOTkxMWY0ODFkOTJkMGZlNWJhOTQ2MWU2YSIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NDUwNTQzMDg0MTMsImV4cCI6MTU0NTY2NzYwOTM4NiwiYXVkIjpudWxsfQ.IETXX6VcfccRU29rtoutQs9XKn1HjOQ0fI7ohqjeA1Bg3Um0AMD_j6RYjs8g-YM2FzCeVfLcL6WiLtINQpFmGF81KpK7-ugWe0GMuPXOwEHWhXtkUJF8ZdhuSVLkUNxk9jaoy04cmYUws2poH1j77K1CpEmLQUpZQ3nAWdtCmRHmBg5uSha5HZj2pcDOlIDGHC-K-ziDVGup5QOhS7jiCU7SYZu346jXYBaDfzrMNgUvYOukGkijM1PGoc1npWOc_GyTlAHyAgTET3ay3lsK5VatpyxiXJvKZllrGPEKrHUnf7QSJwdzw0LS5nddBeHTelIoC8mWQZ8adgiqW25_Aw";
+        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiI2MGU2NGQ0YzVhNzY0M2M0OGI5YTdhODUwYTNhOGVkYyIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlIcXc5TDdUU0gwVmlLTWNXNUp3RVd0ZXc5Rk12SVFZcGZDMG5CUUhOamVucmMyYndheHNwMk93NXVkSGM1ZllTcGd0a2FxRkV6U29Uck41S0kyaHZKRW52L1RHV0hLeDdFdTJRNEs1V3JrZTZTMjNIaUdhWXdvQ29ua3ZuSlVjWGQxNzNwV3pFbmF0bz0iLCJpYXQiOjE1NDU3MjA0NTExMDUsImV4cCI6MTU0NjMzNTE5ODEwNSwiYXVkIjpudWxsfQ.iGMtQwD9VaHMa1UFOWFlXqSCsF8O6zoYw5ZullLVbVEFbwzP-Na1RwutseAVGtAI_Oh-6MZ1sbszdo4Hwg9HJ5GEXVC8NcrwIky5MyCNGR2rnv5uJcQsczaNyNdJd_Gp1lhLzxuiX2yTp7B9L-jCJpi0j2JFbWvGuajULX_GNOBGNRDCnaQA-I4zXIUqlfbXY4BEn-yFmi7HapuJIuj-p3frJSZiCnX-e6_aPIynUpFLvGmo7Gwt_Hzl8FSQfqug5tRF25OWP3kz-e575MKAg5jyixaYIBO2Vp5kPQNCudmgplrF6fqE-6XWr2eZq4cre9Bzd4TfHKqBbQUWHaDwDQ";
 
     String areaNo = "320500";
 

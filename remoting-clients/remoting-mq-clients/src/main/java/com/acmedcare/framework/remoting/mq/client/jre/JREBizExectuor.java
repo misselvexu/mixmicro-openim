@@ -151,11 +151,12 @@ public class JREBizExectuor extends BizExecutor {
     header.setPassport(request.getPassport());
     header.setPassportId(request.getPassportId());
     header.setOperateType(OperateType.SUBSCRIBE.name());
-    header.setTopicIds(request.getTopicIds());
 
     AcmedcareLogger.i(this.getClass().getSimpleName(), "订阅主题请求头:" + JSON.toJSONString(header));
     RemotingCommand command =
         RemotingCommand.createRequestCommand(MonitorClient.TOPIC_SUBSCRIBE, header);
+
+    command.setBody(JSON.toJSONBytes(request.getTopicIds()));
 
     try {
       AcmedcareMQRemoting.getRemotingClient()
@@ -223,11 +224,12 @@ public class JREBizExectuor extends BizExecutor {
     header.setPassport(request.getPassport());
     header.setPassportId(request.getPassportId());
     header.setOperateType(OperateType.UB_SUBSCRIBE.name());
-    header.setTopicIds(request.getTopicIds());
 
     AcmedcareLogger.i(this.getClass().getSimpleName(), "取消订阅主题请求头:" + JSON.toJSONString(header));
     RemotingCommand command =
         RemotingCommand.createRequestCommand(MonitorClient.REVOKE_TOPIC_SUBSCRIBE, header);
+
+    command.setBody(JSON.toJSONBytes(request.getTopicIds()));
 
     try {
       AcmedcareMQRemoting.getRemotingClient()

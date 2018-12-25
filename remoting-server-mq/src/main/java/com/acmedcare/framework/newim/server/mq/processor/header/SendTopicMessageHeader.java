@@ -30,9 +30,6 @@ public class SendTopicMessageHeader implements CommandCustomHeader {
   /** Topic Tag */
   @CFNotNull private String topicTag;
 
-  /** Topic Message Content */
-  private byte[] content;
-
   @Override
   public void checkFields() throws RemotingCommandException {}
 }

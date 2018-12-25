@@ -280,7 +280,7 @@ public final class AcmedcareMQRemoting implements Serializable {
           final String url =
               (address.isHttps() ? "https://" : "http://")
                   + address.toString()
-                  + "/master/available-cluster-servers";
+                  + "/master/available-cluster-servers?type=mq_server";
           AcmedcareLogger.i(TAG, "获取可用服务器请求地址: " + url);
 
           final CountDownLatch count = new CountDownLatch(1);

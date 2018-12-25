@@ -61,7 +61,7 @@ public class SamplingClient extends BaseClient {
                   @Override
                   public List<RemotingAddress> remotingAddressList() {
                     return Lists.newArrayList(
-                        new RemotingAddress(false, "127.0.0.1", 13110, false));
+                        new RemotingAddress(false, "127.0.0.1", 13310, false));
                   }
                 })
             .build();
@@ -131,6 +131,7 @@ public class SamplingClient extends BaseClient {
         // functions
         String[] inputArgs = input.split("\\s+");
 
+        // createTopic T2 T2-TAG
         if ("createTopic".equals(inputArgs[0])) {
           createTopic(
               KnownParams.passport, KnownParams.passportId.toString(), inputArgs[1], inputArgs[2]);
@@ -142,13 +143,14 @@ public class SamplingClient extends BaseClient {
           continue;
         }
 
+        // pullTopicSubscribeMappings 1074057579071744
         if ("pullTopicSubscribeMappings".equals(inputArgs[0])) {
           pullTopicSubscribeMappings(
               KnownParams.passport, KnownParams.passportId.toString(), inputArgs[1]);
           continue;
         }
 
-        // sendTopicMessage
+        // sendTopicMessage 1074057579071744 T1-TAG demo
         if ("sendTopicMessage".equals(inputArgs[0])) {
           sendTopicMessage(
               KnownParams.passport,
@@ -159,13 +161,13 @@ public class SamplingClient extends BaseClient {
           continue;
         }
 
-        // subscribeTopic
+        // subscribeTopic 1074057579071744,1074057304410368
         if ("subscribeTopic".equals(inputArgs[0])) {
           subscribeTopic(KnownParams.passport, KnownParams.passportId.toString(), inputArgs[1]);
           continue;
         }
 
-        // unSubscribeTopic
+        // unSubscribeTopic 1074057579071744,1074057304410368
         if ("unSubscribeTopic".equals(inputArgs[0])) {
           unSubscribeTopic(KnownParams.passport, KnownParams.passportId.toString(), inputArgs[1]);
           continue;
@@ -189,7 +191,7 @@ public class SamplingClient extends BaseClient {
   private interface KnownParams {
 
     String accessToken =
-        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiIyMDc5M2RlOTkxMWY0ODFkOTJkMGZlNWJhOTQ2MWU2YSIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NDUwNTQzMDg0MTMsImV4cCI6MTU0NTY2NzYwOTM4NiwiYXVkIjpudWxsfQ.IETXX6VcfccRU29rtoutQs9XKn1HjOQ0fI7ohqjeA1Bg3Um0AMD_j6RYjs8g-YM2FzCeVfLcL6WiLtINQpFmGF81KpK7-ugWe0GMuPXOwEHWhXtkUJF8ZdhuSVLkUNxk9jaoy04cmYUws2poH1j77K1CpEmLQUpZQ3nAWdtCmRHmBg5uSha5HZj2pcDOlIDGHC-K-ziDVGup5QOhS7jiCU7SYZu346jXYBaDfzrMNgUvYOukGkijM1PGoc1npWOc_GyTlAHyAgTET3ay3lsK5VatpyxiXJvKZllrGPEKrHUnf7QSJwdzw0LS5nddBeHTelIoC8mWQZ8adgiqW25_Aw";
+        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiI1NmE2ZjM0NTg1MmQ0YjVlYWRhNTE3MWFkMDgxMjNjYyIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NDU3MjA0MzIyNDEsImV4cCI6MTU0NjMzMzkxNTI0MSwiYXVkIjpudWxsfQ.PK8gtxayrtlukIi8jQGgrvVdfGK5_NqW4mKjuU0rOI6UjmaBiGaIVsanYYjFQHGEIhPSvcgJUsJyKnmdRsuwlacKih0YdII4L9s9dJAmzvY6zly7Z70HCEup72S_G-Su02HpX_MlwBjQm0wjD4vc0TFxjvqWSswxb7vRdKZFAYg2PIBHeKHOK6UzJCeXidIpJ_uiYdCiZlqehxqn914cY1NKre-qUJklxBS8j9Aw7UtoyBBzuk01sVBqB25_K7Ko9a4InSZhcQ4ptzDf_r3lP_Yjba2A34yB_w8K-Ky0XZ-V0rLEuF2o7fi-dWY1-BOS-yoDqFIur3zdWAMJsV7-dA";
 
     String areaNo = "320500";
 

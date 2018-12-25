@@ -24,9 +24,6 @@ public class SubscribeTopicOperateHeader implements CommandCustomHeader {
 
   @CFNotNull private String passportId;
 
-  /** 定于的主题标识 */
-  @CFNotNull private String[] topicIds;
-
   @CFNotNull private String operateType;
 
   public OperateType decodeOperateType() {

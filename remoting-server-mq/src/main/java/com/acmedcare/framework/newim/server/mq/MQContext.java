@@ -109,6 +109,10 @@ public final class MQContext {
             });
   }
 
+  public void broadcastMessage(MQMessage mqMessage) {
+    // todo 转发到 replica 服务器
+  }
+
   @Getter
   @Setter
   @NoArgsConstructor

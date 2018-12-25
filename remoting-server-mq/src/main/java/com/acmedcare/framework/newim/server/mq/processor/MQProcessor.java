@@ -32,6 +32,7 @@ import com.acmedcare.tiffany.framework.remoting.exception.RemotingCommandExcepti
 import com.acmedcare.tiffany.framework.remoting.exception.RemotingConnectException;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRequestProcessor;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
+import com.alibaba.fastjson.JSON;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import java.util.List;
@@ -108,13 +109,15 @@ public class MQProcessor implements NettyRequestProcessor {
           return this.samplingClientPullTopicSubscribeMapping(
               channelHandlerContext, remotingCommand);
 
+        case SamplingClient.SEND_TOPIC_MESSAGE:
+          return this.samplingClientSendTopicMessage(channelHandlerContext, remotingCommand);
+
           // common biz command
         case Common.CREATE_TOPIC:
           return this.newTopic(channelHandlerContext, remotingCommand);
         case Common.PULL_TOPICS:
           return this.pullTopicsList(channelHandlerContext, remotingCommand);
-        case Common.TOPIC_MESSAGE_PUSH:
-          return this.pushTopicMessage(channelHandlerContext, remotingCommand);
+
           // no processor c8410635
         default:
           defaultResponse.setBody(
@@ -130,6 +133,12 @@ public class MQProcessor implements NettyRequestProcessor {
 
     } catch (Exception e) {
       logger.warn("[MQServer] request processor exception", e);
+      defaultResponse.setBody(
+          BizResult.builder()
+              .code(-1)
+              .exception(ExceptionWrapper.builder().message(e.getMessage()).build())
+              .build()
+              .bytes());
     }
     return defaultResponse;
   }
@@ -234,9 +243,12 @@ public class MQProcessor implements NettyRequestProcessor {
             remotingCommand.decodeCommandCustomHeader(SubscribeTopicOperateHeader.class);
 
     Assert.notNull(header, "Request header must not be null.");
-
+    List<String> list = JSON.parseObject(remotingCommand.getBody(), List.class);
     this.mqService.subscribeTopics(
-        header.getNamespace(), header.getPassportId(), header.getPassport(), header.getTopicIds());
+        header.getNamespace(),
+        header.getPassportId(),
+        header.getPassport(),
+        list.toArray(new String[0]));
 
     // return success
     response.setBody(BizResult.builder().code(0).build().bytes());
@@ -259,8 +271,12 @@ public class MQProcessor implements NettyRequestProcessor {
 
     Assert.notNull(header, "Request header must not be null.");
 
+    List<String> list = JSON.parseObject(remotingCommand.getBody(), List.class);
     this.mqService.unSubscribeTopics(
-        header.getNamespace(), header.getPassportId(), header.getPassport(), header.getTopicIds());
+        header.getNamespace(),
+        header.getPassportId(),
+        header.getPassport(),
+        list.toArray(new String[0]));
 
     // return success
     response.setBody(BizResult.builder().code(0).build().bytes());
@@ -407,7 +423,7 @@ public class MQProcessor implements NettyRequestProcessor {
     return response;
   }
 
-  private RemotingCommand pushTopicMessage(
+  private RemotingCommand samplingClientSendTopicMessage(
       ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand)
       throws Exception {
     ClientSession clientSession = validateChannel(channelHandlerContext.channel());
@@ -422,6 +438,7 @@ public class MQProcessor implements NettyRequestProcessor {
     Assert.notNull(header, "Request header must not be null.");
 
     MQMessage mqMessage = new MQMessage();
+    mqMessage.setNamespace(header.getNamespace());
     mqMessage.setTopicId(header.getTopicId());
     mqMessage.setTopicTag(header.getTopicTag());
     mqMessage.setBody(remotingCommand.getBody());
@@ -430,7 +447,7 @@ public class MQProcessor implements NettyRequestProcessor {
     mqMessage.setSender(header.getPassportId());
     mqMessage.setMid(idService.nextId());
     mqMessage.setPersistent(false);
-
+    System.out.println("请求发送主题消息: " + mqMessage.toString());
     this.mqService.broadcastTopicMessages(context, mqMessage);
 
     // return success

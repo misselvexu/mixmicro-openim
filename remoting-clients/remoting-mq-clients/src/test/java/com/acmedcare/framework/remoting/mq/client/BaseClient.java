@@ -202,7 +202,7 @@ public class BaseClient {
 
     AcmedcareMQRemoting.getInstance()
         .executor()
-        .subscribe(
+        .unsubscribe(
             request,
             new SubscribeTopicRequest.Callback() {
               @Override

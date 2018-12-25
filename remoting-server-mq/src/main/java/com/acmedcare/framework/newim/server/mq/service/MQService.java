@@ -149,8 +149,8 @@ public class MQService {
 
     // -> master
     if (masterConnector != null) {
-      logger.info("转发主题消息到Master服务器");
-      masterConnector.broadcastMessage(mqMessage);
+      logger.info("转发主题消息到Replica服务器");
+      context.broadcastMessage(mqMessage);
     }
   }
 

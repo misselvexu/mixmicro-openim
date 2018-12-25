@@ -79,6 +79,7 @@ public class ClusterForwardMessageRequestProcessor implements NettyRequestProces
                   .retryPeriod(singleMessage.getRetryPeriod())
                   .build();
           masterClusterSession.distributeMessage(attribute, singleMessage, instanceNode.getHost());
+          break;
         case GROUP:
           GroupMessage groupMessage = JSON.parseObject(message, GroupMessage.class);
           attribute =
@@ -95,6 +96,8 @@ public class ClusterForwardMessageRequestProcessor implements NettyRequestProces
         case MQ:
           MQMessage mqMessage = JSON.parseObject(message, MQMessage.class);
           attribute = MessageAttribute.builder().persistent(false).build();
+          masterClusterAcceptorLog.info(
+              "接受服务器转发请求:{},{}", instanceNode.getHost(), mqMessage.toString());
           masterClusterSession.distributeMessage(attribute, mqMessage, instanceNode.getHost());
           break;
       }
