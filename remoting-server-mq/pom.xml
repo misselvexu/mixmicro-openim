@@ -108,6 +108,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.acmedcare.microservices.im</groupId>
+            <artifactId>remoting-server-replica</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure-processor</artifactId>
             <scope>provided</scope>

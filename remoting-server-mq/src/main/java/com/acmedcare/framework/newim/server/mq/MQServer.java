@@ -13,6 +13,7 @@ import com.acmedcare.framework.newim.server.master.connector.MasterConnector;
 import com.acmedcare.framework.newim.server.master.connector.MasterConnectorHandler;
 import com.acmedcare.framework.newim.server.mq.processor.MQProcessor;
 import com.acmedcare.framework.newim.server.mq.service.MQService;
+import com.acmedcare.framework.newim.server.replica.NodeReplicaService;
 import com.acmedcare.framework.newim.spi.Extension;
 import com.acmedcare.tiffany.framework.remoting.ChannelEventListener;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketServer;
@@ -48,6 +49,7 @@ public class MQServer implements Server {
   @Autowired private MQService mqService;
   @Autowired private MasterConnector masterConnector;
   @Autowired private AorpClient aorpClient;
+  @Autowired private NodeReplicaService nodeReplicaService;
 
   @Autowired(required = false)
   private IdService idService;
