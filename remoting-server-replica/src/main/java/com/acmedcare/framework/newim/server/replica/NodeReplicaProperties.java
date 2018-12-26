@@ -14,15 +14,23 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @Getter
 @Setter
-@ConfigurationProperties(prefix = "remoting.server.replicas")
+@ConfigurationProperties(prefix = "remoting.server")
 public class NodeReplicaProperties {
 
-  private Map<InstanceType, ReplicaProperties> nodeConfigList;
+  private Map<InstanceType, ReplicaProperties> replicas;
 
   @Getter
   @Setter
   public static class ReplicaProperties {
+
     private boolean enabled = false;
+
+    /** Reolica host */
+    private String host;
+
+    /** Replica port */
+    private int port;
+
     /** Replica instances Refresh period , default is : 5000ms */
     private long instancesRefreshPeriod = 5000;
 

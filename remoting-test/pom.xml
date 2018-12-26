@@ -135,6 +135,11 @@
             <version>2.1.0-RC1</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.acmedcare.microservices.im</groupId>
+            <artifactId>remoting-server-replica</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

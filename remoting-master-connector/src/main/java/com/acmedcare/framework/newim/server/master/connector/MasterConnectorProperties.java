@@ -47,6 +47,9 @@ public class MasterConnectorProperties {
   /** 客户端服务端口 */
   private int connectorPort;
 
+  /** 客户端 Replica 通讯地址 */
+  private String connectorReplicaHost;
+
   /** 客户端 Replica 通讯端口 */
   private int connectorReplicaPort;
 

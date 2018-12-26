@@ -1,5 +1,7 @@
 package com.acmedcare.framework.newim.server.replica;
 
+import com.acmedcare.framework.newim.server.Context;
+import com.google.common.collect.Lists;
 import java.util.List;
 
 /**
@@ -11,13 +13,22 @@ import java.util.List;
 public interface NodeReplicaService {
 
   /**
+   * return current context
+   *
+   * @return context
+   */
+  Context context();
+
+  /**
    * Get Node Replica List ,This method will be invoked schedule period
    *
-   * @return a list of instance {@link NodeInstance}
+   * @return a list of instance {@link NodeReplicaInstance}
    * @throws NodeReplicaException exception
    * @see
    *     com.acmedcare.framework.newim.server.replica.NodeReplicaProperties.ReplicaProperties#getInstancesRefreshPeriod()
    *     set period time
    */
-  List<NodeInstance> loadNodeInstances() throws NodeReplicaException;
+  default List<NodeReplicaInstance> loadNodeInstances() throws NodeReplicaException {
+    return Lists.newArrayList();
+  }
 }

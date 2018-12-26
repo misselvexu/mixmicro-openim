@@ -4,14 +4,17 @@ import com.acmedcare.framework.aorp.beans.Principal;
 import com.acmedcare.framework.kits.executor.AsyncRuntimeExecutor;
 import com.acmedcare.framework.newim.Message.MQMessage;
 import com.acmedcare.framework.newim.Topic.TopicSubscribe;
+import com.acmedcare.framework.newim.server.Context;
 import com.acmedcare.framework.newim.server.mq.MQCommand.Common;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version ${project.version} - 2018-12-14.
  */
-public final class MQContext {
+public final class MQContext implements Context {
 
   /** Client Channel Session Key {@link ClientSession} */
   public static final AttributeKey<ClientSession> CLIENT_SESSION_ATTRIBUTE_KEY =
@@ -36,6 +39,22 @@ public final class MQContext {
 
   /** Register Monitor Clients Sessions */
   private static final Map<Long, List<Channel>> MONITOR_SESSIONS = Maps.newConcurrentMap();
+
+  @Getter private Set<String> replicas = Sets.newConcurrentHashSet();
+
+  private MQServerProperties mqServerProperties;
+
+  MQContext(MQServerProperties mqServerProperties) {
+    this.mqServerProperties = mqServerProperties;
+  }
+
+  void refreshReplicas(Set<String> replicas) {
+    this.replicas = replicas;
+  }
+
+  String selfAddress() {
+    return mqServerProperties.getHost();
+  }
 
   public void registerSamplingClient(
       io.netty.channel.Channel channel, ClientSession clientSession) {
@@ -111,6 +130,16 @@ public final class MQContext {
 
   public void broadcastMessage(MQMessage mqMessage) {
     // todo 转发到 replica 服务器
+  }
+
+  /**
+   * Return Current Context
+   *
+   * @return context
+   */
+  @Override
+  public Context context() {
+    return this;
   }
 
   @Getter

@@ -21,6 +21,13 @@
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -56,6 +63,11 @@
             <groupId>com.acmedcare.framework.kits</groupId>
             <artifactId>executor-kit</artifactId>
             <version>Antarctica.RC2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.acmedcare.microservices.im</groupId>
+            <artifactId>remoting-server-api</artifactId>
         </dependency>
 
         <dependency>
