@@ -18,7 +18,7 @@ public class BeanDefinitionTest {
   public void testBeanDefinitionBuilder() {
 
     BeanDefinitionBuilder builder =
-        BeanDefinitionBuilder.rootBeanDefinition(NodeReplicaConnectorFactory.class);
+        BeanDefinitionBuilder.rootBeanDefinition(NodeReplicaBeanFactory.class);
 
     AbstractBeanDefinition beanDefinition = builder.getBeanDefinition();
 

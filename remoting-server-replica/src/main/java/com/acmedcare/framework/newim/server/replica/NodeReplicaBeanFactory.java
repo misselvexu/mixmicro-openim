@@ -5,6 +5,7 @@ import com.acmedcare.framework.kits.thread.ThreadKit;
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
 import com.acmedcare.framework.newim.InstanceType;
+import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.protocol.Command.ClusterWithClusterCommand;
 import com.acmedcare.framework.newim.server.replica.NodeReplicaProperties.ReplicaProperties;
 import com.acmedcare.framework.newim.spi.util.Assert;
@@ -36,14 +37,14 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.InitializingBean;
 
 /**
- * NodeReplicaConnectorFactory
+ * NodeReplicaBeanFactory
  *
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version ${project.version} - 2018-12-26.
  */
-public class NodeReplicaConnectorFactory implements BeanFactoryAware, InitializingBean {
+public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBean {
 
-  private static final Logger logger = LoggerFactory.getLogger(NodeReplicaConnectorFactory.class);
+  private static final Logger logger = LoggerFactory.getLogger(NodeReplicaBeanFactory.class);
   /**
    * {@link NodeReplicaExecutor} Instances Cache
    *
@@ -56,6 +57,18 @@ public class NodeReplicaConnectorFactory implements BeanFactoryAware, Initializi
 
   /** Bean Factory Instance */
   private BeanFactory beanFactory;
+
+  /**
+   * Post Message to Replica
+   *
+   * @param instanceType {@link InstanceType}
+   * @param messages message lists
+   * @see InstanceType
+   * @see Message
+   */
+  public void postMessages(InstanceType instanceType, Message... messages) {
+    // TODO post message
+  }
 
   @Override
   public void setBeanFactory(BeanFactory beanFactory) throws BeansException {

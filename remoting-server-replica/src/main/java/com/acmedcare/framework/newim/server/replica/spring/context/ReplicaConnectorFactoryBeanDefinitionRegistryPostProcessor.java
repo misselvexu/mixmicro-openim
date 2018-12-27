@@ -1,6 +1,6 @@
 package com.acmedcare.framework.newim.server.replica.spring.context;
 
-import com.acmedcare.framework.newim.server.replica.NodeReplicaConnectorFactory;
+import com.acmedcare.framework.newim.server.replica.NodeReplicaBeanFactory;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,17 +49,15 @@ public class ReplicaConnectorFactoryBeanDefinitionRegistryPostProcessor
       throws BeansException {
 
     BeanDefinitionBuilder builder =
-        BeanDefinitionBuilder.rootBeanDefinition(NodeReplicaConnectorFactory.class);
+        BeanDefinitionBuilder.rootBeanDefinition(NodeReplicaBeanFactory.class);
     AbstractBeanDefinition beanDefinition = builder.getBeanDefinition();
     beanDefinition.setScope(ConfigurableBeanFactory.SCOPE_SINGLETON);
-
-    registry.registerBeanDefinition(
-        NodeReplicaConnectorFactory.class.getSimpleName(), beanDefinition);
+    registry.registerBeanDefinition("nodeReplicaBeanFactory", beanDefinition);
 
     logger.info(
         "[REPLICA-REGISTER] Class: {} ,Bean:{} is register-ed",
-        NodeReplicaConnectorFactory.class,
-        NodeReplicaConnectorFactory.class.getSimpleName());
+        NodeReplicaBeanFactory.class,
+        NodeReplicaBeanFactory.class.getSimpleName());
 
     //    ReplicaServiceClassPathBeanDefinitionScanner scanner =
     //        new ReplicaServiceClassPathBeanDefinitionScanner(registry, environment,

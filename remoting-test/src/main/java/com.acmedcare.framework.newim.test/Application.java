@@ -2,11 +2,14 @@ package com.acmedcare.framework.newim.test;
 
 import com.acmedcare.framework.newim.InstanceType;
 import com.acmedcare.framework.newim.server.Context;
+import com.acmedcare.framework.newim.server.replica.NodeReplicaBeanFactory;
 import com.acmedcare.framework.newim.server.replica.NodeReplicaProperties;
 import com.acmedcare.framework.newim.server.replica.NodeReplicaService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Application
@@ -29,6 +32,17 @@ public class Application {
   DefaultNodeReplicaService2 defaultNodeReplicaService2(
       NodeReplicaProperties nodeReplicaProperties) {
     return new DefaultNodeReplicaService2(nodeReplicaProperties);
+  }
+
+  @RestController
+  protected static class Controller {
+
+    private final NodeReplicaBeanFactory nodeReplicaBeanFactory;
+
+    @Autowired
+    public Controller(NodeReplicaBeanFactory nodeReplicaBeanFactory) {
+      this.nodeReplicaBeanFactory = nodeReplicaBeanFactory;
+    }
   }
 
   public static class DefaultNodeReplicaService implements NodeReplicaService {
