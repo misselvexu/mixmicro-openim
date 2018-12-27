@@ -37,6 +37,9 @@ public class NodeReplicaProperties {
     /** Replica instances Refresh period , default is : 5000ms */
     private long instancesRefreshPeriod = 5000;
 
+    /** Replica Server & Connector Startup delay (ms) */
+    private long startupDelay = 5000;
+
     /** NodeReplicaService Defined */
     private String replicaServiceClass;
   }
