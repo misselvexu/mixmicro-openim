@@ -1,5 +1,6 @@
 package com.acmedcare.framework.newim.server.replica;
 
+import com.acmedcare.framework.newim.InstanceType;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import lombok.Data;
@@ -12,10 +13,15 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @version ${project.version} - 2018-12-25.
  */
 @Data
-@ConfigurationProperties(prefix = "remoting.server")
+@ConfigurationProperties(prefix = NodeReplicaProperties.NODE_REPLICA_PREFIX)
 public class NodeReplicaProperties {
 
-  private Map<String, ReplicaProperties> replicas = Maps.newHashMap();
+  public static final String NODE_REPLICA_PREFIX = "remoting.server";
+
+  /** Base packages defined */
+  private String basePackages;
+
+  private Map<InstanceType, ReplicaProperties> replicas = Maps.newHashMap();
 
   @Data
   public static class ReplicaProperties {

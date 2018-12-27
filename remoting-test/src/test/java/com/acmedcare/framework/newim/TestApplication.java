@@ -36,5 +36,10 @@ public class TestApplication {
     public Context context() {
       return null;
     }
+
+    @Override
+    public InstanceType type() {
+      return InstanceType.MQ_SERVER;
+    }
   }
 }

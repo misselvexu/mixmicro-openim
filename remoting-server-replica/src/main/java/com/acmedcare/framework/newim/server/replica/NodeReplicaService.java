@@ -1,5 +1,6 @@
 package com.acmedcare.framework.newim.server.replica;
 
+import com.acmedcare.framework.newim.InstanceType;
 import com.acmedcare.framework.newim.server.Context;
 import com.google.common.collect.Lists;
 import java.util.List;
@@ -18,6 +19,12 @@ public interface NodeReplicaService {
    * @return context
    */
   Context context();
+
+  /**
+   * Instance Type
+   * @return type
+   */
+  InstanceType type();
 
   /**
    * Get Node Replica List ,This method will be invoked schedule period

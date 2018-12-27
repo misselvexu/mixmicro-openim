@@ -1,8 +1,9 @@
 package com.acmedcare.framework.newim.server.mq;
 
+import com.acmedcare.framework.newim.InstanceType;
 import com.acmedcare.framework.newim.server.Context;
-import com.acmedcare.framework.newim.server.replica.NodeReplicaInstance;
 import com.acmedcare.framework.newim.server.replica.NodeReplicaException;
+import com.acmedcare.framework.newim.server.replica.NodeReplicaInstance;
 import com.acmedcare.framework.newim.server.replica.NodeReplicaProperties.ReplicaProperties;
 import com.acmedcare.framework.newim.server.replica.NodeReplicaService;
 import com.google.common.collect.Lists;
@@ -26,6 +27,11 @@ public class DefaultMQReplicaService implements NodeReplicaService {
   @Override
   public Context context() {
     return context;
+  }
+
+  @Override
+  public InstanceType type() {
+    return InstanceType.MQ_SERVER;
   }
 
   /**

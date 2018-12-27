@@ -1,5 +1,6 @@
 package com.acmedcare.framework.newim.test;
 
+import com.acmedcare.framework.newim.InstanceType;
 import com.acmedcare.framework.newim.server.Context;
 import com.acmedcare.framework.newim.server.replica.NodeReplicaProperties;
 import com.acmedcare.framework.newim.server.replica.NodeReplicaService;
@@ -24,6 +25,12 @@ public class Application {
     return new DefaultNodeReplicaService(nodeReplicaProperties);
   }
 
+  @Bean
+  DefaultNodeReplicaService2 defaultNodeReplicaService2(
+      NodeReplicaProperties nodeReplicaProperties) {
+    return new DefaultNodeReplicaService2(nodeReplicaProperties);
+  }
+
   public static class DefaultNodeReplicaService implements NodeReplicaService {
 
     private NodeReplicaProperties nodeReplicaProperties;
@@ -35,6 +42,30 @@ public class Application {
     @Override
     public Context context() {
       return null;
+    }
+
+    @Override
+    public InstanceType type() {
+      return InstanceType.MQ_SERVER;
+    }
+  }
+
+  public static class DefaultNodeReplicaService2 implements NodeReplicaService {
+
+    private NodeReplicaProperties nodeReplicaProperties;
+
+    public DefaultNodeReplicaService2(NodeReplicaProperties nodeReplicaProperties) {
+      this.nodeReplicaProperties = nodeReplicaProperties;
+    }
+
+    @Override
+    public Context context() {
+      return null;
+    }
+
+    @Override
+    public InstanceType type() {
+      return InstanceType.DEFAULT;
     }
   }
 }

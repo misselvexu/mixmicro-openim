@@ -1,6 +1,7 @@
 package com.acmedcare.framework.newim.server.replica.spring.context;
 
 import com.acmedcare.framework.newim.server.replica.NodeReplicaConnectorFactory;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -29,10 +30,14 @@ public class ReplicaConnectorFactoryBeanDefinitionRegistryPostProcessor
         BeanClassLoaderAware {
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
+  private final Set<String> packagesToScan;
   private Environment environment;
   private ResourceLoader resourceLoader;
-
   private ClassLoader classLoader;
+
+  public ReplicaConnectorFactoryBeanDefinitionRegistryPostProcessor(Set<String> packagesToScan) {
+    this.packagesToScan = packagesToScan;
+  }
 
   @Override
   public void setBeanClassLoader(ClassLoader classLoader) {
@@ -46,7 +51,7 @@ public class ReplicaConnectorFactoryBeanDefinitionRegistryPostProcessor
     BeanDefinitionBuilder builder =
         BeanDefinitionBuilder.rootBeanDefinition(NodeReplicaConnectorFactory.class);
     AbstractBeanDefinition beanDefinition = builder.getBeanDefinition();
-    beanDefinition.setScope(ConfigurableBeanFactory.SCOPE_SINGLETON); // PROTOTYPE
+    beanDefinition.setScope(ConfigurableBeanFactory.SCOPE_SINGLETON);
 
     registry.registerBeanDefinition(
         NodeReplicaConnectorFactory.class.getSimpleName(), beanDefinition);
@@ -55,6 +60,10 @@ public class ReplicaConnectorFactoryBeanDefinitionRegistryPostProcessor
         "[REPLICA-REGISTER] Class: {} ,Bean:{} is register-ed",
         NodeReplicaConnectorFactory.class,
         NodeReplicaConnectorFactory.class.getSimpleName());
+
+    //    ReplicaServiceClassPathBeanDefinitionScanner scanner =
+    //        new ReplicaServiceClassPathBeanDefinitionScanner(registry, environment,
+    // resourceLoader);
   }
 
   @Override

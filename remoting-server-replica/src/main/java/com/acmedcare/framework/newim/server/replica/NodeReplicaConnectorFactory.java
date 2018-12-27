@@ -47,39 +47,78 @@ public class NodeReplicaConnectorFactory implements BeanFactoryAware, Initializi
         "[REPLICA-FACTORY] found nodeReplicaProperties instance:{} from bean factory",
         this.nodeReplicaProperties);
 
-    Assert.notNull(this.nodeReplicaProperties, "");
+    Assert.notNull(this.nodeReplicaProperties);
 
     // init
     this.nodeReplicaProperties
         .getReplicas()
         .forEach(
             (type, replicaProperties) -> {
-              InstanceType instanceType = null;
+              NodeReplicaService nodeReplicaService;
               try {
-                instanceType = InstanceType.valueOf(type);
+                String replicaServiceClass = replicaProperties.getReplicaServiceClass();
+                Class<?> aClass = Class.forName(replicaServiceClass);
+                nodeReplicaService = (NodeReplicaService) beanFactory.getBean(aClass);
+
+                Assert.notNull(
+                    nodeReplicaService,
+                    "[REPLICA-FACTORY] Class: " + replicaServiceClass + " must be inited.");
+
+                if (!type.equals(nodeReplicaService.type())) {
+                  logger.warn(
+                      "[REPLICA-FACTORY] Class:{} type is :{} , is not same with config file defined value:{}",
+                      replicaServiceClass,
+                      nodeReplicaService.type(),
+                      type);
+                  return;
+                }
               } catch (Exception e) {
-                logger.warn("[REPLICA-FACTORY] invalid replica key type :{} ", type);
+                logger.error(
+                    "[REPLICA-FACTORY] NodeReplicaService class instance is not invalid.", e);
+                return;
               }
 
-              Assert.notNull(instanceType, "[REPLICA-FACTORY] instanceType not be null.");
-
               NodeReplicaConnector nodeReplicaConnector =
-                  NodeReplicaConnector.builder().replicaProperties(replicaProperties).build();
+                  NodeReplicaConnector.builder()
+                      .replicaProperties(replicaProperties)
+                      .nodeReplicaService(nodeReplicaService)
+                      .build();
 
-              // TODO startup
+              nodeReplicaConnector.startup();
 
-              nodeReplicaConnectors.put(instanceType, nodeReplicaConnector);
+              nodeReplicaConnectors.put(type, nodeReplicaConnector);
             });
+
+    // shutdown hook
+    Runtime.getRuntime()
+        .addShutdownHook(
+            new Thread(
+                () ->
+                    nodeReplicaConnectors.forEach(
+                        (instanceType, nodeReplicaConnector) -> {
+                          logger.info(
+                              "[REPLICA-FACTORY] ready to shutdown {} connector.", instanceType);
+                          nodeReplicaConnector.shutdown();
+                        })));
   }
 
   /** {@link NodeReplicaConnector }Bean Defined */
   public static class NodeReplicaConnector {
 
     private final ReplicaProperties replicaProperties;
+    private final NodeReplicaService nodeReplicaService;
 
     @Builder
-    public NodeReplicaConnector(ReplicaProperties replicaProperties) {
+    public NodeReplicaConnector(
+        ReplicaProperties replicaProperties, NodeReplicaService nodeReplicaService) {
       this.replicaProperties = replicaProperties;
+      this.nodeReplicaService = nodeReplicaService;
     }
+
+    void startup() {
+      System.out.println("startup.... " + nodeReplicaService.type());
+    }
+
+    void shutdown() {}
   }
 }
