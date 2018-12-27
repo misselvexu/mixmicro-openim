@@ -1,9 +1,8 @@
 package com.acmedcare.framework.newim.server.replica;
 
-import com.acmedcare.framework.newim.InstanceType;
+import com.google.common.collect.Maps;
 import java.util.Map;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -12,20 +11,18 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version ${project.version} - 2018-12-25.
  */
-@Getter
-@Setter
+@Data
 @ConfigurationProperties(prefix = "remoting.server")
 public class NodeReplicaProperties {
 
-  private Map<InstanceType, ReplicaProperties> replicas;
+  private Map<String, ReplicaProperties> replicas = Maps.newHashMap();
 
-  @Getter
-  @Setter
+  @Data
   public static class ReplicaProperties {
 
     private boolean enabled = false;
 
-    /** Reolica host */
+    /** Replica host */
     private String host;
 
     /** Replica port */

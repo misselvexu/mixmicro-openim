@@ -1,36 +1,36 @@
-package com.acmedcare.framework.newim;
+package com.acmedcare.framework.newim.test;
 
-import com.acmedcare.framework.boot.snowflake.EnableSnowflake;
 import com.acmedcare.framework.newim.server.Context;
 import com.acmedcare.framework.newim.server.replica.NodeReplicaProperties;
 import com.acmedcare.framework.newim.server.replica.NodeReplicaService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 /**
- * Spring Boot Test Application
+ * Application
  *
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
- * @version ${project.version} - 22/11/2018.
+ * @version ${project.version} - 2018-12-27.
  */
 @SpringBootApplication
-@EnableSnowflake(dataCenterId = "1", workerId = "1")
-public class TestApplication {
-
+public class Application {
   public static void main(String[] args) {
-    SpringApplication.run(TestApplication.class, args);
+    SpringApplication.run(Application.class, args);
   }
 
   @Bean
-  DefaultNodeReplicaService defaultNodeReplicaService(){
-    return new DefaultNodeReplicaService();
+  DefaultNodeReplicaService defaultNodeReplicaService(NodeReplicaProperties nodeReplicaProperties) {
+    return new DefaultNodeReplicaService(nodeReplicaProperties);
   }
 
   public static class DefaultNodeReplicaService implements NodeReplicaService {
 
-    @Autowired private NodeReplicaProperties nodeReplicaProperties;
+    private NodeReplicaProperties nodeReplicaProperties;
+
+    public DefaultNodeReplicaService(NodeReplicaProperties nodeReplicaProperties) {
+      this.nodeReplicaProperties = nodeReplicaProperties;
+    }
 
     @Override
     public Context context() {
