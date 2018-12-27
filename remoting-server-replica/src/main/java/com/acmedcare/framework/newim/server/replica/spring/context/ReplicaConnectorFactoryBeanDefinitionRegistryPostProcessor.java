@@ -1,5 +1,7 @@
 package com.acmedcare.framework.newim.server.replica.spring.context;
 
+import static org.springframework.beans.factory.support.AbstractBeanDefinition.AUTOWIRE_BY_TYPE;
+
 import com.acmedcare.framework.newim.server.replica.NodeReplicaBeanFactory;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -52,6 +54,7 @@ public class ReplicaConnectorFactoryBeanDefinitionRegistryPostProcessor
         BeanDefinitionBuilder.rootBeanDefinition(NodeReplicaBeanFactory.class);
     AbstractBeanDefinition beanDefinition = builder.getBeanDefinition();
     beanDefinition.setScope(ConfigurableBeanFactory.SCOPE_SINGLETON);
+    beanDefinition.setAutowireMode(AUTOWIRE_BY_TYPE);
     registry.registerBeanDefinition("nodeReplicaBeanFactory", beanDefinition);
 
     logger.info(

@@ -6,7 +6,9 @@ import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
 import com.acmedcare.framework.newim.InstanceType;
 import com.acmedcare.framework.newim.Message;
+import com.acmedcare.framework.newim.client.MessageAttribute;
 import com.acmedcare.framework.newim.protocol.Command.ClusterWithClusterCommand;
+import com.acmedcare.framework.newim.protocol.request.ClusterForwardMessageHeader;
 import com.acmedcare.framework.newim.server.replica.NodeReplicaProperties.ReplicaProperties;
 import com.acmedcare.framework.newim.spi.util.Assert;
 import com.acmedcare.tiffany.framework.remoting.ChannelEventListener;
@@ -62,12 +64,59 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
    * Post Message to Replica
    *
    * @param instanceType {@link InstanceType}
-   * @param messages message lists
+   * @param message message
    * @see InstanceType
    * @see Message
    */
-  public void postMessages(InstanceType instanceType, Message... messages) {
+  public void postMessage(InstanceType instanceType, Message message, MessageAttribute attribute) {
     // TODO post message
+    if (!nodeReplicaConnectors.containsKey(instanceType)) {
+      throw new NodeReplicaException("Not " + instanceType + " defined in config file;");
+    } else {
+
+      if (attribute == null) {
+        attribute = MessageAttribute.builder().build();
+      }
+
+      NodeReplicaExecutor executor = nodeReplicaConnectors.get(instanceType);
+      RemotingSocketServer server = executor.server.getServer();
+      final MessageAttribute finalAttribute = attribute;
+      executor
+          .server
+          .getReplicaRemotingChannels()
+          .forEach(
+              (address, channel) -> {
+                if (channel != null && channel.isWritable()) {
+
+                  ClusterForwardMessageHeader header = new ClusterForwardMessageHeader();
+                  header.setMessageType(message.getMessageType().name());
+                  header.setInnerType(message.getInnerType().name());
+                  header.setMaxRetryTimes(finalAttribute.getMaxRetryTimes());
+                  header.setPersistent(finalAttribute.isPersistent());
+                  header.setQos(finalAttribute.isQos());
+                  header.setRetryPeriod(finalAttribute.getRetryPeriod());
+                  header.setNamespace(finalAttribute.getNamespace());
+
+                  RemotingCommand command =
+                      RemotingCommand.createRequestCommand(
+                          ClusterWithClusterCommand.CLUSTER_FORWARD_MESSAGE, header);
+                  command.setBody(message.bytes());
+
+                  try {
+                    server.invokeAsync(
+                        channel,
+                        command,
+                        5000,
+                        responseFuture -> {
+                          // TODO RESPONSE
+                        });
+
+                  } catch (Exception e) {
+                    e.printStackTrace();
+                  }
+                }
+              });
+    }
   }
 
   @Override
@@ -204,7 +253,7 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
       // startup
       server.getServer().start();
       logger.info(
-          "[REPLICA-SERVER-ACCEPTOR] replica acceptor server started , listener on port : ",
+          "[REPLICA-SERVER-ACCEPTOR] replica acceptor server started , listener on port : {}",
           replicaProperties.getPort());
     }
 
@@ -258,7 +307,7 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
             new LinkedBlockingQueue<>(64),
             new DefaultThreadFactory("REPLICA-ACCEPTOR"),
             new CallerRunsPolicy());
-    private static Map<String, Channel> replicaRemotingChannels = Maps.newConcurrentMap();
+    @Getter private Map<String, Channel> replicaRemotingChannels = Maps.newConcurrentMap();
     @Getter private NettyServerConfig nettyServerConfig;
     @Getter private RemotingSocketServer server;
 
@@ -271,7 +320,8 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
       replicaServer.server =
           new NettyRemotingSocketServer(replicaServer.nettyServerConfig, listener);
       replicaServer.server.registerDefaultProcessor(
-          new ReplicaServerProcessor(replicaRemotingChannels), defaultReplicaProcessorExecutor);
+          new ReplicaServerProcessor(replicaServer.replicaRemotingChannels),
+          defaultReplicaProcessorExecutor);
       return replicaServer;
     }
 
