@@ -5,13 +5,13 @@
     <parent>
         <artifactId>remoting-newim</artifactId>
         <groupId>com.acmedcare.microservices.im</groupId>
-        <version>2.2.1-RC1</version>
+        <version>2.2.2.BUILD-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>remoting-storage</artifactId>
-    <version>2.2.1-RC1</version>
+    <version>2.2.2.BUILD-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Acmedcare+ Remoting NewIM Storage Parent Module :: ${project.version}</name>
