@@ -13,6 +13,7 @@ import com.acmedcare.framework.newim.server.master.connector.MasterConnector;
 import com.acmedcare.framework.newim.server.master.connector.MasterConnectorHandler;
 import com.acmedcare.framework.newim.server.mq.processor.MQProcessor;
 import com.acmedcare.framework.newim.server.mq.service.MQService;
+import com.acmedcare.framework.newim.server.replica.NodeReplicaBeanFactory;
 import com.acmedcare.framework.newim.spi.Extension;
 import com.acmedcare.tiffany.framework.remoting.ChannelEventListener;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketServer;
@@ -47,7 +48,9 @@ public class MQServer implements Server {
   @Autowired private MQServerProperties mqServerProperties;
   @Autowired private MQService mqService;
   @Autowired private MasterConnector masterConnector;
+  @Autowired private NodeReplicaBeanFactory nodeReplicaBeanFactory;
   @Autowired private AorpClient aorpClient;
+  @Autowired private DefaultMQReplicaService defaultMQReplicaService;
 
   @Autowired(required = false)
   private IdService idService;
@@ -57,7 +60,7 @@ public class MQServer implements Server {
   private ExecutorService defaultProcessorExecutor; // processor
   private int corePoolSize = Runtime.getRuntime().availableProcessors() << 1;
   private int maximumPoolSize = corePoolSize << 2;
-  private MQContext context = new MQContext();
+  private MQContext context;
 
   /**
    * Server Startup Method
@@ -70,6 +73,9 @@ public class MQServer implements Server {
     if (startup.compareAndSet(false, true)) {
       logger.info("[MQServer] ready to startup mq-server...");
       logger.info("Configuration: {}", JSON.toJSONString(mqServerProperties));
+
+      context = new MQContext(mqServerProperties, nodeReplicaBeanFactory);
+      defaultMQReplicaService.setParentContext(context);
 
       config = new NettyServerConfig();
       config.setListenPort(this.mqServerProperties.getPort());
@@ -176,6 +182,7 @@ public class MQServer implements Server {
     @Override
     public void onClusterReplicas(Set<String> clusterReplicas) {
       logger.info("Rvd Cluster Replicas Data : {}", clusterReplicas);
+      context.refreshReplicas(clusterReplicas);
     }
 
     @Override

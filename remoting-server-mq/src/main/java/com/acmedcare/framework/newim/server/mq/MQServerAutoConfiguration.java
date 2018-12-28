@@ -21,4 +21,10 @@ public class MQServerAutoConfiguration {
   private MQService mqService(TopicRepository topicRepository, Snowflake snowflake) {
     return new MQService(topicRepository, snowflake);
   }
+
+  @Bean
+  @Primary
+  private DefaultMQReplicaService replicaService(MQService mqService) {
+    return new DefaultMQReplicaService(mqService);
+  }
 }

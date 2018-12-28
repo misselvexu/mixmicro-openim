@@ -16,6 +16,7 @@
         <module>remoting-master</module>
         <module>remoting-master-connector</module>
         <module>remoting-server-api</module>
+        <module>remoting-server-replica</module>
         <module>remoting-server-mq</module>
         <module>remoting-server-runner</module>
         <module>remoting-server-wss</module>
@@ -202,6 +203,12 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>remoting-master-connector</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>remoting-server-replica</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

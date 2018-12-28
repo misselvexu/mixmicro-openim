@@ -128,6 +128,11 @@ public class MQService {
 
   public void broadcastTopicMessages(MQContext context, MQMessage mqMessage) {
 
+    doBroadcastTopicMessage(context, mqMessage);
+    doDistributeMessage(context, mqMessage);
+  }
+
+  public void doBroadcastTopicMessage(MQContext context, MQMessage mqMessage) {
     logger.info("广播主题消息:{}", mqMessage.toString());
     Long topicId = mqMessage.getTopicId();
 
@@ -135,7 +140,6 @@ public class MQService {
         this.topicRepository.queryTopicSubscribes(mqMessage.getNamespace(), topicId);
 
     try {
-      // TODO save cache
       cache.put(mqMessage.getMid(), mqMessage);
     } catch (Exception ignore) {
       logger.warn("[ignore] flush to cache failed.");
@@ -146,8 +150,9 @@ public class MQService {
       logger.info("分发主题[{}]订阅消息到订阅客户端", mqMessage.getTopicId());
       context.broadcastTopicMessages(subscribes, mqMessage);
     }
+  }
 
-    // -> master
+  public void doDistributeMessage(MQContext context, MQMessage mqMessage) {
     if (masterConnector != null) {
       logger.info("转发主题消息到Replica服务器");
       context.broadcastMessage(mqMessage);
