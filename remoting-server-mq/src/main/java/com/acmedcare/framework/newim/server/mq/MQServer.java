@@ -13,6 +13,7 @@ import com.acmedcare.framework.newim.server.master.connector.MasterConnector;
 import com.acmedcare.framework.newim.server.master.connector.MasterConnectorHandler;
 import com.acmedcare.framework.newim.server.mq.processor.MQProcessor;
 import com.acmedcare.framework.newim.server.mq.service.MQService;
+import com.acmedcare.framework.newim.server.replica.NodeReplicaBeanFactory;
 import com.acmedcare.framework.newim.spi.Extension;
 import com.acmedcare.tiffany.framework.remoting.ChannelEventListener;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketServer;
@@ -47,6 +48,7 @@ public class MQServer implements Server {
   @Autowired private MQServerProperties mqServerProperties;
   @Autowired private MQService mqService;
   @Autowired private MasterConnector masterConnector;
+  @Autowired private NodeReplicaBeanFactory nodeReplicaBeanFactory;
   @Autowired private AorpClient aorpClient;
   @Autowired private DefaultMQReplicaService defaultMQReplicaService;
 
@@ -72,7 +74,7 @@ public class MQServer implements Server {
       logger.info("[MQServer] ready to startup mq-server...");
       logger.info("Configuration: {}", JSON.toJSONString(mqServerProperties));
 
-      context = new MQContext(mqServerProperties);
+      context = new MQContext(mqServerProperties, nodeReplicaBeanFactory);
       defaultMQReplicaService.setParentContext(context);
 
       config = new NettyServerConfig();

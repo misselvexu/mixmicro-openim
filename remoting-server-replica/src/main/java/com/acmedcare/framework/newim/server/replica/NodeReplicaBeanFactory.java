@@ -89,7 +89,6 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
     if (!nodeReplicaConnectors.containsKey(instanceType)) {
       throw new NodeReplicaException("Not " + instanceType + " defined in config file;");
     } else {
-
       if (attribute == null) {
         attribute = MessageAttribute.builder().build();
       }

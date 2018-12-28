@@ -135,7 +135,6 @@ public class MQService {
         this.topicRepository.queryTopicSubscribes(mqMessage.getNamespace(), topicId);
 
     try {
-      // TODO save cache
       cache.put(mqMessage.getMid(), mqMessage);
     } catch (Exception ignore) {
       logger.warn("[ignore] flush to cache failed.");

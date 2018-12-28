@@ -2,10 +2,12 @@ package com.acmedcare.framework.newim.server.mq;
 
 import com.acmedcare.framework.aorp.beans.Principal;
 import com.acmedcare.framework.kits.executor.AsyncRuntimeExecutor;
+import com.acmedcare.framework.newim.InstanceType;
 import com.acmedcare.framework.newim.Message.MQMessage;
 import com.acmedcare.framework.newim.Topic.TopicSubscribe;
 import com.acmedcare.framework.newim.server.Context;
 import com.acmedcare.framework.newim.server.mq.MQCommand.Common;
+import com.acmedcare.framework.newim.server.replica.NodeReplicaBeanFactory;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -43,9 +45,11 @@ public final class MQContext implements Context {
   @Getter private Set<String> replicas = Sets.newConcurrentHashSet();
 
   private MQServerProperties mqServerProperties;
+  private NodeReplicaBeanFactory nodeReplicaBeanFactory;
 
-  MQContext(MQServerProperties mqServerProperties) {
+  MQContext(MQServerProperties mqServerProperties, NodeReplicaBeanFactory nodeReplicaBeanFactory) {
     this.mqServerProperties = mqServerProperties;
+    this.nodeReplicaBeanFactory = nodeReplicaBeanFactory;
   }
 
   void refreshReplicas(Set<String> replicas) {
@@ -129,7 +133,7 @@ public final class MQContext implements Context {
   }
 
   public void broadcastMessage(MQMessage mqMessage) {
-    // todo 转发到 replica 服务器
+    nodeReplicaBeanFactory.postMessage(InstanceType.MQ_SERVER, mqMessage, null);
   }
 
   /**

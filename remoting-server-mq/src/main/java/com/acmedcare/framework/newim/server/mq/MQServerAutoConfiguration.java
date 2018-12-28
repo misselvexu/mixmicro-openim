@@ -24,7 +24,7 @@ public class MQServerAutoConfiguration {
 
   @Bean
   @Primary
-  private DefaultMQReplicaService replicaService() {
-    return new DefaultMQReplicaService();
+  private DefaultMQReplicaService replicaService(MQService mqService) {
+    return new DefaultMQReplicaService(mqService);
   }
 }

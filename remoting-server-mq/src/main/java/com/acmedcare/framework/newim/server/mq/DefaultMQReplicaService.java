@@ -1,7 +1,10 @@
 package com.acmedcare.framework.newim.server.mq;
 
 import com.acmedcare.framework.newim.InstanceType;
+import com.acmedcare.framework.newim.Message;
+import com.acmedcare.framework.newim.Message.MQMessage;
 import com.acmedcare.framework.newim.server.Context;
+import com.acmedcare.framework.newim.server.mq.service.MQService;
 import com.acmedcare.framework.newim.server.replica.NodeReplicaException;
 import com.acmedcare.framework.newim.server.replica.NodeReplicaInstance;
 import com.acmedcare.framework.newim.server.replica.NodeReplicaProperties.ReplicaProperties;
@@ -19,6 +22,14 @@ import java.util.Set;
 public class DefaultMQReplicaService implements NodeReplicaService {
 
   private MQContext context;
+  private MQService mqService;
+
+  public DefaultMQReplicaService() {}
+
+  public DefaultMQReplicaService(MQService mqService) {
+    this.mqService = mqService;
+  }
+
   /**
    * return current context
    *
@@ -55,5 +66,13 @@ public class DefaultMQReplicaService implements NodeReplicaService {
 
   void setParentContext(MQContext context) {
     this.context = context;
+  }
+
+  @Override
+  public void onReceivedMessage(Message message) {
+    if (message instanceof MQMessage) {
+      MQMessage mqMessage = (MQMessage) message;
+      mqService.broadcastTopicMessages(context, mqMessage);
+    }
   }
 }
