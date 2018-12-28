@@ -61,7 +61,7 @@ public class SamplingClient extends BaseClient {
                   @Override
                   public List<RemotingAddress> remotingAddressList() {
                     return Lists.newArrayList(
-                        new RemotingAddress(false, "127.0.0.1", 13510, false));
+                        new RemotingAddress(false, "192.168.1.227", 13110, false));
                   }
                 })
             .build();
@@ -143,14 +143,14 @@ public class SamplingClient extends BaseClient {
           continue;
         }
 
-        // pullTopicSubscribeMappings 1074057579071744
+        // pullTopicSubscribeMappings 1078409540126976
         if ("pullTopicSubscribeMappings".equals(inputArgs[0])) {
           pullTopicSubscribeMappings(
               KnownParams.passport, KnownParams.passportId.toString(), inputArgs[1]);
           continue;
         }
 
-        // sendTopicMessage 1074057579071744 T1-TAG demo
+        // sendTopicMessage 1078409540126976 T1-TAG demo
         if ("sendTopicMessage".equals(inputArgs[0])) {
           sendTopicMessage(
               KnownParams.passport,
@@ -161,13 +161,13 @@ public class SamplingClient extends BaseClient {
           continue;
         }
 
-        // subscribeTopic 1074057579071744,1074057304410368
+        // subscribeTopic 1078409540126976
         if ("subscribeTopic".equals(inputArgs[0])) {
           subscribeTopic(KnownParams.passport, KnownParams.passportId.toString(), inputArgs[1]);
           continue;
         }
 
-        // unSubscribeTopic 1074057579071744,1074057304410368
+        // unSubscribeTopic 1078409540126976
         if ("unSubscribeTopic".equals(inputArgs[0])) {
           unSubscribeTopic(KnownParams.passport, KnownParams.passportId.toString(), inputArgs[1]);
           continue;
