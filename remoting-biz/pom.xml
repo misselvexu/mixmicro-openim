@@ -5,13 +5,13 @@
     <parent>
         <artifactId>remoting-newim</artifactId>
         <groupId>com.acmedcare.microservices.im</groupId>
-        <version>2.2.0.BUILD-SNAPSHOT</version>
+        <version>2.2.1-RC1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>remoting-biz</artifactId>
-    <version>2.2.0.BUILD-SNAPSHOT</version>
+    <version>2.2.1-RC1</version>
     <packaging>jar</packaging>
 
     <name>Acmedcare+ Remoting NewIM Biz Module :: ${project.version}</name>
@@ -40,7 +40,7 @@
         <dependency>
             <groupId>com.acmedcare.microservices.im</groupId>
             <artifactId>remoting-api</artifactId>
-            <version>2.2.0.BUILD-SNAPSHOT</version>
+            <version>2.2.1-RC1</version>
         </dependency>
 
         <dependency>
