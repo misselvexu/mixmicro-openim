@@ -58,7 +58,6 @@ public class DefaultMQReplicaService implements NodeReplicaService {
     Set<String> replicaAddresses = context.getReplicas();
     List<NodeReplicaInstance> instances = Lists.newArrayList();
     for (String replicaAddress : replicaAddresses) {
-      // remove self
       instances.add(NodeReplicaInstance.builder().nodeAddress(replicaAddress).build());
     }
     return instances;
@@ -72,7 +71,7 @@ public class DefaultMQReplicaService implements NodeReplicaService {
   public void onReceivedMessage(Message message) {
     if (message instanceof MQMessage) {
       MQMessage mqMessage = (MQMessage) message;
-      mqService.broadcastTopicMessages(context, mqMessage);
+      mqService.doBroadcastTopicMessage(context, mqMessage);
     }
   }
 }

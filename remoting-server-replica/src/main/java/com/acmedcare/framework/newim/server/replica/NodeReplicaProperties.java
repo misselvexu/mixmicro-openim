@@ -57,5 +57,9 @@ public class NodeReplicaProperties {
 
     /** Retry Period Time (ms) */
     private int connectorRetryPeriod = 1000;
+
+    public String selfAddress() {
+      return this.host + ":" + this.port;
+    }
   }
 }

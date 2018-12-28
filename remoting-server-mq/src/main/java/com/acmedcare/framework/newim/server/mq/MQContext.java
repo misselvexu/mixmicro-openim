@@ -57,7 +57,7 @@ public final class MQContext implements Context {
   }
 
   String selfAddress() {
-    return mqServerProperties.getHost();
+    return mqServerProperties.getHost() + ":" + mqServerProperties.getPort();
   }
 
   public void registerSamplingClient(

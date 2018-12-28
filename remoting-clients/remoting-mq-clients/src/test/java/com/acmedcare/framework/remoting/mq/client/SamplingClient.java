@@ -61,7 +61,7 @@ public class SamplingClient extends BaseClient {
                   @Override
                   public List<RemotingAddress> remotingAddressList() {
                     return Lists.newArrayList(
-                        new RemotingAddress(false, "127.0.0.1", 13310, false));
+                        new RemotingAddress(false, "127.0.0.1", 13510, false));
                   }
                 })
             .build();

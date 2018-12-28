@@ -1,6 +1,7 @@
 package com.acmedcare.framework.newim.server.replica;
 
 import com.acmedcare.framework.kits.Assert;
+import com.acmedcare.framework.kits.StringUtils;
 import com.acmedcare.framework.kits.executor.AsyncRuntimeExecutor;
 import com.acmedcare.framework.kits.thread.DefaultThreadFactory;
 import com.acmedcare.framework.kits.thread.ThreadKit;
@@ -204,6 +205,8 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
                       .nodeReplicaService(nodeReplicaService)
                       .build();
 
+              logger.info("[REPLICA-EXECUTOR] startup replica executor :{} ", nodeReplicaExecutor);
+
               nodeReplicaExecutor.startup();
 
               // save cache
@@ -244,6 +247,9 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
       Thread startupThread =
           new Thread(
               () -> {
+                logger.info(
+                    "[REPLICA-SERVER-ACCEPTOR-STARTUP-THREAD] delay starting {} ms",
+                    replicaProperties.getStartupDelay());
                 // delay
                 ThreadKit.sleep(replicaProperties.getStartupDelay());
                 // startup
@@ -329,21 +335,31 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
     }
 
     Connectors startup() {
+      logger.info("[REPLICA-CONNECTORS] startup replica connectors refresh execute service ...");
       refreshService.scheduleWithFixedDelay(
           () -> {
             List<NodeReplicaInstance> instances = nodeReplicaService.loadNodeInstances();
+            logger.debug(
+                "[REPLICA-CLIENT-TIMER] 获取到的Replica节点数据:{} ", JSON.toJSONString(instances));
             if (instances != null && !instances.isEmpty()) {
               for (NodeReplicaInstance instance : instances) {
                 String nodeAddress = instance.getNodeAddress();
+                if (StringUtils.equals(nodeAddress, replicaProperties.selfAddress())) {
+                  continue;
+                }
+
                 if (connections.containsKey(nodeAddress)) { // already exist
                   // ignore
+                  logger.info("[REPLICA-CLIENT-TIMER] 节点已存在,忽略~");
                 } else {
                   ConnectorClient connectorClient =
                       ConnectorClient.builder()
                           .remotingAddress(nodeAddress)
                           .replicaProperties(replicaProperties)
                           .build();
+                  logger.info("[REPLICA-CLIENT-TIMER] 初始化Replica客户端:{} ", connectorClient);
                   connections.put(nodeAddress, connectorClient);
+                  logger.info("[REPLICA-CLIENT-TIMER] 启动客户端开始连接...");
                   connectorClient.startup();
                 }
               }
@@ -352,6 +368,7 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
           replicaProperties.getStartupDelay(),
           replicaProperties.getInstancesRefreshPeriod(),
           TimeUnit.MILLISECONDS);
+
       return this;
     }
 
@@ -376,6 +393,11 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
         this.remotingAddress = remotingAddress;
       }
 
+      @Override
+      public String toString() {
+        return "REPLICA-CLIENT:[" + remotingAddress + "]";
+      }
+
       void startup() {
         if (startup.compareAndSet(false, true)) {
           if (client == null) {
@@ -386,13 +408,18 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
             client.updateNameServerAddressList(Lists.newArrayList(remotingAddress));
           }
 
+          logger.info("[REPLICA-CLIENT] 客户端:{} ", client);
+
           // startup
           client.start();
+          logger.info("[REPLICA-CLIENT] 客户端已启动.");
 
           if (connectExecutor == null) {
             connectExecutor =
                 new ScheduledThreadPoolExecutor(1, new DefaultThreadFactory("CONNECT-THREAD-"));
           }
+
+          logger.info("[REPLICA-CLIENT] 启动远程连接线程池.");
           connectExecutor.scheduleWithFixedDelay(
               () -> {
                 if (!connected) {
@@ -436,6 +463,7 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
       void handshake() throws Exception {
         RemotingCommand handshakeRequest =
             RemotingCommand.createRequestCommand(ClusterWithClusterCommand.CLUSTER_HANDSHAKE, null);
+        logger.info("[REPLICA-CLIENT] 发送握手请求:{} ", handshakeRequest);
         client.invokeOneway(
             remotingAddress,
             handshakeRequest,
@@ -445,6 +473,8 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
                 connected = true;
                 logger.info("[REPLICA-CONNECTOR] replica connect is connected.");
                 retryTimes.set(1);
+              } else {
+                logger.warn("[REPLICA-CLIENT] 握手请求发送失败,等待下次重试");
               }
             });
       }
@@ -511,7 +541,6 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
             new DefaultThreadFactory("REPLICA-ACCEPTOR"),
             new CallerRunsPolicy());
     private static NodeReplicaService nodeReplicaService;
-    @Getter private Map<String, Channel> replicaRemotingChannels = Maps.newConcurrentMap();
     @Getter private NettyServerConfig nettyServerConfig;
     @Getter private RemotingSocketServer server;
 
@@ -524,8 +553,7 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
       replicaServer.server =
           new NettyRemotingSocketServer(replicaServer.nettyServerConfig, listener);
       replicaServer.server.registerDefaultProcessor(
-          new ReplicaServerProcessor(replicaServer.replicaRemotingChannels),
-          defaultReplicaProcessorExecutor);
+          new ReplicaServerProcessor(), defaultReplicaProcessorExecutor);
       return replicaServer;
     }
 
@@ -536,12 +564,6 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
     }
 
     private static class ReplicaServerProcessor implements NettyRequestProcessor {
-
-      private final Map<String, Channel> replicaRemotingChannels;
-
-      ReplicaServerProcessor(Map<String, Channel> replicaRemotingChannels) {
-        this.replicaRemotingChannels = replicaRemotingChannels;
-      }
 
       @Override
       public RemotingCommand processRequest(
