@@ -14,8 +14,8 @@ It offers a variety of features:
 - [ ] Scheduled message delivery
 - [ ] Log collection for streaming
 - [ ] Big data integration
-- [ ] Reliable FIFO and strict ordered messaging in the same queue
-- [ ] Million-level message accumulation capacity in a single queue
+- [x] Reliable FIFO and strict ordered messaging in the same queue
+- [x] Million-level message accumulation capacity in a single queue
 - [ ] Feature-rich administrative dashboard for configuration, metrics and monitoring
 
 ## RoadMap
