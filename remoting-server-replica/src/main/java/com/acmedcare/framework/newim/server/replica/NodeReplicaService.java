@@ -1,9 +1,12 @@
 package com.acmedcare.framework.newim.server.replica;
 
 import com.acmedcare.framework.newim.InstanceType;
+import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.server.Context;
 import com.google.common.collect.Lists;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * NodeReplicaService
@@ -12,6 +15,8 @@ import java.util.List;
  * @version ${project.version} - 2018-12-25.
  */
 public interface NodeReplicaService {
+
+  Logger logger = LoggerFactory.getLogger(NodeReplicaService.class);
 
   /**
    * return current context
@@ -22,6 +27,7 @@ public interface NodeReplicaService {
 
   /**
    * Instance Type
+   *
    * @return type
    */
   InstanceType type();
@@ -37,5 +43,14 @@ public interface NodeReplicaService {
    */
   default List<NodeReplicaInstance> loadNodeInstances() throws NodeReplicaException {
     return Lists.newArrayList();
+  }
+
+  /**
+   * When Received Replica Forward Message Event, then invoke this method .
+   *
+   * @param message message instance
+   */
+  default void onReceivedMessage(Message message) {
+    logger.info("Rvd Replica Message : {}", message.toString());
   }
 }

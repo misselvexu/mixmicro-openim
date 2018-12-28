@@ -19,7 +19,7 @@ public class NodeReplicaProperties {
   public static final String NODE_REPLICA_PREFIX = "remoting.server";
 
   /** Base packages defined */
-  private String basePackages;
+  @Deprecated private String basePackages = "com.acmedcare.framework";
 
   private Map<InstanceType, ReplicaProperties> replicas = Maps.newHashMap();
 
@@ -40,7 +40,22 @@ public class NodeReplicaProperties {
     /** Replica Server & Connector Startup delay (ms) */
     private long startupDelay = 5000;
 
+    /** Replica Request timeout (ms) ,default: 3000 */
+    private long requestTimeout = 3000;
+
     /** NodeReplicaService Defined */
     private String replicaServiceClass;
+
+    /** Replica Connector Client Heartbeat Enabled Flag */
+    private boolean connectorHeartbeatEnabled = true;
+
+    /** Replica Connector Client Heartbeat Period (ms) */
+    private int connectorHeartbeatPeriod = 20000;
+
+    /** Replica Connector connection state failed , max retry times , 0 is always retry */
+    private int connectorMaxRetryTimes = 0;
+
+    /** Retry Period Time (ms) */
+    private int connectorRetryPeriod = 1000;
   }
 }
