@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Bean;
  * @version ${project.version} - 22/11/2018.
  */
 @SpringBootApplication
-@EnableSnowflake(dataCenterId = "1", workerId = "1")
+@EnableSnowflake(workerId = "1")
 public class TestApplication {
 
   public static void main(String[] args) {

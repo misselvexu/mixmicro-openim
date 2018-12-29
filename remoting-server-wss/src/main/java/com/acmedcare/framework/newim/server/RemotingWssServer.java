@@ -92,9 +92,7 @@ public class RemotingWssServer {
   }
 
   @Configuration
-  @EnableSnowflake(
-      dataCenterId = "${snowflake.data-center-id:1}",
-      workerId = "${snowflake.worker-id:1}")
+  @EnableSnowflake(workerId = "${snowflake.worker-id:1}")
   public static class Ids {
     public static Snowflake snowflake;
 

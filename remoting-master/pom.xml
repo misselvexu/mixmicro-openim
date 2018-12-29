@@ -109,7 +109,7 @@
         <dependency>
             <groupId>com.acmedcare.framework</groupId>
             <artifactId>spring-boot-starter-snowflake</artifactId>
-            <version>2.1.0-RC1</version>
+            <version>2.2.0-RC1</version>
         </dependency>
 
         <dependency>

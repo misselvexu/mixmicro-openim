@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Profile;
  * @version ${project.version} - 05/11/2018.
  */
 @SpringBootApplication
-@EnableSnowflake(dataCenterId = "${snowflake.dataCenterId:1}", workerId = "${snowflake.workId:1}")
+@EnableSnowflake(workerId = "${snowflake.workId:1}")
 public class MasterBootstrap {
 
   /** Spring Context Instance of {@link org.springframework.context.ApplicationContext} */
