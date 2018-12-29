@@ -8,6 +8,6 @@ package com.acmedcare.tiffany.framework.remoting.jlib;
  */
 public final class Version {
   public static String get() {
-    return "2.2.1-RC1";
+    return "2.2.3.BUILD-SNAPSHOT";
   }
 }
