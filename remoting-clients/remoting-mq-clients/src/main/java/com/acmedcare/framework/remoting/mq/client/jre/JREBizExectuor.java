@@ -518,6 +518,89 @@ public class JREBizExectuor extends BizExecutor {
   }
 
   @Override
+  public void pullTopics(PullTopicListRequest request, final PullTopicListRequest.Callback callback)
+      throws BizException {
+    if (request == null) {
+      throw new BizException("request must not be null.");
+    }
+
+    request.validateFields();
+
+    if(request.getTopicTag() == null || request.getTopicTag().trim().length() == 0) {
+      throw new BizException("pull topics requets params:[topicTag] must not be null.");
+    }
+
+    PullTopicListHeader header = new PullTopicListHeader();
+    header.setNamespace(request.getNamespace());
+    header.setPassport(request.getPassport());
+    header.setPassportId(request.getPassportId());
+    header.setTopicTag(request.getTopicTag());
+
+    AcmedcareLogger.i(this.getClass().getSimpleName(), "拉取主题列表请求头:" + JSON.toJSONString(header));
+    RemotingCommand command = RemotingCommand.createRequestCommand(Common.PULL_TOPICS, header);
+
+    try {
+      AcmedcareMQRemoting.getRemotingClient()
+          .invokeAsync(
+              this.remotingAddress(),
+              command,
+              requestTimeout,
+              new InvokeCallback() {
+                @Override
+                public void operationComplete(XLMRResponseFuture xlmrResponseFuture) {
+                  if (xlmrResponseFuture.isSendRequestOK()) {
+
+                    RemotingCommand response = xlmrResponseFuture.getResponseCommand();
+
+                    if (response != null) {
+
+                      BizResult bizResult =
+                          BizResult.fromBytes(response.getBody(), BizResult.class);
+                      AcmedcareLogger.i(
+                          JREBizExectuor.class.getSimpleName(), "拉取主题列表返回值:" + bizResult.json());
+
+                      if (bizResult.getCode() == 0 && bizResult.getData() != null) {
+                        // success
+                        AcmedcareLogger.i(
+                            null, "Pull Topic list Succeed , parse topics result list");
+
+                        Object o = bizResult.getData();
+
+                        List<Topic> topics =
+                            JSON.parseObject(
+                                JSON.toJSONString(o), new TypeReference<List<Topic>>() {});
+
+                        // callback
+                        if (callback != null) {
+                          callback.onSuccess(topics);
+                        }
+                      } else {
+                        if (callback != null) {
+                          callback.onFailed(
+                              bizResult.getCode(), bizResult.getException().getMessage());
+                        }
+                      }
+                    } else {
+                      if (callback != null) {
+                        callback.onException(
+                            new BizException("client not received server request response."));
+                      }
+                    }
+                  }
+                }
+              });
+    } catch (InterruptedException
+        | RemotingConnectException
+        | RemotingTimeoutException
+        | RemotingTooMuchRequestException
+        | RemotingSendRequestException e) {
+
+      AcmedcareLogger.e(JREBizExectuor.class.getSimpleName(), e, "Pull topics list Request Failed");
+      throw new BizException(e);
+    }
+  }
+
+  @Override
   public void createNewTopic(final NewTopicRequest request, final NewTopicRequest.Callback callback)
       throws BizException {
 

@@ -5,6 +5,7 @@ import static com.acmedcare.framework.newim.server.mq.MQContext.CLIENT_SESSION_A
 import com.acmedcare.framework.aorp.beans.Principal;
 import com.acmedcare.framework.aorp.client.AorpClient;
 import com.acmedcare.framework.aorp.exception.InvalidTokenException;
+import com.acmedcare.framework.kits.executor.AsyncRuntimeExecutor;
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
 import com.acmedcare.framework.newim.Message.InnerType;
@@ -13,10 +14,12 @@ import com.acmedcare.framework.newim.Message.MessageType;
 import com.acmedcare.framework.newim.Topic;
 import com.acmedcare.framework.newim.server.IdService;
 import com.acmedcare.framework.newim.server.mq.MQCommand.Common;
-import com.acmedcare.framework.newim.server.mq.MQCommand.MonitorClient;
-import com.acmedcare.framework.newim.server.mq.MQCommand.SamplingClient;
+import com.acmedcare.framework.newim.server.mq.MQCommand.ConsumerClient;
+import com.acmedcare.framework.newim.server.mq.MQCommand.ProducerClient;
 import com.acmedcare.framework.newim.server.mq.MQContext;
 import com.acmedcare.framework.newim.server.mq.MQContext.ClientSession;
+import com.acmedcare.framework.newim.server.mq.event.AcmedcareEvent;
+import com.acmedcare.framework.newim.server.mq.event.AcmedcareEvent.OnTopicUnSubscribeEventData;
 import com.acmedcare.framework.newim.server.mq.exception.UnRegisterChannelException;
 import com.acmedcare.framework.newim.server.mq.processor.body.TopicSubscribeMapping;
 import com.acmedcare.framework.newim.server.mq.processor.header.FixTopicMessageListHeader;
@@ -83,33 +86,33 @@ public class MQProcessor implements NettyRequestProcessor {
       int code = remotingCommand.getCode();
       switch (code) {
           // monitor client biz code
-        case MonitorClient.HANDSHAKE:
+        case ConsumerClient.HANDSHAKE:
           // handshake request type recommended: oneway
           break;
-        case MonitorClient.REGISTER:
+        case ConsumerClient.REGISTER:
           return this.monitorClientRegister(channelHandlerContext, remotingCommand);
-        case MonitorClient.SHUTDOWN:
+        case ConsumerClient.SHUTDOWN:
           return this.monitorClientShutdown(channelHandlerContext, remotingCommand);
-        case MonitorClient.TOPIC_SUBSCRIBE:
+        case ConsumerClient.TOPIC_SUBSCRIBE:
           return this.monitorClientTopicSubscribe(channelHandlerContext, remotingCommand);
-        case MonitorClient.REVOKE_TOPIC_SUBSCRIBE:
+        case ConsumerClient.REVOKE_TOPIC_SUBSCRIBE:
           return this.monitorClientRevokeTopicSubscribe(channelHandlerContext, remotingCommand);
-        case MonitorClient.FIX_MESSAGE:
+        case ConsumerClient.FIX_MESSAGE:
           return this.monitorClientFixMessages(channelHandlerContext, remotingCommand);
 
           // sampling client biz code
-        case SamplingClient.HANDSHAKE:
+        case ProducerClient.HANDSHAKE:
           // handshake request type recommended: oneway
           break;
-        case SamplingClient.REGISTER:
+        case ProducerClient.REGISTER:
           return this.samplingClientRegister(channelHandlerContext, remotingCommand);
-        case SamplingClient.SHUTDOWN:
+        case ProducerClient.SHUTDOWN:
           return this.samplingClientShutdown(channelHandlerContext, remotingCommand);
-        case SamplingClient.PULL_TOPIC_SUBSCRIBE_MAPPING:
+        case ProducerClient.PULL_TOPIC_SUBSCRIBE_MAPPING:
           return this.samplingClientPullTopicSubscribeMapping(
               channelHandlerContext, remotingCommand);
 
-        case SamplingClient.SEND_TOPIC_MESSAGE:
+        case ProducerClient.SEND_TOPIC_MESSAGE:
           return this.samplingClientSendTopicMessage(channelHandlerContext, remotingCommand);
 
           // common biz command
@@ -280,6 +283,33 @@ public class MQProcessor implements NettyRequestProcessor {
 
     // return success
     response.setBody(BizResult.builder().code(0).build().bytes());
+
+    OnTopicUnSubscribeEventData data =
+        OnTopicUnSubscribeEventData.builder()
+            .passportId(Long.parseLong(header.getPassportId()))
+            .topicIds(list.toArray(new String[0]))
+            .build();
+
+    // 广播取消订阅事件
+    context.broadcastEvent(
+        new AcmedcareEvent() {
+          @Override
+          public Event eventType() {
+            return BizEvent.ON_TOPIC_UB_SUBSCRIBE_EVENT;
+          }
+
+          @Override
+          public Object data() {
+            return data;
+          }
+        });
+
+    // 异步检查主题订阅关系
+    AsyncRuntimeExecutor.getAsyncThreadPool()
+        .execute(
+            () ->
+                this.mqService.reCheckTopicSubscribeMappings(
+                    context, header.getNamespace(), list.toArray(new String[0])));
 
     return response;
   }
@@ -469,7 +499,7 @@ public class MQProcessor implements NettyRequestProcessor {
 
     Assert.notNull(header, "Request header must not be null.");
 
-    List<Topic> topics = this.mqService.pullTopicsList(header.getNamespace());
+    List<Topic> topics = this.mqService.pullTopicsList(header.getNamespace(), header.getTopicTag());
 
     // return success
     response.setBody(BizResult.builder().code(0).data(topics).build().bytes());

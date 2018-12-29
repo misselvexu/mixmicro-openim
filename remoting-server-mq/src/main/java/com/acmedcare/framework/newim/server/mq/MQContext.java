@@ -7,12 +7,18 @@ import com.acmedcare.framework.newim.Message.MQMessage;
 import com.acmedcare.framework.newim.Topic.TopicSubscribe;
 import com.acmedcare.framework.newim.server.Context;
 import com.acmedcare.framework.newim.server.mq.MQCommand.Common;
+import com.acmedcare.framework.newim.server.mq.MQCommand.ProducerClient;
+import com.acmedcare.framework.newim.server.mq.event.AcmedcareEvent;
+import com.acmedcare.framework.newim.server.mq.event.AcmedcareEvent.BizEvent;
+import com.acmedcare.framework.newim.server.mq.event.AcmedcareEvent.Event;
 import com.acmedcare.framework.newim.server.replica.NodeReplicaBeanFactory;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.util.AttributeKey;
 import java.util.List;
 import java.util.Map;
@@ -144,6 +150,80 @@ public final class MQContext implements Context {
   @Override
   public Context context() {
     return this;
+  }
+
+  public void broadcastEvent(AcmedcareEvent event) {
+    if (event != null) {
+      if (event.eventType() != null) {
+        Event e = event.eventType();
+        if (e instanceof BizEvent) {
+          switch ((BizEvent) e) {
+            case ON_TOPIC_EMPTY_SUBSCRIBED_EVENT:
+              AsyncRuntimeExecutor.getAsyncThreadPool()
+                  .execute(
+                      () ->
+                          SAMPLING_SESSIONS.forEach(
+                              (aLong, channels) -> {
+                                if (!channels.isEmpty()) {
+                                  for (Channel channel : channels) {
+                                    if (channel != null && channel.isWritable()) {
+                                      RemotingCommand command =
+                                          RemotingCommand.createRequestCommand(
+                                              ProducerClient.ON_TOPIC_UNSUBSCRIBE_EVENT, null);
+                                      command.setBody(JSON.toJSONBytes(event.data()));
+                                      channel
+                                          .writeAndFlush(command)
+                                          .addListener(
+                                              (ChannelFutureListener)
+                                                  future -> {
+                                                    if (!future.isSuccess()) {
+                                                      logger.warn(
+                                                          "broadcast un-subscribe-event message failed, {},{}",
+                                                          aLong,
+                                                          event.data().toString());
+                                                    }
+                                                  });
+                                    }
+                                  }
+                                }
+                              }));
+              break;
+
+            case ON_TOPIC_UB_SUBSCRIBE_EVENT:
+              AsyncRuntimeExecutor.getAsyncThreadPool()
+                  .execute(
+                      () ->
+                          SAMPLING_SESSIONS.forEach(
+                              (aLong, channels) -> {
+                                if (!channels.isEmpty()) {
+                                  for (Channel channel : channels) {
+                                    if (channel != null && channel.isWritable()) {
+                                      RemotingCommand command =
+                                          RemotingCommand.createRequestCommand(
+                                              ProducerClient.ON_TOPIC_SUBSCRIBED_EMPTY_EVENT, null);
+                                      command.setBody(JSON.toJSONBytes(event.data()));
+                                      channel
+                                          .writeAndFlush(command)
+                                          .addListener(
+                                              (ChannelFutureListener)
+                                                  future -> {
+                                                    if (!future.isSuccess()) {
+                                                      logger.warn(
+                                                          "broadcast topic-removed-event message failed, {},{}",
+                                                          aLong,
+                                                          event.data().toString());
+                                                    }
+                                                  });
+                                    }
+                                  }
+                                }
+                              }));
+
+              break;
+          }
+        }
+      }
+    }
   }
 
   @Getter

@@ -30,6 +30,12 @@ public class BizCode {
     int PULL_TOPIC_SUBSCRIBE_MAPPING = 0x50004;
 
     int SEND_TOPIC_MESSAGE = 0x50005;
+
+    /** 主题删除 */
+    int ON_TOPIC_SUBSCRIBED_EMPTY_EVENT = 0x50006;
+
+    /** 取消订阅 */
+    int ON_TOPIC_UNSUBSCRIBE_EVENT = 0x50007;
   }
 
   /** 监护端数据协议 */

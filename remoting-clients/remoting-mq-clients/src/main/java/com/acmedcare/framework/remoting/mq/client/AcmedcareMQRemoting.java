@@ -14,6 +14,8 @@ import com.acmedcare.framework.remoting.mq.client.exception.NoServerAddressExcep
 import com.acmedcare.framework.remoting.mq.client.exception.SdkInitException;
 import com.acmedcare.framework.remoting.mq.client.jre.JREBizExectuor;
 import com.acmedcare.framework.remoting.mq.client.processor.MQTopicMessagesProcessor;
+import com.acmedcare.framework.remoting.mq.client.processor.OnTopicSubscribedEmptyProcessor;
+import com.acmedcare.framework.remoting.mq.client.processor.OnTopicUnSubscribeProcessor;
 import com.acmedcare.nas.client.NasProperties;
 import com.acmedcare.tiffany.framework.remoting.android.core.IoSessionEventListener;
 import com.acmedcare.tiffany.framework.remoting.android.core.protocol.RemotingCommand;
@@ -475,6 +477,15 @@ public final class AcmedcareMQRemoting implements Serializable {
           "[Monitor] Register-ed MQ Topic Biz Code: 0x"
               + Integer.toHexString(TOPIC_MESSAGE_PUSH)
               + " processor.");
+    }
+
+    if (!isMonitor()) {
+      AcmedcareMQRemoting.remotingClient.registerProcessor(
+          SamplingClient.ON_TOPIC_SUBSCRIBED_EMPTY_EVENT,
+          new OnTopicSubscribedEmptyProcessor(this),
+          null);
+      AcmedcareMQRemoting.remotingClient.registerProcessor(
+          SamplingClient.ON_TOPIC_UNSUBSCRIBE_EVENT, new OnTopicUnSubscribeProcessor(this), null);
     }
   }
 

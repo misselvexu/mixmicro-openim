@@ -22,6 +22,8 @@ public class PullTopicListHeader implements CommandCustomHeader {
 
   @CFNotNull private String passportId;
 
+  private String topicTag;
+
   @Override
   public void checkFields() throws RemotingCommandException {}
 }

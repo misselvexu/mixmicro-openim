@@ -6,6 +6,7 @@ import com.acmedcare.framework.newim.Topic;
 import com.acmedcare.framework.newim.Topic.TopicSubscribe;
 import com.acmedcare.framework.newim.server.master.connector.MasterConnector;
 import com.acmedcare.framework.newim.server.mq.MQContext;
+import com.acmedcare.framework.newim.server.mq.event.AcmedcareEvent;
 import com.acmedcare.framework.newim.server.mq.exception.MQServiceException;
 import com.acmedcare.framework.newim.server.mq.processor.body.TopicSubscribeMapping;
 import com.acmedcare.framework.newim.server.mq.processor.body.TopicSubscribeMapping.TopicMapping;
@@ -69,8 +70,8 @@ public class MQService {
     return result;
   }
 
-  public List<Topic> pullTopicsList(String namespace) {
-    return this.topicRepository.queryTopics(namespace);
+  public List<Topic> pullTopicsList(String namespace, String topicTag) {
+    return this.topicRepository.queryTopics(namespace, topicTag);
   }
 
   public void subscribeTopics(
@@ -162,5 +163,27 @@ public class MQService {
   public List<MQMessage> queryMessageList(
       String namespace, Long lastTopicMessageId, int limit, Long topicId) {
     return null;
+  }
+
+  public void reCheckTopicSubscribeMappings(
+      MQContext context, String namespace, String[] topicIds) {
+    for (String topicId : topicIds) {
+      List list = this.topicRepository.queryTopicSubscribes(namespace, Long.parseLong(topicId));
+      if (list == null || list.isEmpty()) {
+        // send empty event
+        context.broadcastEvent(
+            new AcmedcareEvent() {
+              @Override
+              public Event eventType() {
+                return BizEvent.ON_TOPIC_EMPTY_SUBSCRIBED_EVENT;
+              }
+
+              @Override
+              public Object data() {
+                return OnTopicSubscribeEmptyEventData.builder().topicId(topicId).build();
+              }
+            });
+      }
+    }
   }
 }

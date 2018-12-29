@@ -25,8 +25,9 @@ public interface TopicRepository {
    *
    * @return topic list
    * @param namespace namespace
+   * @param topicTag
    */
-  List<Topic> queryTopics(String namespace);
+  List<Topic> queryTopics(String namespace, String topicTag);
 
   /**
    * save topic subscribe mappings
