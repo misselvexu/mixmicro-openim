@@ -8,7 +8,11 @@ package com.acmedcare.framework.newim.server.mq;
  */
 public class MQCommand {
 
-  /** 采样段数据协议 */
+  /**
+   * 采样段数据协议
+   *
+   * @deprecated use {@link ProducerClient} instead of
+   */
   public interface SamplingClient {
 
     /** 握手协议 */
@@ -27,7 +31,13 @@ public class MQCommand {
     int SEND_TOPIC_MESSAGE = 0x50005;
   }
 
-  /** 监护端数据协议 */
+  public interface ProducerClient extends SamplingClient {}
+
+  /**
+   * 监护端数据协议
+   *
+   * @deprecated use {@link ConsumerClient} instead of
+   */
   public interface MonitorClient {
 
     /** 握手协议 */
@@ -48,6 +58,8 @@ public class MQCommand {
     /** 填补数据协议 */
     int FIX_MESSAGE = 0x60006;
   }
+
+  public interface ConsumerClient extends MonitorClient {}
 
   public interface Common {
 
