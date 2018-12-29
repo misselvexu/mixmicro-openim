@@ -1,4 +1,4 @@
-package com.acmedcare.framework.remoting.mq.client.events;
+package com.acmedcare.framework.newim.server.mq.event;
 
 import com.alibaba.fastjson.JSON;
 import java.io.Serializable;
@@ -43,17 +43,10 @@ public abstract class AcmedcareEvent {
   public abstract Object data();
 
   /** System Event */
-  public enum SystemEvent implements Event {
-    SDK_INIT,
-
-    RE_CONNECT_FAILED
-  }
+  public enum SystemEvent implements Event {}
 
   /** Biz Event */
   public enum BizEvent implements Event {
-
-    /** 收到主题消息事件 */
-    ON_TOPIC_MESSAGE_EVENT,
 
     /** 取消订阅的通知时间 */
     ON_TOPIC_UB_SUBSCRIBE_EVENT,

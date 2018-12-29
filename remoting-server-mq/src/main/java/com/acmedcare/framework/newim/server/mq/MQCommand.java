@@ -29,6 +29,12 @@ public class MQCommand {
 
     /** 发送主题消息 */
     int SEND_TOPIC_MESSAGE = 0x50005;
+
+    /** 主题删除 */
+    int ON_TOPIC_SUBSCRIBED_EMPTY_EVENT = 0x50006;
+
+    /** 取消订阅 */
+    int ON_TOPIC_UNSUBSCRIBE_EVENT = 0x50007;
   }
 
   public interface ProducerClient extends SamplingClient {}

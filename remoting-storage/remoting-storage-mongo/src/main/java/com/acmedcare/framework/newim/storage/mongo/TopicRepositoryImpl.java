@@ -46,8 +46,11 @@ public class TopicRepositoryImpl implements TopicRepository {
   }
 
   @Override
-  public List<Topic> queryTopics(String namespace) {
+  public List<Topic> queryTopics(String namespace, String topicTag) {
     Query query = new Query(Criteria.where("namespace").is(namespace));
+    if (topicTag != null && topicTag.trim().length() > 0) {
+      query = new Query(Criteria.where("namespace").is(namespace).and("topicTag").is(topicTag));
+    }
     return this.mongoTemplate.find(query, Topic.class, IMStorageCollections.TOPIC);
   }
 

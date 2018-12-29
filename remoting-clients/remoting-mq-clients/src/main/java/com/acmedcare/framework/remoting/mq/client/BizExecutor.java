@@ -133,6 +133,17 @@ public abstract class BizExecutor {
       PullTopicListRequest request, PullTopicListRequest.Callback callback) throws BizException;
 
   /**
+   * Pull Topic List (拉取主题列表)
+   *
+   * @param request 请求
+   * @param callback 回调(主题列表)
+   * @throws BizException exception
+   */
+  public abstract void pullTopics(
+      PullTopicListRequest request, PullTopicListRequest.Callback callback) throws BizException;
+
+
+  /**
    * Create new topic (创建新主题)
    *
    * @param request 请求对象

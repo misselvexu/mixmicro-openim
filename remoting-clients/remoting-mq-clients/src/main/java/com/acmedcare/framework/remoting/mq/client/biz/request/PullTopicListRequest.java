@@ -18,6 +18,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class PullTopicListRequest extends BaseRequest {
 
+  private String topicTag;
+
   @Override
   public void validateFields() throws BizException {}
 
