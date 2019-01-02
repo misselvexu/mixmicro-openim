@@ -2,10 +2,11 @@ package com.acmedcare.framework.remoting.mq.client;
 
 import com.acmedcare.framework.remoting.mq.client.biz.request.AuthRequest;
 import com.acmedcare.nas.client.NasProperties;
-import com.acmedcare.tiffany.framework.remoting.android.core.protocol.RemotingCommand;
 import com.acmedcare.tiffany.framework.remoting.android.utils.RemotingLogger;
 import com.google.common.base.Strings;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Getter;
@@ -59,8 +60,20 @@ public final class RemotingParameters {
       if (jksFile == null || !jksFile.exists()) {
         try {
           // load default
-          this.jksFile =
-              new File(RemotingCommand.class.getResource("/META-INF/mq-keystore.jks").toURI());
+          InputStream stream =
+              RemotingParameters.class.getResourceAsStream("/META-INF/mq-keystore.jks");
+
+          byte[] buffer = new byte[stream.available()];
+          stream.read(buffer);
+
+          File tempSSLKeyFile = File.createTempFile("temp-ssl-key-", ".jks");
+          FileOutputStream fos = new FileOutputStream(tempSSLKeyFile);
+          fos.write(buffer);
+          fos.flush();
+          fos.close();
+          tempSSLKeyFile.deleteOnExit();
+
+          jksFile = tempSSLKeyFile;
           this.jksPassword = DEFAULT_JKS_PD;
         } catch (Exception e) {
           RemotingLogger.warn(null, "load default jks failed.(ignore)");
@@ -68,11 +81,14 @@ public final class RemotingParameters {
       }
     }
 
-    if(clientType == null) {
+    if (clientType == null) {
       return false;
     }
 
     boolean and = false;
+    if (!enableSSL) {
+      and = true;
+    }
     if (enableSSL && jksFile != null && jksFile.exists()) {
       and = true;
     }
@@ -83,8 +99,6 @@ public final class RemotingParameters {
         && passportId > 0
         && and
         && !Strings.isNullOrEmpty(orgId)
-        && !Strings.isNullOrEmpty(deviceId)
-        && !Strings.isNullOrEmpty(accessToken)
-        && !Strings.isNullOrEmpty(accessToken);
+        && !Strings.isNullOrEmpty(deviceId);
   }
 }
