@@ -6,7 +6,6 @@ import com.acmedcare.tiffany.framework.remoting.android.core.protocol.RemotingCo
 import com.acmedcare.tiffany.framework.remoting.android.utils.RemotingLogger;
 import com.google.common.base.Strings;
 import java.io.File;
-import java.nio.file.Paths;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Getter;
@@ -61,8 +60,7 @@ public final class RemotingParameters {
         try {
           // load default
           this.jksFile =
-              Paths.get(RemotingCommand.class.getResource("/META-INF/mq-keystore.jks").toURI())
-                  .toFile();
+              new File(RemotingCommand.class.getResource("/META-INF/mq-keystore.jks").toURI());
           this.jksPassword = DEFAULT_JKS_PD;
         } catch (Exception e) {
           RemotingLogger.warn(null, "load default jks failed.(ignore)");
