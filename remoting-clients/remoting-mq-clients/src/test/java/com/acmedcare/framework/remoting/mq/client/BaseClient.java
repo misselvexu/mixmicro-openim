@@ -64,6 +64,7 @@ public class BaseClient {
     request.setPassportId(passportId);
     request.setTopicName(topicName);
     request.setTopicTag(topicTag);
+    request.setTopicType("type");
 
     AcmedcareMQRemoting.getInstance()
         .executor()

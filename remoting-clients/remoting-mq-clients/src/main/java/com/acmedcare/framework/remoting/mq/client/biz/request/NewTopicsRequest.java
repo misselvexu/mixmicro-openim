@@ -1,13 +1,16 @@
 package com.acmedcare.framework.remoting.mq.client.biz.request;
 
 import com.acmedcare.framework.remoting.mq.client.Serializables;
+import com.acmedcare.framework.remoting.mq.client.biz.bean.Topic;
 import com.acmedcare.framework.remoting.mq.client.exception.BizException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
- * NewTopicRequest
+ * NewTopicsRequest
  *
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version ${project.version} - 2018-12-24.
@@ -15,28 +18,18 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class NewTopicRequest extends BaseRequest {
+public class NewTopicsRequest extends BaseRequest {
 
-  /** 主题名称 */
-  private String topicName;
-
-  /** 主题标识 */
-  private String topicTag;
-
-  private String topicType;
-
-  /** 主题描述 */
-  private String topicDesc;
-
-  /** 主题扩展信息 */
-  private String topicExt;
+  private List<NewTopicRequest> newTopicRequests;
 
   @Override
   public void validateFields() throws BizException {
-    if (Serializables.isAnyBlank(
-        this.topicName, this.topicTag, this.topicType, this.getPassport(), this.getPassportId())) {
-      throw new BizException(
-          "New topic request params:[topicName,topicTag,passport,passportId] can't be null.");
+    if (newTopicRequests != null && !newTopicRequests.isEmpty()) {
+      for (NewTopicRequest newTopicRequest : newTopicRequests) {
+        newTopicRequest.validateFields();
+      }
+    } else {
+      throw new BizException("request must not be null.");
     }
   }
 
@@ -45,9 +38,9 @@ public class NewTopicRequest extends BaseRequest {
     /**
      * Succeed callback
      *
-     * @param topicId topic id
+     * @param topics topics
      */
-    void onSuccess(Long topicId);
+    void onSuccess(List<Topic> topics);
 
     /**
      * Sub failed callback

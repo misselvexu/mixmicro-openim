@@ -24,6 +24,8 @@ public class NewTopicHeader implements CommandCustomHeader {
 
   /** 主题标识 */
   @CFNotNull private String topicTag;
+
+  @CFNotNull private String topicType;
   /** 主题名称 */
   @CFNotNull private String topicName;
 

@@ -130,7 +130,7 @@ public class SamplingClient extends BaseClient {
         // functions
         String[] inputArgs = input.split("\\s+");
 
-        // createTopic T2 T2-TAG
+        // createTopic T22 T22-TAG
         if ("createTopic".equals(inputArgs[0])) {
           createTopic(
               KnownParams.passport, KnownParams.passportId.toString(), inputArgs[1], inputArgs[2]);

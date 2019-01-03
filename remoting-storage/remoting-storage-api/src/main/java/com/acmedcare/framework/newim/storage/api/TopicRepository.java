@@ -30,6 +30,14 @@ public interface TopicRepository {
   List<Topic> queryTopics(String namespace, String topicTag);
 
   /**
+   * Query Topics By ids
+   *
+   * @param topicIds topic ids
+   * @return topic list
+   */
+  List<Topic> queryTopics(Long[] topicIds);
+
+  /**
    * save topic subscribe mappings
    *
    * @param subscribes list
