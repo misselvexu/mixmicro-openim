@@ -22,13 +22,7 @@ import com.acmedcare.framework.newim.server.mq.event.AcmedcareEvent;
 import com.acmedcare.framework.newim.server.mq.event.AcmedcareEvent.OnTopicUnSubscribeEventData;
 import com.acmedcare.framework.newim.server.mq.exception.UnRegisterChannelException;
 import com.acmedcare.framework.newim.server.mq.processor.body.TopicSubscribeMapping;
-import com.acmedcare.framework.newim.server.mq.processor.header.FixTopicMessageListHeader;
-import com.acmedcare.framework.newim.server.mq.processor.header.NewTopicHeader;
-import com.acmedcare.framework.newim.server.mq.processor.header.PullTopicListHeader;
-import com.acmedcare.framework.newim.server.mq.processor.header.PullTopicSubscribedMappingsHeader;
-import com.acmedcare.framework.newim.server.mq.processor.header.RegisterHeader;
-import com.acmedcare.framework.newim.server.mq.processor.header.SendTopicMessageHeader;
-import com.acmedcare.framework.newim.server.mq.processor.header.SubscribeTopicOperateHeader;
+import com.acmedcare.framework.newim.server.mq.processor.header.*;
 import com.acmedcare.framework.newim.server.mq.service.MQService;
 import com.acmedcare.framework.newim.spi.util.Assert;
 import com.acmedcare.tiffany.framework.remoting.exception.RemotingCommandException;
@@ -36,8 +30,11 @@ import com.acmedcare.tiffany.framework.remoting.exception.RemotingConnectExcepti
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRequestProcessor;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -118,6 +115,10 @@ public class MQProcessor implements NettyRequestProcessor {
           // common biz command
         case Common.CREATE_TOPIC:
           return this.newTopic(channelHandlerContext, remotingCommand);
+        case Common.CREATE_TOPICS:
+          return this.newTopics(channelHandlerContext, remotingCommand);
+        case Common.QUERY_TOPIC_DETAIL:
+          return this.topicDetail(channelHandlerContext, remotingCommand);
         case Common.PULL_TOPICS:
           return this.pullTopicsList(channelHandlerContext, remotingCommand);
 
@@ -444,11 +445,41 @@ public class MQProcessor implements NettyRequestProcessor {
     topic.setTopicExt(header.getTopicExt());
     topic.setTopicDesc(header.getTopicDesc());
     topic.setNamespace(header.getNamespace());
+    topic.setTopicType(header.getTopicType());
 
     Long[] ids = this.mqService.createNewTopic(topic);
 
     // return success
     response.setBody(BizResult.builder().code(0).data(ids[0]).build().bytes());
+
+    return response;
+  }
+
+  private RemotingCommand newTopics(
+      ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand)
+      throws UnRegisterChannelException, RemotingConnectException, RemotingCommandException,
+          UnsupportedEncodingException {
+
+    ClientSession clientSession = validateChannel(channelHandlerContext.channel());
+
+    RemotingCommand response =
+        RemotingCommand.createResponseCommand(remotingCommand.getCode(), null);
+
+    NewTopicHeader header =
+        (NewTopicHeader) remotingCommand.decodeCommandCustomHeader(NewTopicHeader.class);
+
+    Assert.notNull(header, "Request header must not be null.");
+
+    List<Topic> topics =
+        JSON.parseObject(
+            new String(remotingCommand.getBody(), "UTF-8"), new TypeReference<List<Topic>>() {});
+
+    Long[] ids = this.mqService.createNewTopic(topics.toArray(new Topic[0]));
+
+    List<Topic> list = this.mqService.queryTopics(ids);
+
+    // return success
+    response.setBody(BizResult.builder().code(0).data(list).build().bytes());
 
     return response;
   }
@@ -474,6 +505,7 @@ public class MQProcessor implements NettyRequestProcessor {
     mqMessage.setBody(remotingCommand.getBody());
     mqMessage.setMessageType(MessageType.MQ);
     mqMessage.setInnerType(InnerType.NORMAL);
+    mqMessage.setTopicType(header.getTopicType());
     mqMessage.setSender(header.getPassportId());
     mqMessage.setMid(idService.nextId());
     mqMessage.setPersistent(false);
@@ -503,6 +535,29 @@ public class MQProcessor implements NettyRequestProcessor {
 
     // return success
     response.setBody(BizResult.builder().code(0).data(topics).build().bytes());
+
+    return response;
+  }
+
+  private RemotingCommand topicDetail(
+      ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand)
+      throws UnRegisterChannelException, RemotingConnectException, RemotingCommandException {
+
+    ClientSession clientSession = validateChannel(channelHandlerContext.channel());
+
+    RemotingCommand response =
+        RemotingCommand.createResponseCommand(remotingCommand.getCode(), null);
+
+    PullTopicDetailHeader header =
+        (PullTopicDetailHeader)
+            remotingCommand.decodeCommandCustomHeader(PullTopicDetailHeader.class);
+
+    Assert.notNull(header, "Request header must not be null.");
+
+    Topic topic = this.mqService.queryTopic(header.getNamespace(), header.getTopicId());
+
+    // return success
+    response.setBody(BizResult.builder().code(0).data(topic).build().bytes());
 
     return response;
   }

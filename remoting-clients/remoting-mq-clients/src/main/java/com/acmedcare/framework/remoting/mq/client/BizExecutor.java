@@ -1,12 +1,6 @@
 package com.acmedcare.framework.remoting.mq.client;
 
-import com.acmedcare.framework.remoting.mq.client.biz.request.AuthRequest;
-import com.acmedcare.framework.remoting.mq.client.biz.request.FixTopicMessageListRequest;
-import com.acmedcare.framework.remoting.mq.client.biz.request.NewTopicRequest;
-import com.acmedcare.framework.remoting.mq.client.biz.request.PullTopicListRequest;
-import com.acmedcare.framework.remoting.mq.client.biz.request.PullTopicSubscribedMappingsRequest;
-import com.acmedcare.framework.remoting.mq.client.biz.request.SendTopicMessageRequest;
-import com.acmedcare.framework.remoting.mq.client.biz.request.SubscribeTopicRequest;
+import com.acmedcare.framework.remoting.mq.client.biz.request.*;
 import com.acmedcare.framework.remoting.mq.client.biz.request.SubscribeTopicRequest.Callback;
 import com.acmedcare.framework.remoting.mq.client.exception.BizException;
 import com.acmedcare.nas.client.NasClient;
@@ -142,6 +136,15 @@ public abstract class BizExecutor {
   public abstract void pullTopics(
       PullTopicListRequest request, PullTopicListRequest.Callback callback) throws BizException;
 
+  /**
+   * Pull Topic (拉取主题详情)
+   *
+   * @param request 请求
+   * @param callback 回调(主题列表)
+   * @throws BizException exception
+   */
+  public abstract void pullTopicDetail(
+          PullTopicDetailRequest request, PullTopicDetailRequest.Callback callback) throws BizException;
 
   /**
    * Create new topic (创建新主题)
@@ -151,6 +154,16 @@ public abstract class BizExecutor {
    * @throws BizException exception
    */
   public abstract void createNewTopic(NewTopicRequest request, NewTopicRequest.Callback callback)
+      throws BizException;
+
+  /**
+   * Create new topics (创建新主题)
+   *
+   * @param request 请求对象
+   * @param callback 回调
+   * @throws BizException exception
+   */
+  public abstract void createNewTopics(NewTopicsRequest request, NewTopicsRequest.Callback callback)
       throws BizException;
 
   /**

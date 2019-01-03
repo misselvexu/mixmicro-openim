@@ -186,4 +186,12 @@ public class MQService {
       }
     }
   }
+
+  public List<Topic> queryTopics(Long[] topicIds) {
+    return this.topicRepository.queryTopics(topicIds);
+  }
+
+  public Topic queryTopic(String namespace, Long topicId) {
+    return this.topicRepository.queryTopicDetail(namespace, topicId);
+  }
 }

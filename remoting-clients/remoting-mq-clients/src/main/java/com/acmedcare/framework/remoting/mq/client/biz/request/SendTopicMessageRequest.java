@@ -23,13 +23,15 @@ public class SendTopicMessageRequest extends BaseRequest {
   /** Topic Tag */
   private String topicTag;
 
+  private String topicType;
+
   /** Topic Message Content */
   private byte[] content;
 
   @Override
   public void validateFields() throws BizException {
-    if (Serializables.isAnyBlank(topicTag, getPassport(), getPassportId())) {
-      throw new BizException("发送主题消息参数:[topicTag,passport,passportId]不能为空");
+    if (Serializables.isAnyBlank(topicTag, topicType, getPassport(), getPassportId())) {
+      throw new BizException("发送主题消息参数:[topicTag,topicType,passport,passportId]不能为空");
     }
 
     if (topicId == null || topicId < 0) {

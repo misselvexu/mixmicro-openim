@@ -55,6 +55,12 @@ public class TopicRepositoryImpl implements TopicRepository {
   }
 
   @Override
+  public List<Topic> queryTopics(Long[] topicIds) {
+    Query query = new Query(Criteria.where("topicId").in(Lists.newArrayList(topicIds)));
+    return this.mongoTemplate.find(query, Topic.class, IMStorageCollections.TOPIC);
+  }
+
+  @Override
   public void saveSubscribes(TopicSubscribe... subscribes) {
     List<TopicSubscribe> list = Lists.newArrayList(subscribes);
     this.mongoTemplate.insert(list, TOPIC_SUBSCRIBE);

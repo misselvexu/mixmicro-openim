@@ -75,6 +75,20 @@ public class MQCommand {
     /** 创建主题请求 */
     int CREATE_TOPIC = 0x70002;
 
+    /**
+     * 批量创建主题
+     *
+     * @since 2.2.3
+     */
+    int CREATE_TOPICS = 0x70012;
+
+    /**
+     * 查询主题详情
+     *
+     * @since 2.2.3
+     */
+    int QUERY_TOPIC_DETAIL = 0x70013;
+
     /** 拉取主题列表 */
     int PULL_TOPICS = 0x70003;
   }

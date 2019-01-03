@@ -34,6 +34,9 @@ public class Topic implements Serializable {
   /** 主题标识 */
   private String topicTag;
 
+  /** 主题类型 */
+  private String topicType;
+
   /** 主题描述 */
   private String topicDesc;
 
@@ -66,6 +69,7 @@ public class Topic implements Serializable {
     sb.append("topicId=").append(topicId);
     sb.append(", topicName='").append(topicName).append('\'');
     sb.append(", topicTag='").append(topicTag).append('\'');
+    sb.append(", topicType='").append(topicType).append('\'');
     sb.append(", topicDesc='").append(topicDesc).append('\'');
     sb.append(", topicExt='").append(topicExt).append('\'');
     sb.append('}');

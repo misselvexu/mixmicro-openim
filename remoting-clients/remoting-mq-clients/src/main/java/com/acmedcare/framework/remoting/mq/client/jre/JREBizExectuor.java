@@ -11,21 +11,8 @@ import com.acmedcare.framework.remoting.mq.client.biz.BizResult;
 import com.acmedcare.framework.remoting.mq.client.biz.bean.Message;
 import com.acmedcare.framework.remoting.mq.client.biz.bean.Topic;
 import com.acmedcare.framework.remoting.mq.client.biz.body.TopicSubscribeMapping;
-import com.acmedcare.framework.remoting.mq.client.biz.request.AuthHeader;
-import com.acmedcare.framework.remoting.mq.client.biz.request.AuthRequest;
-import com.acmedcare.framework.remoting.mq.client.biz.request.FixTopicMessageListHeader;
-import com.acmedcare.framework.remoting.mq.client.biz.request.FixTopicMessageListRequest;
-import com.acmedcare.framework.remoting.mq.client.biz.request.NewTopicHeader;
-import com.acmedcare.framework.remoting.mq.client.biz.request.NewTopicRequest;
-import com.acmedcare.framework.remoting.mq.client.biz.request.PullTopicListHeader;
-import com.acmedcare.framework.remoting.mq.client.biz.request.PullTopicListRequest;
-import com.acmedcare.framework.remoting.mq.client.biz.request.PullTopicSubscribedMappingsHeader;
-import com.acmedcare.framework.remoting.mq.client.biz.request.PullTopicSubscribedMappingsRequest;
-import com.acmedcare.framework.remoting.mq.client.biz.request.SendTopicMessageHeader;
-import com.acmedcare.framework.remoting.mq.client.biz.request.SendTopicMessageRequest;
-import com.acmedcare.framework.remoting.mq.client.biz.request.SubscribeTopicOperateHeader;
+import com.acmedcare.framework.remoting.mq.client.biz.request.*;
 import com.acmedcare.framework.remoting.mq.client.biz.request.SubscribeTopicOperateHeader.OperateType;
-import com.acmedcare.framework.remoting.mq.client.biz.request.SubscribeTopicRequest;
 import com.acmedcare.framework.remoting.mq.client.biz.request.SubscribeTopicRequest.Callback;
 import com.acmedcare.framework.remoting.mq.client.exception.BizException;
 import com.acmedcare.tiffany.framework.remoting.android.core.InvokeCallback;
@@ -37,6 +24,8 @@ import com.acmedcare.tiffany.framework.remoting.android.core.protocol.RemotingCo
 import com.acmedcare.tiffany.framework.remoting.android.core.xlnio.XLMRResponseFuture;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.google.common.collect.Lists;
+
 import java.util.List;
 
 /**
@@ -299,6 +288,7 @@ public class JREBizExectuor extends BizExecutor {
     header.setPassportId(request.getPassportId());
     header.setTopicId(request.getTopicId());
     header.setTopicTag(request.getTopicTag());
+    header.setTopicType(request.getTopicType());
 
     AcmedcareLogger.i(this.getClass().getSimpleName(), "发送主题消息请求头:" + JSON.toJSONString(header));
     RemotingCommand command =
@@ -526,7 +516,7 @@ public class JREBizExectuor extends BizExecutor {
 
     request.validateFields();
 
-    if(request.getTopicTag() == null || request.getTopicTag().trim().length() == 0) {
+    if (request.getTopicTag() == null || request.getTopicTag().trim().length() == 0) {
       throw new BizException("pull topics requets params:[topicTag] must not be null.");
     }
 
@@ -601,6 +591,89 @@ public class JREBizExectuor extends BizExecutor {
   }
 
   @Override
+  public void pullTopicDetail(
+      PullTopicDetailRequest request, final PullTopicDetailRequest.Callback callback)
+      throws BizException {
+    if (request == null) {
+      throw new BizException("request must not be null.");
+    }
+
+    request.validateFields();
+
+    if (request.getTopicId() == null || request.getTopicId() <= 0L) {
+      throw new BizException("pull topics requets params:[topicId] must not be invalid.");
+    }
+
+    PullTopicDetailHeader header = new PullTopicDetailHeader();
+    header.setNamespace(request.getNamespace());
+    header.setPassport(request.getPassport());
+    header.setPassportId(request.getPassportId());
+    header.setTopicId(request.getTopicId());
+
+    AcmedcareLogger.i(this.getClass().getSimpleName(), "拉取主题详情请求头:" + JSON.toJSONString(header));
+    RemotingCommand command = RemotingCommand.createRequestCommand(Common.PULL_TOPICS, header);
+
+    try {
+      AcmedcareMQRemoting.getRemotingClient()
+          .invokeAsync(
+              this.remotingAddress(),
+              command,
+              requestTimeout,
+              new InvokeCallback() {
+                @Override
+                public void operationComplete(XLMRResponseFuture xlmrResponseFuture) {
+                  if (xlmrResponseFuture.isSendRequestOK()) {
+
+                    RemotingCommand response = xlmrResponseFuture.getResponseCommand();
+
+                    if (response != null) {
+
+                      BizResult bizResult =
+                          BizResult.fromBytes(response.getBody(), BizResult.class);
+                      AcmedcareLogger.i(
+                          JREBizExectuor.class.getSimpleName(), "拉取主题详情返回值:" + bizResult.json());
+
+                      if (bizResult.getCode() == 0 && bizResult.getData() != null) {
+                        // success
+                        AcmedcareLogger.i(
+                            null, "Pull Topic Detail Succeed , parse topic result detail");
+
+                        Object o = bizResult.getData();
+
+                        Topic topic = JSON.parseObject(JSON.toJSONString(o), Topic.class);
+
+                        // callback
+                        if (callback != null) {
+                          callback.onSuccess(topic);
+                        }
+                      } else {
+                        if (callback != null) {
+                          callback.onFailed(
+                              bizResult.getCode(), bizResult.getException().getMessage());
+                        }
+                      }
+                    } else {
+                      if (callback != null) {
+                        callback.onException(
+                            new BizException("client not received server request response."));
+                      }
+                    }
+                  }
+                }
+              });
+    } catch (InterruptedException
+        | RemotingConnectException
+        | RemotingTimeoutException
+        | RemotingTooMuchRequestException
+        | RemotingSendRequestException e) {
+
+      AcmedcareLogger.e(
+          JREBizExectuor.class.getSimpleName(), e, "Pull topic detail Request Failed");
+      throw new BizException(e);
+    }
+  }
+
+  @Override
   public void createNewTopic(final NewTopicRequest request, final NewTopicRequest.Callback callback)
       throws BizException {
 
@@ -616,6 +689,7 @@ public class JREBizExectuor extends BizExecutor {
     header.setPassport(request.getPassport());
     header.setTopicName(request.getTopicName());
     header.setTopicTag(request.getTopicTag());
+    header.setTopicType(request.getTopicType());
     header.setTopicDesc(request.getTopicDesc());
     header.setTopicExt(request.getTopicExt());
 
@@ -651,6 +725,93 @@ public class JREBizExectuor extends BizExecutor {
                         // callback
                         if (callback != null) {
                           callback.onSuccess(Long.parseLong(o.toString()));
+                        }
+                      } else {
+                        if (callback != null) {
+                          callback.onFailed(
+                              bizResult.getCode(), bizResult.getException().getMessage());
+                        }
+                      }
+                    } else {
+                      if (callback != null) {
+                        callback.onException(
+                            new BizException("client not received server request response."));
+                      }
+                    }
+                  }
+                }
+              });
+    } catch (InterruptedException
+        | RemotingConnectException
+        | RemotingTimeoutException
+        | RemotingTooMuchRequestException
+        | RemotingSendRequestException e) {
+
+      AcmedcareLogger.e(JREBizExectuor.class.getSimpleName(), e, "Create new topic Request Failed");
+      throw new BizException(e);
+    }
+  }
+
+  @Override
+  public void createNewTopics(NewTopicsRequest request, final NewTopicsRequest.Callback callback)
+      throws BizException {
+    if (request == null) {
+      throw new BizException("request must not be null.");
+    }
+
+    request.validateFields();
+
+    NewTopicsHeader header = new NewTopicsHeader();
+    header.setNamespace(request.getNamespace());
+    header.setPassportId(request.getPassportId());
+    header.setPassport(request.getPassport());
+    List<Topic> topics = Lists.newArrayList();
+    for (NewTopicRequest newTopicRequest : request.getNewTopicRequests()) {
+      topics.add(
+          Topic.builder()
+              .topicName(newTopicRequest.getTopicName())
+              .topicTag(newTopicRequest.getTopicTag())
+              .topicExt(newTopicRequest.getTopicExt())
+              .topicType(newTopicRequest.getTopicType())
+              .build());
+    }
+
+    AcmedcareLogger.i(this.getClass().getSimpleName(), "创建主题请求头:" + JSON.toJSONString(header));
+    RemotingCommand command = RemotingCommand.createRequestCommand(Common.CREATE_TOPICS, header);
+    command.setBody(JSON.toJSONBytes(topics));
+
+    try {
+      AcmedcareMQRemoting.getRemotingClient()
+          .invokeAsync(
+              this.remotingAddress(),
+              command,
+              requestTimeout,
+              new InvokeCallback() {
+                @Override
+                public void operationComplete(XLMRResponseFuture xlmrResponseFuture) {
+                  if (xlmrResponseFuture.isSendRequestOK()) {
+
+                    RemotingCommand response = xlmrResponseFuture.getResponseCommand();
+
+                    if (response != null) {
+
+                      BizResult bizResult =
+                          BizResult.fromBytes(response.getBody(), BizResult.class);
+                      AcmedcareLogger.i(
+                          JREBizExectuor.class.getSimpleName(), "创建请求返回值:" + bizResult.json());
+
+                      if (bizResult.getCode() == 0 && bizResult.getData() != null) {
+                        // success
+                        AcmedcareLogger.i(null, "Create Topic Succeed , parse topic id");
+
+                        Object o = bizResult.getData();
+
+                        List<Topic> result =
+                            JSON.parseObject(
+                                JSON.toJSONString(o), new TypeReference<List<Topic>>() {});
+                        // callback
+                        if (callback != null) {
+                          callback.onSuccess(result);
                         }
                       } else {
                         if (callback != null) {

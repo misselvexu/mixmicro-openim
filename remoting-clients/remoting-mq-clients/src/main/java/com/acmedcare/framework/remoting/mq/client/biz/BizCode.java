@@ -68,6 +68,9 @@ public class BizCode {
     /** 创建主题请求 */
     int CREATE_TOPIC = 0x70002;
 
+    /** 批量创建主题请求 */
+    int CREATE_TOPICS = 0x70012;
+
     /** 拉取主题列表 */
     int PULL_TOPICS = 0x70003;
   }
