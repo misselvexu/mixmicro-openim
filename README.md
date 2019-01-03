@@ -21,7 +21,7 @@ It offers a variety of features:
 ## RoadMap
 
 ### Master Server
-
+Naming server , support client load-balance ,query & execute endpoints; 
 
 ### Cluster Server
 
