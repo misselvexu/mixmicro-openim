@@ -46,6 +46,9 @@ Naming server , support client load-balance ,query & execute endpoints;
     * [x] Android SDK Kit
 
 
+### Message Queue Server
+Message Queue Server ,support topic ,queue ...
+
 > Endpoint Client
 
 Development Kit for application to use master endpoint , 
