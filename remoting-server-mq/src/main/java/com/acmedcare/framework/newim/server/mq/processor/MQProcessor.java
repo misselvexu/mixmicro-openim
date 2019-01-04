@@ -121,6 +121,8 @@ public class MQProcessor implements NettyRequestProcessor {
           return this.topicDetail(channelHandlerContext, remotingCommand);
         case Common.PULL_TOPICS:
           return this.pullTopicsList(channelHandlerContext, remotingCommand);
+        case Common.REMOVE_TOPIC:
+          return this.removeTopic(channelHandlerContext, remotingCommand);
 
           // no processor c8410635
         default:
@@ -498,14 +500,18 @@ public class MQProcessor implements NettyRequestProcessor {
 
     Assert.notNull(header, "Request header must not be null.");
 
+    Topic topic = mqService.queryTopic(header.getNamespace(), header.getTopicId());
+    Assert.notNull(topic, "invalid topic id");
+
     MQMessage mqMessage = new MQMessage();
     mqMessage.setNamespace(header.getNamespace());
     mqMessage.setTopicId(header.getTopicId());
     mqMessage.setTopicTag(header.getTopicTag());
+    mqMessage.setTopicType(header.getTopicType());
+    mqMessage.setTopicName(topic.getTopicName());
     mqMessage.setBody(remotingCommand.getBody());
     mqMessage.setMessageType(MessageType.MQ);
     mqMessage.setInnerType(InnerType.NORMAL);
-    mqMessage.setTopicType(header.getTopicType());
     mqMessage.setSender(header.getPassportId());
     mqMessage.setMid(idService.nextId());
     mqMessage.setPersistent(false);
@@ -558,6 +564,29 @@ public class MQProcessor implements NettyRequestProcessor {
 
     // return success
     response.setBody(BizResult.builder().code(0).data(topic).build().bytes());
+
+    return response;
+  }
+
+  private RemotingCommand removeTopic(
+      ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand)
+      throws UnRegisterChannelException, RemotingConnectException, RemotingCommandException {
+
+    ClientSession clientSession = validateChannel(channelHandlerContext.channel());
+
+    RemotingCommand response =
+        RemotingCommand.createResponseCommand(remotingCommand.getCode(), null);
+
+    RemoveTopicHeader header =
+        (RemoveTopicHeader)
+            remotingCommand.decodeCommandCustomHeader(RemoveTopicHeader.class);
+
+    Assert.notNull(header, "Request header must not be null.");
+
+    this.mqService.removeTopic(header.getNamespace(), header.getTopicId());
+
+    // return success
+    response.setBody(BizResult.builder().code(0).build().bytes());
 
     return response;
   }

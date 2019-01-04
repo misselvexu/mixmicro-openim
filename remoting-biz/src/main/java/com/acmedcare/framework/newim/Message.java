@@ -179,5 +179,7 @@ public class Message implements Serializable {
     private String topicTag;
 
     private String topicType;
+
+    private String topicName;
   }
 }
