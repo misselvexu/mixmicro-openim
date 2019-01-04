@@ -74,14 +74,18 @@ public class TopicRepositoryImpl implements TopicRepository {
     for (String topicId : topicIds) {
       ids.add(Long.parseLong(topicId));
     }
-    Query query =
-        new Query(
-            Criteria.where("namespace")
-                .is(namespace)
-                .and("passportId")
-                .is(Long.parseLong(passportId))
-                .and("topicId")
-                .in(ids));
+    Query query = new Query(Criteria.where("namespace").is(namespace).and("topicId").in(ids));
+
+    if (passportId != null && passportId.trim().length() > 0) {
+      query =
+          new Query(
+              Criteria.where("namespace")
+                  .is(namespace)
+                  .and("passportId")
+                  .is(Long.parseLong(passportId))
+                  .and("topicId")
+                  .in(ids));
+    }
 
     DeleteResult deleteResult = this.mongoTemplate.remove(query, TOPIC_SUBSCRIBE);
     logger.info("取消订阅执行结果:{},{}", deleteResult.getDeletedCount());
@@ -111,5 +115,11 @@ public class TopicRepositoryImpl implements TopicRepository {
   public List<TopicSubscribe> queryTopicSubscribes(String namespace, Long topicId) {
     Query query = new Query(Criteria.where("namespace").is(namespace).and("topicId").is(topicId));
     return this.mongoTemplate.find(query, TopicSubscribe.class, TOPIC_SUBSCRIBE);
+  }
+
+  @Override
+  public void removeTopic(String namespace, Long topicId) {
+    Query query = new Query(Criteria.where("namespace").is(namespace).and("topicId").is(topicId));
+    this.mongoTemplate.remove(query, TOPIC);
   }
 }

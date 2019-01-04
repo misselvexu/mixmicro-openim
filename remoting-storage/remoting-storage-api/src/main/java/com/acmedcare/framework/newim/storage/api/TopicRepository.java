@@ -70,4 +70,12 @@ public interface TopicRepository {
    * @return list mapping
    */
   List<TopicSubscribe> queryTopicSubscribes(String namespace, Long topicId);
+
+  /**
+   * Remove topic
+   *
+   * @param namespace name
+   * @param topicId topic id
+   */
+  void removeTopic(String namespace, Long topicId);
 }

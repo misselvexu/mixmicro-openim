@@ -26,6 +26,10 @@ public class Message implements Serializable {
   /** 主题标识 */
   private String topicTag;
 
+  private String topicName;
+
+  private String topicType;
+
   /** 消息编号 */
   private Long mid;
 

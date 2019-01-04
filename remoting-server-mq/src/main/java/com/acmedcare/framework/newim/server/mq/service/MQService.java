@@ -194,4 +194,9 @@ public class MQService {
   public Topic queryTopic(String namespace, Long topicId) {
     return this.topicRepository.queryTopicDetail(namespace, topicId);
   }
+
+  public void removeTopic(String namespace, Long topicId) {
+    this.topicRepository.removeTopic(namespace, topicId);
+    this.topicRepository.removeSubscribes(namespace, null, new String[] {topicId.toString()});
+  }
 }

@@ -4,6 +4,7 @@ import static com.acmedcare.framework.remoting.mq.client.biz.BizCode.Common.TOPI
 
 import android.content.Context;
 import com.acmedcare.framework.remoting.mq.client.ServerAddressHandler.RemotingAddress;
+import com.acmedcare.framework.remoting.mq.client.biz.BizCode;
 import com.acmedcare.framework.remoting.mq.client.biz.BizCode.MonitorClient;
 import com.acmedcare.framework.remoting.mq.client.biz.BizCode.SamplingClient;
 import com.acmedcare.framework.remoting.mq.client.biz.bean.Message;
@@ -14,6 +15,7 @@ import com.acmedcare.framework.remoting.mq.client.exception.NoServerAddressExcep
 import com.acmedcare.framework.remoting.mq.client.exception.SdkInitException;
 import com.acmedcare.framework.remoting.mq.client.jre.JREBizExectuor;
 import com.acmedcare.framework.remoting.mq.client.processor.MQTopicMessagesProcessor;
+import com.acmedcare.framework.remoting.mq.client.processor.OnTopicRemovedProcessor;
 import com.acmedcare.framework.remoting.mq.client.processor.OnTopicSubscribedEmptyProcessor;
 import com.acmedcare.framework.remoting.mq.client.processor.OnTopicUnSubscribeProcessor;
 import com.acmedcare.nas.client.NasProperties;
@@ -52,6 +54,7 @@ import lombok.Setter;
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version alpha - 26/07/2018.
  */
+@SuppressWarnings({"AliDeprecation", "AlibabaClassNamingShouldBeCamel"})
 public final class AcmedcareMQRemoting implements Serializable {
   @Deprecated private static final String TAG = AcmedcareMQRemoting.class.getSimpleName();
 
@@ -178,6 +181,7 @@ public final class AcmedcareMQRemoting implements Serializable {
       // register bizExecutor
       this.bizExecutor = new JREBizExectuor(this);
 
+      //noinspection AlibabaThreadPoolCreation
       eventBus = new AsyncEventBus(Executors.newFixedThreadPool(8));
 
       AcmedcareLogger.i(TAG, "Remoting Client init-ed.");
@@ -287,6 +291,7 @@ public final class AcmedcareMQRemoting implements Serializable {
 
           final CountDownLatch count = new CountDownLatch(1);
 
+          @SuppressWarnings("AlibabaAvoidManuallyCreateThread")
           Thread asyncThread =
               new Thread(
                   new Runnable() {
@@ -487,10 +492,15 @@ public final class AcmedcareMQRemoting implements Serializable {
       AcmedcareMQRemoting.remotingClient.registerProcessor(
           SamplingClient.ON_TOPIC_UNSUBSCRIBE_EVENT, new OnTopicUnSubscribeProcessor(this), null);
     }
+
+    // register topic removed event
+    AcmedcareMQRemoting.remotingClient.registerProcessor(
+        BizCode.Common.ON_TOPIC_REMOVED_EVENT, new OnTopicRemovedProcessor(this), null);
   }
 
   private void doConnect(final boolean now) {
     // async start thread
+    @SuppressWarnings("AlibabaAvoidManuallyCreateThread")
     Thread startThread =
         new Thread(
             new Runnable() {

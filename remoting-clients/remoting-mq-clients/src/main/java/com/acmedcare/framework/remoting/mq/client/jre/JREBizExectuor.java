@@ -840,6 +840,77 @@ public class JREBizExectuor extends BizExecutor {
   }
 
   @Override
+  public void removeTopic(RemoveTopicRequest request, final RemoveTopicRequest.Callback callback)
+      throws BizException {
+    if (request == null) {
+      throw new BizException("request must not be null.");
+    }
+
+    request.validateFields();
+
+    RemoveTopicHeader header = new RemoveTopicHeader();
+    header.setNamespace(request.getNamespace());
+    header.setPassportId(request.getPassportId());
+    header.setPassport(request.getPassport());
+    header.setTopicId(request.getTopicId());
+
+    AcmedcareLogger.i(this.getClass().getSimpleName(), "删除主题请求头:" + JSON.toJSONString(header));
+    RemotingCommand command = RemotingCommand.createRequestCommand(Common.REMOVE_TOPIC, header);
+
+    try {
+      AcmedcareMQRemoting.getRemotingClient()
+          .invokeAsync(
+              this.remotingAddress(),
+              command,
+              requestTimeout,
+              new InvokeCallback() {
+                @Override
+                public void operationComplete(XLMRResponseFuture xlmrResponseFuture) {
+                  if (xlmrResponseFuture.isSendRequestOK()) {
+
+                    RemotingCommand response = xlmrResponseFuture.getResponseCommand();
+
+                    if (response != null) {
+
+                      BizResult bizResult =
+                          BizResult.fromBytes(response.getBody(), BizResult.class);
+                      AcmedcareLogger.i(
+                          JREBizExectuor.class.getSimpleName(), "删除请求返回值:" + bizResult.json());
+
+                      if (bizResult.getCode() == 0 && bizResult.getData() != null) {
+                        // success
+                        AcmedcareLogger.i(null, "remove Topic Succeed , parse topic id");
+                        // callback
+                        if (callback != null) {
+                          callback.onSuccess();
+                        }
+                      } else {
+                        if (callback != null) {
+                          callback.onFailed(
+                              bizResult.getCode(), bizResult.getException().getMessage());
+                        }
+                      }
+                    } else {
+                      if (callback != null) {
+                        callback.onException(
+                            new BizException("client not received server request response."));
+                      }
+                    }
+                  }
+                }
+              });
+    } catch (InterruptedException
+        | RemotingConnectException
+        | RemotingTimeoutException
+        | RemotingTooMuchRequestException
+        | RemotingSendRequestException e) {
+
+      AcmedcareLogger.e(JREBizExectuor.class.getSimpleName(), e, "remove topic Request Failed");
+      throw new BizException(e);
+    }
+  }
+
+  @Override
   public void fixTopicMessage(
       FixTopicMessageListRequest request, final FixTopicMessageListRequest.Callback callback)
       throws BizException {

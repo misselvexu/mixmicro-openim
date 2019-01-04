@@ -73,5 +73,19 @@ public class BizCode {
 
     /** 拉取主题列表 */
     int PULL_TOPICS = 0x70003;
+
+    /**
+     * 删除主题
+     *
+     * @since 2.2.3
+     */
+    int REMOVE_TOPIC = 0x70004;
+
+    /**
+     * 主题删除事件通知
+     *
+     * @since 2.2.3
+     */
+    int ON_TOPIC_REMOVED_EVENT = 0x70005;
   }
 }

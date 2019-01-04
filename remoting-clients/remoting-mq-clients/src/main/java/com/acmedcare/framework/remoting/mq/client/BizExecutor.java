@@ -14,6 +14,7 @@ import java.util.Random;
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version alpha - 26/07/2018.
  */
+@SuppressWarnings({"AlibabaAbstractClassShouldStartWithAbstractNaming"})
 public abstract class BizExecutor {
 
   /** 请求超时时间 */
@@ -68,6 +69,8 @@ public abstract class BizExecutor {
   /**
    * 授权 Api
    *
+   * @param request 请求
+   * @param authCallback 回调
    * @throws BizException exception
    */
   protected abstract void auth(AuthRequest request, AuthRequest.AuthCallback authCallback)
@@ -144,7 +147,7 @@ public abstract class BizExecutor {
    * @throws BizException exception
    */
   public abstract void pullTopicDetail(
-          PullTopicDetailRequest request, PullTopicDetailRequest.Callback callback) throws BizException;
+      PullTopicDetailRequest request, PullTopicDetailRequest.Callback callback) throws BizException;
 
   /**
    * Create new topic (创建新主题)
@@ -164,6 +167,16 @@ public abstract class BizExecutor {
    * @throws BizException exception
    */
   public abstract void createNewTopics(NewTopicsRequest request, NewTopicsRequest.Callback callback)
+      throws BizException;
+
+  /**
+   * Remove topic (删除主题)
+   *
+   * @param request 请求
+   * @param callback 回调
+   * @throws BizException exception
+   */
+  public abstract void removeTopic(RemoveTopicRequest request, RemoveTopicRequest.Callback callback)
       throws BizException;
 
   /**
