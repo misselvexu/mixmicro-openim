@@ -40,12 +40,18 @@ public class MQService {
 
   @Autowired private MasterConnector masterConnector;
   private Cache<Long, MQMessage> cache;
+  private Cache<Long, Topic> topicCache;
+  private Cache<Long, List<TopicSubscribe>> topicSubscribesCache;
 
   public MQService(TopicRepository topicRepository, Snowflake snowflake) {
     this.topicRepository = topicRepository;
     this.snowflake = snowflake;
     cache =
         CacheBuilder.newBuilder().maximumSize(1024).expireAfterWrite(30, TimeUnit.SECONDS).build();
+    topicCache =
+        CacheBuilder.newBuilder().maximumSize(1024).expireAfterWrite(60, TimeUnit.MINUTES).build();
+    topicSubscribesCache =
+        CacheBuilder.newBuilder().maximumSize(1024).expireAfterWrite(60, TimeUnit.MINUTES).build();
   }
 
   /**
@@ -87,6 +93,10 @@ public class MQService {
                 .passportId(Long.parseLong(passportId))
                 .topicId(Long.parseLong(topicId))
                 .build());
+        try {
+          topicSubscribesCache.invalidate(topicId);
+        } catch (Exception ignore) {
+        }
       }
 
       this.topicRepository.saveSubscribes(subscribes.toArray(new Topic.TopicSubscribe[0]));
@@ -137,8 +147,11 @@ public class MQService {
     logger.info("广播主题消息:{}", mqMessage.toString());
     Long topicId = mqMessage.getTopicId();
 
-    List<TopicSubscribe> subscribes =
-        this.topicRepository.queryTopicSubscribes(mqMessage.getNamespace(), topicId);
+    List<TopicSubscribe> subscribes = topicSubscribesCache.getIfPresent(topicId);
+    if (subscribes == null || subscribes.isEmpty()) {
+      subscribes = this.topicRepository.queryTopicSubscribes(mqMessage.getNamespace(), topicId);
+      topicSubscribesCache.put(topicId, subscribes);
+    }
 
     try {
       cache.put(mqMessage.getMid(), mqMessage);
@@ -192,11 +205,21 @@ public class MQService {
   }
 
   public Topic queryTopic(String namespace, Long topicId) {
-    return this.topicRepository.queryTopicDetail(namespace, topicId);
+    Topic topic = topicCache.getIfPresent(topicId);
+    if (topic != null) {
+      return topic;
+    }
+    topic = this.topicRepository.queryTopicDetail(namespace, topicId);
+    topicCache.put(topicId, topic);
+    return topic;
   }
 
   public void removeTopic(String namespace, Long topicId) {
     this.topicRepository.removeTopic(namespace, topicId);
     this.topicRepository.removeSubscribes(namespace, null, new String[] {topicId.toString()});
+    try {
+      topicCache.invalidate(topicId);
+    } catch (Exception ignore) {
+    }
   }
 }

@@ -220,6 +220,9 @@ public final class MQContext implements Context {
                               }));
 
               break;
+            default:
+              logger.warn("ignore invalid event:{}", e);
+              break;
           }
         }
       }
