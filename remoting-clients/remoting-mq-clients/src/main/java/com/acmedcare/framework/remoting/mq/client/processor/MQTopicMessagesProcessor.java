@@ -42,7 +42,7 @@ public class MQTopicMessagesProcessor implements XLMRRequestProcessor<Void, Void
 
       byte[] content = remotingCommand.getBody();
       if (content != null && content.length > 0) {
-        AcmedcareLogger.i(null, "接受到主题消息:" + new String(content, "UTF-8"));
+        AcmedcareLogger.i(null, "接受到主题消息,长度: " + content.length);
         final Message message = JSON.parseObject(content, Message.class);
         if (message != null) {
           // post event
