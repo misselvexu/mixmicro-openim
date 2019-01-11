@@ -114,11 +114,7 @@ public class JREBizExectuor extends BizExecutor {
                   }
                 }
               });
-    } catch (InterruptedException
-        | RemotingConnectException
-        | RemotingTimeoutException
-        | RemotingTooMuchRequestException
-        | RemotingSendRequestException e) {
+    } catch (Exception e) {
 
       AcmedcareLogger.e(JREBizExectuor.class.getSimpleName(), e, "Auth Request Failed");
       throw new BizException(e);
@@ -187,11 +183,7 @@ public class JREBizExectuor extends BizExecutor {
                   }
                 }
               });
-    } catch (InterruptedException
-        | RemotingConnectException
-        | RemotingTimeoutException
-        | RemotingTooMuchRequestException
-        | RemotingSendRequestException e) {
+    } catch (Exception e) {
 
       AcmedcareLogger.e(JREBizExectuor.class.getSimpleName(), e, "Sub topics request Failed");
       throw new BizException(e);
@@ -260,11 +252,7 @@ public class JREBizExectuor extends BizExecutor {
                   }
                 }
               });
-    } catch (InterruptedException
-        | RemotingConnectException
-        | RemotingTimeoutException
-        | RemotingTooMuchRequestException
-        | RemotingSendRequestException e) {
+    } catch (Exception e) {
 
       AcmedcareLogger.e(JREBizExectuor.class.getSimpleName(), e, "Sub topics request Failed");
       throw new BizException(e);
@@ -336,11 +324,7 @@ public class JREBizExectuor extends BizExecutor {
                   }
                 }
               });
-    } catch (InterruptedException
-        | RemotingConnectException
-        | RemotingTimeoutException
-        | RemotingTooMuchRequestException
-        | RemotingSendRequestException e) {
+    } catch (Exception e) {
 
       AcmedcareLogger.e(
           JREBizExectuor.class.getSimpleName(), e, "Send topic message request Failed");
@@ -416,11 +400,7 @@ public class JREBizExectuor extends BizExecutor {
                   }
                 }
               });
-    } catch (InterruptedException
-        | RemotingConnectException
-        | RemotingTimeoutException
-        | RemotingTooMuchRequestException
-        | RemotingSendRequestException e) {
+    } catch (Exception e) {
 
       AcmedcareLogger.e(
           JREBizExectuor.class.getSimpleName(), e, "Send topic message request Failed");
@@ -496,11 +476,7 @@ public class JREBizExectuor extends BizExecutor {
                   }
                 }
               });
-    } catch (InterruptedException
-        | RemotingConnectException
-        | RemotingTimeoutException
-        | RemotingTooMuchRequestException
-        | RemotingSendRequestException e) {
+    } catch (Exception e) {
 
       AcmedcareLogger.e(JREBizExectuor.class.getSimpleName(), e, "Pull topics list Request Failed");
       throw new BizException(e);
@@ -579,11 +555,7 @@ public class JREBizExectuor extends BizExecutor {
                   }
                 }
               });
-    } catch (InterruptedException
-        | RemotingConnectException
-        | RemotingTimeoutException
-        | RemotingTooMuchRequestException
-        | RemotingSendRequestException e) {
+    } catch (Exception e) {
 
       AcmedcareLogger.e(JREBizExectuor.class.getSimpleName(), e, "Pull topics list Request Failed");
       throw new BizException(e);
@@ -661,11 +633,7 @@ public class JREBizExectuor extends BizExecutor {
                   }
                 }
               });
-    } catch (InterruptedException
-        | RemotingConnectException
-        | RemotingTimeoutException
-        | RemotingTooMuchRequestException
-        | RemotingSendRequestException e) {
+    } catch (Exception e) {
 
       AcmedcareLogger.e(
           JREBizExectuor.class.getSimpleName(), e, "Pull topic detail Request Failed");
@@ -741,11 +709,7 @@ public class JREBizExectuor extends BizExecutor {
                   }
                 }
               });
-    } catch (InterruptedException
-        | RemotingConnectException
-        | RemotingTimeoutException
-        | RemotingTooMuchRequestException
-        | RemotingSendRequestException e) {
+    } catch (Exception e) {
 
       AcmedcareLogger.e(JREBizExectuor.class.getSimpleName(), e, "Create new topic Request Failed");
       throw new BizException(e);
@@ -828,11 +792,7 @@ public class JREBizExectuor extends BizExecutor {
                   }
                 }
               });
-    } catch (InterruptedException
-        | RemotingConnectException
-        | RemotingTimeoutException
-        | RemotingTooMuchRequestException
-        | RemotingSendRequestException e) {
+    } catch (Exception e) {
 
       AcmedcareLogger.e(JREBizExectuor.class.getSimpleName(), e, "Create new topic Request Failed");
       throw new BizException(e);
@@ -899,11 +859,7 @@ public class JREBizExectuor extends BizExecutor {
                   }
                 }
               });
-    } catch (InterruptedException
-        | RemotingConnectException
-        | RemotingTimeoutException
-        | RemotingTooMuchRequestException
-        | RemotingSendRequestException e) {
+    } catch (Exception e) {
 
       AcmedcareLogger.e(JREBizExectuor.class.getSimpleName(), e, "remove topic Request Failed");
       throw new BizException(e);
@@ -980,11 +936,7 @@ public class JREBizExectuor extends BizExecutor {
                   }
                 }
               });
-    } catch (InterruptedException
-        | RemotingConnectException
-        | RemotingTimeoutException
-        | RemotingTooMuchRequestException
-        | RemotingSendRequestException e) {
+    } catch (Exception e) {
 
       AcmedcareLogger.e(
           JREBizExectuor.class.getSimpleName(), e, "Fix topic message Request Failed");
