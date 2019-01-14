@@ -583,7 +583,7 @@ public class MQProcessor implements NettyRequestProcessor {
 
     Assert.notNull(header, "Request header must not be null.");
 
-    this.mqService.removeTopic(header.getNamespace(), header.getTopicId());
+    this.mqService.removeTopic(context,header.getNamespace(), header.getTopicId());
 
     // return success
     response.setBody(BizResult.builder().code(0).build().bytes());

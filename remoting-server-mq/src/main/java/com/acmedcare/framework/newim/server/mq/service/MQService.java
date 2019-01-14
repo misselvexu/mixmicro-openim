@@ -1,6 +1,7 @@
 package com.acmedcare.framework.newim.server.mq.service;
 
 import com.acmedcare.framework.boot.snowflake.Snowflake;
+import com.acmedcare.framework.kits.executor.AsyncRuntimeExecutor;
 import com.acmedcare.framework.newim.Message.MQMessage;
 import com.acmedcare.framework.newim.Topic;
 import com.acmedcare.framework.newim.Topic.TopicSubscribe;
@@ -214,12 +215,28 @@ public class MQService {
     return topic;
   }
 
-  public void removeTopic(String namespace, Long topicId) {
+  public void removeTopic(MQContext context, String namespace, Long topicId) {
     this.topicRepository.removeTopic(namespace, topicId);
     this.topicRepository.removeSubscribes(namespace, null, new String[] {topicId.toString()});
     try {
       topicCache.invalidate(topicId);
     } catch (Exception ignore) {
+    }
+    try {
+      context.broadcastEvent(
+          new AcmedcareEvent() {
+            @Override
+            public Event eventType() {
+              return BizEvent.ON_TOPIC_REMOVED_EVENT;
+            }
+
+            @Override
+            public Object data() {
+              return topicId;
+            }
+          });
+    } catch (Exception e) {
+      logger.warn("[ignore] broadcastEvent failed.");
     }
   }
 }

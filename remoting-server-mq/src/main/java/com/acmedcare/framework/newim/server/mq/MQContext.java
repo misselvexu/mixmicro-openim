@@ -11,6 +11,7 @@ import com.acmedcare.framework.newim.server.mq.MQCommand.ProducerClient;
 import com.acmedcare.framework.newim.server.mq.event.AcmedcareEvent;
 import com.acmedcare.framework.newim.server.mq.event.AcmedcareEvent.BizEvent;
 import com.acmedcare.framework.newim.server.mq.event.AcmedcareEvent.Event;
+import com.acmedcare.framework.newim.server.mq.processor.header.OnTopicRemovedHeader;
 import com.acmedcare.framework.newim.server.replica.NodeReplicaBeanFactory;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.alibaba.fastjson.JSON;
@@ -202,6 +203,42 @@ public final class MQContext implements Context {
                                           RemotingCommand.createRequestCommand(
                                               ProducerClient.ON_TOPIC_SUBSCRIBED_EMPTY_EVENT, null);
                                       command.setBody(JSON.toJSONBytes(event.data()));
+                                      channel
+                                          .writeAndFlush(command)
+                                          .addListener(
+                                              (ChannelFutureListener)
+                                                  future -> {
+                                                    if (!future.isSuccess()) {
+                                                      logger.warn(
+                                                          "broadcast topic-empty-subscribe-event message failed, {},{}",
+                                                          aLong,
+                                                          event.data().toString());
+                                                    }
+                                                  });
+                                    }
+                                  }
+                                }
+                              }));
+
+              break;
+
+            case ON_TOPIC_REMOVED_EVENT:
+              AsyncRuntimeExecutor.getAsyncThreadPool()
+                  .execute(
+                      () ->
+                          SAMPLING_SESSIONS.forEach(
+                              (aLong, channels) -> {
+                                if (!channels.isEmpty()) {
+                                  for (Channel channel : channels) {
+                                    if (channel != null && channel.isWritable()) {
+                                      OnTopicRemovedHeader onTopicRemovedHeader =
+                                          new OnTopicRemovedHeader();
+                                      onTopicRemovedHeader.setTopicId(
+                                          Long.parseLong(event.data().toString()));
+
+                                      RemotingCommand command =
+                                          RemotingCommand.createRequestCommand(
+                                              Common.ON_TOPIC_REMOVED_EVENT, onTopicRemovedHeader);
                                       channel
                                           .writeAndFlush(command)
                                           .addListener(
