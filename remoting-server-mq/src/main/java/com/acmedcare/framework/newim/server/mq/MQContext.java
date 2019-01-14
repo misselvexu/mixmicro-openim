@@ -226,7 +226,7 @@ public final class MQContext implements Context {
               AsyncRuntimeExecutor.getAsyncThreadPool()
                   .execute(
                       () ->
-                          SAMPLING_SESSIONS.forEach(
+                          MONITOR_SESSIONS.forEach(
                               (aLong, channels) -> {
                                 if (!channels.isEmpty()) {
                                   for (Channel channel : channels) {
