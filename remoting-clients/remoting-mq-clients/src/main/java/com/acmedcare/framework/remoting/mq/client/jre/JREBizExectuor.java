@@ -837,7 +837,7 @@ public class JREBizExectuor extends BizExecutor {
                       AcmedcareLogger.i(
                           JREBizExectuor.class.getSimpleName(), "删除请求返回值:" + bizResult.json());
 
-                      if (bizResult.getCode() == 0 && bizResult.getData() != null) {
+                      if (bizResult.getCode() == 0) {
                         // success
                         AcmedcareLogger.i(null, "remove Topic Succeed , parse topic id");
                         // callback
