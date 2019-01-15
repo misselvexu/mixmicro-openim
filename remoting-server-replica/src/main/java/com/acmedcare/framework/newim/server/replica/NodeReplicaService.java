@@ -2,6 +2,7 @@ package com.acmedcare.framework.newim.server.replica;
 
 import com.acmedcare.framework.newim.InstanceType;
 import com.acmedcare.framework.newim.Message;
+import com.acmedcare.framework.newim.RemotingEvent;
 import com.acmedcare.framework.newim.server.Context;
 import com.google.common.collect.Lists;
 import java.util.List;
@@ -52,5 +53,14 @@ public interface NodeReplicaService {
    */
   default void onReceivedMessage(Message message) {
     logger.info("Rvd Replica Message : {}", message.toString());
+  }
+
+  /**
+   * When Received Replica Forward Event, then invoke this method .
+   *
+   * @param remotingEvent remoting event
+   */
+  default void onReceivedEvent(RemotingEvent remotingEvent) {
+    logger.info("Rvd Replica Event : {}", remotingEvent.getEvent());
   }
 }

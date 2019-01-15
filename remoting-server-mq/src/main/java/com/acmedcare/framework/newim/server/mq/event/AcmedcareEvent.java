@@ -40,7 +40,7 @@ public abstract class AcmedcareEvent {
    *
    * @return post data with event bus
    */
-  public abstract Object data();
+  public abstract byte[] data();
 
   /** System Event */
   public enum SystemEvent implements Event {}

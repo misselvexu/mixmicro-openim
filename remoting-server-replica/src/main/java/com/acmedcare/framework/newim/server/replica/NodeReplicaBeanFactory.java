@@ -2,6 +2,7 @@ package com.acmedcare.framework.newim.server.replica;
 
 import com.acmedcare.framework.kits.Assert;
 import com.acmedcare.framework.kits.StringUtils;
+import com.acmedcare.framework.kits.event.Event;
 import com.acmedcare.framework.kits.executor.AsyncRuntimeExecutor;
 import com.acmedcare.framework.kits.thread.DefaultThreadFactory;
 import com.acmedcare.framework.kits.thread.ThreadKit;
@@ -13,8 +14,10 @@ import com.acmedcare.framework.newim.Message.GroupMessage;
 import com.acmedcare.framework.newim.Message.MQMessage;
 import com.acmedcare.framework.newim.Message.MessageType;
 import com.acmedcare.framework.newim.Message.SingleMessage;
+import com.acmedcare.framework.newim.RemotingEvent;
 import com.acmedcare.framework.newim.client.MessageAttribute;
 import com.acmedcare.framework.newim.protocol.Command.ClusterWithClusterCommand;
+import com.acmedcare.framework.newim.protocol.request.ClusterForwardEventHeader;
 import com.acmedcare.framework.newim.protocol.request.ClusterForwardMessageHeader;
 import com.acmedcare.framework.newim.server.replica.NodeReplicaProperties.ReplicaProperties;
 import com.acmedcare.tiffany.framework.remoting.ChannelEventListener;
@@ -78,6 +81,65 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
   /** Bean Factory Instance */
   private BeanFactory beanFactory;
 
+  public void postEvent(InstanceType instanceType, RemotingEvent remotingEvent) {
+    if (!nodeReplicaConnectors.containsKey(instanceType)) {
+      throw new NodeReplicaException("Not " + instanceType + " defined in config file;");
+    } else {
+      NodeReplicaExecutor executor = nodeReplicaConnectors.get(instanceType);
+      executor
+          .connectors
+          .getConnections()
+          .forEach(
+              (address, connectorClient) ->
+                  // async
+                  AsyncRuntimeExecutor.getAsyncThreadPool()
+                      .execute(
+                          () -> {
+                            if (connectorClient != null && connectorClient.isConnected()) {
+
+                              ClusterForwardEventHeader header = new ClusterForwardEventHeader();
+
+                              header.setEventName(remotingEvent.getEvent());
+
+                              RemotingCommand command =
+                                  RemotingCommand.createRequestCommand(
+                                      ClusterWithClusterCommand.CLUSTER_FORWARD_EVENT, header);
+
+                              command.setBody(JSON.toJSONBytes(remotingEvent.getPayload()));
+
+                              try {
+                                connectorClient.client.invokeAsync(
+                                    address,
+                                    command,
+                                    5000,
+                                    responseFuture -> {
+                                      if (responseFuture.isSendRequestOK()) {
+                                        logger.info(
+                                            "[REPLICA-POST-EVENT] forward event request is send ok.");
+                                        RemotingCommand response =
+                                            responseFuture.getResponseCommand();
+                                        if (response != null && response.getBody() != null) {
+                                          BizResult bizResult =
+                                              JSON.parseObject(response.getBody(), BizResult.class);
+                                          if (bizResult != null && bizResult.getCode() == 0) {
+                                            logger.info(
+                                                "[REPLICA-POST-EVENT] forward event is processed.");
+                                          } else {
+                                            logger.info(
+                                                "[REPLICA-POST-EVENT] forward event is processed.");
+                                          }
+                                        }
+                                      }
+                                    });
+
+                              } catch (Exception e) {
+                                e.printStackTrace();
+                              }
+                            }
+                          }));
+    }
+  }
+
   /**
    * Post Message to Replica
    *
@@ -95,7 +157,6 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
       }
 
       NodeReplicaExecutor executor = nodeReplicaConnectors.get(instanceType);
-      RemotingSocketServer server = executor.server.getServer();
       final MessageAttribute finalAttribute = attribute;
       executor
           .connectors
@@ -563,6 +624,11 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
           .execute(() -> nodeReplicaService.onReceivedMessage(message));
     }
 
+    static void onEvent(RemotingEvent remotingEvent) {
+      AsyncRuntimeExecutor.getAsyncThreadPool()
+          .execute(() -> nodeReplicaService.onReceivedEvent(remotingEvent));
+    }
+
     private static class ReplicaServerProcessor implements NettyRequestProcessor {
 
       @Override
@@ -645,6 +711,31 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
                         .bytes());
               }
               break;
+
+            case ClusterWithClusterCommand.CLUSTER_FORWARD_EVENT:
+              try {
+                ClusterForwardEventHeader header =
+                    (ClusterForwardEventHeader)
+                        remotingCommand.decodeCommandCustomHeader(ClusterForwardEventHeader.class);
+
+                com.acmedcare.framework.kits.Assert.notNull(
+                    header, "replica forward event header must not be null.");
+
+                onEvent(
+                    RemotingEvent.builder()
+                        .event(header.getEventName())
+                        .payload(remotingCommand.getBody())
+                        .build());
+
+              } catch (Exception e) {
+                logger.error("[REPLICA-CONNECTORS-PROCESSOR] process forward event failed.", e);
+                defaultResponse.setBody(
+                    BizResult.builder()
+                        .code(-1)
+                        .exception(ExceptionWrapper.builder().message(e.getMessage()).build())
+                        .build()
+                        .bytes());
+              }
 
             default:
               defaultResponse.setBody(

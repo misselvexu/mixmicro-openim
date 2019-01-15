@@ -4,6 +4,7 @@ import com.acmedcare.framework.aorp.beans.Principal;
 import com.acmedcare.framework.kits.executor.AsyncRuntimeExecutor;
 import com.acmedcare.framework.newim.InstanceType;
 import com.acmedcare.framework.newim.Message.MQMessage;
+import com.acmedcare.framework.newim.RemotingEvent;
 import com.acmedcare.framework.newim.Topic.TopicSubscribe;
 import com.acmedcare.framework.newim.server.Context;
 import com.acmedcare.framework.newim.server.mq.MQCommand.Common;
@@ -143,6 +144,10 @@ public final class MQContext implements Context {
     nodeReplicaBeanFactory.postMessage(InstanceType.MQ_SERVER, mqMessage, null);
   }
 
+  public void broadcastEvent(RemotingEvent remotingEvent) {
+    nodeReplicaBeanFactory.postEvent(InstanceType.MQ_SERVER, remotingEvent);
+  }
+
   /**
    * Return Current Context
    *
@@ -171,7 +176,7 @@ public final class MQContext implements Context {
                                       RemotingCommand command =
                                           RemotingCommand.createRequestCommand(
                                               ProducerClient.ON_TOPIC_UNSUBSCRIBE_EVENT, null);
-                                      command.setBody(JSON.toJSONBytes(event.data()));
+                                      command.setBody(event.data());
                                       channel
                                           .writeAndFlush(command)
                                           .addListener(
@@ -202,7 +207,7 @@ public final class MQContext implements Context {
                                       RemotingCommand command =
                                           RemotingCommand.createRequestCommand(
                                               ProducerClient.ON_TOPIC_SUBSCRIBED_EMPTY_EVENT, null);
-                                      command.setBody(JSON.toJSONBytes(event.data()));
+                                      command.setBody(event.data());
                                       channel
                                           .writeAndFlush(command)
                                           .addListener(
@@ -234,11 +239,13 @@ public final class MQContext implements Context {
                                       OnTopicRemovedHeader onTopicRemovedHeader =
                                           new OnTopicRemovedHeader();
                                       onTopicRemovedHeader.setTopicId(
-                                          Long.parseLong(event.data().toString()));
+                                          Long.parseLong(new String(event.data())));
 
                                       RemotingCommand command =
                                           RemotingCommand.createRequestCommand(
                                               Common.ON_TOPIC_REMOVED_EVENT, onTopicRemovedHeader);
+                                      command.setBody(event.data());
+
                                       channel
                                           .writeAndFlush(command)
                                           .addListener(

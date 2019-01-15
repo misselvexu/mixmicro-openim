@@ -35,6 +35,9 @@ public final class Command {
 
     /** 通讯服务器之间转发客户端的消息 */
     public static final int CLUSTER_FORWARD_MESSAGE = 0x11004;
+
+    /** 通讯服务器之间转发事件 */
+    public static final int CLUSTER_FORWARD_EVENT = 0x11005;
   }
 
   @Getter
