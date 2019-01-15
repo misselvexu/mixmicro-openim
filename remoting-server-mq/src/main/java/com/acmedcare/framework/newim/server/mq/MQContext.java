@@ -228,6 +228,7 @@ public final class MQContext implements Context {
               break;
 
             case ON_TOPIC_REMOVED_EVENT:
+              logger.info("[EVENT] 请求广播事件:{}", e);
               AsyncRuntimeExecutor.getAsyncThreadPool()
                   .execute(
                       () ->

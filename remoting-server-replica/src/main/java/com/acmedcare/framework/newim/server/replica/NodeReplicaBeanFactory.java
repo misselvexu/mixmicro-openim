@@ -736,6 +736,7 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
                         .build()
                         .bytes());
               }
+              break;
 
             default:
               defaultResponse.setBody(

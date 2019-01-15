@@ -79,6 +79,7 @@ public class DefaultMQReplicaService implements NodeReplicaService {
 
   @Override
   public void onReceivedEvent(RemotingEvent remotingEvent) {
+    logger.info("Rvd Replica Event : {}", remotingEvent.getEvent());
     try {
       AcmedcareEvent.BizEvent bizEvent = AcmedcareEvent.BizEvent.valueOf(remotingEvent.getEvent());
 
