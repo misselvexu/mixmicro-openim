@@ -13,6 +13,7 @@ import lombok.Setter;
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version alpha - 30/07/2018.
  */
+@SuppressWarnings("unused")
 public abstract class AcmedcareEvent {
 
   /**
@@ -31,7 +32,7 @@ public abstract class AcmedcareEvent {
    *       Validation!
    * </ul>
    *
-   * @return
+   * @return event
    */
   public abstract Event eventType();
 
