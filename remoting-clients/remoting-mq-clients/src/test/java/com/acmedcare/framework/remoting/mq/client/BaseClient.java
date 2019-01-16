@@ -2,12 +2,8 @@ package com.acmedcare.framework.remoting.mq.client;
 
 import com.acmedcare.framework.remoting.mq.client.biz.bean.Topic;
 import com.acmedcare.framework.remoting.mq.client.biz.body.TopicSubscribeMapping.TopicMapping;
-import com.acmedcare.framework.remoting.mq.client.biz.request.NewTopicRequest;
-import com.acmedcare.framework.remoting.mq.client.biz.request.PullTopicListRequest;
-import com.acmedcare.framework.remoting.mq.client.biz.request.PullTopicSubscribedMappingsRequest;
-import com.acmedcare.framework.remoting.mq.client.biz.request.SendTopicMessageRequest;
+import com.acmedcare.framework.remoting.mq.client.biz.request.*;
 import com.acmedcare.framework.remoting.mq.client.biz.request.SendTopicMessageRequest.Callback;
-import com.acmedcare.framework.remoting.mq.client.biz.request.SubscribeTopicRequest;
 import com.acmedcare.framework.remoting.mq.client.exception.BizException;
 import com.alibaba.fastjson.JSON;
 import java.util.List;
@@ -157,8 +153,6 @@ public class BaseClient {
             });
   }
 
-
-
   /**
    * 订阅主题
    *
@@ -189,6 +183,29 @@ public class BaseClient {
               public void onException(BizException e) {
                 e.printStackTrace();
               }
+            });
+  }
+
+  static void removeTopic(String passport, String passportId, Long topicId) {
+    RemoveTopicRequest request = new RemoveTopicRequest();
+    request.setTopicId(topicId);
+    request.setPassport(passport);
+    request.setPassportId(passportId);
+    AcmedcareMQRemoting.getInstance()
+        .executor()
+        .removeTopic(
+            request,
+            new RemoveTopicRequest.Callback() {
+              @Override
+              public void onSuccess() {
+                System.out.println("队列删除成功");
+              }
+
+              @Override
+              public void onFailed(int code, String message) {}
+
+              @Override
+              public void onException(BizException e) {}
             });
   }
 

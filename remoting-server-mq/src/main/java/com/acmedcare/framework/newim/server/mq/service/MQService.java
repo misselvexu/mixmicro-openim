@@ -1,7 +1,9 @@
 package com.acmedcare.framework.newim.server.mq.service;
 
 import com.acmedcare.framework.boot.snowflake.Snowflake;
+import com.acmedcare.framework.kits.executor.AsyncRuntimeExecutor;
 import com.acmedcare.framework.newim.Message.MQMessage;
+import com.acmedcare.framework.newim.RemotingEvent;
 import com.acmedcare.framework.newim.Topic;
 import com.acmedcare.framework.newim.Topic.TopicSubscribe;
 import com.acmedcare.framework.newim.server.master.connector.MasterConnector;
@@ -160,21 +162,20 @@ public class MQService {
     }
 
     // broadcast
-    if (subscribes != null && !subscribes.isEmpty()) {
+    if (!subscribes.isEmpty()) {
       logger.info("分发主题[{}]订阅消息到订阅客户端", mqMessage.getTopicId());
       context.broadcastTopicMessages(subscribes, mqMessage);
     }
   }
 
   public void doDistributeMessage(MQContext context, MQMessage mqMessage) {
-    if (masterConnector != null) {
-      logger.info("转发主题消息到Replica服务器");
-      context.broadcastMessage(mqMessage);
-    }
+    logger.info("转发主题消息到Replica服务器");
+    context.broadcastMessage(mqMessage);
   }
 
   public List<MQMessage> queryMessageList(
       String namespace, Long lastTopicMessageId, int limit, Long topicId) {
+    // TODO
     return null;
   }
 
@@ -192,8 +193,9 @@ public class MQService {
               }
 
               @Override
-              public Object data() {
-                return OnTopicSubscribeEmptyEventData.builder().topicId(topicId).build();
+              public byte[] data() {
+                return JSON.toJSONBytes(
+                    OnTopicSubscribeEmptyEventData.builder().topicId(topicId).build());
               }
             });
       }
@@ -214,12 +216,38 @@ public class MQService {
     return topic;
   }
 
-  public void removeTopic(String namespace, Long topicId) {
+  public void removeTopic(MQContext context, String namespace, Long topicId) {
     this.topicRepository.removeTopic(namespace, topicId);
     this.topicRepository.removeSubscribes(namespace, null, new String[] {topicId.toString()});
     try {
       topicCache.invalidate(topicId);
     } catch (Exception ignore) {
+    }
+    try {
+      context.broadcastEvent(
+          new AcmedcareEvent() {
+            @Override
+            public Event eventType() {
+              return BizEvent.ON_TOPIC_REMOVED_EVENT;
+            }
+
+            @Override
+            public byte[] data() {
+              return topicId.toString().getBytes();
+            }
+          });
+    } catch (Exception e) {
+      logger.warn("[ignore] broadcastEvent failed.");
+    }
+
+    try {
+      context.broadcastEvent(
+          RemotingEvent.builder()
+              .event(AcmedcareEvent.BizEvent.ON_TOPIC_REMOVED_EVENT.name())
+              .payload(topicId.toString().getBytes())
+              .build());
+    } catch (Exception e) {
+      logger.warn("[ignore] replica broadcastEvent failed.");
     }
   }
 }

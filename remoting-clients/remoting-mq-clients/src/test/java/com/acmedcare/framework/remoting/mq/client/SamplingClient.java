@@ -46,7 +46,7 @@ public class SamplingClient extends BaseClient {
 //            .jksFile(
 //                new File(
 //                    "/Users/ive/git-acmedcare/Acmedcare-NewIM/remoting-certs/client/keystore.jks"))
-            .jksPassword("1qaz2wsx")
+//            .jksPassword("1qaz2wsx")
             .username(KnownParams.passport)
             .accessToken(KnownParams.accessToken)
             .areaNo(KnownParams.areaNo)
@@ -160,7 +160,7 @@ public class SamplingClient extends BaseClient {
           continue;
         }
 
-        // subscribeTopic 1078409540126976
+        // subscribeTopic 285271879434497
         if ("subscribeTopic".equals(inputArgs[0])) {
           subscribeTopic(KnownParams.passport, KnownParams.passportId.toString(), inputArgs[1]);
           continue;
@@ -169,6 +169,15 @@ public class SamplingClient extends BaseClient {
         // unSubscribeTopic 1078409540126976
         if ("unSubscribeTopic".equals(inputArgs[0])) {
           unSubscribeTopic(KnownParams.passport, KnownParams.passportId.toString(), inputArgs[1]);
+          continue;
+        }
+
+        // removeTopic 285271879434497
+        if ("removeTopic".equals(inputArgs[0])) {
+          removeTopic(
+              KnownParams.passport,
+              KnownParams.passportId.toString(),
+              Long.parseLong(inputArgs[1]));
           continue;
         }
 
@@ -190,7 +199,7 @@ public class SamplingClient extends BaseClient {
   private interface KnownParams {
 
     String accessToken =
-        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiJkYWIzOWE3N2QyOTA0NTdhYjg1ZDY0N2Q2M2Y1ZTJmYyIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NDY0MTQ5MDk3NjQsImV4cCI6MTU0NzAyNDgzMDc2NCwiYXVkIjpudWxsfQ.cia6KQXV_nbMZsznGO-ZWH9fDL-wWmYZswR3RN_AJTSd7GVJAS5_tL8uTjcms-waRxjvNPEtY-CHARo90xpbmXAj1m7r2CGowlaTFAEl1zfatsVwldp8rFMh6V_mOCVTEEJUk08a1IHFomqVOfw65_v-TXyDBRGYm3dIJaTFgwlcTMNI5v31bMrh2AQ41X16XML0qgJbZe28a751_Ilg9oXifC-X2n46SiShsFzovx7rZZcLdWKF6VNXmn_TaKBZOxPkBSlj3HQ1YPZwb16mZ5V2cLP2xpkYWrhs0Fa5nUmL6ww4TjOFFlgbbynlkodap1Ktq1IgI2BS5t8Qpc_E9A";
+        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiJjZWUyMWFjMDMzMTY0NzFlODNjYjQ5NDlhYTk1YTRmMyIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NDc2MDIzNjg1MzAsImV4cCI6MTU0ODIxNDk1MjUzMCwiYXVkIjpudWxsfQ.oT4tZ1f_RCFQd1v5S8FExMwdVswOxusAB5Mv_spYgHM-ZBLwD_a828O-rmnyR8rfjZ4N-zwKEXfLz8Aj8jpvbU9CmhvjjwfRG7yosxOfVJH-NrrXmQzUUNezirj-rmrDyoJxueyjsiPMNIbRIhtIZO_kTllLr77_2O37p6fFfUfws7BMi1jHcUF4vCRy3Am3Mdd07gPXFXB5n2HEmnYjn_Ii27XVeLBAhi3N_GRJZxauXUt_Vo4eFuakSY2rDlzDjVRddaiS6zfezwzlnzLYP2G0m4vU7f3xAcpt5ylos1HdDKkxydf9L6854_bGhE-CYWxpuLBIGVhi8bMOvn_WPg";
 
     String areaNo = "320500";
 

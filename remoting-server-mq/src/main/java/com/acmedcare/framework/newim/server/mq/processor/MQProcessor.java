@@ -302,8 +302,8 @@ public class MQProcessor implements NettyRequestProcessor {
           }
 
           @Override
-          public Object data() {
-            return data;
+          public byte[] data() {
+            return JSON.toJSONBytes(data);
           }
         });
 
@@ -578,12 +578,11 @@ public class MQProcessor implements NettyRequestProcessor {
         RemotingCommand.createResponseCommand(remotingCommand.getCode(), null);
 
     RemoveTopicHeader header =
-        (RemoveTopicHeader)
-            remotingCommand.decodeCommandCustomHeader(RemoveTopicHeader.class);
+        (RemoveTopicHeader) remotingCommand.decodeCommandCustomHeader(RemoveTopicHeader.class);
 
     Assert.notNull(header, "Request header must not be null.");
 
-    this.mqService.removeTopic(header.getNamespace(), header.getTopicId());
+    this.mqService.removeTopic(context, header.getNamespace(), header.getTopicId());
 
     // return success
     response.setBody(BizResult.builder().code(0).build().bytes());

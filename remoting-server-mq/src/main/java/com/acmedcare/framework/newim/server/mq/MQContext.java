@@ -1,9 +1,11 @@
 package com.acmedcare.framework.newim.server.mq;
 
 import com.acmedcare.framework.aorp.beans.Principal;
+import com.acmedcare.framework.aorp.utils.Base64;
 import com.acmedcare.framework.kits.executor.AsyncRuntimeExecutor;
 import com.acmedcare.framework.newim.InstanceType;
 import com.acmedcare.framework.newim.Message.MQMessage;
+import com.acmedcare.framework.newim.RemotingEvent;
 import com.acmedcare.framework.newim.Topic.TopicSubscribe;
 import com.acmedcare.framework.newim.server.Context;
 import com.acmedcare.framework.newim.server.mq.MQCommand.Common;
@@ -11,6 +13,7 @@ import com.acmedcare.framework.newim.server.mq.MQCommand.ProducerClient;
 import com.acmedcare.framework.newim.server.mq.event.AcmedcareEvent;
 import com.acmedcare.framework.newim.server.mq.event.AcmedcareEvent.BizEvent;
 import com.acmedcare.framework.newim.server.mq.event.AcmedcareEvent.Event;
+import com.acmedcare.framework.newim.server.mq.processor.header.OnTopicRemovedHeader;
 import com.acmedcare.framework.newim.server.replica.NodeReplicaBeanFactory;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.alibaba.fastjson.JSON;
@@ -20,6 +23,9 @@ import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.util.AttributeKey;
+
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -142,6 +148,10 @@ public final class MQContext implements Context {
     nodeReplicaBeanFactory.postMessage(InstanceType.MQ_SERVER, mqMessage, null);
   }
 
+  public void broadcastEvent(RemotingEvent remotingEvent) {
+    nodeReplicaBeanFactory.postEvent(InstanceType.MQ_SERVER, remotingEvent);
+  }
+
   /**
    * Return Current Context
    *
@@ -170,7 +180,7 @@ public final class MQContext implements Context {
                                       RemotingCommand command =
                                           RemotingCommand.createRequestCommand(
                                               ProducerClient.ON_TOPIC_UNSUBSCRIBE_EVENT, null);
-                                      command.setBody(JSON.toJSONBytes(event.data()));
+                                      command.setBody(event.data());
                                       channel
                                           .writeAndFlush(command)
                                           .addListener(
@@ -201,7 +211,7 @@ public final class MQContext implements Context {
                                       RemotingCommand command =
                                           RemotingCommand.createRequestCommand(
                                               ProducerClient.ON_TOPIC_SUBSCRIBED_EMPTY_EVENT, null);
-                                      command.setBody(JSON.toJSONBytes(event.data()));
+                                      command.setBody(event.data());
                                       channel
                                           .writeAndFlush(command)
                                           .addListener(
@@ -209,12 +219,61 @@ public final class MQContext implements Context {
                                                   future -> {
                                                     if (!future.isSuccess()) {
                                                       logger.warn(
-                                                          "broadcast topic-removed-event message failed, {},{}",
+                                                          "broadcast topic-empty-subscribe-event message failed, {},{}",
                                                           aLong,
                                                           event.data().toString());
                                                     }
                                                   });
                                     }
+                                  }
+                                }
+                              }));
+
+              break;
+
+            case ON_TOPIC_REMOVED_EVENT:
+              logger.info("[EVENT] 请求广播事件:{}", e);
+              AsyncRuntimeExecutor.getAsyncThreadPool()
+                  .execute(
+                      () ->
+                          MONITOR_SESSIONS.forEach(
+                              (aLong, channels) -> {
+                                if (!channels.isEmpty()) {
+
+                                  OnTopicRemovedHeader onTopicRemovedHeader =
+                                      new OnTopicRemovedHeader();
+                                  try {
+                                    onTopicRemovedHeader.setTopicId(
+                                        Long.parseLong(new String(event.data(), "UTF-8")));
+
+                                    for (Channel channel : channels) {
+                                      if (channel != null && channel.isWritable()) {
+
+                                        RemotingCommand command =
+                                            RemotingCommand.createRequestCommand(
+                                                Common.ON_TOPIC_REMOVED_EVENT,
+                                                onTopicRemovedHeader);
+                                        command.setBody(event.data());
+
+                                        channel
+                                            .writeAndFlush(command)
+                                            .addListener(
+                                                (ChannelFutureListener)
+                                                    future -> {
+                                                      if (!future.isSuccess()) {
+                                                        logger.warn(
+                                                            "broadcast topic-removed-event message failed, {},{}",
+                                                            aLong,
+                                                            Arrays.toString(event.data()));
+                                                      }
+                                                    });
+                                      }
+                                    }
+
+                                  } catch (UnsupportedEncodingException e1) {
+                                    logger.error(
+                                        "broadcast topic-removed-event message ,param process error",
+                                        e1);
                                   }
                                 }
                               }));

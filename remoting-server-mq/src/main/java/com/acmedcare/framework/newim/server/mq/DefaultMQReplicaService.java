@@ -3,7 +3,9 @@ package com.acmedcare.framework.newim.server.mq;
 import com.acmedcare.framework.newim.InstanceType;
 import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.Message.MQMessage;
+import com.acmedcare.framework.newim.RemotingEvent;
 import com.acmedcare.framework.newim.server.Context;
+import com.acmedcare.framework.newim.server.mq.event.AcmedcareEvent;
 import com.acmedcare.framework.newim.server.mq.service.MQService;
 import com.acmedcare.framework.newim.server.replica.NodeReplicaException;
 import com.acmedcare.framework.newim.server.replica.NodeReplicaInstance;
@@ -72,6 +74,30 @@ public class DefaultMQReplicaService implements NodeReplicaService {
     if (message instanceof MQMessage) {
       MQMessage mqMessage = (MQMessage) message;
       mqService.doBroadcastTopicMessage(context, mqMessage);
+    }
+  }
+
+  @Override
+  public void onReceivedEvent(RemotingEvent remotingEvent) {
+    logger.info("Rvd Replica Event : {}", remotingEvent.getEvent());
+    try {
+      AcmedcareEvent.BizEvent bizEvent = AcmedcareEvent.BizEvent.valueOf(remotingEvent.getEvent());
+
+      context.broadcastEvent(
+          new AcmedcareEvent() {
+            @Override
+            public Event eventType() {
+              return bizEvent;
+            }
+
+            @Override
+            public byte[] data() {
+              return remotingEvent.getPayload();
+            }
+          });
+
+    } catch (Exception e) {
+      logger.warn("MQ replica service process failed", e);
     }
   }
 }

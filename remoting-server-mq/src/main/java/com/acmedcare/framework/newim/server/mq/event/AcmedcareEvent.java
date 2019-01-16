@@ -41,7 +41,7 @@ public abstract class AcmedcareEvent {
    *
    * @return post data with event bus
    */
-  public abstract Object data();
+  public abstract byte[] data();
 
   /** System Event */
   public enum SystemEvent implements Event {}
@@ -53,7 +53,10 @@ public abstract class AcmedcareEvent {
     ON_TOPIC_UB_SUBSCRIBE_EVENT,
 
     /** 主题删除事件 */
-    ON_TOPIC_EMPTY_SUBSCRIBED_EVENT
+    ON_TOPIC_EMPTY_SUBSCRIBED_EVENT,
+
+    /** 主题删除事件 */
+    ON_TOPIC_REMOVED_EVENT
   }
 
   public interface Event {}
