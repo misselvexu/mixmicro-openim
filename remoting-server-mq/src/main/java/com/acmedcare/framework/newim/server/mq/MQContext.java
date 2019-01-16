@@ -1,6 +1,7 @@
 package com.acmedcare.framework.newim.server.mq;
 
 import com.acmedcare.framework.aorp.beans.Principal;
+import com.acmedcare.framework.aorp.utils.Base64;
 import com.acmedcare.framework.kits.executor.AsyncRuntimeExecutor;
 import com.acmedcare.framework.newim.InstanceType;
 import com.acmedcare.framework.newim.Message.MQMessage;
@@ -22,6 +23,9 @@ import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.util.AttributeKey;
+
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -235,31 +239,41 @@ public final class MQContext implements Context {
                           MONITOR_SESSIONS.forEach(
                               (aLong, channels) -> {
                                 if (!channels.isEmpty()) {
-                                  for (Channel channel : channels) {
-                                    if (channel != null && channel.isWritable()) {
-                                      OnTopicRemovedHeader onTopicRemovedHeader =
-                                          new OnTopicRemovedHeader();
-                                      onTopicRemovedHeader.setTopicId(
-                                          Long.parseLong(new String(event.data())));
 
-                                      RemotingCommand command =
-                                          RemotingCommand.createRequestCommand(
-                                              Common.ON_TOPIC_REMOVED_EVENT, onTopicRemovedHeader);
-                                      command.setBody(event.data());
+                                  OnTopicRemovedHeader onTopicRemovedHeader =
+                                      new OnTopicRemovedHeader();
+                                  try {
+                                    onTopicRemovedHeader.setTopicId(
+                                        Long.parseLong(new String(event.data(), "UTF-8")));
 
-                                      channel
-                                          .writeAndFlush(command)
-                                          .addListener(
-                                              (ChannelFutureListener)
-                                                  future -> {
-                                                    if (!future.isSuccess()) {
-                                                      logger.warn(
-                                                          "broadcast topic-removed-event message failed, {},{}",
-                                                          aLong,
-                                                          event.data().toString());
-                                                    }
-                                                  });
+                                    for (Channel channel : channels) {
+                                      if (channel != null && channel.isWritable()) {
+
+                                        RemotingCommand command =
+                                            RemotingCommand.createRequestCommand(
+                                                Common.ON_TOPIC_REMOVED_EVENT,
+                                                onTopicRemovedHeader);
+                                        command.setBody(event.data());
+
+                                        channel
+                                            .writeAndFlush(command)
+                                            .addListener(
+                                                (ChannelFutureListener)
+                                                    future -> {
+                                                      if (!future.isSuccess()) {
+                                                        logger.warn(
+                                                            "broadcast topic-removed-event message failed, {},{}",
+                                                            aLong,
+                                                            Arrays.toString(event.data()));
+                                                      }
+                                                    });
+                                      }
                                     }
+
+                                  } catch (UnsupportedEncodingException e1) {
+                                    logger.error(
+                                        "broadcast topic-removed-event message ,param process error",
+                                        e1);
                                   }
                                 }
                               }));

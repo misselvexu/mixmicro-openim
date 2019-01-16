@@ -105,7 +105,7 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
                                   RemotingCommand.createRequestCommand(
                                       ClusterWithClusterCommand.CLUSTER_FORWARD_EVENT, header);
 
-                              command.setBody(JSON.toJSONBytes(remotingEvent.getPayload()));
+                              command.setBody(remotingEvent.getPayload());
 
                               try {
                                 connectorClient.client.invokeAsync(
