@@ -100,7 +100,7 @@ public class GroupRepositoryImpl implements GroupRepository {
     mongoLog.info("请求删除群组:{}", groupId);
     Query query = new Query(Criteria.where("groupId").is(groupId).and("namespace").is(namespace));
     Update update = new Update();
-    update.set("status", Status.DISABLED);
+    update.set("groupStatus", Status.DISABLED);
     UpdateResult updateResult = this.mongoTemplate.updateFirst(query, update, GROUP);
 
     // change remove rule ,flag

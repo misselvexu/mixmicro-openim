@@ -75,7 +75,7 @@ public class Group implements Serializable {
 
     private static final long serialVersionUID = 1474652111556171928L;
 
-    private String namespace;
+    private String namespace = "DEFAULT";
     private String groupId;
     private List<Member> members;
 
