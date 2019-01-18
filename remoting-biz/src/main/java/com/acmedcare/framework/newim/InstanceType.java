@@ -11,7 +11,7 @@ public enum InstanceType {
   /** Master Server */
   MASTER,
 
-  /** Default Server */
+  /** Default IM Server */
   DEFAULT,
 
   /** @deprecated use {@link #DEFAULT} instead of */
