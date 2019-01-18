@@ -48,14 +48,14 @@ public class GroupServices {
 
     if (members != null && !members.isEmpty()) {
       // members
-      GroupMembers groupMembers = GroupMembers.builder().groupId(groupId).members(members).build();
+      GroupMembers groupMembers = GroupMembers.builder().groupId(groupId).members(members).namespace(namespace).build();
       this.groupRepository.saveGroupMembers(groupMembers);
     }
   }
 
   public void addNewGroupMembers(String namespace, String groupId, List<Member> members) {
     this.groupRepository.saveGroupMembers(
-        GroupMembers.builder().namespace(namespace).groupId(groupId).members(members).build());
+        GroupMembers.builder().namespace(namespace).groupId(groupId).members(members).namespace(namespace).build());
   }
 
   public void removeNewGroupMembers(String namespace, String groupId, List<String> memberIds) {
