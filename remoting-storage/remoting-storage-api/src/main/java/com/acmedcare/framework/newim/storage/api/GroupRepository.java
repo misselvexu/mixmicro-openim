@@ -3,6 +3,8 @@ package com.acmedcare.framework.newim.storage.api;
 import com.acmedcare.framework.newim.Group;
 import com.acmedcare.framework.newim.Group.GroupMembers;
 import com.acmedcare.framework.newim.GroupMemberRef;
+import com.acmedcare.framework.newim.client.bean.Member;
+
 import java.util.List;
 
 /**
@@ -72,6 +74,14 @@ public interface GroupRepository {
    * @return result list
    */
   List<GroupMemberRef> queryGroupMembers(String namespace, String groupId);
+
+  /**
+   * query group member list
+   * @param namespace namespace
+   * @param groupId group id
+   * @return member list
+   */
+  List<Member> queryGroupMembersList(String namespace, String groupId);
 
   /**
    * query member groups

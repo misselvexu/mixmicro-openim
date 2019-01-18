@@ -66,6 +66,9 @@ public class RemotingClientJoinOrLeaveGroupProcessor extends AbstractNormalReque
                   Member.builder()
                       .memberId(Long.parseLong(joinOrLeaveGroupHeader.getPassportId()))
                       .memberName(joinOrLeaveGroupHeader.getMemberName())
+                      .memberExt(joinOrLeaveGroupHeader.getMemberExt())
+                      .memberUserName(joinOrLeaveGroupHeader.getMemberUserName())
+                      .portrait(joinOrLeaveGroupHeader.getPortrait())
                       .build()));
           break;
         case LEAVE:
@@ -74,6 +77,15 @@ public class RemotingClientJoinOrLeaveGroupProcessor extends AbstractNormalReque
               joinOrLeaveGroupHeader.getGroupId(),
               Lists.newArrayList(joinOrLeaveGroupHeader.getPassportId()));
           break;
+        default:
+          response.setBody(
+              BizResult.builder()
+                  .code(-1)
+                  .exception(ExceptionWrapper.builder().message("无效的操作类型").build())
+                  .build()
+                  .bytes());
+
+          return response;
       }
 
       response.setBody(BizResult.builder().code(0).build().bytes());

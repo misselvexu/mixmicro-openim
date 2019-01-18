@@ -29,12 +29,18 @@ public class GroupMemberRef implements Serializable {
   private String groupId;
   private String memberId;
   private String memberName;
+  private String memberUserName;
+  private String portrait;
+  private String memberExt;
 
   @Builder
-  public GroupMemberRef(String groupId, String memberId, String memberName, String namespace) {
+  public GroupMemberRef(String groupId, String memberId, String memberName, String namespace, String memberUserName, String portrait, String memberExt) {
     this.groupId = groupId;
     this.memberId = memberId;
     this.memberName = memberName;
     this.namespace = namespace;
+    this.memberExt = memberExt;
+    this.memberUserName = memberUserName;
+    this.portrait = portrait;
   }
 }

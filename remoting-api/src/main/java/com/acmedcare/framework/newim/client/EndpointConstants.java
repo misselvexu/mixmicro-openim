@@ -31,6 +31,9 @@ public interface EndpointConstants {
 
     /** 群组移除人员 */
     String REMOVE_GROUP_MEMBERS = "/group/remove-group-members";
+
+    /** 群组成员列 */
+    String GROUP_MEMBER_LIST = "/group/members-list";
   }
 
   /**

@@ -22,6 +22,9 @@ public class JoinOrLeaveGroupHeader implements CommandCustomHeader {
   @CFNotNull private String passportId;
   @CFNotNull private String memberName;
   @CFNotNull private String operateType;
+  private String memberUserName;
+  private String portrait;
+  private String memberExt;
 
   public OperateType decodeOperateType() {
     return OperateType.valueOf(this.operateType);

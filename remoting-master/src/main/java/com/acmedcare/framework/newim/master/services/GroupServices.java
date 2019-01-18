@@ -99,4 +99,8 @@ public class GroupServices {
 
     return group;
   }
+
+  public List<Member> queryGroupMemberList(String namespace, String groupId) {
+    return this.groupRepository.queryGroupMembersList(namespace, groupId);
+  }
 }

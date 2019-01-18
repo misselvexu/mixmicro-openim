@@ -1,11 +1,5 @@
 package com.acmedcare.framework.newim.storage.mongo;
 
-import static com.acmedcare.framework.newim.CommonLogger.mongoLog;
-import static com.acmedcare.framework.newim.storage.IMStorageCollections.GROUP;
-import static com.acmedcare.framework.newim.storage.IMStorageCollections.REF_GROUP_MEMBER;
-import static org.springframework.data.mongodb.SessionSynchronization.ALWAYS;
-import static org.springframework.data.mongodb.SessionSynchronization.ON_ACTUAL_TRANSACTION;
-
 import com.acmedcare.framework.newim.Group;
 import com.acmedcare.framework.newim.Group.GroupMembers;
 import com.acmedcare.framework.newim.GroupMemberRef;
@@ -17,10 +11,6 @@ import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -29,6 +19,17 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.acmedcare.framework.newim.CommonLogger.mongoLog;
+import static com.acmedcare.framework.newim.storage.IMStorageCollections.GROUP;
+import static com.acmedcare.framework.newim.storage.IMStorageCollections.REF_GROUP_MEMBER;
+import static org.springframework.data.mongodb.SessionSynchronization.ALWAYS;
+import static org.springframework.data.mongodb.SessionSynchronization.ON_ACTUAL_TRANSACTION;
 
 /**
  * Group Repository Impl
@@ -200,6 +201,9 @@ public class GroupRepositoryImpl implements GroupRepository {
                                             .groupId(members.getGroupId())
                                             .memberId(member.getMemberId().toString())
                                             .memberName(member.getMemberName())
+                                            .memberExt(member.getMemberExt())
+                                            .memberUserName(member.getMemberUserName())
+                                            .portrait(member.getPortrait())
                                             .build()));
 
                         mongoTemplate.insert(refs, REF_GROUP_MEMBER);
@@ -253,6 +257,23 @@ public class GroupRepositoryImpl implements GroupRepository {
   public List<GroupMemberRef> queryGroupMembers(String namespace, String groupId) {
     Query query = new Query(Criteria.where("groupId").is(groupId).and("namespace").is(namespace));
     return mongoTemplate.find(query, GroupMemberRef.class, REF_GROUP_MEMBER);
+  }
+
+  @Override
+  public List<Member> queryGroupMembersList(String namespace, String groupId) {
+    List<GroupMemberRef> refs = queryGroupMembers(namespace, groupId);
+    List<Member> members = Lists.newArrayList();
+    for (GroupMemberRef ref : refs) {
+      members.add(
+          Member.builder()
+              .memberId(Long.parseLong(ref.getMemberId()))
+              .memberName(ref.getMemberName())
+              .memberUserName(ref.getMemberUserName())
+              .memberExt(ref.getMemberExt())
+              .portrait(ref.getPortrait())
+              .build());
+    }
+    return members;
   }
 
   @Override

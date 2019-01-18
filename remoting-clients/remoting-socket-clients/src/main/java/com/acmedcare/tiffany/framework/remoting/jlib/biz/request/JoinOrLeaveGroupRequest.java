@@ -21,15 +21,29 @@ public class JoinOrLeaveGroupRequest {
   private String groupId;
   private String passportId;
   private String memberName;
+  private String memberUserName;
+  private String portrait;
+  private String memberExt;
   private OperateType operateType;
 
   @Builder
-  public JoinOrLeaveGroupRequest(String groupId, String passportId, String memberName,OperateType operateType,String namespace) {
+  public JoinOrLeaveGroupRequest(
+      String groupId,
+      String passportId,
+      String memberName,
+      String memberExt,
+      String memberUserName,
+      String portrait,
+      OperateType operateType,
+      String namespace) {
     this.groupId = groupId;
     this.passportId = passportId;
     this.memberName = memberName;
     this.operateType = operateType;
     this.namespace = namespace;
+    this.memberExt = memberExt;
+    this.memberUserName = memberUserName;
+    this.portrait = portrait;
   }
 
   public interface Callback {

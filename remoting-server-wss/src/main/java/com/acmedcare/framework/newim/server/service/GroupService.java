@@ -6,9 +6,10 @@ import com.acmedcare.framework.newim.GroupMemberRef;
 import com.acmedcare.framework.newim.client.bean.Member;
 import com.acmedcare.framework.newim.storage.api.GroupRepository;
 import com.google.common.collect.Lists;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * Group Service
@@ -47,6 +48,9 @@ public class GroupService {
           Member.builder()
               .memberId(Long.parseLong(ref.getMemberId()))
               .memberName(ref.getMemberName())
+              .memberUserName(ref.getMemberUserName())
+              .memberExt(ref.getMemberExt())
+              .portrait(ref.getPortrait())
               .build());
     }
     return members;

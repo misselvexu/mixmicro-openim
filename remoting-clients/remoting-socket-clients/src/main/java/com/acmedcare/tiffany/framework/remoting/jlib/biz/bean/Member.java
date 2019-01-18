@@ -23,9 +23,18 @@ public class Member implements Serializable {
 
   private String memberName;
 
+  private String memberUserName;
+
+  private String portrait;
+
+  private String memberExt;
+
   @Builder
-  public Member(Long memberId, String memberName) {
+  public Member(Long memberId, String memberName, String memberUserName, String memberExt, String portrait) {
     this.memberId = memberId;
     this.memberName = memberName;
+    this.memberUserName = memberUserName;
+    this.memberExt = memberExt;
+    this.portrait = portrait;
   }
 }

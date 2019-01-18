@@ -1,17 +1,14 @@
 package com.acmedcare.framework.newim.master.endpoint;
 
 import static com.acmedcare.framework.newim.MasterLogger.endpointLog;
-import static com.acmedcare.framework.newim.client.EndpointConstants.GroupRequest.ADD_GROUP_MEMBERS;
-import static com.acmedcare.framework.newim.client.EndpointConstants.GroupRequest.CREATE_GROUP;
-import static com.acmedcare.framework.newim.client.EndpointConstants.GroupRequest.REMOVE_GROUP;
-import static com.acmedcare.framework.newim.client.EndpointConstants.GroupRequest.REMOVE_GROUP_MEMBERS;
-import static com.acmedcare.framework.newim.client.EndpointConstants.GroupRequest.UPDATE_GROUP;
+import static com.acmedcare.framework.newim.client.EndpointConstants.GroupRequest.*;
 
 import com.acmedcare.framework.exception.defined.InvalidRequestParamException;
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
 import com.acmedcare.framework.newim.Group;
 import com.acmedcare.framework.newim.client.MessageConstants;
+import com.acmedcare.framework.newim.client.bean.Member;
 import com.acmedcare.framework.newim.client.bean.request.AddGroupMembersRequest;
 import com.acmedcare.framework.newim.client.bean.request.NewGroupRequest;
 import com.acmedcare.framework.newim.client.bean.request.RemoveGroupMembersRequest;
@@ -23,10 +20,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * Group Endpoint
@@ -153,6 +149,41 @@ public class GroupEndpoint {
                   .build());
     } catch (Exception e) {
       endpointLog.error("remove group failed", e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body(
+              BizResult.builder()
+                  .code(-1)
+                  .exception(
+                      ExceptionWrapper.builder().type(e.getClass()).message(e.getMessage()).build())
+                  .build());
+    }
+  }
+
+  @GetMapping(GROUP_MEMBER_LIST)
+  ResponseEntity groupMemberList(
+      @RequestParam String groupId,
+      @RequestParam(required = false, defaultValue = MessageConstants.DEFAULT_NAMESPACE)
+          String namespace) {
+    try {
+      endpointLog.info("query group member list request params: {}", groupId);
+
+      if (StringUtils.isAnyBlank(groupId)) {
+        throw new InvalidRequestParamException("查询群组成员参数异常");
+      }
+
+      List<Member> members = this.groupServices.queryGroupMemberList(namespace, groupId);
+
+      return ResponseEntity.ok(BizResult.builder().code(0).data(members).build());
+    } catch (InvalidRequestParamException | StorageException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body(
+              BizResult.builder()
+                  .code(-1)
+                  .exception(
+                      ExceptionWrapper.builder().type(e.getClass()).message(e.getMessage()).build())
+                  .build());
+    } catch (Exception e) {
+      endpointLog.error("query group member list failed", e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .body(
               BizResult.builder()

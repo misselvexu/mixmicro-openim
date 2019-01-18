@@ -631,6 +631,9 @@ public class JREBizExectuor extends BizExecutor {
     header.setOperateType(request.getOperateType());
     header.setPassportId(request.getPassportId());
     header.setMemberName(request.getMemberName());
+    header.setMemberExt(request.getMemberExt());
+    header.setMemberUserName(request.getMemberUserName());
+    header.setPortrait(request.getPortrait());
 
     int bizCode =
         OperateType.JOIN.equals(request.getOperateType())
