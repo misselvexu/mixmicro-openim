@@ -29,6 +29,11 @@ public interface EndpointConstants {
     /** 群组添加人员 */
     String ADD_GROUP_MEMBERS = "/group/add-group-members";
 
+    /**
+     * 群组列表
+     */
+    String GROUP_LIST = "/group/list";
+
     /** 群组移除人员 */
     String REMOVE_GROUP_MEMBERS = "/group/remove-group-members";
 

@@ -5,9 +5,10 @@ import com.acmedcare.framework.newim.Group.GroupMembers;
 import com.acmedcare.framework.newim.client.bean.Member;
 import com.acmedcare.framework.newim.storage.api.GroupRepository;
 import com.acmedcare.framework.newim.storage.exception.StorageException;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * Group Services
@@ -102,5 +103,9 @@ public class GroupServices {
 
   public List<Member> queryGroupMemberList(String namespace, String groupId) {
     return this.groupRepository.queryGroupMembersList(namespace, groupId);
+  }
+
+  public List<Group> queryGroupList(String namespace, String groupBizType) {
+    return this.groupRepository.queryGroupList(namespace, groupBizType);
   }
 }

@@ -289,4 +289,10 @@ public class GroupRepositoryImpl implements GroupRepository {
     }
     return Lists.newArrayList();
   }
+
+  @Override
+  public List<Group> queryGroupList(String namespace, String groupBizType) {
+    Query query = new Query(Criteria.where("groupBizType").is(groupBizType).and("namespace").is(namespace));
+    return this.mongoTemplate.find(query, Group.class, GROUP);
+  }
 }

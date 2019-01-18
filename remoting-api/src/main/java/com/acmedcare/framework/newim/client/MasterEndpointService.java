@@ -9,8 +9,8 @@ import com.acmedcare.framework.newim.client.bean.response.GroupResponse;
 import com.acmedcare.framework.newim.client.exception.EndpointException;
 import com.acmedcare.nas.api.ProgressCallback;
 import com.acmedcare.nas.api.exception.NasException;
+
 import java.io.File;
-import java.security.acl.Group;
 import java.util.List;
 
 /**
@@ -82,6 +82,16 @@ public interface MasterEndpointService {
    * @throws EndpointException throw failed exception
    */
   List<Member> queryGroupMemberList(String groupId, String namespace) throws EndpointException;
+
+  /**
+   * Query group list
+   *
+   * @param groupBizType type
+   * @param namespace    namespace
+   * @return list
+   * @throws EndpointException exception
+   */
+  List<com.acmedcare.framework.newim.client.bean.Group> queryGroupList(String groupBizType, String namespace) throws EndpointException;
 
   /**
    * Send Single Message

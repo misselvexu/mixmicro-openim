@@ -98,4 +98,14 @@ public interface GroupRepository {
    * @param group group info
    */
   void updateGroup(Group group);
+
+  /**
+   * Query Group List by Biz Tag
+   *
+   * @param namespace    namespace
+   * @param groupBizType group biz type
+   * @return group list
+   */
+  List<Group> queryGroupList(String namespace, String groupBizType);
+
 }

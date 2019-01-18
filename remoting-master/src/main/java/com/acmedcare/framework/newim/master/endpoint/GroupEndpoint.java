@@ -1,8 +1,5 @@
 package com.acmedcare.framework.newim.master.endpoint;
 
-import static com.acmedcare.framework.newim.MasterLogger.endpointLog;
-import static com.acmedcare.framework.newim.client.EndpointConstants.GroupRequest.*;
-
 import com.acmedcare.framework.exception.defined.InvalidRequestParamException;
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
@@ -23,6 +20,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static com.acmedcare.framework.newim.MasterLogger.endpointLog;
+import static com.acmedcare.framework.newim.client.EndpointConstants.GroupRequest.*;
 
 /**
  * Group Endpoint
@@ -184,6 +184,45 @@ public class GroupEndpoint {
                   .build());
     } catch (Exception e) {
       endpointLog.error("query group member list failed", e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body(
+              BizResult.builder()
+                  .code(-1)
+                  .exception(
+                      ExceptionWrapper.builder().type(e.getClass()).message(e.getMessage()).build())
+                  .build());
+    }
+  }
+
+  @GetMapping(GROUP_LIST)
+  ResponseEntity groupList(
+      @RequestParam String groupBizType,
+      @RequestParam(required = false, defaultValue = MessageConstants.DEFAULT_NAMESPACE)
+          String namespace) {
+    try {
+      endpointLog.info("query group list request params: {}", groupBizType);
+
+      if (StringUtils.isAnyBlank(groupBizType)) {
+        throw new InvalidRequestParamException("查询群组列表参数异常");
+      }
+
+      List<Group> groups = this.groupServices.queryGroupList(namespace, groupBizType);
+
+      if (groups == null || groups.isEmpty()) {
+        return ResponseEntity.noContent().build();
+      }
+
+      return ResponseEntity.ok(BizResult.builder().code(0).data(groups).build());
+    } catch (InvalidRequestParamException | StorageException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body(
+              BizResult.builder()
+                  .code(-1)
+                  .exception(
+                      ExceptionWrapper.builder().type(e.getClass()).message(e.getMessage()).build())
+                  .build());
+    } catch (Exception e) {
+      endpointLog.error("query group list failed", e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .body(
               BizResult.builder()

@@ -7,23 +7,13 @@ import com.acmedcare.framework.kits.http.client.HttpParams;
 import com.acmedcare.framework.kits.http.client.HttpParams.ENTITY;
 import com.acmedcare.framework.kits.http.client.HttpResponse;
 import com.acmedcare.framework.kits.http.client.HttpStatus;
-import com.acmedcare.framework.newim.client.BizResult;
+import com.acmedcare.framework.newim.client.*;
 import com.acmedcare.framework.newim.client.EndpointConstants.GroupRequest;
 import com.acmedcare.framework.newim.client.EndpointConstants.MessageRequest;
-import com.acmedcare.framework.newim.client.MasterEndpointService;
-import com.acmedcare.framework.newim.client.MessageAttribute;
-import com.acmedcare.framework.newim.client.MessageBizType;
-import com.acmedcare.framework.newim.client.MessageConstants;
-import com.acmedcare.framework.newim.client.MessageContentType;
+import com.acmedcare.framework.newim.client.bean.Group;
 import com.acmedcare.framework.newim.client.bean.MediaPayload;
 import com.acmedcare.framework.newim.client.bean.Member;
-import com.acmedcare.framework.newim.client.bean.request.AddGroupMembersRequest;
-import com.acmedcare.framework.newim.client.bean.request.BatchSendMessageRequest;
-import com.acmedcare.framework.newim.client.bean.request.NewGroupRequest;
-import com.acmedcare.framework.newim.client.bean.request.RemoveGroupMembersRequest;
-import com.acmedcare.framework.newim.client.bean.request.SendGroupMessageRequest;
-import com.acmedcare.framework.newim.client.bean.request.SendMessageRequest;
-import com.acmedcare.framework.newim.client.bean.request.UpdateGroupRequest;
+import com.acmedcare.framework.newim.client.bean.request.*;
 import com.acmedcare.framework.newim.client.bean.response.GroupResponse;
 import com.acmedcare.framework.newim.client.exception.EndpointException;
 import com.acmedcare.nas.api.NasClientConstants.ResponseCode;
@@ -34,15 +24,16 @@ import com.acmedcare.nas.client.NasClient;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.google.common.base.Strings;
-import java.io.File;
-import java.security.acl.Group;
-import java.util.List;
-import java.util.Random;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.List;
+import java.util.Random;
 
 /**
  * Master Endpoint Client
@@ -257,7 +248,7 @@ public class MasterEndpointClient extends NasEndpointClient implements MasterEnd
    * Update Group Api
    *
    * @param request update group request instance of {@link UpdateGroupRequest}
-   * @return return old {@link Group} instance
+   * @return return old {@link com.acmedcare.framework.newim.client.bean.Group} instance
    * @throws EndpointException throw failed exception
    */
   @Override
@@ -392,6 +383,52 @@ public class MasterEndpointClient extends NasEndpointClient implements MasterEnd
       throw new EndpointException("Remove group request failed", e);
     }
   }
+
+
+  @Override
+  public List<Group> queryGroupList(String groupBizType, String namespace) throws EndpointException {
+    try {
+      if (StringUtils.isAnyBlank(groupBizType)) {
+        throw new EndpointException("Query group list request params:[groupBizType] must not be null or ''");
+      }
+
+      // build request
+      HttpClient httpClient = HttpClient.getInstance();
+      HttpParams httpParams = new HttpParams();
+      httpParams.setEntity(ENTITY.FORM);
+      httpParams.put("groupBizType", groupBizType);
+      httpParams.put("namespace", namespace);
+
+      HttpResponse httpResponse = new HttpResponse();
+      httpClient.request(
+          METHOD.GET, buildUrl(GroupRequest.GROUP_LIST), httpParams, null, httpResponse);
+
+      if (httpResponse.getStatusCode() != HttpStatus.SC_OK) {
+
+        if (httpResponse.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+          throw new EndpointException("[404] Request Url: " + GroupRequest.REMOVE_GROUP);
+        }
+
+        if (httpResponse.getStatusCode() == HttpStatus.SC_NO_CONTENT) {
+          LOG.warn("[204] Query group list no content");
+          return Lists.newArrayList();
+        }
+
+        BizResult bizResult = BizResult.fromJSON(httpResponse.getResult(), BizResult.class);
+        throw new EndpointException(
+            "Query group list failed ," + bizResult.getException().getMessage());
+      } else {
+        LOG.info("Query group list  succeed.");
+        return JSON.parseObject(httpResponse.getResult(), new TypeReference<List<Group>>() {
+        });
+      }
+    } catch (EndpointException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new EndpointException("Query group list request failed", e);
+    }
+  }
+
 
   /**
    * Send Single Message
