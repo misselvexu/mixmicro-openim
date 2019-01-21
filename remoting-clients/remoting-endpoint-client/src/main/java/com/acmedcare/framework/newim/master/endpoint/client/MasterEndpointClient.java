@@ -362,7 +362,7 @@ public class MasterEndpointClient extends NasEndpointClient implements MasterEnd
 
       HttpResponse httpResponse = new HttpResponse();
       httpClient.request(
-          METHOD.GET, buildUrl(GroupRequest.GROUP_MEMBER_LIST), httpParams, null, httpResponse);
+          METHOD.POST, buildUrl(GroupRequest.GROUP_MEMBER_LIST), httpParams, null, httpResponse);
 
       if (httpResponse.getStatusCode() != HttpStatus.SC_OK) {
 
@@ -401,12 +401,12 @@ public class MasterEndpointClient extends NasEndpointClient implements MasterEnd
 
       HttpResponse httpResponse = new HttpResponse();
       httpClient.request(
-          METHOD.GET, buildUrl(GroupRequest.GROUP_LIST), httpParams, null, httpResponse);
+          METHOD.POST, buildUrl(GroupRequest.GROUP_LIST), httpParams, null, httpResponse);
 
       if (httpResponse.getStatusCode() != HttpStatus.SC_OK) {
 
         if (httpResponse.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
-          throw new EndpointException("[404] Request Url: " + GroupRequest.REMOVE_GROUP);
+          throw new EndpointException("[404] Request Url: " + GroupRequest.GROUP_LIST);
         }
 
         if (httpResponse.getStatusCode() == HttpStatus.SC_NO_CONTENT) {

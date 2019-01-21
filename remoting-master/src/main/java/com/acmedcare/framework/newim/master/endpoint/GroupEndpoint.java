@@ -17,7 +17,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -41,7 +44,6 @@ public class GroupEndpoint {
   public GroupEndpoint(GroupServices groupServices) {
     this.groupServices = groupServices;
   }
-
   // ========================= Request Mapping Method ==========================
 
   @PostMapping(CREATE_GROUP)
@@ -159,7 +161,7 @@ public class GroupEndpoint {
     }
   }
 
-  @GetMapping(GROUP_MEMBER_LIST)
+  @PostMapping(GROUP_MEMBER_LIST)
   ResponseEntity groupMemberList(
       @RequestParam String groupId,
       @RequestParam(required = false, defaultValue = MessageConstants.DEFAULT_NAMESPACE)
@@ -173,7 +175,7 @@ public class GroupEndpoint {
 
       List<Member> members = this.groupServices.queryGroupMemberList(namespace, groupId);
 
-      return ResponseEntity.ok(BizResult.builder().code(0).data(members).build());
+      return ResponseEntity.ok(members);
     } catch (InvalidRequestParamException | StorageException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body(
@@ -194,7 +196,7 @@ public class GroupEndpoint {
     }
   }
 
-  @GetMapping(GROUP_LIST)
+  @PostMapping(GROUP_LIST)
   ResponseEntity groupList(
       @RequestParam String groupBizType,
       @RequestParam(required = false, defaultValue = MessageConstants.DEFAULT_NAMESPACE)
@@ -212,7 +214,7 @@ public class GroupEndpoint {
         return ResponseEntity.noContent().build();
       }
 
-      return ResponseEntity.ok(BizResult.builder().code(0).data(groups).build());
+      return ResponseEntity.ok(groups);
     } catch (InvalidRequestParamException | StorageException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body(
@@ -246,7 +248,8 @@ public class GroupEndpoint {
         throw new InvalidRequestParamException("添加群组成员列表不能为空");
       }
 
-      this.groupServices.addNewGroupMembers(request.getNamespace(),request.getGroupId(), request.getMembers());
+      this.groupServices.addNewGroupMembers(
+          request.getNamespace(), request.getGroupId(), request.getMembers());
 
       return ResponseEntity.ok().build();
     } catch (InvalidRequestParamException | StorageException e) {
@@ -278,7 +281,8 @@ public class GroupEndpoint {
         throw new InvalidRequestParamException("群组标识ID不能为空");
       }
 
-      this.groupServices.removeNewGroupMembers(request.getNamespace(),request.getGroupId(), request.getMemberIds());
+      this.groupServices.removeNewGroupMembers(
+          request.getNamespace(), request.getGroupId(), request.getMemberIds());
 
       return ResponseEntity.ok().build();
     } catch (InvalidRequestParamException | StorageException e) {
