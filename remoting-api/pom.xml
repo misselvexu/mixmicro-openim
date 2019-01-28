@@ -17,6 +17,10 @@
     <name>Acmedcare+ Remoting NewIM Api Defined :: ${project.version}</name>
     <description>Remote Api</description>
 
+    <properties>
+        <nas.version>2.1.1.BUILD-SNAPSHOT</nas.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -25,8 +29,14 @@
 
         <dependency>
             <groupId>com.acmedcare.nas</groupId>
+            <artifactId>nas-api</artifactId>
+            <version>${nas.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.acmedcare.nas</groupId>
             <artifactId>nas-client</artifactId>
-            <version>2.1.1.BUILD-SNAPSHOT</version>
+            <version>${nas.version}</version>
         </dependency>
     </dependencies>
 
