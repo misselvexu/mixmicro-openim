@@ -67,7 +67,7 @@
 
         <dependency>
             <groupId>com.acmedcare.tiffany.framework</groupId>
-            <artifactId>remoting-core</artifactId>
+            <artifactId>remoting-default</artifactId>
         </dependency>
 
         <dependency>

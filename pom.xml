@@ -75,8 +75,8 @@
 
             <dependency>
                 <groupId>com.acmedcare.tiffany.framework</groupId>
-                <artifactId>remoting-core</artifactId>
-                <version>Oceania.SR1</version>
+                <artifactId>remoting-default</artifactId>
+                <version>Oceania.SR2</version>
             </dependency>
 
             <dependency>
