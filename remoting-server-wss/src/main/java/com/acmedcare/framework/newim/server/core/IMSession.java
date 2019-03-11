@@ -202,6 +202,7 @@ public class IMSession implements InitializingBean, DisposableBean {
                   }
                   asyncExecutor.submit(
                       () -> {
+                        // 延迟2S关闭
                         ThreadKit.sleep(2000, TimeUnit.MILLISECONDS);
                         RemotingUtil.closeChannel(channel);
                       });
