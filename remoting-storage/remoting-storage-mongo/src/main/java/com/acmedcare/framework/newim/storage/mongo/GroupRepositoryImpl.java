@@ -167,6 +167,9 @@ public class GroupRepositoryImpl implements GroupRepository {
                                         .groupId(members.getGroupId())
                                         .memberId(member.getMemberId().toString())
                                         .memberName(member.getMemberName())
+                                        .memberUserName(member.getMemberUserName())
+                                        .memberExt(member.getMemberExt())
+                                        .portrait(member.getPortrait())
                                         .build()));
 
                     mongoTemplate.insert(refs, REF_GROUP_MEMBER);
