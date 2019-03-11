@@ -1,7 +1,5 @@
 package com.acmedcare.framework.newim.server.processor;
 
-import static com.acmedcare.framework.newim.server.core.SessionContextConstants.PRINCIPAL_KEY;
-
 import com.acmedcare.framework.aorp.beans.Principal;
 import com.acmedcare.framework.aorp.exception.InvalidTokenException;
 import com.acmedcare.framework.kits.Assert;
@@ -17,6 +15,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
+
+import static com.acmedcare.framework.newim.server.core.SessionContextConstants.PRINCIPAL_KEY;
 
 /**
  * Remoting Client Register Auth Processor
@@ -76,6 +76,7 @@ public class RemotingClientRegisterAuthProcessor extends AbstractNormalRequestPr
       imSession.bindTcpSession(
           remotePrincipal,
           authHeader.getDeviceId(),
+          authHeader.getDeviceType(),
           authHeader.getPassportId(),
           channelHandlerContext.channel());
 

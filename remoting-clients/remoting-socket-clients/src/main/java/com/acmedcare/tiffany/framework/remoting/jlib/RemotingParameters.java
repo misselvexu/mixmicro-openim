@@ -4,12 +4,13 @@ import com.acmedcare.nas.client.NasProperties;
 import com.acmedcare.tiffany.framework.remoting.android.utils.RemotingLogger;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.AuthRequest;
 import com.google.common.base.Strings;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Getter;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 
 /**
  * Remoting SDK Params
@@ -37,6 +38,13 @@ public final class RemotingParameters {
   @Getter private String orgId;
 
   @Getter private String deviceId;
+
+  /**
+   * device type
+   *
+   * @since 2.2.3
+   */
+  @Getter private String deviceType = "DEFAULT";
 
   @Getter private AuthRequest.AuthCallback authCallback;
 

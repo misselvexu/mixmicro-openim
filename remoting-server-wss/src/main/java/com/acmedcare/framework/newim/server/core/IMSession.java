@@ -1,8 +1,5 @@
 package com.acmedcare.framework.newim.server.core;
 
-import static com.acmedcare.framework.newim.server.ClusterLogger.imServerLog;
-import static com.acmedcare.framework.newim.server.ClusterLogger.masterClusterLog;
-
 import com.acmedcare.framework.kits.thread.DefaultThreadFactory;
 import com.acmedcare.framework.kits.thread.ThreadKit;
 import com.acmedcare.framework.newim.Message;
@@ -17,9 +14,9 @@ import com.acmedcare.framework.newim.server.core.SessionContextConstants.RemoteP
 import com.acmedcare.framework.newim.server.core.connector.ClusterReplicaConnector;
 import com.acmedcare.framework.newim.server.endpoint.WssSessionContext;
 import com.acmedcare.framework.newim.server.event.AbstractEventHandler;
-import com.acmedcare.framework.newim.server.exception.SessionBindException;
 import com.acmedcare.framework.newim.server.processor.header.ServerPushMessageHeader;
 import com.acmedcare.tiffany.framework.remoting.common.RemotingHelper;
+import com.acmedcare.tiffany.framework.remoting.common.RemotingUtil;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketServer;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.alibaba.fastjson.JSON;
@@ -29,23 +26,20 @@ import com.google.common.collect.Sets;
 import com.google.common.eventbus.AsyncEventBus;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
-import java.util.concurrent.TimeUnit;
-import javax.annotation.concurrent.ThreadSafe;
 import lombok.Getter;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+
+import javax.annotation.concurrent.ThreadSafe;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.*;
+import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
+
+import static com.acmedcare.framework.newim.server.ClusterLogger.imServerLog;
+import static com.acmedcare.framework.newim.server.ClusterLogger.masterClusterLog;
 
 /**
  * IM Client Session Context
@@ -57,12 +51,13 @@ import org.springframework.beans.factory.InitializingBean;
 public class IMSession implements InitializingBean, DisposableBean {
 
   private static final long DIFF_PERIOD = 2 * 60 * 1000;
+
   /**
    * 设备->远程连接(TCPs)
    *
    * <p>
    */
-  private static Map<SessionBean, List<Channel>> devicesTcpChannelContainer =
+  private static Map<SessionBean, Map<String, Channel>> devicesTcpChannelContainer =
       Maps.newConcurrentMap();
 
   /**
@@ -70,7 +65,7 @@ public class IMSession implements InitializingBean, DisposableBean {
    *
    * <p>
    */
-  private static Map<SessionBean, List<Channel>> passportsTcpChannelContainer =
+  private static Map<SessionBean, Map<String, Channel>> passportsTcpChannelContainer =
       Maps.newConcurrentMap();
 
   // ----------------------------- Master 服务器同步过来的缓存数据------------------------
@@ -126,6 +121,7 @@ public class IMSession implements InitializingBean, DisposableBean {
    *
    * <p>
    */
+  @Override
   public void destroy() {
     ThreadKit.gracefulShutdown(asyncExecutor, 10, 20, TimeUnit.SECONDS);
     ThreadKit.gracefulShutdown(cleaner, 10, 20, TimeUnit.SECONDS);
@@ -141,20 +137,27 @@ public class IMSession implements InitializingBean, DisposableBean {
    * @param channel 链接对象
    */
   public void bindTcpSession(
-      RemotePrincipal remotePrincipal, String deviceId, String passportId, Channel channel) {
+      RemotePrincipal remotePrincipal,
+      String deviceId,
+      String deviceType,
+      String passportId,
+      Channel channel) {
 
     SessionBean deviceSession =
         SessionBean.builder().sessionId(deviceId).namespace(remotePrincipal.getNamespace()).build();
     imServerLog.debug("[NEW-IM-SESSION] Bind Session , {} {} {}", deviceId, passportId, channel);
     if (devicesTcpChannelContainer.containsKey(deviceSession)) {
       // yes
-      boolean result = devicesTcpChannelContainer.get(deviceSession).add(channel);
-      if (!result) {
-        throw new SessionBindException("Channel:" + channel + " ,绑定失败");
+      Channel originChannel =
+          devicesTcpChannelContainer.get(deviceSession).put(deviceType, channel);
+      if (originChannel != null) {
+        pushOfflineMessage(originChannel);
       }
     } else {
       // nop
-      devicesTcpChannelContainer.put(deviceSession, Lists.newArrayList(channel));
+      Map<String, Channel> channelMap = Maps.newHashMap();
+      channelMap.put(deviceType, channel);
+      devicesTcpChannelContainer.put(deviceSession, channelMap);
     }
 
     SessionBean passportSession =
@@ -164,13 +167,46 @@ public class IMSession implements InitializingBean, DisposableBean {
             .build();
     if (passportsTcpChannelContainer.containsKey(passportSession)) {
       // yes
-      boolean result = passportsTcpChannelContainer.get(passportSession).add(channel);
-      if (!result) {
-        throw new SessionBindException("Channel:" + channel + " ,绑定失败");
+      Channel originChannel =
+          passportsTcpChannelContainer.get(passportSession).put(deviceType, channel);
+      if (originChannel != null) {
+        pushOfflineMessage(originChannel);
       }
     } else {
       // nop
-      passportsTcpChannelContainer.put(passportSession, Lists.newArrayList(channel));
+      Map<String, Channel> channelMap = Maps.newHashMap();
+      channelMap.put(deviceType, channel);
+      passportsTcpChannelContainer.put(passportSession, channelMap);
+    }
+  }
+
+  /**
+   * 分发下线指令
+   *
+   * @param channel 通道
+   */
+  private void pushOfflineMessage(Channel channel) {
+    if (channel != null && channel.isActive() & channel.isWritable()) {
+      RemotingCommand command =
+          RemotingCommand.createRequestCommand(ClusterClientCommand.SERVER_PUSH_FOCUS_LOGOUT, null);
+      command.markOnewayRPC();
+      channel
+          .writeAndFlush(command)
+          .addListener(
+              future -> {
+                if (future.isSuccess()) {
+                  if (imServerLog.isDebugEnabled()) {
+                    imServerLog.debug(
+                        "[IM-BROADCAST-SEND] 发送下线指令完成; Channel: {}",
+                        RemotingHelper.parseChannelRemoteAddr(channel));
+                  }
+                  asyncExecutor.submit(
+                      () -> {
+                        ThreadKit.sleep(2000, TimeUnit.MILLISECONDS);
+                        RemotingUtil.closeChannel(channel);
+                      });
+                }
+              });
     }
   }
 
@@ -201,7 +237,7 @@ public class IMSession implements InitializingBean, DisposableBean {
     SessionBean sessionBean =
         SessionBean.builder().namespace(namespace).sessionId(passportId).build();
     if (passportsTcpChannelContainer.containsKey(sessionBean)) {
-      List<Channel> channels = passportsTcpChannelContainer.get(sessionBean);
+      Collection<Channel> channels = passportsTcpChannelContainer.get(sessionBean).values();
       ServerPushMessageHeader serverPushMessageHeader = new ServerPushMessageHeader();
       serverPushMessageHeader.setMessageType(messageType.name());
       if (channels.size() > 0) {
@@ -342,12 +378,18 @@ public class IMSession implements InitializingBean, DisposableBean {
             imServerLog.debug(
                 "Time to clean local channel cache, remove unavailable channel instance");
           }
+
           try {
             devicesTcpChannelContainer.forEach(
-                (s, channels) ->
-                    channels.removeIf(
-                        channel ->
-                            channel == null || !channel.isActive() || !channel.isWritable()));
+                (sessionBean, stringChannelMap) -> {
+                  for (Map.Entry<String, Channel> entry : stringChannelMap.entrySet()) {
+                    String key = entry.getKey();
+                    Channel channel = entry.getValue();
+                    if (channel == null || !channel.isActive() || !channel.isWritable()) {
+                      stringChannelMap.remove(key);
+                    }
+                  }
+                });
 
             devicesTcpChannelContainer
                 .entrySet()
@@ -359,10 +401,15 @@ public class IMSession implements InitializingBean, DisposableBean {
           try {
 
             passportsTcpChannelContainer.forEach(
-                (s, channels) ->
-                    channels.removeIf(
-                        channel ->
-                            channel == null || !channel.isActive() || !channel.isWritable()));
+                (sessionBean, stringChannelMap) -> {
+                  for (Map.Entry<String, Channel> entry : stringChannelMap.entrySet()) {
+                    String key = entry.getKey();
+                    Channel channel = entry.getValue();
+                    if (channel == null || !channel.isActive() || !channel.isWritable()) {
+                      stringChannelMap.remove(key);
+                    }
+                  }
+                });
 
             passportsTcpChannelContainer
                 .entrySet()

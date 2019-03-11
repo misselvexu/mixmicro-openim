@@ -1,7 +1,5 @@
 package com.acmedcare.tiffany.framework.remoting.jlib;
 
-import static com.acmedcare.tiffany.framework.remoting.jlib.biz.BizCode.CLIENT_HANDSHAKE;
-
 import android.content.Context;
 import com.acmedcare.nas.client.NasProperties;
 import com.acmedcare.tiffany.framework.remoting.android.HandlerMessageListener;
@@ -29,6 +27,10 @@ import com.alibaba.fastjson.TypeReference;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.AsyncEventBus;
+import lombok.Getter;
+import lombok.Setter;
+
+import javax.annotation.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -40,9 +42,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
-import javax.annotation.Nullable;
-import lombok.Getter;
-import lombok.Setter;
+
+import static com.acmedcare.tiffany.framework.remoting.jlib.biz.BizCode.CLIENT_HANDSHAKE;
 
 /**
  * Acmedcare+ Remoting SDK Main Class
@@ -492,6 +493,8 @@ public final class AcmedcareRemoting implements Serializable {
             .deviceId(AcmedcareRemoting.parameters.getDeviceId())
             .username(AcmedcareRemoting.parameters.getUsername())
             .passportId(AcmedcareRemoting.parameters.getPassportId())
+            // add device type in auth header
+            .deviceType(AcmedcareRemoting.parameters.getDeviceType())
             .build(),
         AcmedcareRemoting.parameters.getAuthCallback());
   }

@@ -1,10 +1,11 @@
 package com.acmedcare.framework.newim.protocol;
 
-import java.util.concurrent.TimeUnit;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Command Protocol

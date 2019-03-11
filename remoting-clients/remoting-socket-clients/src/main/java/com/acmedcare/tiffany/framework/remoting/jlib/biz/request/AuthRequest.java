@@ -23,6 +23,13 @@ public class AuthRequest {
   private String orgId;
   private String accessToken;
   private String deviceId;
+  /**
+   * device type
+   *
+   * @since 2.2.3
+   */
+  private String deviceType = "DEFAULT";
+
   private String namespace = Constants.DEFAULT_NAMESPACE;
 
   @Builder
@@ -33,6 +40,7 @@ public class AuthRequest {
       String orgId,
       String accessToken,
       String deviceId,
+      String deviceType,
       String namespace) {
     this.username = username;
     this.passportId = passportId;
@@ -40,6 +48,7 @@ public class AuthRequest {
     this.orgId = orgId;
     this.accessToken = accessToken;
     this.deviceId = deviceId;
+    this.deviceType = deviceType;
     this.namespace = namespace;
   }
 

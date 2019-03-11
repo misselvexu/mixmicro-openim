@@ -29,6 +29,13 @@ public class AuthHeader implements CommandCustomHeader {
   @CFNotNull private String accessToken;
   @CFNotNull private String deviceId;
 
+  /**
+   * device type
+   *
+   * @since 2.2.3
+   */
+  private String deviceType = "DEFAULT";
+
   @Override
   public void checkFields() throws RemotingCommandException {}
 }
