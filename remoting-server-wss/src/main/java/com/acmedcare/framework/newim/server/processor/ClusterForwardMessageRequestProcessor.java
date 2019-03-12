@@ -1,7 +1,5 @@
 package com.acmedcare.framework.newim.server.processor;
 
-import static com.acmedcare.framework.newim.server.ClusterLogger.innerReplicaServerLog;
-
 import com.acmedcare.framework.kits.Assert;
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
@@ -13,7 +11,10 @@ import com.acmedcare.framework.newim.server.core.IMSession;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
+
 import java.util.List;
+
+import static com.acmedcare.framework.newim.server.ClusterLogger.innerReplicaServerLog;
 
 /**
  * Cluster Forward Message Request Processor
@@ -64,6 +65,8 @@ public class ClusterForwardMessageRequestProcessor extends AbstractClusterReques
           List<String> passports = groupMessage.getReceivers();
           this.imSession.sendMessageToPassport(
               header.getNamespace(), passports, messageType, groupMessage.bytes());
+          break;
+        default:
           break;
       }
 

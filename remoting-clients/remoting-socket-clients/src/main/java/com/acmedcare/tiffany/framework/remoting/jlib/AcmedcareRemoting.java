@@ -230,6 +230,7 @@ public final class AcmedcareRemoting implements Serializable {
         }
       }
     } catch (Throwable e) {
+      e.printStackTrace();
       AcmedcareLogger.e(TAG, e, "Remoting Active failed.");
       if (e instanceof NoServerAddressException) {
         throw e;

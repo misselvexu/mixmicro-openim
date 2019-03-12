@@ -1,7 +1,5 @@
 package com.acmedcare.framework.newim.server.endpoint;
 
-import static com.acmedcare.framework.newim.server.ClusterLogger.convertLog;
-
 import com.acmedcare.framework.aorp.beans.Principal;
 import com.acmedcare.framework.boot.web.socket.processor.WssSession;
 import com.acmedcare.framework.newim.Message;
@@ -15,9 +13,12 @@ import com.acmedcare.framework.newim.wss.WssPayload.WssMessage;
 import com.acmedcare.tiffany.framework.remoting.common.Pair;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
+import lombok.Getter;
+
 import java.util.List;
 import java.util.Map;
-import lombok.Getter;
+
+import static com.acmedcare.framework.newim.server.ClusterLogger.convertLog;
 
 /**
  * Wss Session Context
@@ -61,28 +62,34 @@ public class WssSessionContext {
    * @param message 消息
    */
   public void sendMessageToPassports(List<String> passportIds, byte[] message) {
+
     for (String passportId : passportIds) {
-      Pair<Principal, WssSession> pair = onlineWssClientSessions.get(Long.parseLong(passportId));
-      if (pair != null) {
-        convertLog.info(
-            "[TCP-WS] [准备发送消息]  {}, 通行证ID:{},登录名:{}",
-            new String(message),
-            passportId,
-            pair.getObject1().getPassportAccount());
 
-        pair.getObject2()
-            .sendText(
-                WssMessage.builder()
-                    .bizCode(WebSocketClusterCommand.WS_PUSH_MESSAGE)
-                    .message(new String(message, Message.DEFAULT_CHARSET))
-                    .build()
-                    .json());
+      try {
+        Pair<Principal, WssSession> pair = onlineWssClientSessions.get(Long.parseLong(passportId));
+        if (pair != null) {
+          convertLog.info(
+              "[TCP-WS] [准备发送消息]  {}, 通行证ID:{},登录名:{}",
+              new String(message),
+              passportId,
+              pair.getObject1().getPassportAccount());
 
-        convertLog.info(
-            "[TCP-WS] [消息发送成功]  {}, 通行证ID:{},登录名:{}",
-            new String(message),
-            passportId,
-            pair.getObject1().getPassportAccount());
+          pair.getObject2()
+              .sendText(
+                  WssMessage.builder()
+                      .bizCode(WebSocketClusterCommand.WS_PUSH_MESSAGE)
+                      .message(new String(message, Message.DEFAULT_CHARSET))
+                      .build()
+                      .json());
+
+          convertLog.info(
+              "[TCP-WS] [消息发送成功]  {}, 通行证ID:{},登录名:{}",
+              new String(message),
+              passportId,
+              pair.getObject1().getPassportAccount());
+        }
+      } catch (Exception e) {
+        convertLog.error("[TCP-WS] [消息发送失败]  {}, 通行证ID:{}", new String(message), passportId);
       }
     }
   }

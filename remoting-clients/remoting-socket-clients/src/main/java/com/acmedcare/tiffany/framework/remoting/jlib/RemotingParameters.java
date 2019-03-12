@@ -96,7 +96,7 @@ public final class RemotingParameters {
         && !Strings.isNullOrEmpty(username)
         && !Strings.isNullOrEmpty(areaNo)
         && passportId > 0
-        && and
+        //        && and
         && !Strings.isNullOrEmpty(orgId)
         && !Strings.isNullOrEmpty(deviceId);
   }

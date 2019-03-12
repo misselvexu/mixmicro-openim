@@ -102,7 +102,7 @@ public class IMSession implements InitializingBean, DisposableBean {
   @Getter private AsyncEventBus asyncEventBus;
   private NettyRemotingSocketServer imServer;
   @Getter private ClusterReplicaConnector clusterReplicaConnector;
-  private WssSessionContext wssSessionContext;
+  private static WssSessionContext wssSessionContext;
 
   public Set<SessionBean> getOnlinePassports() {
     return passportsTcpChannelContainer.keySet();
@@ -226,7 +226,7 @@ public class IMSession implements InitializingBean, DisposableBean {
       asyncExecutor.execute(
           () -> {
             Message messageInstance = JSON.parseObject(message, Message.class);
-            IMSession.this.wssSessionContext.sendMessageToPassports(
+            IMSession.wssSessionContext.sendMessageToPassports(
                 Lists.newArrayList(passportId), messageInstance.getBody());
           });
 
@@ -286,21 +286,8 @@ public class IMSession implements InitializingBean, DisposableBean {
   public void sendMessageToPassport(
       String namespace, List<String> passportIds, MessageType messageType, byte[] message) {
     if (passportIds != null && passportIds.size() > 0) {
+
       CountDownLatch countDownLatch = new CountDownLatch(passportIds.size());
-
-      try {
-        asyncExecutor.execute(
-            () -> {
-              Message messageInstance = JSON.parseObject(message, Message.class);
-              IMSession.this.wssSessionContext.sendMessageToPassports(
-                  passportIds, messageInstance.getBody());
-            });
-
-        imServerLog.info("[TCP-WSS] 提交转发消息任务成功");
-      } catch (Exception e) {
-        imServerLog.error("[TCP-WSS] 转发消息到 WebSocket 异常", e);
-      }
-
       imServerLog.info("[NEW-IM-SEND] 批量提交异步发送任务");
       for (String passportId : passportIds) {
         asyncExecutor.execute(
@@ -369,7 +356,7 @@ public class IMSession implements InitializingBean, DisposableBean {
   }
 
   public void registerWssSessionContext(WssSessionContext wssSessionContext) {
-    this.wssSessionContext = wssSessionContext;
+    IMSession.wssSessionContext = wssSessionContext;
   }
 
   public <T> void registerEventHandler(AbstractEventHandler<T> handler) {

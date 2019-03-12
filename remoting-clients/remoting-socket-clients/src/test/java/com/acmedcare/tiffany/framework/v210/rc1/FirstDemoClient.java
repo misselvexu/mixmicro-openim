@@ -61,11 +61,12 @@ public class FirstDemoClient {
                     System.out.println("授权失败,Code=" + code + ", 错误:" + message);
                   }
                 })
-            .enableSSL(true)
-            .jksFile(
-                new File(
-                    "/Users/ive/git-acmedcare/Acmedcare-NewIM/remoting-certs/client/keystore.jks"))
-            .jksPassword("1qaz2wsx")
+            //            .enableSSL(true)
+            //            .jksFile(
+            //                new File(
+            //
+            // "/Users/misselvexu/Documents/acmedcare.gitlab.com/Acmedcare-NewIM/remoting-certs/client/keystore.jks"))
+            //            .jksPassword("1qaz2wsx")
             .username(KnownParams.passport)
             //            .nasProperties(nasProperties)
             .accessToken(KnownParams.accessToken)
@@ -79,7 +80,7 @@ public class FirstDemoClient {
                   @Override
                   public List<RemotingAddress> remotingAddressList() {
                     return Lists.newArrayList(
-                        new RemotingAddress(false, "192.168.1.227", 13110, false));
+                        new RemotingAddress(false, "127.0.0.1", 13110, false));
                   }
                 })
             .build();
