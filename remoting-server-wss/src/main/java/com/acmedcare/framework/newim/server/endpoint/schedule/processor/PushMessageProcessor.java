@@ -16,7 +16,10 @@ import com.acmedcare.framework.newim.server.exception.InvalidRequestParamsExcept
 import com.acmedcare.framework.newim.wss.WssPayload;
 import com.acmedcare.tiffany.framework.remoting.common.Pair;
 import com.acmedcare.tiffany.framework.remoting.common.RemotingHelper;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.Map;
 
 import static com.acmedcare.framework.newim.server.ClusterLogger.wssServerLog;
 
@@ -75,18 +78,21 @@ public class PushMessageProcessor implements WssMessageRequestProcessor {
         Assert.notNull(pair, "用户通行证编号不能为空");
 
         // push biz
-        context.pushMessage(
-            pushMessageRequest.getNamespace(),
-            pushMessageRequest.getAreaNo(),
-            pushMessageRequest.getMessage(),
-            pushMessageRequest.getReceiver(),
-            pushMessageRequest.getSender(),
-            pushMessageRequest.getType());
+        long mid =
+            context.pushMessage(
+                pushMessageRequest.getNamespace(),
+                pushMessageRequest.getAreaNo(),
+                pushMessageRequest.getMessage(),
+                pushMessageRequest.getReceiver(),
+                pushMessageRequest.getSender(),
+                pushMessageRequest.getType());
 
+        Map<String, Long> result = Maps.newHashMap();
+        result.put("mid", mid);
         wssServerLog.info(
             "[WSS] Schedule web client:{} push message succeed.",
             RemotingHelper.parseChannelRemoteAddr(session.channel()));
-        return WssPayload.WssResponse.successResponse(pushMessageRequest.getBizCode());
+        return WssPayload.WssResponse.successResponse(pushMessageRequest.getBizCode() * -1, result);
 
       } else {
         throw new InvalidBizCodeException("无效的请求指令");
@@ -94,7 +100,7 @@ public class PushMessageProcessor implements WssMessageRequestProcessor {
     } catch (Exception e) {
       wssServerLog.error("[WSS] Schedule web client push message failed ", e);
       return WssPayload.WssResponse.failResponse(
-          ScheduleCommand.WS_PUSH_MESSAGE.getBizCode(), e.getMessage());
+          ScheduleCommand.WS_PUSH_MESSAGE.getBizCode() * -1, e.getMessage());
     }
   }
 }

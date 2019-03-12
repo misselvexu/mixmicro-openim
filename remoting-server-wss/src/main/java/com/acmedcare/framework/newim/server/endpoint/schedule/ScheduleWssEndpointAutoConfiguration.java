@@ -3,6 +3,7 @@ package com.acmedcare.framework.newim.server.endpoint.schedule;
 import com.acmedcare.framework.newim.server.ClusterServerAutoBootstrap;
 import com.acmedcare.framework.newim.server.core.IMSession;
 import com.acmedcare.framework.newim.storage.api.GroupRepository;
+import com.acmedcare.framework.newim.storage.api.MessageRepository;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.ApplicationContext;
@@ -24,8 +25,8 @@ public class ScheduleWssEndpointAutoConfiguration implements ApplicationContextA
 
   @Bean
   public ScheduleSysContext scheduleSysContext(
-      IMSession imSession, GroupRepository groupRepository) {
-    return new ScheduleSysContext(imSession, groupRepository);
+      IMSession imSession, GroupRepository groupRepository, MessageRepository messageRepository) {
+    return new ScheduleSysContext(imSession, groupRepository, messageRepository);
   }
 
   @Override

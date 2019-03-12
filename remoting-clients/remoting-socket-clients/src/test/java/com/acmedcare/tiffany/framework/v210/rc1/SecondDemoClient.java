@@ -25,6 +25,7 @@ import com.acmedcare.tiffany.framework.remoting.jlib.exception.SdkInitException;
 import com.alibaba.fastjson.JSON;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -56,7 +57,7 @@ public class SecondDemoClient {
                     System.out.println("授权失败,Code=" + code + ", 错误:" + message);
                   }
                 })
-            .enableSSL(true)
+            .enableSSL(false)
             .username(KnownParams.passport)
             .accessToken(KnownParams.accessToken)
             .areaNo(KnownParams.areaNo)
@@ -269,7 +270,7 @@ public class SecondDemoClient {
   private interface KnownParams {
 
     String accessToken =
-        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiJjMDliNGJiYjRmZTM0OWM4OTczYThkMTIwNmNkM2YxMCIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlIcXc5TDdUU0gwVmlLTWNXNUp3RVd0ZXc5Rk12SVFZcGZDMG5CUUhOamVucmMyYndheHNwMk93NXVkSGM1ZllTcGd0a2FxRkV6U29Uck41S0kyaHZKRW52L1RHV0hLeDdFdTJRNEs1V3JrZTZTMjNIaUdhWXdvQ29ua3ZuSlVjWGQxNzNwV3pFbmF0bz0iLCJpYXQiOjE1NDUwNTQzNjE3MzYsImV4cCI6MTU0NTY2MzkyNTczNiwiYXVkIjpudWxsfQ.I9khaPuBswKcLHr2Wczzyna3c_uOIfv4H4aXwOWMNifMsTIC63BJXjaG97GA6-dz1hQA_wFFLzkGjWxxjyzINNZmSareZrzIjVAdPi56KYrcPiAl42XR2jNyYALYPU-H0orea7BSjovkIMIpDJKdg1UBS95ZnF3keOPFNKmjgNjo_ocs8gLdQ6HOy35nahJA5bVaAgNQskZ48Vl7JUZBuNTf9wnk7SlJj3DzMSICWMUG1-QowWJMOmQ42cFUve-ie864F1QSvlREmX1XKda2sTt1ALDrG7vx3Ppd1fom2FvxausEBtf4dInAhpXE4yPzYXeEmlNGCa67A6KwBnkS3w";
+        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiI5MGMyZjMwMzEzMmE0MTE1OWM5YmQ0N2Q3OTI3ZDA0ZCIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlIcXc5TDdUU0gwVmlLTWNXNUp3RVd0ZXc5Rk12SVFZcGZDMG5CUUhOamVucmMyYndheHNwMk93NXVkSGM1ZllTcGd0a2FxRkV6U29Uck41S0kyaHZKRW52L1RHV0hLeDdFdTJRNEs1V3JrZTZTMjNIaUdhWXdvQ29ua3ZuSlVjWGQxNzNwV3pFbmF0bz0iLCJpYXQiOjE1NTIzODMyOTgwMzYsImV4cCI6MTU1Mjk4OTc4MDAzNiwiYXVkIjpudWxsfQ.B0FEd2kkunGkWd471oqIfMcvkIswB_RQBlGKX-wBMnMeYBAhaYgYNjc-vwCReSQYUCrRzKUaM5ep_C4lSzUoNhA0_I1WC_uCVRrJETQAOB4FyjrSitnKIfS52fc_1-wQ4FqF2VRTSb-WUAbxXHAyLZYXaHEvKfOwm0nvBxt4ByJ_O9i9vUWtLKouYTus-A_RWFLvoAzi7t9LNjQtUgEnmAgf9KHksa6QKqVUQdhkgs04OXPw_j9JG7Ih_XWjt-TijVF2G0W0CzRhyk-hIsHIuV9uDvArTLoa5vby9Ehk6CYuzjPObHOTETB6FRg0NPWwcrHhlIjfTgAkCsnCYbNxiA";
 
     String areaNo = "320500";
 

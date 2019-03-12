@@ -2,6 +2,7 @@ package com.acmedcare.framework.newim.server.endpoint.schedule;
 
 import com.acmedcare.framework.aorp.beans.Principal;
 import com.acmedcare.framework.boot.web.socket.processor.WssSession;
+import com.acmedcare.framework.kits.executor.AsyncRuntimeExecutor;
 import com.acmedcare.framework.kits.thread.DefaultThreadFactory;
 import com.acmedcare.framework.newim.GroupMemberRef;
 import com.acmedcare.framework.newim.Message;
@@ -11,6 +12,7 @@ import com.acmedcare.framework.newim.server.core.IMSession;
 import com.acmedcare.framework.newim.server.core.SessionContextConstants.RemotePrincipal;
 import com.acmedcare.framework.newim.server.endpoint.WssSessionContext;
 import com.acmedcare.framework.newim.storage.api.GroupRepository;
+import com.acmedcare.framework.newim.storage.api.MessageRepository;
 import com.acmedcare.tiffany.framework.remoting.common.RemotingHelper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -52,10 +54,13 @@ public class ScheduleSysContext extends WssSessionContext implements DisposableB
           new CallerRunsPolicy());
 
   private final GroupRepository groupRepository;
+  private final MessageRepository messageRepository;
 
-  public ScheduleSysContext(IMSession imSession, GroupRepository groupRepository) {
+  public ScheduleSysContext(
+      IMSession imSession, GroupRepository groupRepository, MessageRepository messageRepository) {
     super(imSession);
     this.groupRepository = groupRepository;
+    this.messageRepository = messageRepository;
   }
 
   /**
@@ -167,7 +172,7 @@ public class ScheduleSysContext extends WssSessionContext implements DisposableB
     }
   }
 
-  public void pushMessage(
+  public long pushMessage(
       String namespace,
       String areaNo,
       String message,
@@ -176,56 +181,80 @@ public class ScheduleSysContext extends WssSessionContext implements DisposableB
       Message.MessageType type)
       throws UnsupportedEncodingException {
 
-    switch (type) {
-      case SINGLE:
-        Message.SingleMessage singleMessage = new Message.SingleMessage();
-        singleMessage.setReadFlag(false);
-        singleMessage.setReceiver(receiver);
-        singleMessage.setBody(message.getBytes("UTF-8"));
-        singleMessage.setSender(sender);
-        singleMessage.setMid(RemotingWssServer.Ids.snowflake.nextId());
-        singleMessage.setPersistent(true);
-        singleMessage.setMessageType(Message.MessageType.SINGLE);
-        singleMessage.setInnerType(Message.InnerType.NORMAL);
+    long mid = RemotingWssServer.Ids.snowflake.nextId();
 
-        // 发送消息到服务器
-        imSession.sendMessageToPassport(namespace, receiver, type, singleMessage.bytes());
+    AsyncRuntimeExecutor.getAsyncThreadPool()
+        .execute(
+            () -> {
+              try {
+                switch (type) {
+                  case SINGLE:
+                    Message.SingleMessage singleMessage = new Message.SingleMessage();
+                    singleMessage.setReadFlag(false);
+                    singleMessage.setReceiver(receiver);
+                    singleMessage.setBody(message.getBytes("UTF-8"));
+                    singleMessage.setSender(sender);
+                    singleMessage.setMid(mid);
+                    singleMessage.setPersistent(true);
+                    singleMessage.setMessageType(Message.MessageType.SINGLE);
+                    singleMessage.setInnerType(Message.InnerType.NORMAL);
 
-        // 分发消息到其他服务器
-        MessageAttribute attribute = MessageAttribute.builder().build();
-        imSession.distributeMessage(attribute, singleMessage);
+                    messageRepository.saveMessage(singleMessage);
 
-        break;
-      case GROUP:
+                    // 发送消息到服务器
+                    imSession.sendMessageToPassport(
+                        namespace, receiver, type, singleMessage.bytes());
 
-        // query group member list
-        List<GroupMemberRef> refs = this.groupRepository.queryGroupMembers(namespace, receiver);
-        List<String> receivers = Lists.newArrayList();
-        for (GroupMemberRef ref : refs) {
-          receivers.add(ref.getMemberId());
-        }
+                    // 分发消息到其他服务器
+                    MessageAttribute attribute = MessageAttribute.builder().build();
+                    imSession.distributeMessage(attribute, singleMessage);
 
-        Message.GroupMessage groupMessage = new Message.GroupMessage();
-        groupMessage.setBody(message.getBytes("UTF-8"));
-        groupMessage.setSender(sender);
-        groupMessage.setGroup(receiver);
-        groupMessage.setReceivers(receivers);
-        groupMessage.setMid(RemotingWssServer.Ids.snowflake.nextId());
-        groupMessage.setPersistent(true);
-        groupMessage.setMessageType(Message.MessageType.GROUP);
-        groupMessage.setInnerType(Message.InnerType.NORMAL);
+                    break;
 
-        // 发送消息到服务器
-        imSession.sendMessageToPassport(namespace, receiver, type, groupMessage.bytes());
+                  case GROUP:
 
-        // 分发消息到其他服务器
-        attribute = MessageAttribute.builder().build();
-        imSession.distributeMessage(attribute, groupMessage);
+                    // query group member list
+                    List<GroupMemberRef> refs =
+                        this.groupRepository.queryGroupMembers(namespace, receiver);
+                    List<String> receivers = Lists.newArrayList();
+                    for (GroupMemberRef ref : refs) {
+                      receivers.add(ref.getMemberId());
+                    }
 
-        break;
+                    Message.GroupMessage groupMessage = new Message.GroupMessage();
+                    groupMessage.setBody(message.getBytes("UTF-8"));
+                    groupMessage.setSender(sender);
+                    groupMessage.setGroup(receiver);
+                    groupMessage.setReceivers(receivers);
+                    groupMessage.setMid(mid);
+                    groupMessage.setPersistent(true);
+                    groupMessage.setMessageType(Message.MessageType.GROUP);
+                    groupMessage.setInnerType(Message.InnerType.NORMAL);
 
-      default:
-        break;
-    }
+                    messageRepository.saveMessage(groupMessage);
+
+                    groupMessage.setReceivers(Lists.newArrayList());
+                    // 发送消息到服务器
+                    for (String receiverId : receivers) {
+                      System.out.println("发送消息给客户端:" + receiverId);
+                      imSession.sendMessageToPassport(
+                          namespace, receiverId, type, groupMessage.bytes());
+                    }
+
+                    // 分发消息到其他服务器
+                    attribute = MessageAttribute.builder().build();
+                    imSession.distributeMessage(attribute, groupMessage);
+
+                    break;
+                  default:
+                    break;
+                }
+
+              } catch (Exception e) {
+                wssServerLog.error("处理WSS转发消息异常", e);
+              }
+            });
+
+    return mid;
   }
 }

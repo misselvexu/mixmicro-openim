@@ -1,28 +1,12 @@
 package com.acmedcare.framework.newim.server.endpoint.schedule;
 
-import static com.acmedcare.framework.newim.protocol.Command.WebSocketClusterCommand.WS_AUTH;
-import static com.acmedcare.framework.newim.protocol.Command.WebSocketClusterCommand.WS_ERROR;
-import static com.acmedcare.framework.newim.protocol.Command.WebSocketClusterCommand.WS_HEARTBEAT;
-import static com.acmedcare.framework.newim.protocol.Command.WebSocketClusterCommand.WS_REGISTER;
-import static com.acmedcare.framework.newim.protocol.Command.WebSocketClusterCommand.WS_SHUTDOWN;
-import static com.acmedcare.framework.newim.server.ClusterLogger.wssServerLog;
-
-import com.acmedcare.framework.boot.web.socket.annotation.OnClose;
-import com.acmedcare.framework.boot.web.socket.annotation.OnError;
-import com.acmedcare.framework.boot.web.socket.annotation.OnEvent;
-import com.acmedcare.framework.boot.web.socket.annotation.OnMessage;
-import com.acmedcare.framework.boot.web.socket.annotation.OnOpen;
-import com.acmedcare.framework.boot.web.socket.annotation.ServerEndpoint;
+import com.acmedcare.framework.boot.web.socket.annotation.*;
 import com.acmedcare.framework.boot.web.socket.processor.WssSession;
 import com.acmedcare.framework.newim.server.core.SessionContextConstants.RemotePrincipal;
 import com.acmedcare.framework.newim.server.endpoint.WssAdapter;
 import com.acmedcare.framework.newim.server.endpoint.WssMessageRequestProcessor;
 import com.acmedcare.framework.newim.server.endpoint.schedule.ScheduleCommand.AuthRequest;
-import com.acmedcare.framework.newim.server.endpoint.schedule.processor.HeartbeatProcessor;
-import com.acmedcare.framework.newim.server.endpoint.schedule.processor.PullOnlineSubOrgsRequestProcessor;
-import com.acmedcare.framework.newim.server.endpoint.schedule.processor.PushOrderProcessor;
-import com.acmedcare.framework.newim.server.endpoint.schedule.processor.RegisterProcessor;
-import com.acmedcare.framework.newim.server.endpoint.schedule.processor.ShutdownProcessor;
+import com.acmedcare.framework.newim.server.endpoint.schedule.processor.*;
 import com.acmedcare.framework.newim.server.exception.UnauthorizedException;
 import com.acmedcare.framework.newim.wss.WssPayload.WssRequest;
 import com.acmedcare.framework.newim.wss.WssPayload.WssResponse;
@@ -31,10 +15,14 @@ import com.acmedcare.tiffany.framework.remoting.common.RemotingHelper;
 import com.alibaba.fastjson.JSON;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.timeout.IdleStateEvent;
-import java.io.IOException;
-import java.util.concurrent.ExecutorService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+
+import static com.acmedcare.framework.newim.protocol.Command.WebSocketClusterCommand.*;
+import static com.acmedcare.framework.newim.server.ClusterLogger.wssServerLog;
 
 /**
  * Default Wss Endpoint
@@ -205,6 +193,11 @@ public class ScheduleSysWssEndpoint extends WssAdapter {
     this.registerProcessor(
         ScheduleCommand.PUSH_ORDER.getBizCode(),
         new PushOrderProcessor((ScheduleSysContext) wssSessionContext),
+        null);
+
+    this.registerProcessor(
+        ScheduleCommand.WS_PUSH_MESSAGE.getBizCode(),
+        new PushMessageProcessor((ScheduleSysContext) wssSessionContext),
         null);
 
     wssServerLog.info("[WSS] wss message processors register-ed.");

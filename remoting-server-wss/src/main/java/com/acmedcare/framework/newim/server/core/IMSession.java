@@ -227,7 +227,7 @@ public class IMSession implements InitializingBean, DisposableBean {
           () -> {
             Message messageInstance = JSON.parseObject(message, Message.class);
             IMSession.wssSessionContext.sendMessageToPassports(
-                Lists.newArrayList(passportId), messageInstance.getBody());
+                Lists.newArrayList(passportId), message);
           });
 
       imServerLog.info("[TCP-WSS] 提交转发消息任务成功");
