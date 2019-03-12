@@ -1,7 +1,5 @@
 package com.acmedcare.framework.newim.server.service;
 
-import static com.acmedcare.framework.newim.server.ClusterLogger.imServerLog;
-
 import com.acmedcare.framework.newim.GroupMemberRef;
 import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.Message.GroupMessage;
@@ -16,11 +14,14 @@ import com.acmedcare.framework.newim.storage.api.MessageRepository;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+
+import static com.acmedcare.framework.newim.server.ClusterLogger.imServerLog;
 
 /**
  * Message Service
@@ -123,6 +124,8 @@ public class MessageService {
         } catch (Exception e) {
           imServerLog.error("本机批量发送单聊消息(ID:" + message.getMid() + ")到客户端异常", e);
         }
+        break;
+      default:
         break;
     }
   }

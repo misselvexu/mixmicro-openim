@@ -26,7 +26,7 @@ public class MasterEndpointClientTest {
   @Before
   public void init() {
     this.masterEndpointClient =
-        new MasterEndpointClient(Lists.newArrayList("127.0.0.1:13110"), false);
+        new MasterEndpointClient(Lists.newArrayList("192.168.1.227:13110"), false);
   }
 
   @Test
@@ -45,7 +45,7 @@ public class MasterEndpointClientTest {
   public void testJoinGroup() {
 
     AddGroupMembersRequest request = new AddGroupMembersRequest();
-    request.setGroupId("gid-20181123-1");
+    request.setGroupId("EXPERT4431396400219136");
     request.setMembers(
         Lists.newArrayList(
             Member.builder().memberId(3837142362366977L).memberName("7669用户").build(),

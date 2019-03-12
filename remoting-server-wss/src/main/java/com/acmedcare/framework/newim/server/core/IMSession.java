@@ -288,6 +288,19 @@ public class IMSession implements InitializingBean, DisposableBean {
     if (passportIds != null && passportIds.size() > 0) {
       CountDownLatch countDownLatch = new CountDownLatch(passportIds.size());
 
+      try {
+        asyncExecutor.execute(
+            () -> {
+              Message messageInstance = JSON.parseObject(message, Message.class);
+              IMSession.this.wssSessionContext.sendMessageToPassports(
+                  passportIds, messageInstance.getBody());
+            });
+
+        imServerLog.info("[TCP-WSS] 提交转发消息任务成功");
+      } catch (Exception e) {
+        imServerLog.error("[TCP-WSS] 转发消息到 WebSocket 异常", e);
+      }
+
       imServerLog.info("[NEW-IM-SEND] 批量提交异步发送任务");
       for (String passportId : passportIds) {
         asyncExecutor.execute(

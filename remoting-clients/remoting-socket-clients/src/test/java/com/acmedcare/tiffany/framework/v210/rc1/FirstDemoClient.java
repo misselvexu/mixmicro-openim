@@ -14,16 +14,8 @@ import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message.InnerType;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message.MessageType;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message.SingleMessage;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.AuthRequest.AuthCallback;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.JoinOrLeaveGroupRequest;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.OperateType;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullGroupMembersOnlineStatusRequest;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullGroupMembersRequest;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullGroupMessageReadStatusRequest;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullMessageRequest;
+import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.*;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullMessageRequest.Callback;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullOwnerGroupListRequest;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PushMessageReadStatusRequest;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PushMessageRequest;
 import com.acmedcare.tiffany.framework.remoting.jlib.events.AcmedcareEvent;
 import com.acmedcare.tiffany.framework.remoting.jlib.events.AcmedcareEvent.Event;
 import com.acmedcare.tiffany.framework.remoting.jlib.events.BasicListenerHandler;
@@ -32,6 +24,7 @@ import com.acmedcare.tiffany.framework.remoting.jlib.exception.SdkInitException;
 import com.alibaba.fastjson.JSON;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -50,9 +43,9 @@ public class FirstDemoClient {
 
     System.setProperty(AcmedcareLogger.NON_ANDROID_FLAG, "true");
 
-//    NasProperties nasProperties = new NasProperties();
-//    nasProperties.setServerAddrs(Lists.<String>newArrayList("192.168.1.226:18848"));
-//    nasProperties.setHttps(false);
+    //    NasProperties nasProperties = new NasProperties();
+    //    nasProperties.setServerAddrs(Lists.<String>newArrayList("192.168.1.226:18848"));
+    //    nasProperties.setHttps(false);
 
     RemotingParameters temp =
         RemotingParameters.builder()
@@ -74,7 +67,7 @@ public class FirstDemoClient {
                     "/Users/ive/git-acmedcare/Acmedcare-NewIM/remoting-certs/client/keystore.jks"))
             .jksPassword("1qaz2wsx")
             .username(KnownParams.passport)
-//            .nasProperties(nasProperties)
+            //            .nasProperties(nasProperties)
             .accessToken(KnownParams.accessToken)
             .areaNo(KnownParams.areaNo)
             .orgId(KnownParams.orgId)
@@ -86,7 +79,7 @@ public class FirstDemoClient {
                   @Override
                   public List<RemotingAddress> remotingAddressList() {
                     return Lists.newArrayList(
-                        new RemotingAddress(false, "127.0.0.1", 13110, false));
+                        new RemotingAddress(false, "192.168.1.227", 13110, false));
                   }
                 })
             .build();
@@ -174,8 +167,9 @@ public class FirstDemoClient {
         }
 
         // 发送消息
-        // 单聊消息: sendMessage SINGLE 3837142362366977 hi
-        // 群消息: sendMessage GROUP gid-20181122  {"em_message_type":"em_zl_message","taskcode":"123"}
+        // 单聊消息: sendMessage SINGLE 3837142362366976 hi
+        // 群消息: sendMessage GROUP EXPERT4431396400219136
+        // {"em_message_type":"em_zl_message","taskcode":"123"}
         if (inputArgs[0].equals("sendMessage")) {
 
           if ("SINGLE".equals(inputArgs[1])) {
@@ -596,7 +590,7 @@ public class FirstDemoClient {
   private interface KnownParams {
 
     String accessToken =
-        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiIyMDc5M2RlOTkxMWY0ODFkOTJkMGZlNWJhOTQ2MWU2YSIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NDUwNTQzMDg0MTMsImV4cCI6MTU0NTY2NzYwOTM4NiwiYXVkIjpudWxsfQ.IETXX6VcfccRU29rtoutQs9XKn1HjOQ0fI7ohqjeA1Bg3Um0AMD_j6RYjs8g-YM2FzCeVfLcL6WiLtINQpFmGF81KpK7-ugWe0GMuPXOwEHWhXtkUJF8ZdhuSVLkUNxk9jaoy04cmYUws2poH1j77K1CpEmLQUpZQ3nAWdtCmRHmBg5uSha5HZj2pcDOlIDGHC-K-ziDVGup5QOhS7jiCU7SYZu346jXYBaDfzrMNgUvYOukGkijM1PGoc1npWOc_GyTlAHyAgTET3ay3lsK5VatpyxiXJvKZllrGPEKrHUnf7QSJwdzw0LS5nddBeHTelIoC8mWQZ8adgiqW25_Aw";
+        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiI5YzAyZmE4ZmU0MDg0YzNjYmNiNGNjOWZhZDU3ZGQzYyIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NTIzNzcxODMwMDQsImV4cCI6MTU1Mjk4NzY0ODAwNCwiYXVkIjpudWxsfQ.WBh5iH5gTho12d0yDtd4WRPK2zjwNZ8nJ3NeOch4R6Hdk7iIsu6me6J86BgRTi5TWK_8AoyI1IvsYnmxtcoyhGZ4O9x2D_iY6gP5SjJi6Twnte3HVdW1jxtKpHw3m4c3TQT7S6VINBAwb2s51LP8sBKpSMtDlbd9zngGp6mpWHEpA-yZbFHwHD8a2swOitcRjjgaGKk8g0yHmFUzuGJSeItGRH6IEvjKt2r2-rV-7HVQNGBBbXbHkeKz5ZnnK4jIfmdL3QbJ0ktf0LvvdNrSrR09w_TUruX57c3lPznjqKCGy-9SQriphNpQyLbEgMyP9-kvdzYtMjo2HtwM5cARmA";
 
     String areaNo = "320500";
 
