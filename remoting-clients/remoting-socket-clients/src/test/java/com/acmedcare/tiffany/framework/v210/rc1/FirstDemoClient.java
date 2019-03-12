@@ -80,7 +80,7 @@ public class FirstDemoClient {
                   @Override
                   public List<RemotingAddress> remotingAddressList() {
                     return Lists.newArrayList(
-                        new RemotingAddress(false, "127.0.0.1", 13110, false));
+                        new RemotingAddress(false, "192.168.1.227", 13110, false));
                   }
                 })
             .build();
@@ -169,7 +169,7 @@ public class FirstDemoClient {
 
         // 发送消息
         // 单聊消息: sendMessage SINGLE 3837142362366976 hi
-        // 群消息: sendMessage GROUP EXPERT4431396400219136
+        // 群消息: sendMessage GROUP EXPERT4385135046247424
         // {"em_message_type":"em_zl_message","taskcode":"123"}
         if (inputArgs[0].equals("sendMessage")) {
 

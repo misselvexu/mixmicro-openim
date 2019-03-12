@@ -113,5 +113,8 @@ public class WssSessionContext {
         JSON.toJSONString(passportIds));
     imSession.sendMessageToPassport(
         namespace, passportIds, MessageType.SINGLE, JSON.toJSONBytes(message));
+
+
+
   }
 }

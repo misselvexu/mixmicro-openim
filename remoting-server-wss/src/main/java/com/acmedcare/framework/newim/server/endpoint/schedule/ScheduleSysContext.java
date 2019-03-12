@@ -1,16 +1,22 @@
 package com.acmedcare.framework.newim.server.endpoint.schedule;
 
-import static com.acmedcare.framework.newim.server.ClusterLogger.wssServerLog;
-
 import com.acmedcare.framework.aorp.beans.Principal;
 import com.acmedcare.framework.boot.web.socket.processor.WssSession;
 import com.acmedcare.framework.kits.thread.DefaultThreadFactory;
+import com.acmedcare.framework.newim.GroupMemberRef;
+import com.acmedcare.framework.newim.Message;
+import com.acmedcare.framework.newim.client.MessageAttribute;
+import com.acmedcare.framework.newim.server.RemotingWssServer;
 import com.acmedcare.framework.newim.server.core.IMSession;
 import com.acmedcare.framework.newim.server.core.SessionContextConstants.RemotePrincipal;
 import com.acmedcare.framework.newim.server.endpoint.WssSessionContext;
+import com.acmedcare.framework.newim.storage.api.GroupRepository;
 import com.acmedcare.tiffany.framework.remoting.common.RemotingHelper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.springframework.beans.factory.DisposableBean;
+
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -20,7 +26,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.DisposableBean;
+
+import static com.acmedcare.framework.newim.server.ClusterLogger.wssServerLog;
 
 /**
  * Schedule System Session Context
@@ -44,8 +51,11 @@ public class ScheduleSysContext extends WssSessionContext implements DisposableB
           new DefaultThreadFactory("schedule-async-process-executor"),
           new CallerRunsPolicy());
 
-  public ScheduleSysContext(IMSession imSession) {
+  private final GroupRepository groupRepository;
+
+  public ScheduleSysContext(IMSession imSession, GroupRepository groupRepository) {
     super(imSession);
+    this.groupRepository = groupRepository;
   }
 
   /**
@@ -55,9 +65,7 @@ public class ScheduleSysContext extends WssSessionContext implements DisposableB
    * @return 子机构列表
    */
   public List<ScheduleWssClientInstance> querySubOrgs(String parentOrgId) {
-    return remotingWssScheduleInstances
-        .keySet()
-        .stream()
+    return remotingWssScheduleInstances.keySet().stream()
         .filter(instance -> Objects.equals(parentOrgId, instance.getParentOrgId()))
         .collect(Collectors.toList());
   }
@@ -127,7 +135,7 @@ public class ScheduleSysContext extends WssSessionContext implements DisposableB
     }
   }
 
-  public void pushMessage(String namespace,String areaNo, String subOrgId, String orderDetail) {
+  public void pushMessage(String namespace, String areaNo, String subOrgId, String orderDetail) {
     ScheduleWssClientInstance instance =
         ScheduleWssClientInstance.builder().areaNo(areaNo).orgId(subOrgId).build();
 
@@ -155,7 +163,69 @@ public class ScheduleSysContext extends WssSessionContext implements DisposableB
                   }));
 
       // push to tcp
-      forwardMessage(namespace,passports, orderDetail);
+      forwardMessage(namespace, passports, orderDetail);
+    }
+  }
+
+  public void pushMessage(
+      String namespace,
+      String areaNo,
+      String message,
+      String receiver,
+      String sender,
+      Message.MessageType type)
+      throws UnsupportedEncodingException {
+
+    switch (type) {
+      case SINGLE:
+        Message.SingleMessage singleMessage = new Message.SingleMessage();
+        singleMessage.setReadFlag(false);
+        singleMessage.setReceiver(receiver);
+        singleMessage.setBody(message.getBytes("UTF-8"));
+        singleMessage.setSender(sender);
+        singleMessage.setMid(RemotingWssServer.Ids.snowflake.nextId());
+        singleMessage.setPersistent(true);
+        singleMessage.setMessageType(Message.MessageType.SINGLE);
+        singleMessage.setInnerType(Message.InnerType.NORMAL);
+
+        // 发送消息到服务器
+        imSession.sendMessageToPassport(namespace, receiver, type, singleMessage.bytes());
+
+        // 分发消息到其他服务器
+        MessageAttribute attribute = MessageAttribute.builder().build();
+        imSession.distributeMessage(attribute, singleMessage);
+
+        break;
+      case GROUP:
+
+        // query group member list
+        List<GroupMemberRef> refs = this.groupRepository.queryGroupMembers(namespace, receiver);
+        List<String> receivers = Lists.newArrayList();
+        for (GroupMemberRef ref : refs) {
+          receivers.add(ref.getMemberId());
+        }
+
+        Message.GroupMessage groupMessage = new Message.GroupMessage();
+        groupMessage.setBody(message.getBytes("UTF-8"));
+        groupMessage.setSender(sender);
+        groupMessage.setGroup(receiver);
+        groupMessage.setReceivers(receivers);
+        groupMessage.setMid(RemotingWssServer.Ids.snowflake.nextId());
+        groupMessage.setPersistent(true);
+        groupMessage.setMessageType(Message.MessageType.GROUP);
+        groupMessage.setInnerType(Message.InnerType.NORMAL);
+
+        // 发送消息到服务器
+        imSession.sendMessageToPassport(namespace, receiver, type, groupMessage.bytes());
+
+        // 分发消息到其他服务器
+        attribute = MessageAttribute.builder().build();
+        imSession.distributeMessage(attribute, groupMessage);
+
+        break;
+
+      default:
+        break;
     }
   }
 }

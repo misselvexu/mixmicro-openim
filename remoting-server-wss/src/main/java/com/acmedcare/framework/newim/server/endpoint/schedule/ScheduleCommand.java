@@ -1,5 +1,6 @@
 package com.acmedcare.framework.newim.server.endpoint.schedule;
 
+import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.protocol.Command.WebSocketClusterCommand;
 import com.acmedcare.framework.newim.wss.WssPayload.WssRequest;
 import com.alibaba.fastjson.JSON;
@@ -20,7 +21,8 @@ public enum ScheduleCommand {
   PUSH_ORDER(0x31002, PushOrderRequest.class),
 
   WS_REGISTER(WebSocketClusterCommand.WS_REGISTER, RegisterRequest.class),
-  WS_SHUTDOWN(WebSocketClusterCommand.WS_HEARTBEAT, DefaultRequest.class),
+  WS_SHUTDOWN(WebSocketClusterCommand.WS_SHUTDOWN, DefaultRequest.class),
+  WS_PUSH_MESSAGE(WebSocketClusterCommand.WS_PUSH_MESSAGE, PushMessageRequest.class),
   WS_HEARTBEAT(WebSocketClusterCommand.WS_HEARTBEAT, DefaultRequest.class);
 
   private static final String BIZ_CODE = "bizCode";
@@ -84,6 +86,22 @@ public enum ScheduleCommand {
     private String areaNo;
 
     private String orgId;
+  }
+
+  @Getter
+  @Setter
+  public static class PushMessageRequest extends DefaultRequest {
+    /** 发送者 */
+    private String sender;
+
+    /** 消息内容 */
+    private String message;
+
+    /** 接受者或者是群 */
+    private String receiver;
+
+    /** 消息类型 */
+    private Message.MessageType type = Message.MessageType.GROUP;
   }
 
   @Getter
