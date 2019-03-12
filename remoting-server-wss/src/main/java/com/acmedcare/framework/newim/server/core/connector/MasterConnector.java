@@ -1,7 +1,5 @@
 package com.acmedcare.framework.newim.server.core.connector;
 
-import static com.acmedcare.framework.newim.server.ClusterLogger.masterClusterLog;
-
 import com.acmedcare.framework.kits.Assert;
 import com.acmedcare.framework.kits.executor.RetriableThreadExecutor;
 import com.acmedcare.framework.kits.executor.RetriableThreadExecutor.ExecutorCallback;
@@ -35,20 +33,17 @@ import com.google.common.collect.Lists;
 import com.google.common.eventbus.AsyncEventBus;
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.DefaultThreadFactory;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.*;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import lombok.Getter;
-import lombok.Setter;
+
+import static com.acmedcare.framework.newim.server.ClusterLogger.masterClusterLog;
 
 /**
  * Master Connector For IM Server Instance
@@ -467,6 +462,7 @@ public class MasterConnector {
     void register(IMProperties imProperties) throws Exception {
       ClusterRegisterHeader header = new ClusterRegisterHeader();
       header.setClusterServerHost(localNode.getHost());
+      header.setHasWssEndpoints(true);
       header.setClusterReplicaAddress(imProperties.getHost() + ":" + imProperties.getClusterPort());
 
       // send register command
