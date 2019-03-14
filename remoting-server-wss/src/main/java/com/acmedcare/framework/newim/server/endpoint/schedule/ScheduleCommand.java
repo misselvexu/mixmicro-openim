@@ -5,7 +5,9 @@ import com.acmedcare.framework.newim.protocol.Command.WebSocketClusterCommand;
 import com.acmedcare.framework.newim.wss.WssPayload.WssRequest;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
@@ -113,7 +115,7 @@ public enum ScheduleCommand {
      */
     private long leastMessageId;
 
-    private long limit;
+    private long limit = 10;
   }
 
   /** 发送信息请求对象 */
@@ -124,7 +126,7 @@ public enum ScheduleCommand {
     private String sender;
 
     /** 消息内容 */
-    private String message;
+    private String message = "";
 
     /** 接受者或者是群 */
     private String receiver;
@@ -137,7 +139,7 @@ public enum ScheduleCommand {
      *
      * @since 2.2.3
      */
-    private Message.InnerType innerType = Message.InnerType.COMMAND;
+    private Message.InnerType innerType = Message.InnerType.NORMAL;
 
     /**
      * 媒体消息载体
@@ -171,11 +173,49 @@ public enum ScheduleCommand {
 
   @Getter
   @Setter
+  @Deprecated
   public static class PushOrderRequest extends DefaultRequest {
 
     /** 订单详情信息 */
     private String orderDetail;
     /** 接受分站标识 */
     private String subOrgId;
+  }
+
+  @Getter
+  @Setter
+  @NoArgsConstructor
+  public static class CustomMediaPayloadWithExt extends MediaPayload {
+
+    private static final long serialVersionUID = -4024513100445536730L;
+
+    private byte[] body;
+
+    public CustomMediaPayloadWithExt(
+        String mediaPayloadKey,
+        String mediaPayloadAccessUrl,
+        String mediaFileName,
+        String mediaFileSuffix,
+        byte[] body) {
+      super(mediaPayloadKey, mediaPayloadAccessUrl, mediaFileName, mediaFileSuffix);
+      this.body = body;
+    }
+  }
+
+  @Getter
+  @Setter
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class MediaPayload implements Serializable {
+
+    private static final long serialVersionUID = -1496285586690313202L;
+
+    private String mediaPayloadKey;
+    /** 媒体文件访问连接 */
+    private String mediaPayloadAccessUrl;
+
+    private String mediaFileName;
+
+    private String mediaFileSuffix;
   }
 }

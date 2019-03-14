@@ -13,9 +13,12 @@ import com.acmedcare.framework.newim.server.core.SessionContextConstants.RemoteP
 import com.acmedcare.framework.newim.server.endpoint.WssSessionContext;
 import com.acmedcare.framework.newim.storage.api.GroupRepository;
 import com.acmedcare.framework.newim.storage.api.MessageRepository;
-import com.acmedcare.tiffany.framework.remoting.common.RemotingHelper;
+import com.alibaba.fastjson.JSON;
+import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.DisposableBean;
 
 import java.io.UnsupportedEncodingException;
@@ -140,45 +143,69 @@ public class ScheduleSysContext extends WssSessionContext implements DisposableB
     }
   }
 
-  public void pushMessage(String namespace, String areaNo, String subOrgId, String orderDetail) {
-    ScheduleWssClientInstance instance =
-        ScheduleWssClientInstance.builder().areaNo(areaNo).orgId(subOrgId).build();
+  /**
+   * pull message list
+   *
+   * @param namespace namespace
+   * @param passportId passport id
+   * @param sender sender
+   * @param type message type
+   * @param leastMessageId least message id
+   * @param limit limit size
+   * @return message list
+   */
+  public List<? extends Message> pullMessageList(
+      String namespace,
+      String passportId,
+      String sender, // type == 1 时候, 标识群组的 ID , == 0 时候,标识是发送人的 ID
+      Message.MessageType type,
+      long leastMessageId,
+      long limit) {
 
-    if (remotingWssScheduleInstances.containsKey(instance)) {
-      // accounts
-      Map<Long, Principal> accounts = remotingWssScheduleInstances.get(instance).getPrincipals();
-      // channel
-      List<WssSession> sessions = Lists.newArrayList();
-      List<String> passports = Lists.newArrayList();
-      accounts.forEach(
-          (key, value) -> {
-            sessions.add(getLocalSession(key).getObject2());
-            passports.add(key.toString());
-          });
-      // sessions
-      sessions.forEach(
-          session ->
-              asyncProcessExecutor.execute(
-                  () -> {
-                    session.sendText(orderDetail);
-                    wssServerLog.info(
-                        "[WSS] async send message:{} to session : {} succeed.",
-                        orderDetail,
-                        RemotingHelper.parseChannelRemoteAddr(session.channel()));
-                  }));
+    List<? extends Message> messages = Lists.newArrayList();
 
-      // push to tcp
-      forwardMessage(namespace, passports, orderDetail);
+    switch (type) {
+      case GROUP:
+        // 群聊信息
+        messages =
+            this.messageRepository.queryGroupMessages(
+                namespace, sender, passportId, limit, leastMessageId > 0, leastMessageId);
+        break;
+      case SINGLE:
+        // 单聊信息
+        messages =
+            this.messageRepository.querySingleMessages(
+                namespace, sender, passportId, limit, leastMessageId > 0, leastMessageId);
+        break;
+      default:
+        break;
     }
+    return messages;
   }
 
+  /**
+   * send message
+   *
+   * @param namespace namespace
+   * @param areaNo area no
+   * @param message message content (normal)
+   * @param receiver receiver , user or group
+   * @param sender sender id
+   * @param type message type of {@link com.acmedcare.framework.newim.Message.MessageType}
+   * @param innerType message inner type of {@link com.acmedcare.framework.newim.Message.InnerType}
+   * @param payload payload for media message
+   * @return
+   * @throws UnsupportedEncodingException
+   */
   public long pushMessage(
       String namespace,
       String areaNo,
       String message,
       String receiver,
       String sender,
-      Message.MessageType type)
+      Message.MessageType type,
+      Message.InnerType innerType,
+      ScheduleCommand.PushMessageRequest.Payload payload)
       throws UnsupportedEncodingException {
 
     long mid = RemotingWssServer.Ids.snowflake.nextId();
@@ -192,12 +219,30 @@ public class ScheduleSysContext extends WssSessionContext implements DisposableB
                     Message.SingleMessage singleMessage = new Message.SingleMessage();
                     singleMessage.setReadFlag(false);
                     singleMessage.setReceiver(receiver);
-                    singleMessage.setBody(message.getBytes("UTF-8"));
+
+                    // check & build media body
+                    if (Message.InnerType.MEDIA.equals(innerType) && payload != null) {
+                      if (StringUtils.isNoneBlank(message)) {
+                        ScheduleCommand.CustomMediaPayloadWithExt ext =
+                            new ScheduleCommand.CustomMediaPayloadWithExt();
+                        ext.setBody(message.getBytes(Charsets.UTF_8));
+                        BeanUtils.copyProperties(payload, ext);
+                        singleMessage.setBody(JSON.toJSONBytes(ext));
+                      } else {
+                        ScheduleCommand.MediaPayload simple =
+                            new ScheduleCommand.CustomMediaPayloadWithExt();
+                        BeanUtils.copyProperties(payload, simple);
+                        singleMessage.setBody(JSON.toJSONBytes(simple));
+                      }
+                    } else {
+                      singleMessage.setBody(message.getBytes(Charsets.UTF_8));
+                    }
+
                     singleMessage.setSender(sender);
                     singleMessage.setMid(mid);
                     singleMessage.setPersistent(true);
                     singleMessage.setMessageType(Message.MessageType.SINGLE);
-                    singleMessage.setInnerType(Message.InnerType.NORMAL);
+                    singleMessage.setInnerType(innerType);
 
                     messageRepository.saveMessage(singleMessage);
 
@@ -222,14 +267,32 @@ public class ScheduleSysContext extends WssSessionContext implements DisposableB
                     }
 
                     Message.GroupMessage groupMessage = new Message.GroupMessage();
-                    groupMessage.setBody(message.getBytes("UTF-8"));
+
+                    // check & build media body
+                    if (Message.InnerType.MEDIA.equals(innerType) && payload != null) {
+                      if (StringUtils.isNoneBlank(message)) {
+                        ScheduleCommand.CustomMediaPayloadWithExt ext =
+                            new ScheduleCommand.CustomMediaPayloadWithExt();
+                        ext.setBody(message.getBytes(Charsets.UTF_8));
+                        BeanUtils.copyProperties(payload, ext);
+                        groupMessage.setBody(JSON.toJSONBytes(ext));
+                      } else {
+                        ScheduleCommand.MediaPayload simple =
+                            new ScheduleCommand.CustomMediaPayloadWithExt();
+                        BeanUtils.copyProperties(payload, simple);
+                        groupMessage.setBody(JSON.toJSONBytes(simple));
+                      }
+                    } else {
+                      groupMessage.setBody(message.getBytes(Charsets.UTF_8));
+                    }
+
                     groupMessage.setSender(sender);
                     groupMessage.setGroup(receiver);
                     groupMessage.setReceivers(receivers);
                     groupMessage.setMid(mid);
                     groupMessage.setPersistent(true);
                     groupMessage.setMessageType(Message.MessageType.GROUP);
-                    groupMessage.setInnerType(Message.InnerType.NORMAL);
+                    groupMessage.setInnerType(innerType);
 
                     messageRepository.saveMessage(groupMessage);
 

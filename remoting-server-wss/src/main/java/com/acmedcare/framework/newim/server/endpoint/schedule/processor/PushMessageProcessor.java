@@ -85,7 +85,9 @@ public class PushMessageProcessor implements WssMessageRequestProcessor {
                 pushMessageRequest.getMessage(),
                 pushMessageRequest.getReceiver(),
                 pushMessageRequest.getSender(),
-                pushMessageRequest.getType());
+                pushMessageRequest.getType(),
+                pushMessageRequest.getInnerType(),
+                pushMessageRequest.getPayload());
 
         Map<String, Long> result = Maps.newHashMap();
         result.put("mid", mid);
