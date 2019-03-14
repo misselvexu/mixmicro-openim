@@ -167,6 +167,8 @@ public class ScheduleSysWssEndpoint extends WssAdapter {
               RemotingHelper.parseChannelRemoteAddr(session.channel()));
           session.close();
           break;
+        default:
+          break;
       }
     }
   }
@@ -195,9 +197,16 @@ public class ScheduleSysWssEndpoint extends WssAdapter {
         new PushOrderProcessor((ScheduleSysContext) wssSessionContext),
         null);
 
+    // 发送消息
     this.registerProcessor(
         ScheduleCommand.WS_PUSH_MESSAGE.getBizCode(),
         new PushMessageProcessor((ScheduleSysContext) wssSessionContext),
+        null);
+
+    // 拉取消息列表
+    this.registerProcessor(
+        ScheduleCommand.WS_PULL_MESSAGE.getBizCode(),
+        new PullMessageProcessor((ScheduleSysContext) wssSessionContext),
         null);
 
     wssServerLog.info("[WSS] wss message processors register-ed.");

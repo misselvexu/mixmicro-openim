@@ -1,7 +1,5 @@
 package com.acmedcare.framework.newim.server.endpoint.schedule.processor;
 
-import static com.acmedcare.framework.newim.server.ClusterLogger.wssServerLog;
-
 import com.acmedcare.framework.aorp.beans.Principal;
 import com.acmedcare.framework.boot.web.socket.processor.WssSession;
 import com.acmedcare.framework.kits.Assert;
@@ -16,12 +14,15 @@ import com.acmedcare.tiffany.framework.remoting.common.Pair;
 import com.acmedcare.tiffany.framework.remoting.common.RemotingHelper;
 import org.apache.commons.lang3.StringUtils;
 
+import static com.acmedcare.framework.newim.server.ClusterLogger.wssServerLog;
+
 /**
  * Register Processor
  *
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version ${project.version} - 19/11/2018.
  */
+@Deprecated
 public class PushOrderProcessor implements WssMessageRequestProcessor {
 
   private final ScheduleSysContext context;

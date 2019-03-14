@@ -110,6 +110,9 @@ public final class Command {
 
     /** 推送消息 */
     public static final int WS_PUSH_MESSAGE = 0x30004;
+
+    /** 拉取消息 */
+    public static final int WS_PULL_MESSAGE = 0x30005;
   }
 
   /**

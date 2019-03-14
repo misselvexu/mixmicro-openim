@@ -8,6 +8,8 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 /**
  * Schedule Command
  *
@@ -16,13 +18,18 @@ import lombok.Setter;
  */
 @Getter
 public enum ScheduleCommand {
+
+  /** 授权 */
   AUTH(0x30000, AuthRequest.class),
   PULL_ONLINE_SUB_ORGS(0x31001, PullOnlineSubOrgsRequest.class),
+
+  @Deprecated
   PUSH_ORDER(0x31002, PushOrderRequest.class),
 
   WS_REGISTER(WebSocketClusterCommand.WS_REGISTER, RegisterRequest.class),
   WS_SHUTDOWN(WebSocketClusterCommand.WS_SHUTDOWN, DefaultRequest.class),
   WS_PUSH_MESSAGE(WebSocketClusterCommand.WS_PUSH_MESSAGE, PushMessageRequest.class),
+  WS_PULL_MESSAGE(WebSocketClusterCommand.WS_PULL_MESSAGE, PullMessageRequest.class),
   WS_HEARTBEAT(WebSocketClusterCommand.WS_HEARTBEAT, DefaultRequest.class);
 
   private static final String BIZ_CODE = "bizCode";
@@ -88,6 +95,28 @@ public enum ScheduleCommand {
     private String orgId;
   }
 
+  /** 拉取消息列表请求对象 */
+  @Getter
+  @Setter
+  public static class PullMessageRequest extends DefaultRequest {
+
+    /** 发送者 */
+    private String sender;
+
+    /** 消息类型 */
+    private Message.MessageType type = Message.MessageType.GROUP;
+
+    /**
+     * 最新的消息 ID
+     *
+     * <pre></pre>
+     */
+    private long leastMessageId;
+
+    private long limit;
+  }
+
+  /** 发送信息请求对象 */
   @Getter
   @Setter
   public static class PushMessageRequest extends DefaultRequest {
@@ -102,6 +131,42 @@ public enum ScheduleCommand {
 
     /** 消息类型 */
     private Message.MessageType type = Message.MessageType.GROUP;
+
+    /**
+     * 消息基础类型
+     *
+     * @since 2.2.3
+     */
+    private Message.InnerType innerType = Message.InnerType.COMMAND;
+
+    /**
+     * 媒体消息载体
+     *
+     * @since 2.2.3
+     */
+    private Payload payload;
+
+    /**
+     * Message Payload
+     *
+     * @since 2.2.3
+     */
+    @Getter
+    @Setter
+    public static class Payload implements Serializable {
+
+      /** 媒体文件的编号 */
+      private String mediaPayloadKey;
+
+      /** 媒体文件访问连接 */
+      private String mediaPayloadAccessUrl;
+
+      /** 文件名称 */
+      private String mediaFileName;
+
+      /** 文件后缀 */
+      private String mediaFileSuffix;
+    }
   }
 
   @Getter
