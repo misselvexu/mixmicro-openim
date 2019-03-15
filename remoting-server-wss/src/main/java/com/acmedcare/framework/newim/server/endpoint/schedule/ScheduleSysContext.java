@@ -169,13 +169,13 @@ public class ScheduleSysContext extends WssSessionContext implements DisposableB
         // 群聊信息
         messages =
             this.messageRepository.queryGroupMessages(
-                namespace, sender, passportId, limit, leastMessageId > 0, leastMessageId);
+                namespace, sender, passportId, limit, leastMessageId < 0, leastMessageId);
         break;
       case SINGLE:
         // 单聊信息
         messages =
             this.messageRepository.querySingleMessages(
-                namespace, sender, passportId, limit, leastMessageId > 0, leastMessageId);
+                namespace, sender, passportId, limit, leastMessageId < 0, leastMessageId);
         break;
       default:
         break;
