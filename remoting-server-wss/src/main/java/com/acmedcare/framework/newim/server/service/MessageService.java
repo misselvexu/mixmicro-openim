@@ -146,13 +146,13 @@ public class MessageService {
       // 群聊信息
       messages =
           this.messageRepository.queryGroupMessages(
-              namespace, sender, passportId, limit, leastMessageId > 0, leastMessageId);
+              namespace, sender, passportId, limit, leastMessageId < 0, leastMessageId);
 
     } else if (type == 0) {
       // 单聊信息
       messages =
           this.messageRepository.querySingleMessages(
-              namespace, sender, passportId, limit, leastMessageId > 0, leastMessageId);
+              namespace, sender, passportId, limit, leastMessageId < 0, leastMessageId);
     }
     return messages;
   }
