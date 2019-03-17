@@ -6,8 +6,6 @@ import com.acmedcare.framework.kits.Strings;
 import com.acmedcare.framework.newim.InstanceType;
 import com.acmedcare.framework.newim.master.core.MasterClusterAcceptorServer;
 import com.acmedcare.framework.newim.protocol.request.ClusterRegisterBody.WssInstance;
-import java.util.List;
-import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +13,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Set;
 
 /**
  * Master Endpoint
@@ -35,7 +36,8 @@ public class MasterEndpoint {
 
   @GetMapping("/available-cluster-servers")
   ResponseEntity availableClusterServerList(
-      @RequestParam(required = false, defaultValue = "DEFAULT") String type) {
+      @RequestParam(required = false, defaultValue = "default") String type,
+      @RequestParam(required = false, defaultValue = "default") String zone) {
     try {
       InstanceType instanceType = InstanceType.DEFAULT;
       try {
@@ -46,7 +48,9 @@ public class MasterEndpoint {
         throw new InvalidRequestParamException("无效的服务类型[DEFAULT,MQ...]");
       }
       Set<String> servers =
-          this.masterClusterAcceptorServer.getMasterClusterSession().clusterList(instanceType);
+          this.masterClusterAcceptorServer
+              .getMasterClusterSession()
+              .clusterList(instanceType, zone);
       return ResponseEntity.ok(servers);
     } catch (InvalidRequestParamException e) {
       return ResponseEntity.badRequest().body(e.getMessage());
@@ -56,7 +60,9 @@ public class MasterEndpoint {
   }
 
   @GetMapping("/available-wss-servers")
-  ResponseEntity availableWssServerList(@RequestParam String wssName) {
+  ResponseEntity availableWssServerList(
+      @RequestParam String wssName,
+      @RequestParam(required = false, defaultValue = "default") String zone) {
     try {
 
       if (!Strings.hasLength(wssName)) {
@@ -64,7 +70,7 @@ public class MasterEndpoint {
       }
 
       List<WssInstance> wssInstances =
-          this.masterClusterAcceptorServer.getMasterClusterSession().wssList();
+          this.masterClusterAcceptorServer.getMasterClusterSession().wssList(zone);
 
       wssInstances.removeIf(wssInstance -> !wssInstance.getWssName().equals(wssName));
 

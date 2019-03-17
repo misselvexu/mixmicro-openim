@@ -5,8 +5,6 @@ import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
 /**
  * Master Server Of NewIM System
@@ -33,8 +31,4 @@ public class MasterBootstrap {
             .web(WebApplicationType.SERVLET)
             .run(args);
   }
-
-  @Profile("cloud")
-  @Configuration
-  public static class SpringCloudAutoConfiguration {}
 }

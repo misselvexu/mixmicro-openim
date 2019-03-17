@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 1999-2018 Acmedcare+ Holding Ltd.
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  -->
+
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>remoting-newim</artifactId>
+        <groupId>com.acmedcare.microservices.im</groupId>
+        <version>2.2.3.BUILD-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>remoting-master-sync</artifactId>
+    <version>2.2.3.BUILD-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>Acmedcare+ Remoting NewIM Master Server Sync Common Module :: ${project.version}</name>
+    <description>Remote Master Server Sync Module</description>
+
+    <properties>
+        <deploy.skip>false</deploy.skip>
+    </properties>
+
+    <modules>
+        <module>remoting-master-sync-api</module>
+        <module>remoting-master-sync-client</module>
+        <module>remoting-master-sync-server</module>
+        <module>remoting-master-sync-runner</module>
+    </modules>
+
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.acmedcare.microservices.im</groupId>
+                <artifactId>remoting-master-sync-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.acmedcare.microservices.im</groupId>
+                <artifactId>remoting-master-sync-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.acmedcare.microservices.im</groupId>
+                <artifactId>remoting-master-sync-server</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>

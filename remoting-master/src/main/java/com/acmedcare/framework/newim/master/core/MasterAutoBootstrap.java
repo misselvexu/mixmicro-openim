@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import static com.acmedcare.framework.newim.MasterLogger.startLog;
+
 /**
  * Acceptor Bootstrap
  *
@@ -19,6 +21,7 @@ public class MasterAutoBootstrap {
   @Autowired
   public MasterAutoBootstrap(MasterConfig masterConfig) {
     this.masterConfig = masterConfig;
+    startLog.info("master config properties: {}", this.masterConfig);
   }
 
   @Bean

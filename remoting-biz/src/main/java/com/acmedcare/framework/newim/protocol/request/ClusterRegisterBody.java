@@ -1,9 +1,10 @@
 package com.acmedcare.framework.newim.protocol.request;
 
-import java.io.Serializable;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * Cluster Register Body
@@ -25,5 +26,6 @@ public class ClusterRegisterBody implements Serializable {
     private String wssName;
     private String wssHost;
     private int wssPort;
+    private String zone = "default";
   }
 }

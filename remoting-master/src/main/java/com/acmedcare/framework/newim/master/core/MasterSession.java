@@ -1,14 +1,8 @@
 package com.acmedcare.framework.newim.master.core;
 
-import static com.acmedcare.framework.newim.MasterLogger.masterClusterAcceptorLog;
-
 import com.acmedcare.framework.kits.thread.DefaultThreadFactory;
 import com.acmedcare.framework.kits.thread.ThreadKit;
-import com.acmedcare.framework.newim.BizResult;
-import com.acmedcare.framework.newim.InstanceNode;
-import com.acmedcare.framework.newim.InstanceType;
-import com.acmedcare.framework.newim.Message;
-import com.acmedcare.framework.newim.SessionBean;
+import com.acmedcare.framework.newim.*;
 import com.acmedcare.framework.newim.client.MessageAttribute;
 import com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand;
 import com.acmedcare.framework.newim.protocol.request.ClusterPushSessionDataBody;
@@ -23,21 +17,18 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.*;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
-import java.util.concurrent.TimeUnit;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+
+import static com.acmedcare.framework.newim.MasterLogger.masterClusterAcceptorLog;
 
 /**
  * Master Session
@@ -120,11 +111,13 @@ public class MasterSession {
       return channel.attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).get();
     }
 
-    public Set<String> clusterList(InstanceType instanceType) {
+    public Set<String> clusterList(InstanceType instanceType, String zone) {
       Set<String> result = Sets.newHashSet();
       clusterClientInstances.forEach(
           (s, remoteClusterClientInstance) -> {
-            if (remoteClusterClientInstance.getInstanceType().equals(instanceType)) {
+            if (remoteClusterClientInstance.getInstanceType().equals(instanceType)
+                // add zone flag
+                && zone.equalsIgnoreCase(remoteClusterClientInstance.getZone())) {
               result.add(s);
             }
           });
@@ -143,10 +136,14 @@ public class MasterSession {
       return replicas;
     }
 
-    public List<WssInstance> wssList() {
+    public List<WssInstance> wssList(String zone) {
       List<WssInstance> result = Lists.newArrayList();
       for (Map<String, WssInstance> map : clusterWssServerInstance.values()) {
-        result.addAll(map.values());
+        for (WssInstance value : map.values()) {
+          if (zone.equalsIgnoreCase(value.getZone())) {
+            result.add(value);
+          }
+        }
       }
       return result;
     }
@@ -459,5 +456,7 @@ public class MasterSession {
     private Channel clusterClientChannel;
 
     private String clusterReplicaAddress;
+
+    private String zone = "default";
   }
 }
