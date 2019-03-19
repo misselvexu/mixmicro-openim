@@ -33,9 +33,14 @@ import org.springframework.context.annotation.Configuration;
 public class RemotingClientAutoConfiguration {
 
   private static final Logger LOG = LoggerFactory.getLogger(RemotingClientAutoConfiguration.class);
+  private static final String DEFAULT_NAS_APP_ID = "DEFAULT#NAS#APPID";
+  private static final String DEFAULT_NAS_APP_KEY = "DEFAULT#NAS#APPKEY";
 
   @Bean
-  @ConditionalOnProperty(name = "remoting.nas.endpoint.enabled", havingValue = "false" ,matchIfMissing = true)
+  @ConditionalOnProperty(
+      name = "remoting.nas.endpoint.enabled",
+      havingValue = "false",
+      matchIfMissing = true)
   public MasterEndpointClient masterEndpointClient(
       RemotingMasterEndpointClientServiceProperties properties) {
 
@@ -83,8 +88,14 @@ public class RemotingClientAutoConfiguration {
     NasProperties nasProperties = new NasProperties();
     nasProperties.setServerAddrs(
         Lists.newArrayList(remotingNasClientServiceProperties.getRemoteAddr().split(",")));
-    nasProperties.setAppId(remotingNasClientServiceProperties.getNasAppId());
-    nasProperties.setAppKey(remotingNasClientServiceProperties.getNasAppKey());
+    nasProperties.setAppId(
+        remotingNasClientServiceProperties.getNasAppId() == null
+            ? DEFAULT_NAS_APP_ID
+            : remotingNasClientServiceProperties.getNasAppId());
+    nasProperties.setAppKey(
+        remotingNasClientServiceProperties.getNasAppKey() == null
+            ? DEFAULT_NAS_APP_KEY
+            : remotingNasClientServiceProperties.getNasAppKey());
     nasProperties.setHttps(remotingNasClientServiceProperties.isHttps());
 
     LOG.info(
