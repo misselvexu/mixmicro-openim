@@ -15,6 +15,7 @@ public class MasterSyncCommand {
 
   /** 同步握手 */
   public static final int SYNC_HANDSHAKE = 0x50000;
+
   /** 同步注册 */
   public static final int SYNC_REGISTER = 0x50001;
 
