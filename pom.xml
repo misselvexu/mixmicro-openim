@@ -14,6 +14,7 @@
         <module>remoting-storage</module>
         <module>remoting-raft</module>
         <module>remoting-master</module>
+        <module>remoting-proxy</module>
         <module>remoting-master-connector</module>
         <module>remoting-server-api</module>
         <module>remoting-server-replica</module>
@@ -157,6 +158,13 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>remoting-master</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>remoting-proxy</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
             </dependency>
 
             <dependency>
