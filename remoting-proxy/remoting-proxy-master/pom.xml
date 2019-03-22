@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright 1999-2018 Acmedcare+ Holding Ltd.
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  -->
+
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>remoting-proxy</artifactId>
+        <groupId>com.acmedcare.microservices.im</groupId>
+        <version>2.2.3.BUILD-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>remoting-proxy-master</artifactId>
+    <version>2.2.3.BUILD-SNAPSHOT</version>
+
+    <name>Acmedcare+ Remoting Master Server Proxy Support :: ${project.version}</name>
+    <description>Remote Master Proxy</description>
+
+    <dependencies>
+
+    </dependencies>
+
+</project>

@@ -20,10 +20,32 @@
     <packaging>pom</packaging>
 
     <name>Acmedcare+ Remoting Proxy Support :: ${project.version}</name>
-    <description>Remote Proxy</description>
+    <description>Remote Proxy Parent Modules</description>
+
+    <modules>
+        <module>remoting-proxy-master</module>
+        <module>remoting-proxy-server</module>
+    </modules>
+
 
     <dependencies>
 
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.acmedcare.microservices.im</groupId>
+                <artifactId>remoting-proxy-server</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.acmedcare.microservices.im</groupId>
+                <artifactId>remoting-proxy-master</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>
