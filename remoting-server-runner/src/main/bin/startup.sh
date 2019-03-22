@@ -72,7 +72,7 @@ JAVA_OPT="${JAVA_OPT} -Denv=${ENV}"
 
 if [[ "${MODE}" != "standalone" && "${PROFILE}" != "standalone" ]]; then
     # enabled monitor
-    JAVA_OPT="${JAVA_OPT} -javaagent:/acmedcare/applications/profile-env/perfino/agent/perfino.jar=server=jvm.perfino.acmedcare.com,pool=Remoting-Server-Rnner/${PROFILE} "
+    JAVA_OPT="${JAVA_OPT} -javaagent:/acmedcare/applications/profile-env/perfino/agent/perfino.jar=server=jvm.perfino.acmedcare.com,pool=${SERVICE_NAME}/${SERVICE_VERSION}/${PROFILE} "
     JAVA_OPT="${JAVA_OPT} -Dspring.profiles.active=${PROFILE}"
 fi
 
