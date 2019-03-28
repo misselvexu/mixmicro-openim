@@ -3,6 +3,7 @@ package com.acmedcare.framework.newim.server.processor;
 import com.acmedcare.framework.aorp.beans.Principal;
 import com.acmedcare.framework.aorp.exception.InvalidTokenException;
 import com.acmedcare.framework.kits.Assert;
+import com.acmedcare.framework.kits.jackson.JacksonKit;
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
 import com.acmedcare.framework.newim.server.core.IMSession;
@@ -12,10 +13,9 @@ import com.acmedcare.framework.newim.server.service.RemotingAuthService;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
+import static com.acmedcare.framework.newim.server.ClusterLogger.imServerLog;
 import static com.acmedcare.framework.newim.server.core.SessionContextConstants.PRINCIPAL_KEY;
 
 /**
@@ -26,8 +26,6 @@ import static com.acmedcare.framework.newim.server.core.SessionContextConstants.
  */
 public class RemotingClientRegisterAuthProcessor extends AbstractNormalRequestProcessor {
 
-  private static final Logger LOG =
-      LoggerFactory.getLogger(RemotingClientRegisterAuthProcessor.class);
   private IMSession imSession;
   private RemotingAuthService remotingAuthService;
 
@@ -65,6 +63,8 @@ public class RemotingClientRegisterAuthProcessor extends AbstractNormalRequestPr
         throw new InvalidTokenException("登录票据与通行证不匹配,非法Token");
       }
 
+      imServerLog.info(" == 请求登录的 IM 客户端信息: {}", JacksonKit.objectToJson(principal));
+
       RemotePrincipal remotePrincipal = new RemotePrincipal();
       BeanUtils.copyProperties(principal, remotePrincipal);
       remotePrincipal.setAreaNo(authHeader.getAreaNo());
@@ -77,7 +77,7 @@ public class RemotingClientRegisterAuthProcessor extends AbstractNormalRequestPr
           remotePrincipal,
           authHeader.getDeviceId(),
           authHeader.getDeviceType(),
-          authHeader.getPassportId(),
+          principal.getPassportUid().toString(),
           channelHandlerContext.channel());
 
       // set session info

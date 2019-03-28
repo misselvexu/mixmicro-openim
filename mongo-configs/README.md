@@ -6,9 +6,9 @@
 rs.initiate(
     {"_id" : "Acmedcare-NewIM-Set",
      "members" : [
-        {"_id" : 1, "host" : "192.168.1.226:30001"},
-        {"_id" : 2, "host" : "192.168.1.226:30002"},
-        {"_id" : 3, "host" : "192.168.1.226:30003", "arbiterOnly" : true}
+        {"_id" : 1, "host" : "47.97.26.165:30001"},
+        {"_id" : 2, "host" : "47.97.26.165:30002"},
+        {"_id" : 3, "host" : "47.97.26.165:30003", "arbiterOnly" : true}
     ]
 });
 
@@ -68,6 +68,6 @@ db.createUser(
 
 ```bash
 
-mongo -host 192.168.1.226 -port 30001 -uroot -pAcmedcare#root --authenticationDatabase admin
+mongo -host 47.97.26.165 -port 30001 -uroot -pAcmedcare#root --authenticationDatabase admin
 
 ```

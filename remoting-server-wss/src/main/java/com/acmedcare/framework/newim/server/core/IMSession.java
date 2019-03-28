@@ -1,5 +1,6 @@
 package com.acmedcare.framework.newim.server.core;
 
+import com.acmedcare.framework.kits.jackson.JacksonKit;
 import com.acmedcare.framework.kits.thread.DefaultThreadFactory;
 import com.acmedcare.framework.kits.thread.ThreadKit;
 import com.acmedcare.framework.newim.Message;
@@ -146,13 +147,15 @@ public class IMSession implements InitializingBean, DisposableBean {
     SessionBean deviceSession =
         SessionBean.builder().sessionId(deviceId).namespace(remotePrincipal.getNamespace()).build();
     imServerLog.debug("[NEW-IM-SESSION] Bind Session , {} {} {}", deviceId, passportId, channel);
+
+    imServerLog.info(" == 设备 SESSION: {} ", JacksonKit.objectToJson(deviceSession));
     if (devicesTcpChannelContainer.containsKey(deviceSession)) {
       // yes
       Channel originChannel =
           devicesTcpChannelContainer.get(deviceSession).put(deviceType, channel);
-      if (originChannel != null) {
-        pushOfflineMessage(originChannel);
-      }
+//      if (originChannel != null) {
+//        pushOfflineMessage(originChannel);
+//      }
     } else {
       // nop
       Map<String, Channel> channelMap = Maps.newHashMap();
@@ -165,11 +168,18 @@ public class IMSession implements InitializingBean, DisposableBean {
             .sessionId(passportId)
             .namespace(remotePrincipal.getNamespace())
             .build();
+
+    imServerLog.info(" == 通行证 SESSION: {} ", JacksonKit.objectToJson(passportSession));
     if (passportsTcpChannelContainer.containsKey(passportSession)) {
       // yes
       Channel originChannel =
           passportsTcpChannelContainer.get(passportSession).put(deviceType, channel);
       if (originChannel != null) {
+        imServerLog.info(
+            " == 通行证异地登录 {},剔除下线:{} ",
+            passportId,
+            RemotingHelper.parseChannelRemoteAddr(originChannel));
+
         pushOfflineMessage(originChannel);
       }
     } else {

@@ -21,7 +21,6 @@
 
     <name>Acmedcare+ Remoting Proxy Support :: ${project.version}</name>
     <description>Remote Proxy Parent Modules</description>
-
     <modules>
         <module>remoting-proxy-master</module>
         <module>remoting-proxy-server</module>
