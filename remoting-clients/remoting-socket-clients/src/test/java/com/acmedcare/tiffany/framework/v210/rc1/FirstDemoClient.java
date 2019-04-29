@@ -155,7 +155,7 @@ public class FirstDemoClient {
           continue;
         }
 
-        // 拉取消息请求参数:  pullMessageList2 gid-20181122 -1
+        // 拉取消息请求参数:  pullMessageList2 EXPERT309413180961026 -1
         if (inputArgs[0].equals("pullMessageList2")) {
           pullMessageList2(inputArgs[1], Long.parseLong(inputArgs[2]));
           continue;
@@ -249,7 +249,7 @@ public class FirstDemoClient {
           continue;
         }
 
-        // 拉取群消息已读未读状态  pullGroupMessageReadStatus gid-20181122 1063193418451712
+        // 拉取群消息已读未读状态  pullGroupMessageReadStatus EXPERT309413180961026 -1
         if (inputArgs[0].equals("pullGroupMessageReadStatus")) {
           pullGroupMessageReadStatus(inputArgs[1], inputArgs[2]);
           continue;
@@ -591,7 +591,7 @@ public class FirstDemoClient {
   private interface KnownParams {
 
     String accessToken =
-        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiI5YzAyZmE4ZmU0MDg0YzNjYmNiNGNjOWZhZDU3ZGQzYyIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NTIzNzcxODMwMDQsImV4cCI6MTU1Mjk4NzY0ODAwNCwiYXVkIjpudWxsfQ.WBh5iH5gTho12d0yDtd4WRPK2zjwNZ8nJ3NeOch4R6Hdk7iIsu6me6J86BgRTi5TWK_8AoyI1IvsYnmxtcoyhGZ4O9x2D_iY6gP5SjJi6Twnte3HVdW1jxtKpHw3m4c3TQT7S6VINBAwb2s51LP8sBKpSMtDlbd9zngGp6mpWHEpA-yZbFHwHD8a2swOitcRjjgaGKk8g0yHmFUzuGJSeItGRH6IEvjKt2r2-rV-7HVQNGBBbXbHkeKz5ZnnK4jIfmdL3QbJ0ktf0LvvdNrSrR09w_TUruX57c3lPznjqKCGy-9SQriphNpQyLbEgMyP9-kvdzYtMjo2HtwM5cARmA";
+        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiIwOTMwYTQ0MTM5Mzc0MWRlOGNlZTBiMzUyNmNkNTVlYiIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NTY1Mjk4MjgzMzMsImV4cCI6MTU1NzE0NDM0ODMzMywiYXVkIjpudWxsfQ.DtgwqT4oLSbCUYfSQVUQim5CU7w-U1G079yq5N08magy1E-bxXNcZGAGn8PT0oGNvV5JItWccaMtps84VVeXLl93Rupdx-HLBvpJlRf28240-laBCCxQOQfm-1f86q4csIXLzsivKkk6LLKKnYyV9WN8IuHWQdkdFqR3uDIIuNqpUQ9J5OVikln05i1FRaqeprzwLV2UScZZv9cuS17T8tzmEeu5zexyiA2ZwVMnBrMd5fUgpKN8XDouec0Fk8pnnLl2Pvd8L060BAsxuCMBQjjP5piFigRcb5R7Hd0XNONTczk1b1Purm3CZs1KxGhmGPrt4z-GuVCjNJXJ3HeBPQ";
 
     String areaNo = "320500";
 

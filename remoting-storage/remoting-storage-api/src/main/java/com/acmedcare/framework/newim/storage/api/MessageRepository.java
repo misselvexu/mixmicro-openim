@@ -3,6 +3,8 @@ package com.acmedcare.framework.newim.storage.api;
 import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.Message.GroupMessage;
 import com.acmedcare.framework.newim.Message.SingleMessage;
+
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -88,10 +90,10 @@ public interface MessageRepository {
    * @param passportId 接收人编号
    * @param groupId 群组编号
    * @param messageId 消息编号
-   * @param innerTimestamp 当前消息时间戳
+   * @param sendTimestamp 当前消息时间戳
    */
   void updateGroupMessageReadStatus(
-      String passportId, String groupId, String messageId, long innerTimestamp);
+      String passportId, String groupId, String messageId, Date sendTimestamp);
 
   /**
    * 查询已读人员的编号

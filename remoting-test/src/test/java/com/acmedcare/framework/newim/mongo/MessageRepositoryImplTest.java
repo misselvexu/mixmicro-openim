@@ -10,14 +10,15 @@ import com.acmedcare.framework.newim.TestApplication;
 import com.acmedcare.framework.newim.storage.api.MessageRepository;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
-import java.util.Date;
-import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * Message Repository Test
@@ -134,6 +135,6 @@ public class MessageRepositoryImplTest {
 
     // pushGroupMessageReadStatus gid-20181122 1047261835348992
     this.messageRepository.updateGroupMessageReadStatus(
-        "3837142362366977", "gid-20181122", "1047261835348992", 57101037550492L);
+        "3837142362366977", "gid-20181122", "1047261835348992", new Date());
   }
 }

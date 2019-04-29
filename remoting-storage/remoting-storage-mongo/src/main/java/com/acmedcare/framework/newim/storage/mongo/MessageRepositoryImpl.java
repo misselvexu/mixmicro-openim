@@ -1,10 +1,5 @@
 package com.acmedcare.framework.newim.storage.mongo;
 
-import static com.acmedcare.framework.newim.CommonLogger.mongoLog;
-import static com.acmedcare.framework.newim.storage.IMStorageCollections.IM_MESSAGE;
-import static com.acmedcare.framework.newim.storage.IMStorageCollections.MESSAGE_READ_STATUS;
-import static com.acmedcare.framework.newim.storage.IMStorageCollections.REF_GROUP_MEMBER;
-
 import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.Message.GroupMessage;
 import com.acmedcare.framework.newim.Message.InnerType;
@@ -15,9 +10,6 @@ import com.acmedcare.framework.newim.storage.api.MessageRepository;
 import com.acmedcare.framework.newim.storage.exception.StorageException;
 import com.google.common.collect.Lists;
 import com.mongodb.client.result.UpdateResult;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -25,6 +17,13 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.transaction.support.TransactionTemplate;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
+import static com.acmedcare.framework.newim.CommonLogger.mongoLog;
+import static com.acmedcare.framework.newim.storage.IMStorageCollections.*;
 
 /**
  * Mongo Repository Implements
@@ -151,7 +150,7 @@ public class MessageRepositoryImpl implements MessageRepository {
                 .is(namespace)
                 .and("messageType")
                 .is(MessageType.GROUP.name()));
-    messageQuery.with(new Sort(Direction.DESC, "innerTimestamp")).limit((int) limit);
+    messageQuery.with(new Sort(Direction.DESC, "sendTimestamp")).limit((int) limit);
 
     if (!queryLeast && leastMessageId > 0) {
       try {
@@ -163,7 +162,8 @@ public class MessageRepositoryImpl implements MessageRepository {
         if (leastMessage != null) {
 
           mongoLog.info("查询群组历史消息,客户端最新的消息编号:{}", leastMessage.getMid());
-          long innerTimestamp = leastMessage.getInnerTimestamp();
+//          long innerTimestamp = leastMessage.getInnerTimestamp();
+          Date tempDate = leastMessage.getSendTimestamp();
           messageQuery =
               new Query(
                   Criteria.where("group")
@@ -174,9 +174,9 @@ public class MessageRepositoryImpl implements MessageRepository {
                       .is(MessageType.GROUP.name())
                       .and("innerType")
                       .ne(InnerType.COMMAND)
-                      .and("innerTimestamp") // 查询的消息的时间小于客户端执行的最新消息的时间
-                      .lt(innerTimestamp));
-          messageQuery.with(new Sort(Direction.DESC, "innerTimestamp")).limit((int) limit);
+                      .and("sendTimestamp") // 查询的消息的时间小于客户端执行的最新消息的时间
+                      .lt(tempDate));
+          messageQuery.with(new Sort(Direction.DESC, "sendTimestamp")).limit((int) limit);
         } else {
           mongoLog.warn("查询群组历史消息,客户端提供的最新消息编号:{} 无效", leastMessageId);
         }
@@ -225,7 +225,7 @@ public class MessageRepositoryImpl implements MessageRepository {
                 .is(namespace)
                 .and("messageType")
                 .is(MessageType.SINGLE.name()));
-    messageQuery.with(new Sort(Direction.DESC, "innerTimestamp")).limit((int) limit);
+    messageQuery.with(new Sort(Direction.DESC, "sendTimestamp")).limit((int) limit);
 
     if (!queryLeast && leastMessageId > 0) {
       try {
@@ -237,7 +237,8 @@ public class MessageRepositoryImpl implements MessageRepository {
         if (leastMessage != null) {
 
           mongoLog.info("查询历史消息,客户端最新的消息编号:{}", leastMessage.getMid());
-          long innerTimestamp = leastMessage.getInnerTimestamp();
+//          long innerTimestamp = leastMessage.getInnerTimestamp();
+          Date tempDate = leastMessage.getSendTimestamp();
           messageQuery =
               new Query(
                   Criteria.where("sender")
@@ -250,9 +251,9 @@ public class MessageRepositoryImpl implements MessageRepository {
                       .is(MessageType.SINGLE.name())
                       .and("innerType")
                       .ne(InnerType.COMMAND)
-                      .and("innerTimestamp") // 查询的消息的时间小于客户端执行的最新消息的时间
-                      .lt(innerTimestamp));
-          messageQuery.with(new Sort(Direction.DESC, "innerTimestamp")).limit((int) limit);
+                      .and("sendTimestamp") // 查询的消息的时间小于客户端执行的最新消息的时间
+                      .lt(tempDate));
+          messageQuery.with(new Sort(Direction.DESC, "sendTimestamp")).limit((int) limit);
         } else {
           mongoLog.warn("查询历史消息,客户端提供的最新消息编号:{}无效", leastMessageId);
         }
@@ -296,11 +297,11 @@ public class MessageRepositoryImpl implements MessageRepository {
    * @param passportId 接收人编号
    * @param groupId 群组编号
    * @param messageId 消息编号
-   * @param innerTimestamp 当前消息时间戳
+   * @param sendTimestamp 当前消息时间戳
    */
   @Override
   public void updateGroupMessageReadStatus(
-      String passportId, String groupId, String messageId, long innerTimestamp) {
+      String passportId, String groupId, String messageId, Date sendTimestamp) {
 
     try {
       MessageReadStatus messageReadStatus = new MessageReadStatus();
@@ -314,7 +315,7 @@ public class MessageRepositoryImpl implements MessageRepository {
 
       // update
       Query query =
-          new Query(Criteria.where("group").is(groupId).and("innerTimestamp").lte(innerTimestamp));
+          new Query(Criteria.where("group").is(groupId).and("sendTimestamp").lte(sendTimestamp));
 
       Update update = new Update();
       update.inc("readedSize", 1);
@@ -397,8 +398,8 @@ public class MessageRepositoryImpl implements MessageRepository {
                 .is(false)
                 .and("messageType")
                 .is(MessageType.SINGLE.name())
-                .and("innerTimestamp")
-                .lte(singleMessage.getInnerTimestamp()));
+                .and("sendTimestamp")
+                .lte(singleMessage.getSendTimestamp()));
 
     Update update = new Update();
     update.set("readFlag", true);

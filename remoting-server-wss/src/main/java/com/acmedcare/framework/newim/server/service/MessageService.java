@@ -172,7 +172,7 @@ public class MessageService {
       imServerLog.info("准备更新群组消息:{}的未读数量", groupMessage.getMid());
       // update message read status
       this.messageRepository.updateGroupMessageReadStatus(
-          passportId, groupId, messageId, groupMessage.getInnerTimestamp());
+          passportId, groupId, messageId, groupMessage.getSendTimestamp());
 
     } catch (Exception e) {
       imServerLog.error("上报消息状态业务处理失败异常", e);

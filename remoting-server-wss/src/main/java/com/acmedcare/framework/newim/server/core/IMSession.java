@@ -148,7 +148,7 @@ public class IMSession implements InitializingBean, DisposableBean {
         SessionBean.builder().sessionId(deviceId).namespace(remotePrincipal.getNamespace()).build();
     imServerLog.debug("[NEW-IM-SESSION] Bind Session , {} {} {}", deviceId, passportId, channel);
 
-    imServerLog.info(" == 设备 SESSION: {} ", JacksonKit.objectToJson(deviceSession));
+    imServerLog.debug(" == 设备 SESSION: {} ", JacksonKit.objectToJson(deviceSession));
     if (devicesTcpChannelContainer.containsKey(deviceSession)) {
       // yes
       Channel originChannel =
@@ -169,13 +169,13 @@ public class IMSession implements InitializingBean, DisposableBean {
             .namespace(remotePrincipal.getNamespace())
             .build();
 
-    imServerLog.info(" == 通行证 SESSION: {} ", JacksonKit.objectToJson(passportSession));
+    imServerLog.debug(" == 通行证 SESSION: {} ", JacksonKit.objectToJson(passportSession));
     if (passportsTcpChannelContainer.containsKey(passportSession)) {
       // yes
       Channel originChannel =
           passportsTcpChannelContainer.get(passportSession).put(deviceType, channel);
       if (originChannel != null) {
-        imServerLog.info(
+        imServerLog.debug(
             " == 通行证异地登录 {},剔除下线:{} ",
             passportId,
             RemotingHelper.parseChannelRemoteAddr(originChannel));

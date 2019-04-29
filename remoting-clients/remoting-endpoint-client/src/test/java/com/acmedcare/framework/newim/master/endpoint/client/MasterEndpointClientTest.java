@@ -45,7 +45,7 @@ public class MasterEndpointClientTest {
   public void testJoinGroup() {
 
     AddGroupMembersRequest request = new AddGroupMembersRequest();
-    request.setGroupId("EXPERT4431396400219136");
+    request.setGroupId("EXPERT309413180961026");
     request.setMembers(
         Lists.newArrayList(
             Member.builder().memberId(3837142362366977L).memberName("7669用户").build(),

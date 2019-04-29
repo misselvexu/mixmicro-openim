@@ -4,16 +4,17 @@ import com.acmedcare.framework.newim.client.MessageConstants;
 import com.acmedcare.framework.newim.storage.IMStorageCollections;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
-import java.io.Serializable;
-import java.nio.charset.Charset;
-import java.util.Date;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.io.Serializable;
+import java.nio.charset.Charset;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Base Message
@@ -55,6 +56,7 @@ public class Message implements Serializable {
   private Date sendTimestamp = new Date();
 
   @JSONField(serialize = false)
+  @Deprecated
   private long innerTimestamp = System.nanoTime();
 
   private boolean persistent = true;
