@@ -8,10 +8,13 @@ import com.acmedcare.framework.newim.client.bean.request.NewGroupRequest;
 import com.acmedcare.framework.newim.client.bean.request.RemoveGroupMembersRequest;
 import com.acmedcare.framework.newim.client.bean.request.UpdateGroupRequest;
 import com.acmedcare.framework.newim.client.bean.response.GroupResponse;
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.List;
 
 /**
  * com.acmedcare.framework.newim.master.endpoint.client
@@ -39,6 +42,15 @@ public class MasterEndpointClientTest {
     request.setGroupExt("~");
     request.setGroupOwner("misselvexu");
     this.masterEndpointClient.createNewGroup(request);
+  }
+
+  @Test
+  public void queryGroupMemberList() {
+
+    List<Member> members = this.masterEndpointClient.queryGroupMemberList("gid-20181122","DEFAULT");
+    System.out.println(JSON.toJSONString(members));
+    Assert.assertNotNull(members);
+
   }
 
   @Test

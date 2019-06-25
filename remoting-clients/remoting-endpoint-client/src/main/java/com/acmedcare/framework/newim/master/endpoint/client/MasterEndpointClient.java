@@ -367,7 +367,7 @@ public class MasterEndpointClient extends NasEndpointClient implements MasterEnd
       if (httpResponse.getStatusCode() != HttpStatus.SC_OK) {
 
         if (httpResponse.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
-          throw new EndpointException("[404] Request Url: " + GroupRequest.REMOVE_GROUP);
+          throw new EndpointException("[404] Request Url: " + GroupRequest.GROUP_MEMBER_LIST);
         }
 
         BizResult bizResult = BizResult.fromJSON(httpResponse.getResult(), BizResult.class);
