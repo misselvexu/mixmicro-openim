@@ -1,7 +1,5 @@
 package com.acmedcare.framework.newim.server.processor;
 
-import static com.acmedcare.framework.newim.server.ClusterLogger.imServerLog;
-
 import com.acmedcare.framework.kits.Assert;
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
@@ -18,6 +16,8 @@ import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingSerializable;
 import com.alibaba.fastjson.JSONObject;
 import io.netty.channel.ChannelHandlerContext;
+
+import static com.acmedcare.framework.newim.server.ClusterLogger.imServerLog;
 
 /**
  * Client Push Message Request Processor
@@ -87,6 +87,8 @@ public class RemotingClientPushMessageProcessor extends AbstractNormalRequestPro
           this.messageService.processMessage(imSession, groupMessage);
 
           break;
+        default:
+          break;
       }
 
       response.setBody(BizResult.builder().code(0).data(ret).build().bytes());
@@ -96,11 +98,7 @@ public class RemotingClientPushMessageProcessor extends AbstractNormalRequestPro
       response.setBody(
           BizResult.builder()
               .code(-1)
-              .exception(
-                  ExceptionWrapper.builder()
-                      .message(e.getMessage())
-
-                      .build())
+              .exception(ExceptionWrapper.builder().message(e.getMessage()).build())
               .build()
               .bytes());
     }
