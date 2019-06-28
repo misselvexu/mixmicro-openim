@@ -63,7 +63,9 @@ public class MessageService {
       attribute.setRetryPeriod(singleMessage.getRetryPeriod());
 
       // (根据消息类型)存储消息
-      this.messageRepository.saveMessage(singleMessage);
+      if(!Message.InnerType.COMMAND.equals(message.getInnerType())) {
+        this.messageRepository.saveMessage(singleMessage);
+      }
 
     } else if (message instanceof GroupMessage) {
       // 群组消息
@@ -80,7 +82,9 @@ public class MessageService {
       groupMessage.setReceivers(memberIds);
       groupMessage.setUnReadSize(memberIds.size() - 1 < 0 ? 0 : memberIds.size() - 1); // 排除发送者本身
 
-      this.messageRepository.saveMessage(groupMessage);
+      if(!Message.InnerType.COMMAND.equals(message.getInnerType())) {
+        this.messageRepository.saveMessage(groupMessage);
+      }
     }
 
     imServerLog.info("消息,ID:{},内容:{},存储成功", message.getMid(), JSON.toJSONString(message));

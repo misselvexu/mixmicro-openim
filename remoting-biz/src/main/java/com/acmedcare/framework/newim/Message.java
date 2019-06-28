@@ -141,6 +141,9 @@ public class Message implements Serializable {
     @Indexed(name = "group_query_index")
     private String group;
 
+    // fix: add group bean instance
+    private Group groupBean;
+
     private List<String> receivers;
     /** 未读人数 */
     private int unReadSize;
