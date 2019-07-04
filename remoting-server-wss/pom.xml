@@ -104,13 +104,11 @@
         <dependency>
             <groupId>com.acmedcare.framework.kits</groupId>
             <artifactId>common-kits</artifactId>
-            <version>Antarctica.RC1</version>
         </dependency>
 
         <dependency>
             <groupId>com.acmedcare.framework.kits</groupId>
             <artifactId>executor-kit</artifactId>
-            <version>Antarctica.RC2</version>
         </dependency>
 
         <dependency>
@@ -147,6 +145,18 @@
         </dependency>
 
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>remoting-storage</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
 
