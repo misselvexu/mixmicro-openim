@@ -1,7 +1,11 @@
 package com.acmedcare.framework.newim.master;
 
+import com.acmedcare.framework.kits.StringUtils;
 import lombok.Getter;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.PropertySource;
@@ -9,6 +13,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
+
+import static com.acmedcare.framework.newim.master.common.SystemKits.LOCAL_IP;
 
 /**
  * Master Config
@@ -25,7 +31,9 @@ import java.io.Serializable;
       "classpath:master-default.properties",
       "classpath:master-${spring.profiles.active:default}.properties"
     })
-public class MasterConfig implements Serializable, EnvironmentAware {
+public class MasterConfig implements Serializable, EnvironmentAware, InitializingBean {
+
+  private static final Logger log = LoggerFactory.getLogger(MasterConfig.class);
 
   private static final long serialVersionUID = -6963594195541525813L;
 
@@ -34,7 +42,7 @@ public class MasterConfig implements Serializable, EnvironmentAware {
   /** Master Server <code>port</code> Properties */
   private int port = 13111;
 
-  private String host = "127.0.0.1";
+  private String host;
 
   /** 分区 Zone */
   private String zone = "default";
@@ -57,5 +65,17 @@ public class MasterConfig implements Serializable, EnvironmentAware {
   @Override
   public String toString() {
     return "MasterConfig{" + "port=" + port + ", host='" + host + '\'' + '}';
+  }
+
+  @Override
+  public void afterPropertiesSet() throws Exception {
+    if (StringUtils.isBlank(this.host)) {
+      this.host = LOCAL_IP;
+      if (StringUtils.isBlank(this.host)) {
+        this.host = environment.getProperty("server.address");
+      }
+
+      log.info("master node ip :{}", this.host);
+    }
   }
 }

@@ -1,17 +1,19 @@
 package com.acmedcare.framework.newim.server.config;
 
-import static com.acmedcare.framework.newim.server.config.WssConstants.WSS_PORT_KEY;
-
 import com.acmedcare.framework.newim.protocol.request.ClusterRegisterBody.WssInstance;
 import com.google.common.collect.Lists;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+
+import java.util.List;
+
+import static com.acmedcare.framework.newim.server.config.WssConstants.WSS_PORT_KEY;
 
 /**
  * IM Server Config
@@ -24,7 +26,7 @@ import org.springframework.core.env.Environment;
 @Configuration
 @ConfigurationProperties(prefix = "im")
 @PropertySource(value = "classpath:im.properties")
-public class IMProperties implements EnvironmentAware {
+public class IMProperties implements EnvironmentAware, InitializingBean {
 
   /** IM Server Port, Default: 23111 */
   private int port = 23111;
@@ -84,5 +86,10 @@ public class IMProperties implements EnvironmentAware {
       instances.add(wssInstance);
     }
     return instances;
+  }
+
+  @Override
+  public void afterPropertiesSet() throws Exception {
+
   }
 }

@@ -2,9 +2,14 @@
 # Build with:
 # docker build -t remoting-server-wss .
 # Run with:
-# docker run -p 8849:8849 -d -v /tmp/logs:/opt/logs --name remoting-server-wss remoting-server-wss
-
-FROM openjdk:8-jre-alpine
+# docker run -p 43111:43111 -p 23111:23111 -p 33111:33111 -p 8888:8888 --net docker-br0 --ip 172.172.0.160 --add-host node1.mongodb.acmedcare.com:172.172.0.103 --add-host node2.mongodb.acmedcare.com:172.172.0.104 --add-host node3.mongodb.acmedcare.com:172.172.0.105 -d -v /tmp/logs/remoting-server-wss:/remoting-server-wss/logs --name remoting-server-wss docker.apiacmed.com/library/remoting-server-wss:2.2.3.BUILD-SNAPSHOT
+#
+#
+#
+# --env NEWIM_MASTER_ADDR=172.172.0.155:13111,172.172.0.156:13111
+#
+#
+FROM docker.apiacmed.com/env/openjdk-acmed:8-jre-alpine
 MAINTAINER Elve.Xu <iskp.me@gmail.com>
 
 ENV VERSION 2.2.3.BUILD-SNAPSHOT
