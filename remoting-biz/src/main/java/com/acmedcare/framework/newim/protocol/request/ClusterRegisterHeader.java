@@ -23,19 +23,25 @@ public class ClusterRegisterHeader implements CommandCustomHeader {
   @CFNotNull private String clusterServerType = NodeType.DEFAULT.name(); // default type -> cluster
   @CFNotNull private String clusterReplicaAddress; // 节点replica-> host:port
   @CFNotNull private boolean hasWssEndpoints = false;
+  private String zone = "default";
 
   public InstanceType decodeInstanceType() {
     return InstanceType.valueOf(this.clusterServerType);
   }
 
   public InstanceNode defaultInstance() {
-    return InstanceNode.builder().host(clusterServerHost).instanceType(decodeInstanceType()).build();
+    return InstanceNode.builder()
+        .host(clusterServerHost)
+        .instanceType(decodeInstanceType())
+        .zone("default")
+        .build();
   }
 
   public InstanceNode defaultReplica() {
     return InstanceNode.builder()
         .host(clusterReplicaAddress)
         .nodeType(NodeType.DEFAULT_REPLICA)
+        .zone("default")
         .build();
   }
 

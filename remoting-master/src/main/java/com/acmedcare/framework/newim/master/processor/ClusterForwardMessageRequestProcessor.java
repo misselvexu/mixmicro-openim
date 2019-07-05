@@ -1,8 +1,5 @@
 package com.acmedcare.framework.newim.master.processor;
 
-import static com.acmedcare.framework.newim.MasterLogger.masterClusterAcceptorLog;
-import static com.acmedcare.framework.newim.master.core.MasterSession.MasterClusterSession.decodeInstanceNode;
-
 import com.acmedcare.framework.kits.Assert;
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
@@ -18,6 +15,9 @@ import com.acmedcare.tiffany.framework.remoting.netty.NettyRequestProcessor;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
+
+import static com.acmedcare.framework.newim.MasterLogger.masterClusterAcceptorLog;
+import static com.acmedcare.framework.newim.master.core.MasterSession.MasterClusterSession.decodeInstanceNode;
 
 /**
  * Cluster Forward Message Request Processor
@@ -99,6 +99,9 @@ public class ClusterForwardMessageRequestProcessor implements NettyRequestProces
           masterClusterAcceptorLog.info(
               "接受服务器转发请求:{},{}", instanceNode.getHost(), mqMessage.toString());
           masterClusterSession.distributeMessage(attribute, mqMessage, instanceNode.getHost());
+          break;
+        default:
+          masterClusterAcceptorLog.info("无效的消息类型:{}", header.decodeType());
           break;
       }
 

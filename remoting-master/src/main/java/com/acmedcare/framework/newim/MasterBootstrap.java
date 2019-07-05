@@ -13,7 +13,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  * @version ${project.version} - 05/11/2018.
  */
 @SpringBootApplication
-@EnableSnowflake(workerId = "${snowflake.workId:1}")
+@EnableSnowflake(workerId = "${snowflake.work-id:1}")
 public class MasterBootstrap {
 
   /** Spring Context Instance of {@link org.springframework.context.ApplicationContext} */
@@ -28,6 +28,7 @@ public class MasterBootstrap {
     context =
         new SpringApplicationBuilder()
             .sources(MasterBootstrap.class)
+            .properties("--spring.profiles.active=default")
             .web(WebApplicationType.SERVLET)
             .run(args);
   }

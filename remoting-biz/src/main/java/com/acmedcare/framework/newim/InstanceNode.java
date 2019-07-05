@@ -1,11 +1,12 @@
 package com.acmedcare.framework.newim;
 
-import java.io.Serializable;
-import java.util.Objects;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Node
@@ -26,8 +27,11 @@ public class InstanceNode implements Serializable {
 
   private InstanceType instanceType;
 
+  private String zone;
+
   @Builder
-  public InstanceNode(String host, NodeType nodeType, String name, InstanceType instanceType) {
+  public InstanceNode(
+      String host, NodeType nodeType, String name, InstanceType instanceType, String zone) {
     this.host = host;
     this.nodeType = nodeType;
     this.name = name;
@@ -37,6 +41,9 @@ public class InstanceNode implements Serializable {
     }
     if (instanceType == null) {
       this.instanceType = InstanceType.DEFAULT;
+    }
+    if (this.zone == null) {
+      this.zone = "default";
     }
   }
 

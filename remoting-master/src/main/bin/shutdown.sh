@@ -17,7 +17,7 @@ export BASE_DIR=`cd $(dirname $0)/..; pwd`
 
 pid=`ps ax | grep -i ${BASE_DIR} |grep java | grep -v grep | awk '{print $1}'`
 if [ -z "$pid" ] ; then
-        echo "No gatewayServer running."
+        echo "No server running."
         exit -1;
 fi
 

@@ -32,7 +32,6 @@
         <dependency>
             <groupId>com.acmedcare.framework.kits</groupId>
             <artifactId>emoji-convert-kit</artifactId>
-            <version>Antarctica.RC1</version>
         </dependency>
 
         <dependency>

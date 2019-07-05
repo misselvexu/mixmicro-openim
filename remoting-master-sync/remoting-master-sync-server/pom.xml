@@ -49,7 +49,6 @@
         <dependency>
             <groupId>com.acmedcare.framework.kits</groupId>
             <artifactId>event-kit</artifactId>
-            <version>Antarctica.RC1</version>
         </dependency>
 
         <dependency>
@@ -60,7 +59,6 @@
         <dependency>
             <groupId>com.acmedcare.framework.kits</groupId>
             <artifactId>executor-kit</artifactId>
-            <version>Antarctica.RC2</version>
         </dependency>
 
         <dependency>
@@ -77,4 +75,16 @@
             <optional>true</optional>
         </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.acmedcare.microservices.im</groupId>
+                <artifactId>remoting-master-sync</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>

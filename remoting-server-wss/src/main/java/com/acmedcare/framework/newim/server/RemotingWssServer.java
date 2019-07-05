@@ -35,7 +35,7 @@ public class RemotingWssServer {
         new SpringApplicationBuilder()
             .sources(RemotingWssServer.class)
             .web(WebApplicationType.SERVLET)
-            .run(args); //
+            .run(args);
 
     startLog.info("[WSS] startup NewIM Server");
     NewIMServerBootstrap bootstrap = context.getBean(NewIMServerBootstrap.class);

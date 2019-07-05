@@ -92,12 +92,11 @@
         <dependency>
             <groupId>com.acmedcare.framework.kits</groupId>
             <artifactId>common-kits</artifactId>
-            <version>Antarctica.RC2</version>
         </dependency>
 
         <dependency>
-            <artifactId>spring-boot-starter-cors</artifactId>
             <groupId>com.acmedcare.framework</groupId>
+            <artifactId>spring-boot-starter-cors</artifactId>
             <version>2.1.0-RC1</version>
         </dependency>
 
@@ -133,60 +132,19 @@
             <artifactId>remoting-api</artifactId>
         </dependency>
 
-        <!--
-        <dependency>
-            <groupId>com.acmedcare.framework</groupId>
-            <artifactId>spring-boot-starter-atomix-replica</artifactId>
-            <version>2.1.0-RC1</version>
-        </dependency>
-        -->
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>normal</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-        </profile>
-
-        <profile>
-            <id>cloud</id>
-            <dependencyManagement>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.springframework.cloud</groupId>
-                        <artifactId>spring-cloud-dependencies</artifactId>
-                        <version>Greenwich.M3</version>
-                        <type>pom</type>
-                        <scope>import</scope>
-                    </dependency>
-                </dependencies>
-            </dependencyManagement>
-
-            <dependencies>
-                <dependency>
-                    <groupId>org.springframework.cloud</groupId>
-                    <artifactId>spring-cloud-starter</artifactId>
-                </dependency>
-
-                <dependency>
-                    <groupId>org.springframework.cloud</groupId>
-                    <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-                </dependency>
-
-                <dependency>
-                    <groupId>org.springframework.cloud</groupId>
-                    <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
-                </dependency>
-
-                <dependency>
-                    <groupId>org.springframework.cloud</groupId>
-                    <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>remoting-storage</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <extensions>
@@ -209,7 +167,7 @@
                 <artifactId>docker-maven-plugin</artifactId>
                 <version>0.4.13</version>
                 <configuration>
-                    <imageName>${project.artifactId}</imageName>
+                    <imageName>docker.apiacmed.com/library/${project.artifactId}:${project.version}</imageName>
                     <dockerDirectory>src/main/docker</dockerDirectory>
                     <resources>
                         <resource>

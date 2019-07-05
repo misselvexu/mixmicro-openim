@@ -104,13 +104,11 @@
         <dependency>
             <groupId>com.acmedcare.framework.kits</groupId>
             <artifactId>common-kits</artifactId>
-            <version>Antarctica.RC1</version>
         </dependency>
 
         <dependency>
             <groupId>com.acmedcare.framework.kits</groupId>
             <artifactId>executor-kit</artifactId>
-            <version>Antarctica.RC2</version>
         </dependency>
 
         <dependency>
@@ -148,6 +146,18 @@
 
     </dependencies>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>remoting-storage</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <build>
 
         <extensions>
@@ -170,7 +180,7 @@
                 <artifactId>docker-maven-plugin</artifactId>
                 <version>0.4.13</version>
                 <configuration>
-                    <imageName>${project.artifactId}</imageName>
+                    <imageName>docker.apiacmed.com/library/${project.artifactId}:${project.version}</imageName>
                     <dockerDirectory>src/main/docker</dockerDirectory>
                     <resources>
                         <resource>
