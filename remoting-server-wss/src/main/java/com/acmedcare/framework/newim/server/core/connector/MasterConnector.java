@@ -279,7 +279,8 @@ public class MasterConnector {
   }
 
   private RemoteMasterConnectorInstance newMasterConnectorInstance(String nodeAddress) {
-    InstanceNode node = new InstanceNode(nodeAddress, NodeType.MASTER, null, InstanceType.MASTER);
+    InstanceNode node =
+        new InstanceNode(nodeAddress, NodeType.MASTER, null, InstanceType.MASTER, "default");
 
     RemoteMasterConnectorInstance instance = new RemoteMasterConnectorInstance(imProperties);
     instance.registerEventPostHolder(imSession.getAsyncEventBus());
@@ -288,7 +289,8 @@ public class MasterConnector {
             imProperties.getHost() + ":" + imProperties.getPort(),
             NodeType.DEFAULT,
             null,
-            InstanceType.DEFAULT);
+            InstanceType.DEFAULT,
+            "default");
     instance.setLocalNode(localNode);
     NettyClientConfig config = new NettyClientConfig();
     config.setEnableHeartbeat(false);

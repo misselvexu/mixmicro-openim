@@ -1,9 +1,12 @@
 package com.acmedcare.framework.newim.server.config;
 
+import com.acmedcare.framework.kits.StringUtils;
 import com.acmedcare.framework.newim.protocol.request.ClusterRegisterBody.WssInstance;
 import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.EnvironmentAware;
@@ -13,6 +16,7 @@ import org.springframework.core.env.Environment;
 
 import java.util.List;
 
+import static com.acmedcare.framework.newim.server.common.SystemKits.LOCAL_IP;
 import static com.acmedcare.framework.newim.server.config.WssConstants.WSS_PORT_KEY;
 
 /**
@@ -28,12 +32,17 @@ import static com.acmedcare.framework.newim.server.config.WssConstants.WSS_PORT_
 @PropertySource(value = "classpath:im.properties")
 public class IMProperties implements EnvironmentAware, InitializingBean {
 
+  private static final Logger log = LoggerFactory.getLogger(IMProperties.class);
+
+  private static final String ENV_HOST = "WSS_HOST";
+
   /** IM Server Port, Default: 23111 */
   private int port = 23111;
 
-  private String host = "127.0.0.1";
+  private String host;
 
   private int clusterPort = 33111;
+
   private long clusterHeartbeat;
 
   /** Master Server Nodes List */
@@ -90,6 +99,11 @@ public class IMProperties implements EnvironmentAware, InitializingBean {
 
   @Override
   public void afterPropertiesSet() throws Exception {
-
+    if (StringUtils.isBlank(this.host)) {
+      this.host = System.getenv(ENV_HOST);
+      if (StringUtils.isBlank(this.host)) {
+        this.host = environment.getProperty("server.address", LOCAL_IP);
+      }
+    }
   }
 }

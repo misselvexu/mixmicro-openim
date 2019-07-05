@@ -164,6 +164,7 @@ public class MasterSession {
                   .instanceType(instanceType)
                   .clusterReplicaAddress(clusterReplicaAddress)
                   .clusterClientChannel(channel)
+                  .zone(remoteNode.getZone())
                   .build());
 
       if (wssNodes != null && !wssNodes.isEmpty()) {
@@ -457,6 +458,6 @@ public class MasterSession {
 
     private String clusterReplicaAddress;
 
-    private String zone = "default";
+    @Builder.Default private String zone = "default";
   }
 }
