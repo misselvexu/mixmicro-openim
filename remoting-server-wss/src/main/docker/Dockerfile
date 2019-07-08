@@ -24,6 +24,19 @@ RUN echo "http://mirrors.aliyun.com/alpine/v3.6/main" > /etc/apk/repositories \
 
 ADD remoting-server-wss-${VERSION}.zip /remoting-server-wss/remoting-server-wss-${VERSION}.zip
 
+# add tls certs
+ADD certs/tls.properties /etc/tiffany.quantum/tls.properties
+
+ADD certs/demoCA/cacert.pem /acmedcare/applications/certs/demoCA/cacert.pem
+
+# add tls client cert
+ADD certs/client/client-key.pem /acmedcare/applications/certs/client/client-key.pem
+ADD certs/client/client-cert.pem /acmedcare/applications/certs/client/client-cert.pem
+
+# add tls server cert
+ADD certs/server/server-key.pem /acmedcare/applications/certs/server/server-key.pem
+ADD certs/server/server-cert.pem /acmedcare/applications/certs/server/server-cert.pem
+
 RUN unzip /remoting-server-wss/remoting-server-wss-${VERSION}.zip -d /remoting-server-wss \
     && rm -rf /remoting-server-wss/remoting-server-wss-${VERSION}.zip \
     && sed -i '$d' /remoting-server-wss/bin/startup.sh \

@@ -22,7 +22,21 @@ RUN echo "http://mirrors.aliyun.com/alpine/v3.6/main" > /etc/apk/repositories \
     && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
     && echo "Asia/Shanghai" > /etc/timezone
 
+# add runting package
 ADD remoting-master-${VERSION}.zip /remoting-master/remoting-master-${VERSION}.zip
+
+# add tls certs
+ADD certs/tls.properties /etc/tiffany.quantum/tls.properties
+
+ADD certs/demoCA/cacert.pem /acmedcare/applications/certs/demoCA/cacert.pem
+
+# add tls client cert
+ADD certs/client/client-key.pem /acmedcare/applications/certs/client/client-key.pem
+ADD certs/client/client-cert.pem /acmedcare/applications/certs/client/client-cert.pem
+
+# add tls server cert
+ADD certs/server/server-key.pem /acmedcare/applications/certs/server/server-key.pem
+ADD certs/server/server-cert.pem /acmedcare/applications/certs/server/server-cert.pem
 
 RUN unzip /remoting-master/remoting-master-${VERSION}.zip -d /remoting-master \
     && rm -rf /remoting-master/remoting-master-${VERSION}.zip \
