@@ -80,7 +80,7 @@ public class FirstDemoClient {
                   @Override
                   public List<RemotingAddress> remotingAddressList() {
                     return Lists.newArrayList(
-                        new RemotingAddress(false, "192.168.1.227", 13110, false));
+                        new RemotingAddress(false, "192.168.1.152", 13110, false));
                   }
                 })
             .build();
@@ -591,7 +591,7 @@ public class FirstDemoClient {
   private interface KnownParams {
 
     String accessToken =
-        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiIwOTMwYTQ0MTM5Mzc0MWRlOGNlZTBiMzUyNmNkNTVlYiIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NTY1Mjk4MjgzMzMsImV4cCI6MTU1NzE0NDM0ODMzMywiYXVkIjpudWxsfQ.DtgwqT4oLSbCUYfSQVUQim5CU7w-U1G079yq5N08magy1E-bxXNcZGAGn8PT0oGNvV5JItWccaMtps84VVeXLl93Rupdx-HLBvpJlRf28240-laBCCxQOQfm-1f86q4csIXLzsivKkk6LLKKnYyV9WN8IuHWQdkdFqR3uDIIuNqpUQ9J5OVikln05i1FRaqeprzwLV2UScZZv9cuS17T8tzmEeu5zexyiA2ZwVMnBrMd5fUgpKN8XDouec0Fk8pnnLl2Pvd8L060BAsxuCMBQjjP5piFigRcb5R7Hd0XNONTczk1b1Purm3CZs1KxGhmGPrt4z-GuVCjNJXJ3HeBPQ";
+        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiIyMGE5NzFiZjJlODE0Yzk3OWY5ODExODhjYmYxMTUzNyIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NjI1Njc1MDY4MDIsImV4cCI6MTU2MzE4MDM2Mjc0NCwiYXVkIjpudWxsfQ.frr1baXEhneTr-60NyISW3vMWsW3l0IPdrXEfBkm52aoME8GydvQGJ_UROnn5DkEmQSFhrGeAt9O-eG7_Fqy5XLffMhsoluMUhxNPReA8K8jk16A4RzgQUiIFN6p3ukGBbMFqyCBZU9c2rlGmIVYVmTiSshu21BdmFQ8vaQW1ZlwptWwx-WLDn7Lgx7dSXNbbX-CaaccD1Nrizt8IwI7hjnTneBE5hWz4-jGhtsRW2OfU0ZR4v483AqYe_mGeb3ltSPpwUHq7VvDXUlvD0g4Kjpp6lL5iYhEr0WDosFxpcXTIpmio_27OowGwQuB99DGujwMug6d0ouQtqxEyXd96A";
 
     String areaNo = "320500";
 

@@ -188,6 +188,11 @@
                             <directory>${project.build.directory}</directory>
                             <include>*.zip</include>
                         </resource>
+                        <resource>
+                            <targetPath>/certs</targetPath>
+                            <directory>${base.dir}/../remoting-certs</directory>
+                            <include>*/**</include>
+                        </resource>
                     </resources>
                 </configuration>
             </plugin>
