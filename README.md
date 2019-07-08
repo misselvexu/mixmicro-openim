@@ -104,6 +104,76 @@ Detail @See [MongoDB Development Doc](mongo-configs/README.md)
 The MySQL v1 component currently is only tested with MySQL 5.6-7. It is designed to be easy to understand, and get started with. For example, it deconstructs spans into columns, so you can perform ad-hoc queries using SQL. However, this component has known performance issues: queries will eventually take seconds to return if you put a lot of data into it.
 
 
+### Running in Docker
+
+- Pull `Master` & `Cluster` images
+
+```bash
+docker pull docker.apiacmed.com/library/remoting-master:2.2.3.BUILD-SNAPSHOT
+docker pull docker.apiacmed.com/library/remoting-server-wss:2.2.3.BUILD-SNAPSHOT
+
+```
+
+- Startup All
+
+> 注意: Master需要映射宿主机端口: 13111 & 13110 , Cluster需要映射到宿主机端口: 23111 & 8888
+
+> 192.168.1.151 
+
+```bash
+# 启动 Master 
+docker run -p 13111:13111 -p 13110:13110 \ 
+    --net docker-br0 --ip 172.172.1.155 \ 
+    --add-host node1.mongodb.acmedcare.com:172.172.0.103 \ 
+    --add-host node2.mongodb.acmedcare.com:172.172.0.104 \ 
+    --add-host node3.mongodb.acmedcare.com:172.172.0.105 \ 
+    -d -v /tmp/logs/remoting-master:/remoting-master/logs \ 
+    --name remoting-master docker.apiacmed.com/library/remoting-master:2.2.3.BUILD-SNAPSHOT
+
+# 启动 Cluster
+
+docker run -p 43111:43111 -p 23111:23111 -p 33111:33111 -p 8888:8888 \ 
+    --net docker-br0 --ip 172.172.1.160 \ 
+    --env WSS_HOST=192.168.1.151 \ 
+    --env NEWIM_MASTER_ADDR=172.172.0.155:13111,172.172.1.155:13111 \ 
+    --env WSS_PORT=8888 \ 
+    --add-host gateway.acmedcare.com:172.172.1.108 \ 
+    --add-host node1.mongodb.acmedcare.com:172.172.0.103 \ 
+    --add-host node2.mongodb.acmedcare.com:172.172.0.104 \
+    --add-host node3.mongodb.acmedcare.com:172.172.0.105 \ 
+    -d -v /tmp/logs/remoting-server-wss:/remoting-server-wss/logs \ 
+    --name remoting-server-wss docker.apiacmed.com/library/remoting-server-wss:2.2.3.BUILD-SNAPSHOT
+```
+
+> 192.168.1.152
+
+```bash
+# 启动Master
+docker run -p 13111:13111 -p 13110:13110 \ 
+    --net docker-br0 --ip 172.172.0.155 \ 
+    --add-host node1.mongodb.acmedcare.com:172.172.0.103 \ 
+    --add-host node2.mongodb.acmedcare.com:172.172.0.104 \ 
+    --add-host node3.mongodb.acmedcare.com:172.172.0.105 \ 
+    -d -v /tmp/logs/remoting-master:/remoting-master/logs \ 
+    --name remoting-master docker.apiacmed.com/library/remoting-master:2.2.3.BUILD-SNAPSHOT
+
+# 启动 Cluster
+
+docker run -p 43111:43111 -p 23111:23111 -p 33111:33111 -p 8888:8888 \ 
+    --net docker-br0 --ip 172.172.0.160 \ 
+    --env WSS_HOST=192.168.1.151 \ 
+    --env NEWIM_MASTER_ADDR=172.172.0.155:13111,172.172.1.155:13111 \ 
+    --env WSS_PORT=8888 \ 
+    --add-host gateway.acmedcare.com:172.172.1.108 \ 
+    --add-host node1.mongodb.acmedcare.com:172.172.0.103 \ 
+    --add-host node2.mongodb.acmedcare.com:172.172.0.104 \
+    --add-host node3.mongodb.acmedcare.com:172.172.0.105 \ 
+    -d -v /tmp/logs/remoting-server-wss:/remoting-server-wss/logs \ 
+    --name remoting-server-wss docker.apiacmed.com/library/remoting-server-wss:2.2.3.BUILD-SNAPSHOT
+
+```
+
+
 ### Running the server from source
 
 - Building
