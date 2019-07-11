@@ -118,7 +118,7 @@ public class MasterSession {
             if (remoteClusterClientInstance.getInstanceType().equals(instanceType)
                 // add zone flag
                 && zone.equalsIgnoreCase(remoteClusterClientInstance.getZone())) {
-              result.add(s);
+              result.add(remoteClusterClientInstance.getExportAddress());
             }
           });
 
@@ -151,6 +151,7 @@ public class MasterSession {
     public void registerClusterInstance(
         InstanceNode remoteNode,
         String clusterAddress,
+        String exportAddress,
         String clusterReplicaAddress,
         List<WssInstance> wssNodes,
         Channel channel) {
@@ -162,6 +163,7 @@ public class MasterSession {
               clusterAddress,
               RemoteClusterClientInstance.builder()
                   .instanceType(instanceType)
+                  .exportAddress(exportAddress)
                   .clusterReplicaAddress(clusterReplicaAddress)
                   .clusterClientChannel(channel)
                   .zone(remoteNode.getZone())
@@ -457,6 +459,8 @@ public class MasterSession {
     private Channel clusterClientChannel;
 
     private String clusterReplicaAddress;
+
+    private String exportAddress;
 
     @Builder.Default private String zone = "default";
   }

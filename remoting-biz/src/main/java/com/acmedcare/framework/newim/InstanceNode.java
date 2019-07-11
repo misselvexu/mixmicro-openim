@@ -22,6 +22,7 @@ public class InstanceNode implements Serializable {
   private static final long serialVersionUID = -4560765383064351784L;
   private String name;
   private String host;
+  private String exportHost;
   /** @deprecated use {@link InstanceType} instead of */
   private NodeType nodeType;
 

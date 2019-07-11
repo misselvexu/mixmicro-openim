@@ -230,5 +230,12 @@ public final class Command {
      * </pre>
      */
     public static final int SERVER_PUSH_FOCUS_LOGOUT = 0x41002;
+
+    /**
+     * 客户端收到消息反馈Ack
+     *
+     * @since 2.2.3
+     */
+    public static final int CLIENT_RECEIVED_MESSAGE_ACK = 0x41003;
   }
 }

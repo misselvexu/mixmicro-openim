@@ -1,11 +1,5 @@
 package com.acmedcare.framework.newim.master.core;
 
-import static com.acmedcare.framework.newim.MasterLogger.masterClusterAcceptorLog;
-import static com.acmedcare.framework.newim.MasterLogger.startLog;
-import static com.acmedcare.framework.newim.master.core.MasterSession.MasterClusterSession.CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY;
-import static com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand.CLUSTER_FORWARD_MESSAGES;
-import static com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand.CLUSTER_PULL_REPLICAS;
-
 import com.acmedcare.framework.kits.Assert;
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
@@ -28,6 +22,8 @@ import com.alibaba.fastjson.TypeReference;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.DefaultThreadFactory;
+import lombok.Getter;
+
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -35,7 +31,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
-import lombok.Getter;
+
+import static com.acmedcare.framework.newim.MasterLogger.masterClusterAcceptorLog;
+import static com.acmedcare.framework.newim.MasterLogger.startLog;
+import static com.acmedcare.framework.newim.master.core.MasterSession.MasterClusterSession.CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY;
+import static com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand.CLUSTER_FORWARD_MESSAGES;
+import static com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand.CLUSTER_PULL_REPLICAS;
 
 /**
  * Server Acceptor
@@ -150,6 +151,8 @@ public class MasterClusterAcceptorServer {
 
             InstanceNode replica = header.defaultReplica();
 
+            String exportAddress = header.getClusterServerExportHost();
+
             if (header.isHasWssEndpoints()) {
               String bodyContent = new String(remotingCommand.getBody(), "UTF-8");
               // wss instance body
@@ -157,11 +160,21 @@ public class MasterClusterAcceptorServer {
                   JSON.parseObject(bodyContent, new TypeReference<List<WssInstance>>() {});
 
               // register new remote client
-              masterClusterSession.registerClusterInstance(node,
-                  node.getHost(), replica.getHost(), instances, channelHandlerContext.channel());
+              masterClusterSession.registerClusterInstance(
+                  node,
+                  node.getHost(),
+                  exportAddress,
+                  replica.getHost(),
+                  instances,
+                  channelHandlerContext.channel());
             } else {
-              masterClusterSession.registerClusterInstance(node,
-                  node.getHost(), replica.getHost(), null, channelHandlerContext.channel());
+              masterClusterSession.registerClusterInstance(
+                  node,
+                  node.getHost(),
+                  exportAddress,
+                  replica.getHost(),
+                  null,
+                  channelHandlerContext.channel());
             }
 
             channelHandlerContext.channel().attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).set(node);
@@ -246,7 +259,8 @@ public class MasterClusterAcceptorServer {
                       .bytes());
               return response;
             }
-            Set<String> servers = masterClusterSession.clusterReplicaList(instanceNode.getInstanceType());
+            Set<String> servers =
+                masterClusterSession.clusterReplicaList(instanceNode.getInstanceType());
             response.setBody(BizResult.builder().code(0).data(servers).build().bytes());
 
             return response;

@@ -34,12 +34,17 @@ public class IMProperties implements EnvironmentAware, InitializingBean {
 
   private static final Logger log = LoggerFactory.getLogger(IMProperties.class);
 
+  private static final String ENV_EXPORT_PORT = "EXPORT_HOST";
   private static final String ENV_HOST = "WSS_HOST";
+  private static final String ENV_PORT = "IM_PORT";
+  private static final int DEFAULT_IM_PORT = 23111;
 
   /** IM Server Port, Default: 23111 */
-  private int port = 23111;
+  private int port = -1;
 
   private String host;
+
+  private String exportHost;
 
   private int clusterPort = 33111;
 
@@ -103,6 +108,20 @@ public class IMProperties implements EnvironmentAware, InitializingBean {
       this.host = System.getenv(ENV_HOST);
       if (StringUtils.isBlank(this.host)) {
         this.host = environment.getProperty("server.address", LOCAL_IP);
+      }
+    }
+
+    if (StringUtils.isBlank(this.exportHost)) {
+      this.exportHost = System.getenv(ENV_EXPORT_PORT);
+      if (StringUtils.isBlank(this.exportHost)) {
+        this.exportHost = this.host;
+      }
+    }
+
+    if (this.port <= 0) {
+      this.port = Integer.valueOf(System.getenv(ENV_PORT));
+      if (this.port <= 0) {
+        this.port = DEFAULT_IM_PORT;
       }
     }
   }

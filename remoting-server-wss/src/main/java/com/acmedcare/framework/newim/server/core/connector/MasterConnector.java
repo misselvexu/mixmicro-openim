@@ -466,6 +466,8 @@ public class MasterConnector {
       header.setClusterServerHost(localNode.getHost());
       header.setHasWssEndpoints(true);
       header.setClusterReplicaAddress(imProperties.getHost() + ":" + imProperties.getClusterPort());
+      header.setClusterServerExportHost(
+          imProperties.getExportHost() + ":" + imProperties.getPort());
 
       // send register command
       masterClusterLog.info("send register request to server :{} ", masterNode.getHost());

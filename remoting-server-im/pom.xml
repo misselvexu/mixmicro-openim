@@ -97,7 +97,6 @@
         <dependency>
             <groupId>com.acmedcare.framework</groupId>
             <artifactId>spring-boot-starter-aorp</artifactId>
-            <version>2.1.0-RC1</version>
         </dependency>
 
         <!-- Spring boot-->

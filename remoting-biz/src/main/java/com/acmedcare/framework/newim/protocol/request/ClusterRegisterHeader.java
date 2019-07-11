@@ -20,6 +20,7 @@ import lombok.Setter;
 public class ClusterRegisterHeader implements CommandCustomHeader {
 
   @CFNotNull private String clusterServerHost; //
+  @CFNotNull private String clusterServerExportHost;
   @CFNotNull private String clusterServerType = NodeType.DEFAULT.name(); // default type -> cluster
   @CFNotNull private String clusterReplicaAddress; // 节点replica-> host:port
   @CFNotNull private boolean hasWssEndpoints = false;

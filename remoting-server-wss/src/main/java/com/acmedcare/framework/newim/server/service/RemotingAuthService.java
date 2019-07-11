@@ -30,7 +30,7 @@ public class RemotingAuthService {
    * @return true/false
    */
   public boolean auth(String token) {
-    return aorpClient.validateToken(token);
+    return aorpClient.validateVaguely(token);
   }
 
   /**

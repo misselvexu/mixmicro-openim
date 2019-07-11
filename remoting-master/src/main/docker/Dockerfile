@@ -9,6 +9,15 @@
 # 152:
 #   docker run -p 13111:13111 -p 13110:13110 --net docker-br0 --ip 172.172.0.155 --add-host node1.mongodb.acmedcare.com:172.172.0.103 --add-host node2.mongodb.acmedcare.com:172.172.0.104 --add-host node3.mongodb.acmedcare.com:172.172.0.105 -d -v /tmp/logs/remoting-master:/remoting-master/logs --name remoting-master docker.apiacmed.com/library/remoting-master:2.2.3.BUILD-SNAPSHOT
 #
+#
+#=========================
+#
+# 151:
+#   docker run -p 13111:13111 -p 13110:13110 --net docker-br0 --ip 172.172.1.155 --add-host node1.mongodb.acmedcare.com:172.172.0.103 --add-host node2.mongodb.acmedcare.com:172.172.0.104 --add-host node3.mongodb.acmedcare.com:172.172.0.105 -d -v /tmp/logs/remoting-master:/remoting-master/logs --name remoting-master docker.apiacmed.com/library/remoting-master:2.2.3.BUILD-SNAPSHOT
+#
+# 152:
+#   docker run -p 13111:13111 -p 13120:13110 --net docker-br0 --ip 172.172.0.155 --add-host node1.mongodb.acmedcare.com:172.172.0.103 --add-host node2.mongodb.acmedcare.com:172.172.0.104 --add-host node3.mongodb.acmedcare.com:172.172.0.105 -d -v /tmp/logs/remoting-master:/remoting-master/logs --name remoting-master docker.apiacmed.com/library/remoting-master:2.2.3.BUILD-SNAPSHOT
+#
 
 FROM docker.apiacmed.com/env/openjdk-acmed:8-jre-alpine
 MAINTAINER Elve.Xu <iskp.me@gmail.com>

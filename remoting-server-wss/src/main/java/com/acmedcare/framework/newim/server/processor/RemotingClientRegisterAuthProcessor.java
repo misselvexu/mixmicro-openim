@@ -51,10 +51,10 @@ public class RemotingClientRegisterAuthProcessor extends AbstractNormalRequestPr
       Assert.notNull(authHeader, "登录授权请求参数异常");
 
       // check accessToken
-//      boolean result = this.remotingAuthService.auth(authHeader.getAccessToken());
-//      if (!result) {
-//        throw new InvalidTokenException("登录票据授权校验失败,无效Token");
-//      }
+      boolean result = this.remotingAuthService.auth(authHeader.getAccessToken());
+      if (!result) {
+        throw new InvalidTokenException("登录票据授权校验失败,无效Token");
+      }
 
       Principal principal = this.remotingAuthService.principal(authHeader.getAccessToken());
       if (!StringUtils.equals(authHeader.getPassportId(), principal.getPassportUid().toString())

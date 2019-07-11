@@ -70,7 +70,7 @@ public class SecondDemoClient {
                   @Override
                   public List<RemotingAddress> remotingAddressList() {
                     return Lists.newArrayList(
-                        new RemotingAddress(false, "192.168.1.151", 13110, false));
+                        new RemotingAddress(false, "192.168.1.166", 13110, false));
                   }
                 })
             .build();
@@ -270,7 +270,7 @@ public class SecondDemoClient {
   private interface KnownParams {
 
     String accessToken =
-        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiIzMjc1YzgxOGNkZTg0MTkyYmJmZWUwZGFmZmNjNzdmYSIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlIcXc5TDdUU0gwVmlLTWNXNUp3RVd0ZXc5Rk12SVFZcGZDMG5CUUhOamVucmMyYndheHNwMk93NXVkSGM1ZllTcGd0a2FxRkV6U29Uck41S0kyaHZKRW52L1RHV0hLeDdFdTJRNEs1V3JrZTZTMjNIaUdhWXdvQ29ua3ZuSlVjWGQxNzNwV3pFbmF0bz0iLCJpYXQiOjE1NjI2NzM5MDkxMDMsImV4cCI6MTU2MzI4NzM4NzEwMywiYXVkIjpudWxsfQ.SAIB01WWRxHtoyLUCbSOhre6jTLJRdv_NVbsBbP_7h9RZI0N1z6UGDklBplll5iNIiwh1yaH33a19Qnhd2gZE2k_oxhKJaS790n2vGcGoJMOmdCgrXSljMzDmL6sJJoj-2dM4yz_Iog1A-4vzSf_4-EqtWiK5HJbwdQ7t6sHY7vwVFiP0_CoMQ5eL19Da7vuraQ4R5qHcopiUAvAYJfEyUxkkpdTzjrhF5F16bETBYZjqMwk5_kmyJXHM9Vfl2vFlVpzaP_vgogXqFQXi5ibaMIDAaT-Wz72bVrgzbkml-Z_k4UECnrE0Rv1qcEhI4zxVS2zBY1yCk1xfU5AX1nmjA";
+        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiI1NDAzNzgzZGZhMjU0OGIzYTA5Mjg2MjE5NGEzNzU1YyIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlIcXc5TDdUU0gwVmlLTWNXNUp3RVd0ZXc5Rk12SVFZcGZDMG5CUUhOamVucmMyYndheHNwMk93NXVkSGM1ZllTcGd0a2FxRkV6U29Uck41S0kyaHZKRW52L1RHV0hLeDdFdTJRNEs1V3JrZTZTMjNIaUdhWXdvQ29ua3ZuSlVjWGQxNzNwV3pFbmF0bz0iLCJpYXQiOjE1NjI4NDczODA2NDIsImV4cCI6MTU2MzQ1NzQ2ODY0MiwiYXVkIjpudWxsfQ.YTkTyC60omvcGFRI_5Nz-my62Hionrsw2b6lzk5rpEJYB3dMFd8JiPYuwPs53r5zgxmmskr-Awu3IOUa50X4XY9kZDMXV_u0tW8IIcIBeQTsx2slDPM4-JsNaZI5kP_nxGIohCjMvTgs5elGrTdiAYZOzzh6LqjxZIvVTftcOWBZA9ZCUgCZgHaTAUm5K83O0oPxD3X9t0XYy2yPYfZORxlj5TY0gBME-f_E0-Vzi8w-T2yPznor1_0-2vgZMSaUwxUFpAg-xxLFowwvccaDy6Auj3wOB_YmOsCzZHd0BkD1i61EKcQgJ39MYXawtTwWpUX-YG1c0VoZf6eXZ92dCA";
 
     String areaNo = "320500";
 
