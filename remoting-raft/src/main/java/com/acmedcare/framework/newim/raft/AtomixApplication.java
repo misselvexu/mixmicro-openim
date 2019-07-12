@@ -105,7 +105,7 @@ public class AtomixApplication {
 
                       System.out.println("当前可用节点: " + members);
 
-                    } catch (Exception e) {
+                    } catch (Exception ignored) {
 
                     }
                   }

@@ -59,6 +59,9 @@ public class IMProperties implements EnvironmentAware, InitializingBean {
   /** 空闲时间(s) */
   private long masterClientIdleTime = 60;
 
+  /** 是否开启剔除客户端下线 */
+  private boolean enableKickOff = false;
+
   private Environment environment;
 
   /**

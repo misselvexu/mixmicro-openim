@@ -179,7 +179,6 @@ public class IMSession implements InitializingBean, DisposableBean {
             " == 通行证异地登录 {},剔除下线:{} ",
             passportId,
             RemotingHelper.parseChannelRemoteAddr(originChannel));
-
         pushOfflineMessage(originChannel);
       }
     } else {
@@ -252,15 +251,17 @@ public class IMSession implements InitializingBean, DisposableBean {
       ServerPushMessageHeader serverPushMessageHeader = new ServerPushMessageHeader();
       serverPushMessageHeader.setMessageType(messageType.name());
       if (channels.size() > 0) {
-        RemotingCommand command =
-            RemotingCommand.createRequestCommand(
-                ClusterClientCommand.SERVER_PUSH_MESSAGE, serverPushMessageHeader);
-        command.setBody(message);
-
         // foreach send
         for (Channel channel : channels) {
           try {
             if (channel != null && channel.isWritable()) {
+
+              // build new request command
+              RemotingCommand command =
+                  RemotingCommand.createRequestCommand(
+                      ClusterClientCommand.SERVER_PUSH_MESSAGE, serverPushMessageHeader);
+              command.setBody(message);
+
               // send
               channel
                   .writeAndFlush(command)
@@ -268,12 +269,15 @@ public class IMSession implements InitializingBean, DisposableBean {
                       (ChannelFutureListener)
                           future -> {
                             if (future.isSuccess()) {
-                              // TODO 根据客户端的消息类型进行结果回执
+                              // 成功输出到网络缓冲区，客户端是否成功接收到消息，需要等待客户端的Ack
                               if (imServerLog.isDebugEnabled()) {
                                 imServerLog.debug(
                                     "[IM-SESSION-SEND] 消息请求发送成功; Channel:{}",
                                     RemotingHelper.parseChannelRemoteAddr(channel));
                               }
+                            } else {
+                              // TODO 请求发出失败，转Qos重试服务器
+
                             }
                           });
             } else {
@@ -283,6 +287,10 @@ public class IMSession implements InitializingBean, DisposableBean {
             imServerLog.warn("[IM-SESSION-SEND] 发送消息给客户端:" + channel + "失败", e);
           }
         }
+      } else {
+        // TODO 转Offline服务器
+
+
       }
     }
   }
@@ -329,6 +337,7 @@ public class IMSession implements InitializingBean, DisposableBean {
    */
   public void sendMessageToDevice(String deviceId, MessageType messageType, byte[] message) {
     // TODO 针对设备进行推送消息
+
   }
 
   public void registerClusterReplicasConnector(ClusterReplicaConnector clusterReplicaConnector) {
