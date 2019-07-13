@@ -25,6 +25,7 @@
         <module>remoting-server-wss</module>
         <module>remoting-clients</module>
         <module>remoting-test</module>
+        <module>remoting-console</module>
     </modules>
 
     <packaging>pom</packaging>
@@ -168,6 +169,13 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>remoting-proxy</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>remoting-console</artifactId>
                 <version>${project.version}</version>
                 <type>pom</type>
             </dependency>
