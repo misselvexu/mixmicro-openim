@@ -10,17 +10,17 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 
 /**
- * {@link DelivererBootStrap}
+ * {@link DelivererBootstrap}
  *
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version ${project.version} - 2019-07-13.
  */
 @SpringBootApplication
-public class DelivererBootStrap {
+public class DelivererBootstrap {
 
   public static void main(String[] args) {
     new SpringApplicationBuilder()
-        .sources(DelivererBootStrap.class)
+        .sources(DelivererBootstrap.class)
         .properties("--spring.profiles.active=production")
         .web(WebApplicationType.NONE)
         .run(args);
