@@ -25,6 +25,8 @@
         <module>remoting-server-wss</module>
         <module>remoting-clients</module>
         <module>remoting-test</module>
+
+        <module>remoting-deliverer</module>
     </modules>
 
     <packaging>pom</packaging>
@@ -168,6 +170,12 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>remoting-master</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>remoting-deliverer</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
