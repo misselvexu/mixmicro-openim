@@ -6,7 +6,7 @@
 
     <groupId>com.acmedcare.microservices.im</groupId>
     <artifactId>spring-boot-starter-remoting-client</artifactId>
-    <version>2.2.3.BUILD-SNAPSHOT</version>
+    <version>2.3.0.BUILD-SNAPSHOT</version>
 
     <name>Acmedcare+ Remoting NewIM Client Http Endpoint Spring boot Starter :: ${project.version}</name>
 
@@ -93,7 +93,7 @@
         <dependency>
             <groupId>com.acmedcare.microservices.im</groupId>
             <artifactId>remoting-endpoint-client</artifactId>
-            <version>2.2.3.BUILD-SNAPSHOT</version>
+            <version>2.3.0.BUILD-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 1999-2018 Acmedcare+ Holding Ltd.
+  ~ Copyright 2014-2019 Acmedcare+ Holding Ltd.
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   -->
 
@@ -9,13 +9,13 @@
     <parent>
         <artifactId>remoting-master-sync</artifactId>
         <groupId>com.acmedcare.microservices.im</groupId>
-        <version>2.2.3.BUILD-SNAPSHOT</version>
+        <version>2.3.0.BUILD-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>remoting-master-sync-server</artifactId>
-    <version>2.2.3.BUILD-SNAPSHOT</version>
+    <version>2.3.0.BUILD-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Acmedcare+ Remoting NewIM Master Server Sync Common Module :: ${project.version}</name>

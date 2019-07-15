@@ -58,6 +58,7 @@ public class MasterNoticeClientChannelsRequestProcessor implements NettyRequestP
               .build()
               .bytes());
     }
+
     return response;
   }
 

@@ -47,10 +47,9 @@ import static com.acmedcare.framework.newim.protocol.Command.MasterClusterComman
 public class MasterClusterAcceptorServer {
 
   private final MasterConfig masterConfig;
-  private MasterSession masterSession = new MasterSession();
   @Getter private MasterClusterSession masterClusterSession = new MasterClusterSession();
   /** 集群MServer配置 */
-  private NettyServerConfig masterClusterConfig;
+  private final NettyServerConfig masterClusterConfig;
   /** 集群MServer 实例 */
   @Getter private NettyRemotingSocketServer masterClusterAcceptorServer;
 
@@ -68,8 +67,8 @@ public class MasterClusterAcceptorServer {
   public MasterClusterAcceptorServer(MasterConfig masterConfig) {
     this.masterConfig = masterConfig;
     this.masterClusterConfig = new NettyServerConfig();
-    this.masterClusterConfig.setListenPort(masterConfig.getPort());
-    this.masterClusterConfig.setServerChannelMaxIdleTimeSeconds(60); // idle
+    this.masterClusterConfig.setListenPort(this.masterConfig.getPort());
+    this.masterClusterConfig.setServerChannelMaxIdleTimeSeconds(60);
     masterClusterAcceptorServer =
         new NettyRemotingSocketServer(
             masterClusterConfig,

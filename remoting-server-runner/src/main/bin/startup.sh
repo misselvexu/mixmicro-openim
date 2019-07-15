@@ -1,7 +1,7 @@
 #!/bin/bash
 SERVICE_NAME=remoting-server-runner
-SERVICE_VERSION=2.2.3.BUILD-SNAPSHOT
-# Copyright 1999-2018 Acmedcare+ Group Holding Ltd.
+SERVICE_VERSION=2.3.0.BUILD-SNAPSHOT
+# Copyright 2014-2019 Acmedcare+ Group Holding Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at

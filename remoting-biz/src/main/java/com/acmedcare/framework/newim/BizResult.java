@@ -1,12 +1,13 @@
 package com.acmedcare.framework.newim;
 
 import com.alibaba.fastjson.JSON;
-import java.io.Serializable;
-import java.nio.charset.Charset;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.io.Serializable;
+import java.nio.charset.Charset;
 
 /**
  * Biz BizResult
@@ -30,7 +31,7 @@ public class BizResult<T> implements Serializable {
   /** InnerType */
   private Class<?> type;
   /** Response Code */
-  private int code = 0;
+  private int code = -1;
 
   @Builder
   public BizResult(ExceptionWrapper exception, T data, Class<?> type, int code) {

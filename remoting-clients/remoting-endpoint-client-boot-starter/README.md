@@ -27,7 +27,7 @@
 <dependency>
     <groupId>com.acmedcare.microservices.im</groupId>
     <artifactId>spring-boot-starter-remoting-client</artifactId>
-    <version>2.2.3.BUILD-SNAPSHOT</version>
+    <version>2.3.0.BUILD-SNAPSHOT</version>
 </dependency>
 
 ```

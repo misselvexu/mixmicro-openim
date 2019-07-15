@@ -66,6 +66,9 @@ public class MasterPushMessageRequestProcessor implements NettyRequestProcessor 
           MQMessage mqMessage = JSON.parseObject(message, MQMessage.class);
           this.context.onMasterMessage(header.getNamespace(), messageType, mqMessage);
           break;
+        default:
+          logger.warn("un-supported message type :" + messageType);
+          break;
       }
 
       response.setBody(BizResult.builder().code(0).build().bytes());

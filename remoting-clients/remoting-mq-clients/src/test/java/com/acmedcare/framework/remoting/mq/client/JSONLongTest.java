@@ -1,11 +1,9 @@
 /*
- * Copyright 1999-2018 Acmedcare+ Holding Ltd.
+ * Copyright 2014-2019 Acmedcare+ Holding Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  */
 
 package com.acmedcare.framework.remoting.mq.client;
-
-import com.alibaba.fastjson.JSON;
 
 /**
  * JSONLongTest
