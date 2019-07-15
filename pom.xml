@@ -176,6 +176,7 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>remoting-deliverer</artifactId>
+                <type>pom</type>
                 <version>${project.version}</version>
             </dependency>
 
