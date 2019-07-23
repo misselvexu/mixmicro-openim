@@ -80,7 +80,7 @@ public class FirstDemoClient {
                   @Override
                   public List<RemotingAddress> remotingAddressList() {
                     return Lists.newArrayList(
-                        new RemotingAddress(false, "47.105.204.233", 13110, false));
+                        new RemotingAddress(false, "192.168.1.159", 13110, false));
                   }
                 })
             .build();
@@ -168,7 +168,8 @@ public class FirstDemoClient {
         }
 
         // 发送消息
-        // 单聊消息: sendMessage SINGLE 3837142362366977 hi
+        // 单聊消息: sendMessage SINGLE 1354307746318592 hi
+        // 单聊消息: sendMessage SINGLE 1354307746318592 {"em_message_type":"em_zl_message","taskcode":"123"}
         // 群消息: sendMessage GROUP gid-20181122 {"em_message_type":"em_zl_message","taskcode":"123"}
         if (inputArgs[0].equals("sendMessage")) {
 
@@ -589,7 +590,7 @@ public class FirstDemoClient {
   private interface KnownParams {
 
     String accessToken =
-        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiJkZTBiZmYwMjk1M2Y0ZTE4OTljNTU2OWJjZWY1ZThjNSIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NjI5MTc1MTM4NTQsImV4cCI6MTU2MzUzMjA1NDc4MiwiYXVkIjpudWxsfQ.fDxKw9trbQrQ-yZO6q5fcfjTm--ORqSOVF0-3GY2NA5Xp2W1a5-IeGVzGqQ46ROnIwcMTcoB--6ggki3-8VMggi-x0qWkJVJwnfkv25F6B5jfb4PydlfL-foSncpyReVFQr9oGm0Heu1bzyCx6cYcdBzKTQAqlDs1RNUf6Kj5KxUd0qrDv1PoSym9PgxGolrkXBf_mPL5sEjNjPJOVJ61R2lVA2EkuUZrR14RfwfAnIAeAiJimVXxJ4pGBIZbqQTk_1upTes7Lx9glakkKVOdf13Nbxci18TS4ej_NsWXgZEc4fxhwLvnELuynGZmp75jfYMj7VhviJrOKMVkTrpZQ";
+        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiI1ZDc3ZWQyMjAxODg0ZmNmYjAxODU0MzhlOThjZTY1ZCIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NjM3ODYxNDg4MTUsImV4cCI6MTU2NDM5NDg2NTgxNSwiYXVkIjpudWxsfQ.feV80H5gjAn5TuK8_po1gljSWVLdwMqNzKeB3i7XhVaaJKc5FY3RLHosLC4S-iOr2Lqib41kOw2XjuK4IJHvfFvPrLLcVBFIuMuKd6-q18nv0UboFq8EjJffvFLXaKHiHOkl9ScOUwZNP8jzQhVgmuWDo5ZSD2Chg1pP7ahT6GbmvOc4UIyf-NWKkL3emXI3MKh6ikF5Avfu8cXX4CNwJ7wQlHes8N-8BvGnggl5aeiL2bJ1lyBlw3AYyAvnXkPXa1OEQn2aTz6yQZ5W7nt9fJoChv7e7p-ADWzuacE9oK11nxr2HLIk0oh7kGRaQ409jjL_i58PXwi46yNMfGwCHg";
 
     String areaNo = "320500";
 
