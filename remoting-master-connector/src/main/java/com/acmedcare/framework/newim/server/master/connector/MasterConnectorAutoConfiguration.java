@@ -13,17 +13,13 @@ import org.springframework.context.annotation.Primary;
  * @version ${project.version} - 2018-12-17.
  */
 @Configuration
+@ConditionalOnProperty(prefix = "remoting.server.master", value = "enabled", havingValue = "true")
+@EnableConfigurationProperties(MasterConnectorProperties.class)
 public class MasterConnectorAutoConfiguration {
 
-  @ConditionalOnProperty(prefix = "remoting.server.master", value = "enabled", havingValue = "true")
   @Bean(initMethod = "init", destroyMethod = "destroy")
   @Primary
   public MasterConnector masterConnector(MasterConnectorProperties properties) {
     return new MasterConnector(properties);
   }
-
-  @Configuration
-  @ConditionalOnProperty(prefix = "remoting.server.master", value = "enabled", havingValue = "true")
-  @EnableConfigurationProperties(MasterConnectorProperties.class)
-  public static class MasterPropertiesConfiguration {}
 }

@@ -27,4 +27,5 @@ public final class DelivererCommand {
 
   /** 获取客户端待投递消息 */
   public static final short FETCH_CLIENT_DELIVERER_MESSAGES_VALUE = 0x14;
+
 }
