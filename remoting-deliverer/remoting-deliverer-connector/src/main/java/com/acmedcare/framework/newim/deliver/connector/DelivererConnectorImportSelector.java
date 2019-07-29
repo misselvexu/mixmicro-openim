@@ -5,6 +5,7 @@
 
 package com.acmedcare.framework.newim.deliver.connector;
 
+import com.acmedcare.framework.newim.deliver.DefaultDelivererConfiguration;
 import com.acmedcare.framework.newim.deliver.connector.client.DelivererClientMarkerConfiguration;
 import com.acmedcare.framework.newim.deliver.connector.server.DelivererServerMarkerConfiguration;
 import com.acmedcare.framework.newim.spi.util.Assert;
@@ -65,26 +66,32 @@ public class DelivererConnectorImportSelector
 
     Assert.notNull(map, "Remoting Deliverer Annotation Properties Must Not Be NULL.");
 
-    List<String> imports = Lists.newArrayList();
+    List<String> imports = Lists.newArrayList(DefaultDelivererConfiguration.class.getName());
+
     Map<String, Object> objectMap = Maps.newHashMap();
     map.keySet()
         .parallelStream()
         .forEach(
             s -> {
-              boolean delivererClientEnabled =
-                  Boolean.parseBoolean(
-                      map.getOrDefault(DELIVERER_CLIENT_ENABLED_FIELD_NAME, "false").toString());
-              if (delivererClientEnabled) {
-                imports.add(DelivererClientMarkerConfiguration.class.getName());
+              if (s.equalsIgnoreCase(DELIVERER_CLIENT_ENABLED_FIELD_NAME)) {
+                boolean delivererClientEnabled =
+                    Boolean.parseBoolean(
+                        map.getOrDefault(DELIVERER_CLIENT_ENABLED_FIELD_NAME, "false").toString());
+                if (delivererClientEnabled) {
+                  imports.add(DelivererClientMarkerConfiguration.class.getName());
+                }
+                objectMap.put(DELIVERER_CLIENT_ENV_PROPERTIES_KEY, delivererClientEnabled);
               }
-              boolean delivererServerEnabled =
-                  Boolean.parseBoolean(
-                      map.getOrDefault(DELIVERER_SERVER_ENABLED_FIELD_NAME, "false").toString());
-              if (delivererServerEnabled) {
-                imports.add(DelivererServerMarkerConfiguration.class.getName());
+
+              if (s.equalsIgnoreCase(DELIVERER_SERVER_ENABLED_FIELD_NAME)) {
+                boolean delivererServerEnabled =
+                    Boolean.parseBoolean(
+                        map.getOrDefault(DELIVERER_SERVER_ENABLED_FIELD_NAME, "false").toString());
+                if (delivererServerEnabled) {
+                  imports.add(DelivererServerMarkerConfiguration.class.getName());
+                }
+                objectMap.put(DELIVERER_SERVER_ENV_PROPERTIES_KEY, delivererServerEnabled);
               }
-              objectMap.put(DELIVERER_CLIENT_ENV_PROPERTIES_KEY, delivererClientEnabled);
-              objectMap.put(DELIVERER_SERVER_ENV_PROPERTIES_KEY, delivererServerEnabled);
             });
 
     MapPropertySource source = new MapPropertySource(DELIVERER_PROPERTIES_ENV_NAME, objectMap);

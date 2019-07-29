@@ -5,6 +5,7 @@
 
 package com.acmedcare.framework.newim.deliver.connector.client;
 
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
 /**
@@ -13,11 +14,12 @@ import org.springframework.context.annotation.Bean;
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version ${project.version} - 2019-07-29.
  */
+@EnableConfigurationProperties(DelivererClientProperties.class)
 public class DelivererClientMarkerConfiguration {
 
   @Bean
-  DelivererClientInitializer clientInitializer() {
+  DelivererClientInitializer clientInitializer(DelivererClientProperties properties) {
     System.out.println("clientInitializer");
-    return new DelivererClientInitializer();
+    return new DelivererClientInitializer(properties);
   }
 }
