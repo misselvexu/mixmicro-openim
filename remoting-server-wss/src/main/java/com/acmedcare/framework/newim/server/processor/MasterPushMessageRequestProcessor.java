@@ -1,7 +1,5 @@
 package com.acmedcare.framework.newim.server.processor;
 
-import static com.acmedcare.framework.newim.server.ClusterLogger.masterClusterLog;
-
 import com.acmedcare.framework.kits.Assert;
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
@@ -16,7 +14,10 @@ import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import io.netty.channel.ChannelHandlerContext;
+
 import java.util.List;
+
+import static com.acmedcare.framework.newim.server.ClusterLogger.masterClusterLog;
 
 /**
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
@@ -64,6 +65,9 @@ public class MasterPushMessageRequestProcessor implements NettyRequestProcessor 
           imSession.sendMessageToPassport(
               header.getNamespace(), singleMessage.getReceiver(), messageType, message);
           break;
+        default:
+          masterClusterLog.warn("无效的消息类型,:{}", messageType);
+          break;
       }
 
       response.setBody(BizResult.builder().code(0).build().bytes());
@@ -73,11 +77,7 @@ public class MasterPushMessageRequestProcessor implements NettyRequestProcessor 
       response.setBody(
           BizResult.builder()
               .code(-1)
-              .exception(
-                  ExceptionWrapper.builder()
-                      .message(e.getMessage())
-
-                      .build())
+              .exception(ExceptionWrapper.builder().message(e.getMessage()).build())
               .build()
               .bytes());
     }

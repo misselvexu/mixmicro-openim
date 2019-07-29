@@ -26,8 +26,8 @@ public class ClusterServerAutoBootstrap {
 
   @Bean
   @Order(Ordered.HIGHEST_PRECEDENCE)
-  public IMSession imSession() {
-    return new IMSession();
+  public IMSession imSession(IMProperties imProperties) {
+    return new IMSession(imProperties);
   }
 
   @Bean

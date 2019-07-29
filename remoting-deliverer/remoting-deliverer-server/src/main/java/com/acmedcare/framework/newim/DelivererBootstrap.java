@@ -21,7 +21,7 @@ public class DelivererBootstrap {
   public static void main(String[] args) {
     new SpringApplicationBuilder()
         .sources(DelivererBootstrap.class)
-        .properties("--spring.profiles.active=production")
+        .properties("spring.profiles.active=production")
         .web(WebApplicationType.NONE)
         .run(args);
   }

@@ -32,6 +32,12 @@
             <artifactId>remoting-deliverer-api</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.acmedcare.tiffany.framework</groupId>
+            <artifactId>remoting-default-2x</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
 </project>

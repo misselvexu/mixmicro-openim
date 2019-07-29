@@ -80,7 +80,7 @@ public class FirstDemoClient {
                   @Override
                   public List<RemotingAddress> remotingAddressList() {
                     return Lists.newArrayList(
-                        new RemotingAddress(false, "192.168.1.159", 13110, false));
+                        new RemotingAddress(false, "39.100.67.34", 13110, false));
                   }
                 })
             .build();
@@ -590,7 +590,7 @@ public class FirstDemoClient {
   private interface KnownParams {
 
     String accessToken =
-        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiI1ZDc3ZWQyMjAxODg0ZmNmYjAxODU0MzhlOThjZTY1ZCIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NjM3ODYxNDg4MTUsImV4cCI6MTU2NDM5NDg2NTgxNSwiYXVkIjpudWxsfQ.feV80H5gjAn5TuK8_po1gljSWVLdwMqNzKeB3i7XhVaaJKc5FY3RLHosLC4S-iOr2Lqib41kOw2XjuK4IJHvfFvPrLLcVBFIuMuKd6-q18nv0UboFq8EjJffvFLXaKHiHOkl9ScOUwZNP8jzQhVgmuWDo5ZSD2Chg1pP7ahT6GbmvOc4UIyf-NWKkL3emXI3MKh6ikF5Avfu8cXX4CNwJ7wQlHes8N-8BvGnggl5aeiL2bJ1lyBlw3AYyAvnXkPXa1OEQn2aTz6yQZ5W7nt9fJoChv7e7p-ADWzuacE9oK11nxr2HLIk0oh7kGRaQ409jjL_i58PXwi46yNMfGwCHg";
+        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiI0NWQ1NjE4MmVhOGQ0OGUxYTE1MzhiMDBhOGEyMDVjZiIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NjM4NTA1NjcyOTksImV4cCI6MTU2NDQ1OTY1NjI1MSwiYXVkIjpudWxsfQ.h_pqZFW5s9iCWEJD0SMofD9fckzXt-t3P887RfanMcs2KmA9kyewSk7rCfR9HcZHWn3EzkV56UWoDUjJYV4oTWQFrXkzpK3so0fWlBqaIRyum83XfzwEukDQCj9JpQaJQaCgnKDi_Uh8lLfN27GK-pNeA22sX_MYTA40AhutH-p7huX1qL1mcNZDjgHgPQUlZ8Q8doI7b1I1fPVk_3KKOqIzsdDp54SwAB93BVG2-JjguNBBQyDwQkwwYt2-blqXkeF-NIllq9gKv6N3KGxs9YK9G95AIZM7XgIegbfxfOS5jKRCtFYzW_rq7h0PCMjKgfo_T_moLjp8vLIgQTv0xQ";
 
     String areaNo = "320500";
 

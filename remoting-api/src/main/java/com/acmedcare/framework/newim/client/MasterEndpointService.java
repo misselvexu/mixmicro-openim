@@ -1,5 +1,6 @@
 package com.acmedcare.framework.newim.client;
 
+import com.acmedcare.framework.newim.client.bean.Group;
 import com.acmedcare.framework.newim.client.bean.Member;
 import com.acmedcare.framework.newim.client.bean.request.AddGroupMembersRequest;
 import com.acmedcare.framework.newim.client.bean.request.NewGroupRequest;
@@ -72,6 +73,16 @@ public interface MasterEndpointService {
    * @throws EndpointException throw failed exception
    */
   GroupResponse removeGroup(String groupId, String namespace) throws EndpointException;
+
+  /**
+   * Query Namespace Group Info Api
+   *
+   * @param groupId group id
+   * @param namespace namespace
+   * @return removed {@link Group} instance
+   * @throws EndpointException throw failed exception
+   */
+  GroupResponse queryGroup(String groupId, String namespace) throws EndpointException;
 
   /**
    * Query Group Member list

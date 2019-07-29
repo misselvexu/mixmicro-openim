@@ -345,6 +345,43 @@ public class MasterEndpointClient extends NasEndpointClient implements MasterEnd
     }
   }
 
+  @Override
+  public GroupResponse queryGroup(String groupId, String namespace) throws EndpointException {
+    try {
+      if (StringUtils.isAnyBlank(groupId)) {
+        throw new EndpointException("Query group request params:[groupId] must not be null or ''");
+      }
+
+      // build request
+      HttpClient httpClient = HttpClient.getInstance();
+      HttpParams httpParams = new HttpParams();
+      httpParams.setEntity(ENTITY.FORM);
+      httpParams.put("groupId", groupId);
+      httpParams.put("namespace", namespace);
+
+      HttpResponse httpResponse = new HttpResponse();
+      httpClient.request(
+          METHOD.POST, buildUrl(GroupRequest.GROUP_INFO), httpParams, null, httpResponse);
+
+      if (httpResponse.getStatusCode() != HttpStatus.SC_OK) {
+
+        if (httpResponse.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+          throw new EndpointException("[404] Request Url: " + GroupRequest.GROUP_INFO);
+        }
+
+        BizResult bizResult = BizResult.fromJSON(httpResponse.getResult(), BizResult.class);
+        throw new EndpointException(
+            "Query group failed ," + bizResult.getException().getMessage());
+      } else {
+        LOG.info("Query group succeed.");
+        return BizResult.fromJSON(httpResponse.getResult(), GroupResponse.class);
+      }
+    } catch (EndpointException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new EndpointException("Query group request failed", e);
+    }
+  }
 
   @Override
   public List<Member> queryGroupMemberList(String groupId, String namespace) throws EndpointException {

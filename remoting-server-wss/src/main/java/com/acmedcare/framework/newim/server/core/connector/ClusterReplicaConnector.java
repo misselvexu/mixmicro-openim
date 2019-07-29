@@ -412,7 +412,7 @@ public class ClusterReplicaConnector {
           retriableRemotingCommand.getRetriable().getPeriod(),
           TimeUnit.SECONDS);
       clusterReplicaLog.info(
-          "message:{} will forward on next round, after times: {} s later.",
+          "message will forward on next round, after times: {} s later.",
           retriableRemotingCommand.getRetriable().getPeriod());
     }
   }

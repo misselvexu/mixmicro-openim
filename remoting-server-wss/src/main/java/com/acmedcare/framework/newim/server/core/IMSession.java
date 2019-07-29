@@ -11,6 +11,7 @@ import com.acmedcare.framework.newim.client.bean.Member;
 import com.acmedcare.framework.newim.protocol.Command.ClusterClientCommand;
 import com.acmedcare.framework.newim.protocol.Command.Retriable;
 import com.acmedcare.framework.newim.protocol.request.ClusterForwardMessageHeader;
+import com.acmedcare.framework.newim.server.config.IMProperties;
 import com.acmedcare.framework.newim.server.core.SessionContextConstants.RemotePrincipal;
 import com.acmedcare.framework.newim.server.core.connector.ClusterReplicaConnector;
 import com.acmedcare.framework.newim.server.endpoint.WssSessionContext;
@@ -53,6 +54,8 @@ public class IMSession implements InitializingBean, DisposableBean {
 
   private static final long DIFF_PERIOD = 2 * 60 * 1000;
 
+  private final IMProperties imProperties;
+
   /**
    * 设备->远程连接(TCPs)
    *
@@ -73,6 +76,8 @@ public class IMSession implements InitializingBean, DisposableBean {
 
   private static volatile long lastDiffTimestamp = System.currentTimeMillis();
   private static Semaphore diffQuerySemaphore = new Semaphore(1);
+
+  // Cached cluster session's connections
   private static Set<SessionBean> masterPassportSessions = Sets.newConcurrentHashSet();
   private static Set<SessionBean> masterDeviceSessions = Sets.newConcurrentHashSet();
 
@@ -104,6 +109,10 @@ public class IMSession implements InitializingBean, DisposableBean {
   private NettyRemotingSocketServer imServer;
   @Getter private ClusterReplicaConnector clusterReplicaConnector;
   private static WssSessionContext wssSessionContext;
+
+  public IMSession(IMProperties imProperties) {
+    this.imProperties = imProperties;
+  }
 
   public Set<SessionBean> getOnlinePassports() {
     return passportsTcpChannelContainer.keySet();
@@ -153,9 +162,11 @@ public class IMSession implements InitializingBean, DisposableBean {
       // yes
       Channel originChannel =
           devicesTcpChannelContainer.get(deviceSession).put(deviceType, channel);
-//      if (originChannel != null) {
-//        pushOfflineMessage(originChannel);
-//      }
+      if (imProperties.isEnableKickOff()) {
+        if (originChannel != null) {
+          pushOfflineMessage(originChannel);
+        }
+      }
     } else {
       // nop
       Map<String, Channel> channelMap = Maps.newHashMap();
@@ -174,12 +185,14 @@ public class IMSession implements InitializingBean, DisposableBean {
       // yes
       Channel originChannel =
           passportsTcpChannelContainer.get(passportSession).put(deviceType, channel);
-      if (originChannel != null) {
-        imServerLog.debug(
-            " == 通行证异地登录 {},剔除下线:{} ",
-            passportId,
-            RemotingHelper.parseChannelRemoteAddr(originChannel));
-        pushOfflineMessage(originChannel);
+      if (imProperties.isEnableKickOff()) {
+        if (originChannel != null) {
+          imServerLog.debug(
+              " == 通行证异地登录 {},剔除下线:{} ",
+              passportId,
+              RemotingHelper.parseChannelRemoteAddr(originChannel));
+          pushOfflineMessage(originChannel);
+        }
       }
     } else {
       // nop
@@ -276,8 +289,9 @@ public class IMSession implements InitializingBean, DisposableBean {
                                     RemotingHelper.parseChannelRemoteAddr(channel));
                               }
                             } else {
-                              // TODO 请求发出失败，转Qos重试服务器
-
+                              // 请求发出失败，【转】投递服务器
+                              forwardToDelivererServer(
+                                  false, namespace, passportId, messageType, message);
                             }
                           });
             } else {
@@ -288,11 +302,36 @@ public class IMSession implements InitializingBean, DisposableBean {
           }
         }
       } else {
-        // TODO 转Offline服务器
-
-
+        // 转发投递服务器
+        forwardToDelivererServer(false, namespace, passportId, messageType, message);
+      }
+    } else {
+      // 判断是否需要转投递服务器
+      if (masterPassportSessions.contains(sessionBean)) {
+        // 集群在线，此处【预转】到投递服务器
+        forwardToDelivererServer(true, namespace, passportId, messageType, message);
+      } else {
+        forwardToDelivererServer(false, namespace, passportId, messageType, message);
       }
     }
+  }
+
+  /**
+   * 转发投递服务器
+   *
+   * @param half 是否是预转发
+   * @param namespace namespace
+   * @param passportId passport Id
+   * @param messageType message type
+   * @param message message content bytes
+   * @since 2.3.0
+   */
+  private void forwardToDelivererServer(
+      boolean half, String namespace, String passportId, MessageType messageType, byte[] message) {
+
+    // TODO 转发操作
+
+
   }
 
   /**

@@ -20,6 +20,9 @@ public interface EndpointConstants {
     /** 创建群组 */
     String CREATE_GROUP = "/group/create-new-group";
 
+    /** 查询群详情 */
+    String GROUP_INFO = "/group/detail";
+
     /** 删除群组 */
     String REMOVE_GROUP = "/group/remove-group";
 
@@ -29,9 +32,7 @@ public interface EndpointConstants {
     /** 群组添加人员 */
     String ADD_GROUP_MEMBERS = "/group/add-group-members";
 
-    /**
-     * 群组列表
-     */
+    /** 群组列表 */
     String GROUP_LIST = "/group/list";
 
     /** 群组移除人员 */
