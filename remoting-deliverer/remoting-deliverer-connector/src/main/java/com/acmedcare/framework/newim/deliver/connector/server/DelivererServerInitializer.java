@@ -88,8 +88,7 @@ public class DelivererServerInitializer extends DelivererInitializer {
     log.info("[==] Deliverer Server Initializer - invoked shutdown method .");
     if (started.compareAndSet(true, false)) {
       this.server.shutdown();
+      this.publisher.publishEvent(new DelivererServerStopedEvent(null));
     }
-
-    this.publisher.publishEvent(new DelivererServerStopedEvent(null));
   }
 }
