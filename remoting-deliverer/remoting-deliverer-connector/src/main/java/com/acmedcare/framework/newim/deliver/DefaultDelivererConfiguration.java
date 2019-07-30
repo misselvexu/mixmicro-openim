@@ -5,13 +5,15 @@
 
 package com.acmedcare.framework.newim.deliver;
 
-import com.acmedcare.framework.newim.deliver.context.ContextBridge;
+import com.acmedcare.framework.newim.deliver.context.ConnectorContext;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.EnvironmentAware;
+import org.springframework.core.env.Environment;
 
 /**
  * {@link DefaultDelivererConfiguration}
@@ -19,7 +21,10 @@ import org.springframework.context.ConfigurableApplicationContext;
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version ${project.version} - 2019-07-29.
  */
-public class DefaultDelivererConfiguration implements ApplicationContextAware, BeanFactoryAware {
+public class DefaultDelivererConfiguration
+    implements ApplicationContextAware, BeanFactoryAware, EnvironmentAware {
+
+  private Environment environment;
 
   private BeanFactory beanFactory;
 
@@ -33,7 +38,18 @@ public class DefaultDelivererConfiguration implements ApplicationContextAware, B
   @Override
   public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
     this.applicationContext = applicationContext;
-    ContextBridge.context()
-        .registerApplicationContext((ConfigurableApplicationContext) applicationContext);
+    ConnectorContext.context()
+        .registerApplicationContext(
+            (ConfigurableApplicationContext) applicationContext, beanFactory, environment);
+  }
+
+  /**
+   * Set the {@code Environment} that this component runs in.
+   *
+   * @param environment
+   */
+  @Override
+  public void setEnvironment(Environment environment) {
+    this.environment = environment;
   }
 }

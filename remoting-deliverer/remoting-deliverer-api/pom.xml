@@ -44,6 +44,11 @@
         </dependency>
 
         <dependency>
+            <groupId>com.acmedcare.framework.kits</groupId>
+            <artifactId>common-kits</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.acmedcare.tiffany.framework</groupId>
             <artifactId>remoting-default-2x</artifactId>
             <scope>test</scope>

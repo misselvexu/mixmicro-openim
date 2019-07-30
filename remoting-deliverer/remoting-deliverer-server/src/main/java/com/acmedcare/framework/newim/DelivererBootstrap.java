@@ -5,6 +5,7 @@
 
 package com.acmedcare.framework.newim;
 
+import com.acmedcare.framework.newim.deliver.connector.EnableDelivererConnector;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -16,6 +17,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
  * @version ${project.version} - 2019-07-13.
  */
 @SpringBootApplication
+@EnableDelivererConnector(enabledServer = true)
 public class DelivererBootstrap {
 
   public static void main(String[] args) {
