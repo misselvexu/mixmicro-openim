@@ -1,8 +1,11 @@
 package com.acmedcare.framework.newim.server.master.connector;
 
+import com.acmedcare.framework.kits.lang.Nullable;
 import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.Message.MessageType;
 import com.acmedcare.framework.newim.SessionBean;
+import com.google.common.collect.Lists;
+
 import java.util.List;
 import java.util.Set;
 
@@ -16,31 +19,46 @@ public class MasterConnectorContext {
 
   private MasterConnectorHandler handler;
 
-  void registerMasterConnectorHandler(MasterConnectorHandler handler) {
+  void registerMasterConnectorHandler(@Nullable MasterConnectorHandler handler) {
     this.handler = handler;
   }
 
   public void diff(Set<SessionBean> passportsConnections, Set<SessionBean> devicesConnections) {
-    this.handler.processOnlineConnections(passportsConnections, devicesConnections);
+    if (handler != null) {
+      this.handler.processOnlineConnections(passportsConnections, devicesConnections);
+    }
   }
 
   public void onMasterMessage(String namespace, MessageType messageType, Message message) {
-    this.handler.processMasterForwardMessage(namespace, messageType, message);
+    if (handler != null) {
+      this.handler.processMasterForwardMessage(namespace, messageType, message);
+    }
   }
 
   public void onPullClusterReplicas(Set<String> clusterReplicas) {
-    this.handler.onClusterReplicas(clusterReplicas);
+    if (handler != null) {
+      this.handler.onClusterReplicas(clusterReplicas);
+    }
   }
 
   public List<SessionBean> getOnlinePassports() {
-    return this.handler.getOnlinePassports();
+    if (handler != null) {
+      return this.handler.getOnlinePassports();
+    }
+    return Lists.newArrayList();
   }
 
   public List<SessionBean> getOnlineDevices() {
-    return this.handler.getOnlineDevices();
+    if (handler != null) {
+      return this.handler.getOnlineDevices();
+    }
+    return Lists.newArrayList();
   }
 
   public Object getWssEndpoints() {
-    return this.handler.getWssEndpoints();
+    if (handler != null) {
+      return this.handler.getWssEndpoints();
+    }
+    return null;
   }
 }

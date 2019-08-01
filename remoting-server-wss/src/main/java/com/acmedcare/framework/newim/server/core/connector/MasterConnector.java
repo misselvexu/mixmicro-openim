@@ -207,7 +207,7 @@ public class MasterConnector {
               try {
                 RemotingCommand pullRequest =
                     RemotingCommand.createRequestCommand(
-                        MasterClusterCommand.CLUSTER_PULL_REPLICAS, null);
+                        MasterClusterCommand.IM_SERVER_PULL_REPLICAS, null);
                 RemotingCommand response =
                     instance.getNettyRemotingSocketClient().invokeSync(server, pullRequest, 3000);
                 if (response != null) {
@@ -463,10 +463,10 @@ public class MasterConnector {
 
     void register(IMProperties imProperties) throws Exception {
       ClusterRegisterHeader header = new ClusterRegisterHeader();
-      header.setClusterServerHost(localNode.getHost());
+      header.setNodeServerHost(localNode.getHost());
       header.setHasWssEndpoints(true);
-      header.setClusterReplicaAddress(imProperties.getHost() + ":" + imProperties.getClusterPort());
-      header.setClusterServerExportHost(
+      header.setNodeServerAddress(imProperties.getHost() + ":" + imProperties.getClusterPort());
+      header.setNodeServerExportHost(
           imProperties.getExportHost() + ":" + imProperties.getPort());
 
       // send register command

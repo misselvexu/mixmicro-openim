@@ -3,8 +3,10 @@ package com.acmedcare.framework.newim.server.master.connector;
 import com.acmedcare.framework.kits.event.Event;
 import com.acmedcare.framework.kits.event.EventBus;
 import com.acmedcare.framework.kits.executor.AsyncRuntimeExecutor;
+import com.acmedcare.framework.kits.lang.Nullable;
 import com.acmedcare.framework.kits.thread.ThreadKit;
 import com.acmedcare.framework.newim.BizResult;
+import com.acmedcare.framework.newim.InstanceType;
 import com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand;
 import com.acmedcare.framework.newim.protocol.request.ClusterPushSessionDataBody;
 import com.acmedcare.framework.newim.protocol.request.ClusterPushSessionDataHeader;
@@ -19,6 +21,9 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.internal.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -27,8 +32,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * MasterConnector
@@ -107,15 +110,25 @@ public final class MasterConnector {
     NettyRemotingSocketClient client = new NettyRemotingSocketClient(config, listener);
 
     // processor
-    client.registerProcessor(
-        MasterClusterCommand.MASTER_NOTICE_CLIENT_CHANNELS,
-        new MasterNoticeClientChannelsRequestProcessor(masterConnectorContext),
-        null);
 
-    client.registerProcessor(
-        MasterClusterCommand.MASTER_PUSH_MESSAGES,
-        new MasterPushMessageRequestProcessor(masterConnectorContext),
-        null);
+    if (this.masterConnectorProperties.getConnectorType().equals(InstanceType.DEFAULT)
+        || this.masterConnectorProperties.getConnectorType().equals(InstanceType.MQ_SERVER)) {
+
+      client.registerProcessor(
+          MasterClusterCommand.MASTER_NOTICE_CLIENT_CHANNELS,
+          new MasterNoticeClientChannelsRequestProcessor(masterConnectorContext),
+          null);
+
+      client.registerProcessor(
+          MasterClusterCommand.MASTER_PUSH_MESSAGES,
+          new MasterPushMessageRequestProcessor(masterConnectorContext),
+          null);
+    }
+
+    if (this.masterConnectorProperties.getConnectorType().equals(InstanceType.DELIVERER)) {
+      // TODO 注册Master->投递服务处理器
+
+    }
 
     client.updateNameServerAddressList(Lists.newArrayList(nodeAddress));
 
@@ -130,7 +143,7 @@ public final class MasterConnector {
    *
    * <p>
    */
-  public void startup(MasterConnectorHandler handler) {
+  public void startup(@Nullable MasterConnectorHandler handler) {
 
     if (startup.compareAndSet(false, true)) {
       this.masterConnectorContext.registerMasterConnectorHandler(handler);
@@ -166,25 +179,29 @@ public final class MasterConnector {
         } catch (InterruptedException ignored) {
         }
 
-        // startup rolling pulling cluster-replica thread
-        logger.info("starting up connector rolling pull cluster replica thread executor . ");
-        rollingPullClusterListExecutor =
-            new ScheduledThreadPoolExecutor(1, new DefaultThreadFactory("rolling-pull-thread"));
-        rollingPullClusterListExecutor.scheduleWithFixedDelay(
-            new RollingPullClusterReplicaThread(),
-            this.masterConnectorProperties.getConnectorClusterReplicaRollingPullDelay(),
-            this.masterConnectorProperties.getConnectorClusterReplicaRollingPullDelay(),
-            TimeUnit.SECONDS);
+        // IF Instance Type is DEFAULT (IM Node) , startup threads.
+        if (this.masterConnectorProperties.getConnectorType().equals(InstanceType.DEFAULT)) {
 
-        logger.info("starting up connector sync cluster channels data thread executor . ");
-        if (syncChannelsExecutor == null) {
-          syncChannelsExecutor =
-              new ScheduledThreadPoolExecutor(1, new DefaultThreadFactory("rolling-push-thread"));
-          syncChannelsExecutor.scheduleWithFixedDelay(
-              new SyncPushClusterChannelsThread(),
-              this.masterConnectorProperties.getConnectorClusterChannelsSyncDelay(),
-              this.masterConnectorProperties.getConnectorClusterChannelsSyncPeriod(),
+          // startup rolling pulling cluster-replica thread
+          logger.info("starting up connector rolling pull cluster replica thread executor . ");
+          rollingPullClusterListExecutor =
+              new ScheduledThreadPoolExecutor(1, new DefaultThreadFactory("rolling-pull-thread"));
+          rollingPullClusterListExecutor.scheduleWithFixedDelay(
+              new RollingPullClusterReplicaThread(),
+              this.masterConnectorProperties.getConnectorClusterReplicaRollingPullDelay(),
+              this.masterConnectorProperties.getConnectorClusterReplicaRollingPullDelay(),
               TimeUnit.SECONDS);
+
+          logger.info("starting up connector sync cluster channels data thread executor . ");
+          if (syncChannelsExecutor == null) {
+            syncChannelsExecutor =
+                new ScheduledThreadPoolExecutor(1, new DefaultThreadFactory("rolling-push-thread"));
+            syncChannelsExecutor.scheduleWithFixedDelay(
+                new SyncPushClusterChannelsThread(),
+                this.masterConnectorProperties.getConnectorClusterChannelsSyncDelay(),
+                this.masterConnectorProperties.getConnectorClusterChannelsSyncPeriod(),
+                TimeUnit.SECONDS);
+          }
         }
 
         logger.info("master connector(s) service is started. ");
@@ -243,7 +260,7 @@ public final class MasterConnector {
         try {
           RemotingCommand pullRequest =
               RemotingCommand.createRequestCommand(
-                  MasterClusterCommand.CLUSTER_PULL_REPLICAS, null);
+                  MasterClusterCommand.IM_SERVER_PULL_REPLICAS, null);
           RemotingCommand response =
               instance
                   .getClient()

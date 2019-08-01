@@ -68,17 +68,16 @@ public class InstanceNode implements Serializable {
 
   /** 节点类型 */
   public enum NodeType {
+    /** Master */
     MASTER,
+
+    /** Deliverer Server */
+    DELIVERER,
 
     DEFAULT,
 
-    /** @deprecated use {@link #DEFAULT} instead of */
-    CLUSTER,
-
-    /** @deprecated use {@link #DEFAULT_REPLICA} instead of */
-    REPLICA,
     DEFAULT_REPLICA,
-    WSS,
-    CLIENT
+
+    MQ_SERVER
   }
 }

@@ -10,6 +10,8 @@ import com.acmedcare.framework.kits.lang.Nullable;
 import com.acmedcare.framework.newim.deliver.api.RemotingDelivererApi;
 import com.acmedcare.framework.newim.spi.ExtensionLoader;
 import com.acmedcare.framework.newim.spi.ExtensionLoaderFactory;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.Attribute;
@@ -19,6 +21,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.Environment;
+
+import java.util.List;
+import java.util.Map;
+
+import static com.acmedcare.framework.newim.deliver.context.ConnectorInstance.Type.CLIENT;
 
 /**
  * {@link ConnectorContext}
@@ -39,7 +46,47 @@ public class ConnectorContext {
   private static final String DELIVERER_API_DEFAULT_EXTENSION_NAME = "default";
   private ExtensionLoader<RemotingDelivererApi> remotingDelivererApiExtensionLoader;
 
+  // ===== Session Core =====
+
+  /**
+   * Connector Connected Session Cache .
+   *
+   * <pre>
+   *    Key:Type     -     Value:Map
+   *    SERVER             Key:ConnectorServerInstanceA   ->  Channel Instance
+   *                       Key:ConnectorServerInstanceB   ->  Channel Instance
+   *
+   *    CLIENT             Key:ConnectorClientInstanceA   ->  Channel Instance
+   * </pre>
+   */
+  private Map<ConnectorInstance.Type, List<ConnectorInstance>> session =
+      Maps.newConcurrentMap();
+
   // ===== Context Core =====
+
+  public void register(ConnectorInstance instance) {
+
+    if (instance != null) {
+
+      if (instance instanceof ConnectorInstance.ConnectorClientInstance) {
+
+        ConnectorInstance.ConnectorClientInstance clientInstance =
+            (ConnectorInstance.ConnectorClientInstance) instance;
+
+        if(session.containsKey(CLIENT)) {
+          session.put(CLIENT, Lists.newArrayList(clientInstance));
+        } else {
+          if(!session.get(CLIENT).add(clientInstance)){
+            log.warn("[==] Deliverer Context , register connector client instance failed , instance: {}" ,instance);
+          }
+        }
+      }
+
+      if (instance instanceof ConnectorInstance.ConnectorServerInstance) {
+        // TODO ready to register server instance
+      }
+    }
+  }
 
   /**
    * Release Deliverer Connector Instance
@@ -127,11 +174,11 @@ public class ConnectorContext {
 
   // ===== SPI Factory Operations ======
 
-  public @Nullable RemotingDelivererApi getRemotingDelivererApi() {
-    return getRemotingDelivererApi(DELIVERER_API_DEFAULT_EXTENSION_NAME);
+  public @Nullable RemotingDelivererApi remotingDelivererApi() {
+    return remotingDelivererApi(DELIVERER_API_DEFAULT_EXTENSION_NAME);
   }
 
-  public @Nullable RemotingDelivererApi getRemotingDelivererApi(String extensionName) {
+  public @Nullable RemotingDelivererApi remotingDelivererApi(String extensionName) {
     return this.remotingDelivererApiExtensionLoader.getExtension(extensionName);
   }
 }

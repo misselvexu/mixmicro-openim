@@ -18,6 +18,10 @@ import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingSysRequestCode;
 import com.alibaba.fastjson.JSON;
 import io.netty.util.concurrent.DefaultThreadFactory;
+import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
@@ -25,9 +29,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import lombok.Getter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * MasterInstance
@@ -216,11 +217,9 @@ public final class MasterInstance {
     Object body = this.context.getWssEndpoints();
 
     ClusterRegisterHeader header = new ClusterRegisterHeader();
-    header.setClusterServerType(this.properties.getConnectorType().name());
-    header.setClusterServerHost(
-        this.properties.getConnectorHost() + ":" + this.properties.getConnectorPort());
-    header.setClusterReplicaAddress(
-        this.properties.getConnectorHost() + ":" + this.properties.getConnectorReplicaPort());
+    header.setNodeServerType(this.properties.getConnectorType().name());
+    header.setNodeServerHost(this.properties.getConnectorHost() + ":" + this.properties.getConnectorPort());
+    header.setNodeServerAddress(this.properties.getConnectorHost() + ":" + this.properties.getConnectorReplicaPort());
 
     header.setHasWssEndpoints(body != null);
 

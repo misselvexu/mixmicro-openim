@@ -28,6 +28,11 @@
     <dependencies>
 
         <dependency>
+            <groupId>com.acmedcare.microservices.im</groupId>
+            <artifactId>remoting-biz</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.acmedcare.tiffany.framework</groupId>
             <artifactId>remoting-default</artifactId>
         </dependency>

@@ -148,7 +148,7 @@ public class MasterSession {
       return result;
     }
 
-    public void registerClusterInstance(
+    public void registerNodeInstance(
         InstanceNode remoteNode,
         String clusterAddress,
         String exportAddress,

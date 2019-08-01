@@ -81,6 +81,7 @@ public final class Command {
 
     /** Master服务器推送消息 */
     public static final int MASTER_PUSH_MESSAGES = 0x20005;
+
     /**
      * WebSocket Client And Cluster Command
      * <li>
@@ -88,7 +89,7 @@ public final class Command {
     public static final int MASTER_NOTICE_CLIENT_CHANNELS = 0x20006;
 
     /** cluster 拉取其他的备份节点 */
-    public static final int CLUSTER_PULL_REPLICAS = 0x20007;
+    public static final int IM_SERVER_PULL_REPLICAS = 0x20007;
 
     /** cluster 转发信息 */
     public static final int CLUSTER_FORWARD_MESSAGES = 0x20008;

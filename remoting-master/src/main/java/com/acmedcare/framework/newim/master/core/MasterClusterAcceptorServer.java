@@ -36,7 +36,7 @@ import static com.acmedcare.framework.newim.MasterLogger.masterClusterAcceptorLo
 import static com.acmedcare.framework.newim.MasterLogger.startLog;
 import static com.acmedcare.framework.newim.master.core.MasterSession.MasterClusterSession.CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY;
 import static com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand.CLUSTER_FORWARD_MESSAGES;
-import static com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand.CLUSTER_PULL_REPLICAS;
+import static com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand.IM_SERVER_PULL_REPLICAS;
 
 /**
  * Server Acceptor
@@ -139,7 +139,7 @@ public class MasterClusterAcceptorServer {
             Assert.notNull(header, "cluster register header must not be null");
 
             masterClusterAcceptorLog.info(
-                "cluster remote address:{}", header.getClusterServerHost());
+                "cluster remote address:{}", header.getNodeServerHost());
 
             InstanceNode node =
                 channelHandlerContext.channel().attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).get();
@@ -148,9 +148,7 @@ public class MasterClusterAcceptorServer {
               node = header.defaultInstance();
             }
 
-            InstanceNode replica = header.defaultReplica();
-
-            String exportAddress = header.getClusterServerExportHost();
+            String exportAddress = header.getNodeServerExportHost();
 
             if (header.isHasWssEndpoints()) {
               String bodyContent = new String(remotingCommand.getBody(), "UTF-8");
@@ -159,19 +157,19 @@ public class MasterClusterAcceptorServer {
                   JSON.parseObject(bodyContent, new TypeReference<List<WssInstance>>() {});
 
               // register new remote client
-              masterClusterSession.registerClusterInstance(
+              masterClusterSession.registerNodeInstance(
                   node,
                   node.getHost(),
                   exportAddress,
-                  replica.getHost(),
+                  header.getNodeServerAddress(),
                   instances,
                   channelHandlerContext.channel());
             } else {
-              masterClusterSession.registerClusterInstance(
+              masterClusterSession.registerNodeInstance(
                   node,
                   node.getHost(),
                   exportAddress,
-                  replica.getHost(),
+                  header.getNodeServerAddress(),
                   null,
                   channelHandlerContext.channel());
             }
@@ -236,7 +234,7 @@ public class MasterClusterAcceptorServer {
         null);
 
     masterClusterAcceptorServer.registerProcessor(
-        CLUSTER_PULL_REPLICAS,
+        IM_SERVER_PULL_REPLICAS,
         new NettyRequestProcessor() {
           @Override
           public RemotingCommand processRequest(

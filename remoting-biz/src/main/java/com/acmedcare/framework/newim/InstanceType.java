@@ -14,18 +14,13 @@ public enum InstanceType {
   /** Default IM Server */
   DEFAULT,
 
-  /** @deprecated use {@link #DEFAULT} instead of */
-  CLUSTER,
-
-  /** Replica */
-  REPLICA,
-
-  /** Web Socket Server */
-  WSS,
-
-  /** Client */
-  CLIENT,
-
   /** MQ Server */
-  MQ_SERVER
+  MQ_SERVER,
+
+  /**
+   * Deliverer Server
+   *
+   * @since 2.3.0
+   */
+  DELIVERER
 }

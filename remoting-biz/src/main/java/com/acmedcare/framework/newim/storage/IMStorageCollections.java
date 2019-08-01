@@ -31,4 +31,7 @@ public interface IMStorageCollections {
 
   /** 消息qos状态记录 */
   String MESSAGE_QOS = "im_message_qos_record";
+
+  /** 投递消息记录表 */
+  String DELIVERER_MESSAGE = "im_deliverer_message_record";
 }

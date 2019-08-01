@@ -5,7 +5,9 @@
 
 package com.acmedcare.framework.newim.deliver.samples;
 
+import com.acmedcare.framework.newim.deliver.api.RemotingDelivererApi;
 import com.acmedcare.framework.newim.deliver.connector.EnableDelivererConnector;
+import com.acmedcare.framework.newim.deliver.context.ConnectorContext;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -24,5 +26,16 @@ public class EnableAnnotationTester {
         new SpringApplicationBuilder(EnableAnnotationTester.class)
             .web(WebApplicationType.NONE)
             .run(args);
+
+
+    // Api Instance
+    RemotingDelivererApi api = ConnectorContext.context().remotingDelivererApi();
+
+    // client apis
+    // 1.
+
+    // server apis
+
+
   }
 }

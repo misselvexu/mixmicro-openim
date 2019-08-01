@@ -5,6 +5,7 @@
 
 package com.acmedcare.framework.newim.deliver.connector.client;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
@@ -17,9 +18,9 @@ import org.springframework.context.annotation.Bean;
 @EnableConfigurationProperties(DelivererClientProperties.class)
 public class DelivererClientMarkerConfiguration {
 
-  @Bean
+  @Bean(initMethod = "init", destroyMethod = "shutdown")
+  @ConditionalOnMissingBean(DelivererClientInitializer.class)
   DelivererClientInitializer clientInitializer(DelivererClientProperties properties) {
-    System.out.println("clientInitializer");
     return new DelivererClientInitializer(properties);
   }
 }

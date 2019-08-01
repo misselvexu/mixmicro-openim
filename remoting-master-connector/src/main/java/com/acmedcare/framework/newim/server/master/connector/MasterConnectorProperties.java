@@ -2,10 +2,11 @@ package com.acmedcare.framework.newim.server.master.connector;
 
 import com.acmedcare.framework.newim.InstanceType;
 import com.google.common.collect.Lists;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.util.List;
 
 /**
  * MasterConnectorProperties
@@ -50,8 +51,14 @@ public class MasterConnectorProperties {
   /** 客户端 Replica 通讯地址 */
   private String connectorReplicaHost;
 
-  /** 客户端 Replica 通讯端口 */
+  /**
+   * 客户端 Replica 通讯端口
+   *
+   * @deprecated use {@link #connectorNodePort} instead of .
+   */
   private int connectorReplicaPort;
+
+  private int connectorNodePort = this.connectorReplicaPort;
 
   /** 链接检查间隔 */
   private long connectionCheckPeriod = 10;
@@ -100,6 +107,7 @@ public class MasterConnectorProperties {
     sb.append(", connectorType=").append(connectorType);
     sb.append(", connectorPort=").append(connectorPort);
     sb.append(", connectorReplicaPort=").append(connectorReplicaPort);
+    sb.append(", connectorNodePort=").append(connectorNodePort);
     sb.append(", connectionCheckPeriod=").append(connectionCheckPeriod);
     sb.append(", connectorRequestTimeout=").append(connectorRequestTimeout);
     sb.append(", connectorRequestMaxRetryTimes=").append(connectorRequestMaxRetryTimes);
