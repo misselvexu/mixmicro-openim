@@ -15,7 +15,8 @@
         <module>remoting-raft</module>
         <module>remoting-master</module>
         <module>remoting-proxy</module>
-        <module>remoting-master-connector</module>
+        <module>remoting-master-connector-api</module>
+        <module>remoting-master-connector-default</module>
         <module>remoting-master-sync</module>
         <module>remoting-server-api</module>
         <module>remoting-server-replica</module>
@@ -240,7 +241,13 @@
 
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>remoting-master-connector</artifactId>
+                <artifactId>remoting-master-connector-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>remoting-master-connector-default</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

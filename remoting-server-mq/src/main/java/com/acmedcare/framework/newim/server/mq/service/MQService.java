@@ -1,12 +1,11 @@
 package com.acmedcare.framework.newim.server.mq.service;
 
 import com.acmedcare.framework.boot.snowflake.Snowflake;
-import com.acmedcare.framework.kits.executor.AsyncRuntimeExecutor;
 import com.acmedcare.framework.newim.Message.MQMessage;
 import com.acmedcare.framework.newim.RemotingEvent;
 import com.acmedcare.framework.newim.Topic;
 import com.acmedcare.framework.newim.Topic.TopicSubscribe;
-import com.acmedcare.framework.newim.server.master.connector.MasterConnector;
+import com.acmedcare.framework.newim.server.master.connector.DefaultMasterConnector;
 import com.acmedcare.framework.newim.server.mq.MQContext;
 import com.acmedcare.framework.newim.server.mq.event.AcmedcareEvent;
 import com.acmedcare.framework.newim.server.mq.exception.MQServiceException;
@@ -40,7 +39,7 @@ public class MQService {
   private final TopicRepository topicRepository;
   private final Snowflake snowflake;
 
-  @Autowired private MasterConnector masterConnector;
+  @Autowired private DefaultMasterConnector defaultMasterConnector;
   private Cache<Long, MQMessage> cache;
   private Cache<Long, Topic> topicCache;
   private Cache<Long, List<TopicSubscribe>> topicSubscribesCache;

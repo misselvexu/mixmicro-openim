@@ -6,6 +6,7 @@ import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
 import com.acmedcare.framework.newim.InstanceNode;
 import com.acmedcare.framework.newim.master.MasterConfig;
 import com.acmedcare.framework.newim.master.core.MasterSession.MasterClusterSession;
+import com.acmedcare.framework.newim.master.exception.InvalidInstanceTypeException;
 import com.acmedcare.framework.newim.master.processor.ClusterForwardMessageRequestProcessor;
 import com.acmedcare.framework.newim.master.processor.ClusterPushClientChannelsRequestProcessor;
 import com.acmedcare.framework.newim.master.processor.DefaultMasterProcessor;
@@ -24,6 +25,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import lombok.Getter;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -124,7 +126,7 @@ public class MasterClusterAcceptorServer {
         new NettyRequestProcessor() {
           @Override
           public RemotingCommand processRequest(
-              ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand)
+              ChannelHandlerContext ctx, RemotingCommand remotingCommand)
               throws Exception {
 
             masterClusterAcceptorLog.info("cluster request to register...");
@@ -138,43 +140,63 @@ public class MasterClusterAcceptorServer {
                     remotingCommand.decodeCommandCustomHeader(ClusterRegisterHeader.class);
             Assert.notNull(header, "cluster register header must not be null");
 
-            masterClusterAcceptorLog.info(
-                "cluster remote address:{}", header.getNodeServerHost());
+            masterClusterAcceptorLog.info("cluster remote address:{}", header.getNodeServerHost());
 
             InstanceNode node =
-                channelHandlerContext.channel().attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).get();
+                ctx.channel().attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).get();
 
-            if (node == null) {
+            if (node == null) { // first register is always null.
               node = header.defaultInstance();
             }
 
             String exportAddress = header.getNodeServerExportHost();
 
-            if (header.isHasWssEndpoints()) {
-              String bodyContent = new String(remotingCommand.getBody(), "UTF-8");
-              // wss instance body
-              List<WssInstance> instances =
-                  JSON.parseObject(bodyContent, new TypeReference<List<WssInstance>>() {});
+            try {
+              if (header.isHasWssEndpoints()) {
+                String bodyContent = new String(remotingCommand.getBody(), StandardCharsets.UTF_8);
+                // wss instance body
+                List<WssInstance> wssInstances =
+                    JSON.parseObject(bodyContent, new TypeReference<List<WssInstance>>() {});
 
-              // register new remote client
-              masterClusterSession.registerNodeInstance(
-                  node,
+                // register new remote client
+                masterClusterSession.registerNodeInstance(
+                    node,
+                    node.getHost(),
+                    exportAddress,
+                    header.getNodeServerAddress(),
+                    wssInstances,
+                    ctx.channel());
+
+              } else {
+
+                // register without wss endpoints.
+                masterClusterSession.registerNodeInstance(
+                    node,
+                    node.getHost(),
+                    exportAddress,
+                    header.getNodeServerAddress(),
+                    null,
+                    ctx.channel());
+              }
+            } catch (InvalidInstanceTypeException e) {
+              masterClusterAcceptorLog.warn(
+                  "cluster remote:{} register failed , exception :{}",
                   node.getHost(),
-                  exportAddress,
-                  header.getNodeServerAddress(),
-                  instances,
-                  channelHandlerContext.channel());
-            } else {
-              masterClusterSession.registerNodeInstance(
-                  node,
-                  node.getHost(),
-                  exportAddress,
-                  header.getNodeServerAddress(),
-                  null,
-                  channelHandlerContext.channel());
+                  e.getMessage());
+              response.setBody(
+                  BizResult.builder()
+                      .code(-1)
+                      .exception(
+                          ExceptionWrapper.builder()
+                              .message(e.getMessage())
+                              .type(InvalidInstanceTypeException.class)
+                              .build())
+                      .build()
+                      .bytes());
+              return response;
             }
 
-            channelHandlerContext.channel().attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).set(node);
+            ctx.channel().attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).set(node);
 
             masterClusterAcceptorLog.info(
                 "cluster remote:{} instance register succeed", node.getHost());

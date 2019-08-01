@@ -85,7 +85,7 @@
 
         <dependency>
             <groupId>com.acmedcare.microservices.im</groupId>
-            <artifactId>remoting-master-connector</artifactId>
+            <artifactId>remoting-master-connector-default</artifactId>
         </dependency>
 
         <dependency>

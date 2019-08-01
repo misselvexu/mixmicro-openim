@@ -30,4 +30,19 @@ public interface Event<T> {
       return addresses;
     }
   }
+
+  /** 获取到新节点回调事件 */
+  public static class FetchDelivererServerEvent implements Event<List<String>> {
+
+    private List<String> addresses;
+
+    public FetchDelivererServerEvent(List<String> addresses) {
+      this.addresses = addresses;
+    }
+
+    @Override
+    public List<String> data() {
+      return addresses;
+    }
+  }
 }

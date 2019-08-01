@@ -91,6 +91,9 @@ public final class Command {
     /** cluster 拉取其他的备份节点 */
     public static final int IM_SERVER_PULL_REPLICAS = 0x20007;
 
+    /** 投递服务器可用节点列表拉取请求 */
+    public static final int DELIVERER_SERVER_PULL_REPLICAS = 0x20009;
+
     /** cluster 转发信息 */
     public static final int CLUSTER_FORWARD_MESSAGES = 0x20008;
   }

@@ -57,7 +57,7 @@ public class MasterConnector {
 
   private final IMSession imSession;
   private final IMProperties imProperties;
-  private InstanceNode localReplicaNode;
+  private InstanceNode localImNode;
 
   @Getter
   private List<RemoteMasterConnectorInstance> remoteMasterConnectorInstances = Lists.newArrayList();
@@ -69,7 +69,7 @@ public class MasterConnector {
   public MasterConnector(IMProperties imProperties, IMSession imSession) {
     this.imProperties = imProperties;
     this.imSession = imSession;
-    this.localReplicaNode =
+    this.localImNode =
         InstanceNode.builder()
             .host(imProperties.getHost() + ":" + imProperties.getClusterPort())
             .nodeType(NodeType.DEFAULT_REPLICA)
@@ -216,23 +216,23 @@ public class MasterConnector {
                     BizResult bizResult = JSON.parseObject(body, BizResult.class);
                     if (bizResult != null && bizResult.getCode() == 0) {
                       @SuppressWarnings("unchecked")
-                      Set<String> clusterReplicas =
+                      Set<String> imServerNodes =
                           JSON.parseObject(JSON.toJSONString(bizResult.getData()), Set.class);
-                      if (clusterReplicas != null && clusterReplicas.size() > 0) {
+                      if (imServerNodes != null && imServerNodes.size() > 0) {
 
                         if (masterClusterLog.isDebugEnabled()) {
                           masterClusterLog.debug(
-                              "从Master:{},服务器获取的最新的备份列表:{}",
+                              "从Master:{},服务器获取的最新IM服务器列表:{}",
                               server,
-                              JSON.toJSONString(clusterReplicas));
+                              JSON.toJSONString(imServerNodes));
                         }
 
-                        clusterReplicas.remove(localReplicaNode.getHost());
+                        imServerNodes.remove(localImNode.getHost());
 
-                        if (clusterReplicas.size() > 0) {
+                        if (imServerNodes.size() > 0) {
                           Event refreshEvent =
                               new FetchNewClusterReplicaServerEvent(
-                                  Lists.newArrayList(clusterReplicas));
+                                  Lists.newArrayList(imServerNodes));
                           instance.getAsyncEventBus().post(refreshEvent);
                           if (masterClusterLog.isDebugEnabled()) {
                             masterClusterLog.debug("成功发送刷新事件:{} ", refreshEvent);

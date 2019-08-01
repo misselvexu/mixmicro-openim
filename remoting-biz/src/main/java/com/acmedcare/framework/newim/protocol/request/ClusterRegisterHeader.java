@@ -19,23 +19,27 @@ import lombok.Setter;
 @Setter
 public class ClusterRegisterHeader implements CommandCustomHeader {
 
-  @CFNotNull private String nodeServerHost; //
+  @CFNotNull private String nodeServerHost;
   @CFNotNull private String nodeServerExportHost;
-  @CFNotNull private String nodeServerType = NodeType.DEFAULT.name(); // default type -> cluster
-  @CFNotNull private String nodeServerAddress; // 节点replica-> host:port
+  @CFNotNull private String nodeServerType = NodeType.DEFAULT.name();
+  @CFNotNull private String nodeServerAddress;
   @CFNotNull private boolean hasWssEndpoints = false;
   private String zone = "default";
 
-  public InstanceType decodeInstanceType() {
+  private InstanceType decodeInstanceType() {
     return InstanceType.valueOf(this.nodeServerType);
   }
 
   public InstanceNode defaultInstance() {
-    return InstanceNode.builder()
-        .host(nodeServerHost)
+    InstanceNode node = InstanceNode.builder()
+        .host(this.nodeServerHost)
         .instanceType(decodeInstanceType())
-        .zone("default")
+        .zone(this.zone)
         .build();
+
+    node.setExportHost(this.nodeServerExportHost);
+
+    return node;
   }
 
   @Override
