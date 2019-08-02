@@ -9,6 +9,7 @@ import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.InstanceNode;
 import com.acmedcare.framework.newim.InstanceNode.NodeType;
 import com.acmedcare.framework.newim.InstanceType;
+import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand;
 import com.acmedcare.framework.newim.protocol.request.ClusterPushSessionDataBody;
 import com.acmedcare.framework.newim.protocol.request.ClusterPushSessionDataHeader;
@@ -63,6 +64,7 @@ public class MasterConnector {
   private List<RemoteMasterConnectorInstance> remoteMasterConnectorInstances = Lists.newArrayList();
 
   private ScheduledExecutorService rollingPullClusterListExecutor;
+  private ScheduledExecutorService rollingPullDelivererListExecutor;
   private ScheduledExecutorService rollingPushRemotingChannelsExecutor;
   private ExecutorService asyncExecutor;
 
@@ -74,6 +76,8 @@ public class MasterConnector {
             .host(imProperties.getHost() + ":" + imProperties.getClusterPort())
             .nodeType(NodeType.DEFAULT_REPLICA)
             .build();
+
+    this.imSession.bindMasterConnector(this);
   }
 
   public void start() {
@@ -94,8 +98,12 @@ public class MasterConnector {
       startupRollingPullCluster();
       masterClusterLog.info("Startup schedule rolling push channels thread.");
       startupRollingPushChannels();
+      masterClusterLog.info("Startup schedule rolling pull deliverer server list thread.");
+      startupRollingPullDeliverer();
     }
   }
+
+  // ============ Rolling Thread ================
 
   private void startupRollingPushChannels() {
 
@@ -188,7 +196,7 @@ public class MasterConnector {
   private void startupRollingPullCluster() {
     if (rollingPullClusterListExecutor == null) {
       rollingPullClusterListExecutor =
-          new ScheduledThreadPoolExecutor(1, new DefaultThreadFactory("rolling-pull-thread"));
+          new ScheduledThreadPoolExecutor(1, new DefaultThreadFactory("rolling-pull-cluster-thread"));
       rollingPullClusterListExecutor.scheduleWithFixedDelay(
           () -> {
             String server = null;
@@ -258,6 +266,77 @@ public class MasterConnector {
     }
   }
 
+  private void startupRollingPullDeliverer() {
+    if (rollingPullDelivererListExecutor == null) {
+      rollingPullDelivererListExecutor =
+          new ScheduledThreadPoolExecutor(1, new DefaultThreadFactory("rolling-pull-deliverer-thread"));
+      rollingPullDelivererListExecutor.scheduleWithFixedDelay(
+          () -> {
+            String server = null;
+            RemoteMasterConnectorInstance instance = null;
+            while (true) {
+              Random indexRandom = new Random();
+              int index = indexRandom.nextInt(remoteMasterConnectorInstances.size());
+              instance = remoteMasterConnectorInstances.get(index);
+              if (instance.isConnecting()) {
+                server = instance.getMasterNode().getHost();
+                break;
+              }
+            }
+
+            if (server != null && server.trim().length() > 0) {
+              try {
+                RemotingCommand pullRequest =
+                    RemotingCommand.createRequestCommand(
+                        MasterClusterCommand.DELIVERER_SERVER_PULL_REPLICAS, null);
+                RemotingCommand response =
+                    instance.getNettyRemotingSocketClient().invokeSync(server, pullRequest, 3000);
+                if (response != null) {
+                  byte[] body = response.getBody();
+                  if (body != null) {
+                    BizResult bizResult = JSON.parseObject(body, BizResult.class);
+                    if (bizResult != null && bizResult.getCode() == 0) {
+                      @SuppressWarnings("unchecked")
+                      Set<String> delivererServerNodes =
+                          JSON.parseObject(JSON.toJSONString(bizResult.getData()), Set.class);
+                      if (delivererServerNodes != null && delivererServerNodes.size() > 0) {
+
+                        if (masterClusterLog.isDebugEnabled()) {
+                          masterClusterLog.debug(
+                              "从Master:{},服务器获取的最新投递服务器列表:{}",
+                              server,
+                              JSON.toJSONString(delivererServerNodes));
+                        }
+
+                        if (delivererServerNodes.size() > 0) {
+                          Event refreshEvent =
+                              new Event.FetchDelivererServerEvent(
+                                  Lists.newArrayList(delivererServerNodes));
+                          instance.getAsyncEventBus().post(refreshEvent);
+                          if (masterClusterLog.isDebugEnabled()) {
+                            masterClusterLog.debug("成功发送刷新事件:{} ", refreshEvent);
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              } catch (Exception e) {
+                masterClusterLog.error(
+                    "Rolling pull cluster replicas server list failed with request:{} ,will try next",
+                    server,
+                    e);
+              }
+            } else {
+              masterClusterLog.warn("Current time has no available master servers.");
+            }
+          },
+          11,
+          30,
+          TimeUnit.SECONDS);
+    }
+  }
+
   public void shutdown() {
     if (rollingPullClusterListExecutor != null) {
       ThreadKit.gracefulShutdown(rollingPullClusterListExecutor, 5, 10, TimeUnit.SECONDS);
@@ -295,7 +374,7 @@ public class MasterConnector {
     NettyClientConfig config = new NettyClientConfig();
     config.setEnableHeartbeat(false);
     config.setUseTLS(false);
-    config.setClientChannelMaxIdleTimeSeconds(40); // idle
+    config.setClientChannelMaxIdleTimeSeconds(40);
 
     NettyRemotingSocketClient client =
         new NettyRemotingSocketClient(
@@ -344,6 +423,28 @@ public class MasterConnector {
     instance.setNettyClientConfig(config);
     instance.setNettyRemotingSocketClient(client);
     return instance;
+  }
+
+  /**
+   * 转发投递服务器
+   *
+   * @param half 是否是预转发,投递服务器需要进行内存预判操作，防止重复投递
+   * @param namespace namespace
+   * @param passportId passport Id
+   * @param messageType message type
+   * @param message message content bytes
+   * @since 2.3.0
+   */
+  public void postDelivererMessage(
+      boolean half,
+      String namespace,
+      String passportId,
+      Message.MessageType messageType,
+      byte[] message) {
+
+    // TODO 发投递请求
+
+
   }
 
   /**
@@ -466,8 +567,7 @@ public class MasterConnector {
       header.setNodeServerHost(localNode.getHost());
       header.setHasWssEndpoints(true);
       header.setNodeServerAddress(imProperties.getHost() + ":" + imProperties.getClusterPort());
-      header.setNodeServerExportHost(
-          imProperties.getExportHost() + ":" + imProperties.getPort());
+      header.setNodeServerExportHost(imProperties.getExportHost() + ":" + imProperties.getPort());
 
       // send register command
       masterClusterLog.info("send register request to server :{} ", masterNode.getHost());

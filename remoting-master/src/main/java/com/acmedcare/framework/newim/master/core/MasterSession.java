@@ -131,12 +131,23 @@ public class MasterSession {
       return result;
     }
 
-    public Set<String> clusterReplicaList(InstanceType instanceType) {
+    Set<String> clusterReplicaList(InstanceType instanceType) {
       Set<String> replicas = Sets.newHashSet();
       clusterClientInstances.forEach(
           (s, remoteClusterClientInstance) -> {
             if (remoteClusterClientInstance.getInstanceType().equals(instanceType)) {
               replicas.add(remoteClusterClientInstance.getClusterReplicaAddress());
+            }
+          });
+      return replicas;
+    }
+
+    Set<String> delivererReplicaList(InstanceType instanceType) {
+      Set<String> replicas = Sets.newHashSet();
+      delivererInstances.forEach(
+          (s, delivererInstance) -> {
+            if (delivererInstance.getInstanceType().equals(instanceType)) {
+              replicas.add(s);
             }
           });
       return replicas;
@@ -162,7 +173,7 @@ public class MasterSession {
      *     replica feature available.
      * @throws InvalidInstanceTypeException maybe throws invalid instance exception
      */
-    public void registerNodeInstance(
+    void registerNodeInstance(
         InstanceNode remoteNode,
         String remotingAddress,
         String exportAddress,
@@ -241,18 +252,49 @@ public class MasterSession {
       }
     }
 
-    public void revokeClusterInstance(String clusterAddress) {
-      RemoteClusterClientInstance preInstance = clusterClientInstances.remove(clusterAddress);
-      if (preInstance != null) {
-        masterClusterAcceptorLog.info("Revoke Cluster:{}", clusterAddress);
-        // close
-        try {
-          preInstance.getClusterClientChannel().close();
-        } catch (Exception ignore) {
+    void revokeClusterInstance(InstanceType type, String remotingAddress) {
+
+      if (type != null) {
+        switch (type) {
+          case DEFAULT:
+            RemoteClusterClientInstance preInstance =
+                clusterClientInstances.remove(remotingAddress);
+            if (preInstance != null) {
+              masterClusterAcceptorLog.info("Revoke Cluster:{}", remotingAddress);
+              // close
+              try {
+                preInstance.getClusterClientChannel().close();
+              } catch (Exception ignore) {
+              }
+            }
+
+            clusterWssServerInstance.remove(remotingAddress);
+          case DELIVERER:
+            DelivererInstance instance = delivererInstances.remove(remotingAddress);
+            if (instance != null) {
+              masterClusterAcceptorLog.info("Ready Revoke Deliverer:{}", remotingAddress);
+              try {
+                instance
+                    .getDelivererChannel()
+                    .close()
+                    .addListener(
+                        future -> {
+                          if (future.isSuccess() || future.isDone()) {
+                            masterClusterAcceptorLog.info(
+                                "Revoke Deliverer:{} Closed .", remotingAddress);
+                          }
+                        });
+              } catch (Exception ignore) {
+              }
+            }
+
+            break;
+          case MQ_SERVER:
+          case MASTER:
+          default:
+            break;
         }
       }
-
-      clusterWssServerInstance.remove(clusterAddress);
     }
 
     public void merge(InstanceNode node, ClusterPushSessionDataBody data) {
@@ -490,7 +532,7 @@ public class MasterSession {
           });
     }
 
-    public void registerServerInstance(MasterClusterAcceptorServer masterClusterAcceptorServer) {
+    public void bindServerInstance(MasterClusterAcceptorServer masterClusterAcceptorServer) {
       this.masterClusterAcceptorServer = masterClusterAcceptorServer;
     }
   }

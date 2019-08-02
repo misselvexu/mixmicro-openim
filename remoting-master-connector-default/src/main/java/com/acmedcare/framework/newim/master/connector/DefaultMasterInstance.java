@@ -54,18 +54,6 @@ public final class DefaultMasterInstance extends MasterInstance {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof DefaultMasterInstance)) {
-      return false;
-    }
-    DefaultMasterInstance that = (DefaultMasterInstance) o;
-    return getPort() == that.getPort() && getHost().equals(that.getHost());
-  }
-
-  @Override
   protected Object buildRegisterBody(
       MasterConnectorProperties properties, MasterConnectorContext context) {
 

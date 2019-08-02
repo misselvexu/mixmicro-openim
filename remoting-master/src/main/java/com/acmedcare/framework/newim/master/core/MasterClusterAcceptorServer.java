@@ -4,6 +4,7 @@ import com.acmedcare.framework.kits.Assert;
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
 import com.acmedcare.framework.newim.InstanceNode;
+import com.acmedcare.framework.newim.InstanceType;
 import com.acmedcare.framework.newim.master.MasterConfig;
 import com.acmedcare.framework.newim.master.core.MasterSession.MasterClusterSession;
 import com.acmedcare.framework.newim.master.exception.InvalidInstanceTypeException;
@@ -37,8 +38,7 @@ import java.util.concurrent.TimeUnit;
 import static com.acmedcare.framework.newim.MasterLogger.masterClusterAcceptorLog;
 import static com.acmedcare.framework.newim.MasterLogger.startLog;
 import static com.acmedcare.framework.newim.master.core.MasterSession.MasterClusterSession.CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY;
-import static com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand.CLUSTER_FORWARD_MESSAGES;
-import static com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand.IM_SERVER_PULL_REPLICAS;
+import static com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand.*;
 
 /**
  * Server Acceptor
@@ -85,7 +85,7 @@ public class MasterClusterAcceptorServer {
                 masterClusterAcceptorLog.info("cluster Remoting[{}] is closed", remoteAddr);
                 InstanceNode node = channel.attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).get();
                 // 移除本地副本实例
-                masterClusterSession.revokeClusterInstance(node.getHost());
+                masterClusterSession.revokeClusterInstance(node.getInstanceType(),node.getHost());
               }
 
               @Override
@@ -126,8 +126,7 @@ public class MasterClusterAcceptorServer {
         new NettyRequestProcessor() {
           @Override
           public RemotingCommand processRequest(
-              ChannelHandlerContext ctx, RemotingCommand remotingCommand)
-              throws Exception {
+              ChannelHandlerContext ctx, RemotingCommand remotingCommand) throws Exception {
 
             masterClusterAcceptorLog.info("cluster request to register...");
 
@@ -142,8 +141,7 @@ public class MasterClusterAcceptorServer {
 
             masterClusterAcceptorLog.info("cluster remote address:{}", header.getNodeServerHost());
 
-            InstanceNode node =
-                ctx.channel().attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).get();
+            InstanceNode node = ctx.channel().attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).get();
 
             if (node == null) { // first register is always null.
               node = header.defaultInstance();
@@ -239,7 +237,7 @@ public class MasterClusterAcceptorServer {
             InstanceNode node =
                 channelHandlerContext.channel().attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).get();
 
-            masterClusterSession.revokeClusterInstance(node.getHost());
+            masterClusterSession.revokeClusterInstance(node.getInstanceType(),node.getHost());
 
             masterClusterAcceptorLog.info(
                 "cluster remote:{} instance revoke succeed", node.getHost());
@@ -292,7 +290,45 @@ public class MasterClusterAcceptorServer {
         },
         null);
 
-    masterClusterSession.registerServerInstance(this);
+    // 获取投递服务器可用列表
+    masterClusterAcceptorServer.registerProcessor(
+        DELIVERER_SERVER_PULL_REPLICAS,
+        new NettyRequestProcessor() {
+          @Override
+          public RemotingCommand processRequest(
+              ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand)
+              throws Exception {
+
+            RemotingCommand response =
+                RemotingCommand.createResponseCommand(remotingCommand.getCode(), null);
+
+            // check
+            InstanceNode instanceNode =
+                channelHandlerContext.channel().attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).get();
+
+            if (instanceNode == null) {
+              response.setBody(
+                  BizResult.builder()
+                      .code(-1)
+                      .exception(ExceptionWrapper.builder().message("未注册的客户端").build())
+                      .build()
+                      .bytes());
+              return response;
+            }
+            Set<String> servers = masterClusterSession.delivererReplicaList(InstanceType.DELIVERER);
+            response.setBody(BizResult.builder().code(0).data(servers).build().bytes());
+
+            return response;
+          }
+
+          @Override
+          public boolean rejectRequest() {
+            return false;
+          }
+        },
+        null);
+
+    masterClusterSession.bindServerInstance(this);
 
     // 启动
     masterClusterAcceptorServer.start();

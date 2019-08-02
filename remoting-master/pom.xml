@@ -132,6 +132,16 @@
             <artifactId>remoting-api</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.acmedcare.microservices.im</groupId>
+            <artifactId>remoting-deliverer-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.acmedcare.microservices.im</groupId>
+            <artifactId>remoting-deliverer-connector</artifactId>
+        </dependency>
+
     </dependencies>
 
     <dependencyManagement>
@@ -141,6 +151,14 @@
                 <artifactId>remoting-storage</artifactId>
                 <version>${project.version}</version>
                 <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>remoting-deliverer</artifactId>
+                <type>pom</type>
+                <version>${project.version}</version>
                 <scope>import</scope>
             </dependency>
         </dependencies>

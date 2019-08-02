@@ -1,5 +1,6 @@
 package com.acmedcare.framework.newim.server.core;
 
+import com.acmedcare.framework.kits.executor.AsyncRuntimeExecutor;
 import com.acmedcare.framework.kits.jackson.JacksonKit;
 import com.acmedcare.framework.kits.thread.DefaultThreadFactory;
 import com.acmedcare.framework.kits.thread.ThreadKit;
@@ -14,6 +15,7 @@ import com.acmedcare.framework.newim.protocol.request.ClusterForwardMessageHeade
 import com.acmedcare.framework.newim.server.config.IMProperties;
 import com.acmedcare.framework.newim.server.core.SessionContextConstants.RemotePrincipal;
 import com.acmedcare.framework.newim.server.core.connector.ClusterReplicaConnector;
+import com.acmedcare.framework.newim.server.core.connector.MasterConnector;
 import com.acmedcare.framework.newim.server.endpoint.WssSessionContext;
 import com.acmedcare.framework.newim.server.event.AbstractEventHandler;
 import com.acmedcare.framework.newim.server.processor.header.ServerPushMessageHeader;
@@ -33,6 +35,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +58,8 @@ public class IMSession implements InitializingBean, DisposableBean {
   private static final long DIFF_PERIOD = 2 * 60 * 1000;
 
   private final IMProperties imProperties;
+
+  private MasterConnector masterConnector;
 
   /**
    * 设备->远程连接(TCPs)
@@ -319,7 +324,7 @@ public class IMSession implements InitializingBean, DisposableBean {
   /**
    * 转发投递服务器
    *
-   * @param half 是否是预转发
+   * @param half 是否是预转发,投递服务器需要进行内存预判操作，防止重复投递
    * @param namespace namespace
    * @param passportId passport Id
    * @param messageType message type
@@ -328,10 +333,17 @@ public class IMSession implements InitializingBean, DisposableBean {
    */
   private void forwardToDelivererServer(
       boolean half, String namespace, String passportId, MessageType messageType, byte[] message) {
-
-    // TODO 转发操作
-
-
+    imServerLog.info(
+        "[IM-SESSION-DELIVERER] 准备提交半状态消息到投递服务器,{},{},{},{}",
+        namespace,
+        passportId,
+        messageType,
+        new String(message, StandardCharsets.UTF_8));
+    AsyncRuntimeExecutor.getAsyncThreadPool()
+        .execute(
+            () ->
+                IMSession.this.masterConnector.postDelivererMessage(
+                    half, namespace, passportId, messageType, message));
   }
 
   /**
@@ -525,5 +537,9 @@ public class IMSession implements InitializingBean, DisposableBean {
             }
           });
     }
+  }
+
+  public void bindMasterConnector(MasterConnector masterConnector) {
+    this.masterConnector = masterConnector;
   }
 }
