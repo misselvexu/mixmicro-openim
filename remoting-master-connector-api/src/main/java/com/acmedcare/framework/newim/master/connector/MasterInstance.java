@@ -3,7 +3,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  */
 
-package com.acmedcare.framework.newim.server.master.connector;
+package com.acmedcare.framework.newim.master.connector;
 
 import com.acmedcare.framework.kits.Assert;
 import com.acmedcare.framework.kits.executor.RetriableThreadExecutor;
@@ -225,10 +225,24 @@ public abstract class MasterInstance {
     }
   }
 
+  /**
+   * Build Register Body
+   *
+   * @param properties application properties
+   * @param context master connector context
+   * @return body object
+   */
   protected abstract Object buildRegisterBody(
       MasterConnectorProperties properties, MasterConnectorContext context);
 
-  public abstract ClusterRegisterHeader buildRegisterHeader(MasterConnectorProperties properties);
+  /**
+   * Build register Header
+   *
+   * @param properties application properties
+   * @return instance of {@link ClusterRegisterHeader}
+   */
+  protected abstract ClusterRegisterHeader buildRegisterHeader(
+      MasterConnectorProperties properties);
 
   private void heartbeat() {
     if (heartbeatExecutor == null) {

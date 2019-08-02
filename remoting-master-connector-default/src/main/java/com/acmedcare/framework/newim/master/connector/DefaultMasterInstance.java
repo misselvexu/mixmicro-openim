@@ -1,4 +1,9 @@
-package com.acmedcare.framework.newim.server.master.connector;
+/*
+ * Copyright 1999-2018 Acmedcare+ Holding Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ */
+
+package com.acmedcare.framework.newim.master.connector;
 
 import com.acmedcare.framework.newim.protocol.request.ClusterRegisterHeader;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyClientConfig;
@@ -68,7 +73,7 @@ public final class DefaultMasterInstance extends MasterInstance {
   }
 
   @Override
-  public ClusterRegisterHeader buildRegisterHeader(MasterConnectorProperties properties) {
+  protected ClusterRegisterHeader buildRegisterHeader(MasterConnectorProperties properties) {
 
     ClusterRegisterHeader header = new ClusterRegisterHeader();
     header.setNodeServerType(this.properties.getConnectorType().name());

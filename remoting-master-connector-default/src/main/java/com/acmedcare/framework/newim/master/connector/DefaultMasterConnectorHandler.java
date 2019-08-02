@@ -1,4 +1,9 @@
-package com.acmedcare.framework.newim.server.master.connector;
+/*
+ * Copyright 1999-2018 Acmedcare+ Holding Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ */
+
+package com.acmedcare.framework.newim.master.connector;
 
 import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.Message.MessageType;

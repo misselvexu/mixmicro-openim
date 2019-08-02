@@ -1,4 +1,9 @@
-package com.acmedcare.framework.newim.server.master.connector;
+/*
+ * Copyright 1999-2018 Acmedcare+ Holding Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ */
+
+package com.acmedcare.framework.newim.master.connector;
 
 import com.acmedcare.framework.kits.event.Event;
 import com.acmedcare.framework.kits.event.EventBus;
@@ -9,9 +14,9 @@ import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand;
 import com.acmedcare.framework.newim.protocol.request.ClusterPushSessionDataBody;
 import com.acmedcare.framework.newim.protocol.request.ClusterPushSessionDataHeader;
-import com.acmedcare.framework.newim.server.master.connector.event.PullClusterEvent;
-import com.acmedcare.framework.newim.server.master.connector.processors.MasterNoticeClientChannelsRequestProcessor;
-import com.acmedcare.framework.newim.server.master.connector.processors.MasterPushMessageRequestProcessor;
+import com.acmedcare.framework.newim.master.connector.event.PullClusterEvent;
+import com.acmedcare.framework.newim.master.connector.processors.MasterNoticeClientChannelsRequestProcessor;
+import com.acmedcare.framework.newim.master.connector.processors.MasterPushMessageRequestProcessor;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyClientConfig;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketClient;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
@@ -80,11 +85,10 @@ public final class DefaultMasterConnector extends MasterConnector {
    *
    * <p>
    */
-  public void startup(@Nullable DefaultMasterConnectorHandler handler) {
+  @Override
+  public void doStartup(@Nullable MasterConnectorHandler handler) {
 
     if (startup.compareAndSet(false, true)) {
-      this.defaultMasterConnectorContext.registerMasterConnectorHandler(handler);
-      logger.info("register-ed master connector user's handler :{} ", handler);
 
       // startup client connect
       if (!defaultMasterInstances.isEmpty()) {
@@ -144,7 +148,8 @@ public final class DefaultMasterConnector extends MasterConnector {
     }
   }
 
-  public void destroy() {
+  @Override
+  protected void doDestroy() {
     logger.info("master connector is ready to destroy.");
     if (EventBus.isEnable()) {
       EventBus.unRegister(PullClusterEvent.class, this.subscriber);

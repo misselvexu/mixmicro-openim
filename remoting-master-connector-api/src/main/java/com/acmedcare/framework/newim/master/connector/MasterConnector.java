@@ -3,9 +3,10 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  */
 
-package com.acmedcare.framework.newim.server.master.connector;
+package com.acmedcare.framework.newim.master.connector;
 
 import com.acmedcare.framework.kits.event.EventBus;
+import com.acmedcare.framework.kits.lang.Nullable;
 import com.acmedcare.tiffany.framework.remoting.ChannelEventListener;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyClientConfig;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketClient;
@@ -36,7 +37,7 @@ public abstract class MasterConnector {
   }
 
   /** Init Method */
-  public void init() {
+  public final void init() {
 
     // init event bus
     if (EventBus.isEnable()) {
@@ -58,9 +59,14 @@ public abstract class MasterConnector {
     logger.info("master connector is inited.");
   }
 
+  /**
+   * Register Master Connector Event Processor
+   *
+   * @param subscriber event subscribe
+   */
   protected abstract void registerEvent(MasterConnectorSubscriber subscriber);
 
-  protected MasterInstance newMasterInstance(String nodeAddress) {
+  private MasterInstance newMasterInstance(String nodeAddress) {
     NettyClientConfig config = new NettyClientConfig();
     config.setUseTLS(this.masterConnectorProperties.isConnectorEnableTls());
     config.setClientChannelMaxIdleTimeSeconds(
@@ -93,6 +99,60 @@ public abstract class MasterConnector {
     return masterInstance;
   }
 
+  /**
+   * Register Client Processor
+   *
+   * @param nodeAddress server node address
+   * @param config config properties
+   * @param client client instance of {@link NettyRemotingSocketClient}
+   * @return instance of {@link MasterInstance}
+   */
   protected abstract MasterInstance registerClientProcessor(
       String nodeAddress, NettyClientConfig config, NettyRemotingSocketClient client);
+
+  /**
+   * Start up Connector
+   *
+   * @param handler handler instance of {@link MasterConnectorHandler}
+   */
+  public final void startup(@Nullable MasterConnectorHandler handler) {
+
+    // Framework startup biz code ...
+    if (handler != null) {
+      this.context.registerMasterConnectorHandler(handler);
+      logger.info("register-ed master connector user's handler :{} ", handler);
+    }
+
+    // Customer startup method
+    doStartup(handler);
+    // -EOF-
+  }
+
+  /**
+   * Start up Connector
+   *
+   * @param handler handler instance of {@link MasterConnectorHandler}
+   */
+  protected void doStartup(@Nullable MasterConnectorHandler handler) {}
+
+  /**
+   * Destroy Method
+   *
+   * <p>
+   */
+  public final void destroy() {
+
+    // Framework destroy biz code ...
+    // ...
+    // Customer destroy method
+    doDestroy();
+    // -EOF-
+  }
+
+  /**
+   * Destroy Method
+   *
+   * <p>
+   */
+  protected void doDestroy() {}
 }

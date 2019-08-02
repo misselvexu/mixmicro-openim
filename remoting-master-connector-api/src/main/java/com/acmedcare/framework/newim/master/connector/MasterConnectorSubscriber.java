@@ -3,7 +3,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  */
 
-package com.acmedcare.framework.newim.server.master.connector;
+package com.acmedcare.framework.newim.master.connector;
 
 import com.acmedcare.framework.kits.event.Event;
 import com.acmedcare.framework.kits.event.Subscriber;

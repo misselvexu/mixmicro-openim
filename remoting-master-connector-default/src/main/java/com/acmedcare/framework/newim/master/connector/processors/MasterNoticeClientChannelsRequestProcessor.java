@@ -1,9 +1,14 @@
-package com.acmedcare.framework.newim.server.master.connector.processors;
+/*
+ * Copyright 1999-2018 Acmedcare+ Holding Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ */
+
+package com.acmedcare.framework.newim.master.connector.processors;
 
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
+import com.acmedcare.framework.newim.master.connector.DefaultMasterConnectorContext;
 import com.acmedcare.framework.newim.protocol.request.MasterNoticeSessionDataBody;
-import com.acmedcare.framework.newim.server.master.connector.DefaultMasterConnectorContext;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRequestProcessor;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.alibaba.fastjson.JSON;

@@ -5,7 +5,7 @@ import com.acmedcare.framework.newim.Message.MQMessage;
 import com.acmedcare.framework.newim.RemotingEvent;
 import com.acmedcare.framework.newim.Topic;
 import com.acmedcare.framework.newim.Topic.TopicSubscribe;
-import com.acmedcare.framework.newim.server.master.connector.DefaultMasterConnector;
+import com.acmedcare.framework.newim.master.connector.DefaultMasterConnector;
 import com.acmedcare.framework.newim.server.mq.MQContext;
 import com.acmedcare.framework.newim.server.mq.event.AcmedcareEvent;
 import com.acmedcare.framework.newim.server.mq.exception.MQServiceException;

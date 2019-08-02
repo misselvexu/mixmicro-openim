@@ -1,4 +1,9 @@
-package com.acmedcare.framework.newim.server.master.connector.event;
+/*
+ * Copyright 1999-2018 Acmedcare+ Holding Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ */
+
+package com.acmedcare.framework.newim.master.connector.event;
 
 import com.acmedcare.framework.kits.event.Event;
 import java.util.Set;

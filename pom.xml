@@ -28,6 +28,7 @@
         <module>remoting-test</module>
 
         <module>remoting-deliverer</module>
+        <module>remoting-master-connector-deliverer</module>
     </modules>
 
     <packaging>pom</packaging>
@@ -248,6 +249,12 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>remoting-master-connector-default</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>remoting-master-connector-deliverer</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

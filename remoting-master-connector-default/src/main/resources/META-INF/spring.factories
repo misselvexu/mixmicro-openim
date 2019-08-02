@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.acmedcare.framework.newim.server.master.connector.DefaultMasterConnectorAutoConfiguration
+  com.acmedcare.framework.newim.master.connector.DefaultMasterConnectorAutoConfiguration
