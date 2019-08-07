@@ -40,10 +40,10 @@ public class ConnectorContext {
 
   // ===== Defined Properties ======
 
-  public static final AttributeKey<? extends ConnectorInstance> CONNECTOR_REMOTING_ATTRIBUTE_KEY =
-      AttributeKey.valueOf("CONNECTOR_REMOTING_INSTANCE_KEY");
+  public static final AttributeKey<? extends ConnectorInstance> CONNECTOR_REMOTING_ATTRIBUTE_KEY = AttributeKey.valueOf("CONNECTOR_REMOTING_INSTANCE_KEY");
 
   private static final String DELIVERER_API_DEFAULT_EXTENSION_NAME = "default";
+
   private ExtensionLoader<RemotingDelivererApi> remotingDelivererApiExtensionLoader;
 
   // ===== Session Core =====
@@ -59,8 +59,17 @@ public class ConnectorContext {
    *    CLIENT             Key:ConnectorClientInstanceA   ->  Channel Instance
    * </pre>
    */
-  private Map<ConnectorInstance.Type, List<ConnectorInstance>> session =
-      Maps.newConcurrentMap();
+  private Map<ConnectorInstance.Type, List<ConnectorInstance>> session = Maps.newConcurrentMap();
+
+  /**
+   * Server Connection Instance
+   *
+   * <pre>
+   *
+   *
+   * </pre>
+   */
+  private Map<ConnectorInstance.ConnectorServerInstance, ConnectorConnection> serverConnections = Maps.newConcurrentMap();
 
   // ===== Context Core =====
 
@@ -70,8 +79,7 @@ public class ConnectorContext {
 
       if (instance instanceof ConnectorInstance.ConnectorClientInstance) {
 
-        ConnectorInstance.ConnectorClientInstance clientInstance =
-            (ConnectorInstance.ConnectorClientInstance) instance;
+        ConnectorInstance.ConnectorClientInstance clientInstance = (ConnectorInstance.ConnectorClientInstance) instance;
 
         if(session.containsKey(CLIENT)) {
           session.put(CLIENT, Lists.newArrayList(clientInstance));
@@ -83,7 +91,22 @@ public class ConnectorContext {
       }
 
       if (instance instanceof ConnectorInstance.ConnectorServerInstance) {
-        // TODO ready to register server instance
+
+        ConnectorInstance.ConnectorServerInstance serverInstance =(ConnectorInstance.ConnectorServerInstance) instance;
+
+        if(serverConnections.containsKey(serverInstance)) {
+
+          log.warn("[==] Deliverer Context , server connector instance is register-ed , instance: {} , ignore ." ,instance);
+
+        } else {
+          ConnectorConnection originalConnection = serverConnections.put( serverInstance, ConnectorConnection.builder().serverInstance(serverInstance).build());
+
+          if(originalConnection != null) {
+            originalConnection.release();
+          }
+
+        }
+
       }
     }
   }
@@ -101,8 +124,7 @@ public class ConnectorContext {
 
       if (instance instanceof ConnectorInstance.ConnectorServerInstance) {
 
-        ConnectorInstance.ConnectorServerInstance serverInstance =
-            (ConnectorInstance.ConnectorServerInstance) instance;
+        ConnectorInstance.ConnectorServerInstance serverInstance = (ConnectorInstance.ConnectorServerInstance) instance;
 
         // TODO release
 

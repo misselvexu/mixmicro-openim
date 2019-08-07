@@ -31,4 +31,12 @@ public class DelivererClientProperties extends DefaultDelivererProperties {
    * <p>
    */
   private List<String> remotingAddr;
+
+  /** Enabled heartbeat flag ,default : true */
+  private boolean heartbeatEnabled = true;
+
+  private boolean ssl = false;
+
+  /** Heartbeat Timer Period , Default : 20 * 1000 ms */
+  private long heartbeatPeriod = 20 * 1000;
 }

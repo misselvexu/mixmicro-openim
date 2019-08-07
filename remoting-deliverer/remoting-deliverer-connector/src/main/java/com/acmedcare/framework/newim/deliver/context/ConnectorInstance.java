@@ -6,10 +6,7 @@
 package com.acmedcare.framework.newim.deliver.context;
 
 import io.netty.channel.Channel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -32,20 +29,48 @@ public class ConnectorInstance {
     CLIENT
   }
 
-  private String uniqueId = UUID.randomUUID().toString().replace("-","");
+  private String uniqueId = UUID.randomUUID().toString().replace("-", "");
 
   @Getter
   @Setter
+  @Builder
+  @ToString
   @NoArgsConstructor
+  @AllArgsConstructor
   public static class ConnectorServerInstance extends ConnectorInstance {
 
+    private String serverAddr;
 
+    private boolean ssl;
 
+    private boolean heartbeat;
+
+    private long heartbeatPeriod;
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      ConnectorServerInstance that = (ConnectorServerInstance) o;
+      return serverAddr.equals(that.serverAddr);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(serverAddr);
+    }
   }
 
   @Getter
   @Setter
+  @Builder
+  @ToString
   @NoArgsConstructor
+  @AllArgsConstructor
   public static class ConnectorClientInstance extends ConnectorInstance {
 
     private String host;
@@ -71,5 +96,4 @@ public class ConnectorInstance {
       return Objects.hash(host, port);
     }
   }
-
 }

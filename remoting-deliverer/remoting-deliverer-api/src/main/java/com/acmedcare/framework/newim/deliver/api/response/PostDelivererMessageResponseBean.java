@@ -19,7 +19,6 @@ import java.io.Serializable;
 @Setter
 @Builder
 @NoArgsConstructor
-@AllArgsConstructor
 public class PostDelivererMessageResponseBean implements Serializable {
 
   

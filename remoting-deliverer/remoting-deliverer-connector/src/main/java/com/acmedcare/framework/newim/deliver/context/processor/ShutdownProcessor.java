@@ -3,19 +3,19 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  */
 
-package com.acmedcare.framework.newim.deliver.api.processor;
+package com.acmedcare.framework.newim.deliver.context.processor;
 
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRequestProcessor;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
- * {@link MessageProcessor}
+ * {@link ShutdownProcessor}
  *
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version ${project.version} - 2019-07-30.
  */
-public class MessageProcessor implements NettyRequestProcessor {
+public class ShutdownProcessor implements NettyRequestProcessor {
 
 
 
