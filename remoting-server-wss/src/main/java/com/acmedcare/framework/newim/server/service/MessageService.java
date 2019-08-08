@@ -82,7 +82,7 @@ public class MessageService {
       memberIds.remove(message.getSender());
       groupMessage.setReceivers(memberIds);
       // 排除发送者本身
-      groupMessage.setUnReadSize(memberIds.size() - 1 < 0 ? 0 : memberIds.size() - 1);
+      groupMessage.setUnReadSize(Math.max(memberIds.size() - 1, 0));
 
       if(!Message.InnerType.COMMAND.equals(message.getInnerType())) {
         this.messageRepository.saveMessage(groupMessage);

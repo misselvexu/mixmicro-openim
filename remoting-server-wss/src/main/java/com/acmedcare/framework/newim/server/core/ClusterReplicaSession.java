@@ -9,6 +9,7 @@ import com.google.common.annotations.Beta;
  * @version ${project.version} - 16/11/2018.
  */
 @Beta
+@Deprecated
 public class ClusterReplicaSession {
 
   // TODO defaultReplica session context

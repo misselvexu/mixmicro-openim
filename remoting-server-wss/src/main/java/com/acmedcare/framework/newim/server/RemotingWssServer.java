@@ -1,10 +1,9 @@
 package com.acmedcare.framework.newim.server;
 
-import static com.acmedcare.framework.newim.server.ClusterLogger.startLog;
-
 import com.acmedcare.framework.boot.snowflake.EnableSnowflake;
 import com.acmedcare.framework.boot.snowflake.Snowflake;
 import com.acmedcare.framework.boot.web.socket.standard.ServerEndpointExporter;
+import com.acmedcare.framework.newim.deliver.connector.client.DelivererClientInitializer;
 import com.acmedcare.framework.newim.server.core.NewIMServerBootstrap;
 import com.acmedcare.framework.newim.server.core.connector.ClusterReplicaConnector;
 import com.acmedcare.framework.newim.server.core.connector.MasterConnector;
@@ -16,6 +15,9 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+
+import static com.acmedcare.framework.newim.deliver.connector.client.DelivererClientMarkerConfiguration.DELIVERER_CLIENT_INITIALIZER_BEAN_NAME;
+import static com.acmedcare.framework.newim.server.ClusterLogger.startLog;
 
 /**
  * Remoting Wss Server Application
@@ -49,6 +51,16 @@ public class RemotingWssServer {
     ClusterReplicaConnector clusterReplicaConnector =
         context.getBean(ClusterReplicaConnector.class);
     clusterReplicaConnector.start();
+
+    // @since 2.3.0 add deliverer connector support
+    startLog.info("[WSS] startup NewIM Deliverer Connector.");
+    if (context.containsBean(DELIVERER_CLIENT_INITIALIZER_BEAN_NAME)) {
+
+      DelivererClientInitializer delivererClientInitializer =
+          context.getBean(DELIVERER_CLIENT_INITIALIZER_BEAN_NAME,DelivererClientInitializer.class);
+
+      delivererClientInitializer.startup();
+    }
 
     startLog.info("[WSS] register jvm shutdown hook .");
     Runtime.getRuntime()

@@ -18,7 +18,12 @@ import org.springframework.context.annotation.Bean;
 @EnableConfigurationProperties(DelivererClientProperties.class)
 public class DelivererClientMarkerConfiguration {
 
-  @Bean(initMethod = "init", destroyMethod = "shutdown")
+  public static final String DELIVERER_CLIENT_INITIALIZER_BEAN_NAME = "clientInitializer";
+
+  @Bean(
+      initMethod = "init",
+      destroyMethod = "shutdown",
+      name = DELIVERER_CLIENT_INITIALIZER_BEAN_NAME)
   @ConditionalOnMissingBean(DelivererClientInitializer.class)
   DelivererClientInitializer clientInitializer(DelivererClientProperties properties) {
     return new DelivererClientInitializer(properties);

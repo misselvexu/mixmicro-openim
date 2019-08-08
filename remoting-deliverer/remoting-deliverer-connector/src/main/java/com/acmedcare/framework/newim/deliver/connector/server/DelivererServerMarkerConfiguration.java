@@ -18,7 +18,12 @@ import org.springframework.context.annotation.Bean;
 @EnableConfigurationProperties(DelivererServerProperties.class)
 public class DelivererServerMarkerConfiguration {
 
-  @Bean(initMethod = "init", destroyMethod = "shutdown")
+  public static final String DELIVERER_SERVER_INITIALIZER_BEAN_NAME = "serverInitializer";
+
+  @Bean(
+      initMethod = "init",
+      destroyMethod = "shutdown",
+      name = DELIVERER_SERVER_INITIALIZER_BEAN_NAME)
   @ConditionalOnMissingBean(DelivererServerInitializer.class)
   DelivererServerInitializer serverInitializer(DelivererServerProperties properties) {
     return new DelivererServerInitializer(properties);
