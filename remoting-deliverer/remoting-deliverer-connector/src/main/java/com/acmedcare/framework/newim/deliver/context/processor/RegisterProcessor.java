@@ -66,8 +66,7 @@ public class RegisterProcessor implements NettyRequestProcessor {
         ConnectorInstance.ConnectorClientInstance clientInstance =
             ConnectorInstance.ConnectorClientInstance.builder()
                 .channel(ctx.channel())
-                .host(registryRequestBean.getServiceAddr())
-                .port(registryRequestBean.getServicePort())
+                .clientId(registryRequestBean.getServiceId())
                 .build();
 
         // context

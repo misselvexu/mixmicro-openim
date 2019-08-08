@@ -27,20 +27,5 @@ public class RegistryRequestBean implements Serializable {
    *
    * <p>
    */
-  private String serviceName;
-
-  /**
-   * Service Addr
-   *
-   * <p>
-   */
-  private String serviceAddr;
-
-  /**
-   * Service Port
-   *
-   * <p>
-   */
-  private int servicePort;
-
+  private String serviceId;
 }

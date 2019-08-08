@@ -10,6 +10,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
+
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 
 /**
  * {@link DelivererServerProperties}
@@ -19,6 +24,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @Getter
 @Setter
+@Validated
 @NoArgsConstructor
 @ConfigurationProperties(prefix = "remoting.deliverer.server")
 public class DelivererServerProperties extends DefaultDelivererProperties {
@@ -26,11 +32,14 @@ public class DelivererServerProperties extends DefaultDelivererProperties {
   /**
    * Deliverer Connector Server Host Address, Default: 0.0.0.0
    */
+  @NotBlank
   private String host = "0.0.0.0";
 
   /**
    * Deliverer Connector Server Port , Default: 14110
    */
+  @Min(0)
+  @Max(65536)
   private int port = 14110;
 
 }

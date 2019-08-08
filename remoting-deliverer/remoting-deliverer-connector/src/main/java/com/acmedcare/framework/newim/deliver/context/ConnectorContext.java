@@ -111,6 +111,10 @@ public class ConnectorContext {
     }
   }
 
+  public ConnectorConnection getConnection(ConnectorInstance.ConnectorServerInstance instance) {
+    return serverConnections.get(instance);
+  }
+
   /**
    * Release Deliverer Connector Instance
    *

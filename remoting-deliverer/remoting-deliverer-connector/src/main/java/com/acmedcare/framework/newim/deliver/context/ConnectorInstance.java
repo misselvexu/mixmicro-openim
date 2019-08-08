@@ -23,6 +23,10 @@ import java.util.UUID;
 @ToString
 public class ConnectorInstance {
 
+  private long requestTimeout = 5000;
+
+  private String application;
+
   public enum Type {
     /** */
     SERVER,
@@ -33,10 +37,7 @@ public class ConnectorInstance {
 
   @Getter
   @Setter
-  @Builder
   @ToString
-  @NoArgsConstructor
-  @AllArgsConstructor
   public static class ConnectorServerInstance extends ConnectorInstance {
 
     private String serverAddr;
@@ -46,6 +47,30 @@ public class ConnectorInstance {
     private boolean heartbeat;
 
     private long heartbeatPeriod;
+
+    private long connectDelay = 5000;
+
+    private int maxHeartbeatFailedTimes = 3;
+
+    @Builder(toBuilder = true)
+    public ConnectorServerInstance(
+        String application,
+        String serverAddr,
+        boolean ssl,
+        boolean heartbeat,
+        long heartbeatPeriod,
+        long connectDelay,
+        long requestTimeout,
+        int maxHeartbeatFailedTimes) {
+      this.serverAddr = serverAddr;
+      this.ssl = ssl;
+      this.heartbeat = heartbeat;
+      this.heartbeatPeriod = heartbeatPeriod;
+      this.connectDelay = connectDelay;
+      super.requestTimeout = requestTimeout;
+      super.application = application;
+      this.maxHeartbeatFailedTimes = maxHeartbeatFailedTimes;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -73,9 +98,7 @@ public class ConnectorInstance {
   @AllArgsConstructor
   public static class ConnectorClientInstance extends ConnectorInstance {
 
-    private String host;
-
-    private int port;
+    private String clientId;
 
     private Channel channel;
 
@@ -88,12 +111,12 @@ public class ConnectorInstance {
         return false;
       }
       ConnectorClientInstance that = (ConnectorClientInstance) o;
-      return port == that.port && host.equals(that.host);
+      return clientId.equals(that.clientId);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(host, port);
+      return Objects.hash(clientId);
     }
   }
 }

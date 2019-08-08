@@ -13,6 +13,9 @@ package com.acmedcare.framework.newim.deliver.api;
  */
 public final class DelivererCommand {
 
+  /** 握手协议 */
+  public static final short HANDSHAKE_COMMAND_VALUE = 0x09;
+
   /** 通讯节点注册协议 */
   public static final short REGISTER_COMMAND_VALUE = 0x10;
 
@@ -28,4 +31,6 @@ public final class DelivererCommand {
   /** 获取客户端待投递消息 */
   public static final short FETCH_CLIENT_DELIVERER_MESSAGES_VALUE = 0x14;
 
+  /** 定时投递消息 */
+  public static final short TIMED_DELIVERY_MESSAGE_COMMAND_VALUE = 0x15;
 }
