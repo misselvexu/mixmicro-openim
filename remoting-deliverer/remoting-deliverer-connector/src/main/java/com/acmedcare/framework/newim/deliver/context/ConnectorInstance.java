@@ -23,9 +23,9 @@ import java.util.UUID;
 @ToString
 public class ConnectorInstance {
 
-  private long requestTimeout = 5000;
+  protected long requestTimeout = 5000;
 
-  private String application;
+  protected String application;
 
   public enum Type {
     /** */
@@ -67,8 +67,8 @@ public class ConnectorInstance {
       this.heartbeat = heartbeat;
       this.heartbeatPeriod = heartbeatPeriod;
       this.connectDelay = connectDelay;
-      super.requestTimeout = requestTimeout;
-      super.application = application;
+      this.requestTimeout = requestTimeout;
+      this.application = application;
       this.maxHeartbeatFailedTimes = maxHeartbeatFailedTimes;
     }
 
