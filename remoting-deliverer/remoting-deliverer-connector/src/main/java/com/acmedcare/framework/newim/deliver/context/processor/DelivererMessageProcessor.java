@@ -7,10 +7,10 @@ package com.acmedcare.framework.newim.deliver.context.processor;
 
 import com.acmedcare.framework.kits.Assert;
 import com.acmedcare.framework.newim.BizResult;
-import com.acmedcare.framework.newim.deliver.api.header.RegistryHeader;
-import com.acmedcare.framework.newim.deliver.api.request.RegistryRequestBean;
+import com.acmedcare.framework.newim.deliver.api.header.DelivererMessageHeader;
+import com.acmedcare.framework.newim.deliver.api.request.DelivererMessageRequestBean;
 import com.acmedcare.framework.newim.deliver.context.ConnectorContext;
-import com.acmedcare.framework.newim.deliver.context.ConnectorInstance;
+import com.acmedcare.framework.newim.deliver.services.DelivererService;
 import com.acmedcare.tiffany.framework.remoting.common.RemotingHelper;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRequestProcessor;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
@@ -21,17 +21,22 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
-import static com.acmedcare.framework.newim.deliver.context.ConnectorContext.CONNECTOR_REMOTING_ATTRIBUTE_KEY;
-
 /**
- * {@link RegisterProcessor}
+ * {@link DelivererMessageProcessor}
  *
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version ${project.version} - 2019-07-30.
  */
-public class RegisterProcessor implements NettyRequestProcessor {
+public class DelivererMessageProcessor implements NettyRequestProcessor {
 
-  private static final Logger log = LoggerFactory.getLogger(RegisterProcessor.class);
+  private static final Logger log = LoggerFactory.getLogger(DelivererMessageProcessor.class);
+
+  /** Deliverer Server Side */
+  private final boolean delivererServerSide;
+
+  public DelivererMessageProcessor(boolean delivererServerSide) {
+    this.delivererServerSide = delivererServerSide;
+  }
 
   /**
    * Process Request
@@ -49,43 +54,44 @@ public class RegisterProcessor implements NettyRequestProcessor {
 
     String remotingAddr = RemotingHelper.parseChannelRemoteAddr(ctx.channel());
 
-    log.info("deliverer client :{} request register .", remotingAddr);
+    log.info("deliverer client :{} request post deliverer message .", remotingAddr);
 
     try {
 
-      RegistryHeader header =
-          (RegistryHeader) request.decodeCommandCustomHeader(RegistryHeader.class);
+      DelivererMessageHeader header =
+          (DelivererMessageHeader) request.decodeCommandCustomHeader(DelivererMessageHeader.class);
 
-      Assert.notNull(header, "register request header must not be null .");
+      Assert.notNull(header, "deliverer client post message request header must not be null .");
 
       byte[] payload = request.getBody();
 
       if (payload != null && payload.length > 0) {
 
-        RegistryRequestBean registryRequestBean = JSON.parseObject(payload, RegistryRequestBean.class);
+        DelivererMessageRequestBean messageRequestBean = JSON.parseObject(payload, DelivererMessageRequestBean.class);
 
-        // instance
-        ConnectorInstance.ConnectorClientInstance clientInstance =
-            ConnectorInstance.ConnectorClientInstance.builder()
-                .channel(ctx.channel())
-                .clientId(registryRequestBean.getServiceId())
-                .build();
+        DelivererService service = ConnectorContext.context().getBean(DelivererService.class);
 
-        // context
-        ConnectorContext.context().register(clientInstance);
+        Assert.notNull(service,"Deliverer service instance handler must not be null .");
 
-        // cached channel key
-        ctx.channel().attr(CONNECTOR_REMOTING_ATTRIBUTE_KEY).set(clientInstance);
+        // execute biz
+        service.postDelivererMessage(
+            messageRequestBean.isHalf(),
+            messageRequestBean.getNamespace(),
+            messageRequestBean.getPassportId(),
+            messageRequestBean.getMessageType(),
+            messageRequestBean.getMessage());
 
-        // result
+        // succeed
+
         defaultResponse.setBody(BizResult.SUCCESS.bytes());
 
+        return defaultResponse;
+
       } else {
-        // empty request body
         defaultResponse.setBody(
             BizResult.builder()
                 .code(-1)
-                .data("register request param payload is empty .")
+                .data("deliverer client post message request param payload is empty .")
                 .build()
                 .bytes());
       }
@@ -99,7 +105,7 @@ public class RegisterProcessor implements NettyRequestProcessor {
                       .type(e.getClass())
                       .message(
                           Optional.ofNullable(e.getMessage())
-                              .orElse("deliverer register exception-ed."))
+                              .orElse("deliverer client post message exception-ed."))
                       .build())
               .build()
               .bytes());

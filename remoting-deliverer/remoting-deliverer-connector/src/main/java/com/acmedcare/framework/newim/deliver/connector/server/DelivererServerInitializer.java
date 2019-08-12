@@ -74,8 +74,8 @@ public class DelivererServerInitializer extends DelivererInitializer {
                 log.info("[==] Remoting Deliverer Connector Client :{} is closed . Channel: {}", remoteAddr, channel);
 
                 if(channel != null) {
-                  ConnectorInstance.ConnectorServerInstance instance =
-                      ConnectorContext.parseChannel(channel,CONNECTOR_REMOTING_ATTRIBUTE_KEY, ConnectorInstance.ConnectorServerInstance.class);
+                  ConnectorInstance.ConnectorClientInstance instance =
+                      ConnectorContext.parseChannel(channel,CONNECTOR_REMOTING_ATTRIBUTE_KEY, ConnectorInstance.ConnectorClientInstance.class);
 
                   try{
                     RemotingUtil.closeChannel(channel);
@@ -102,7 +102,7 @@ public class DelivererServerInitializer extends DelivererInitializer {
     log.info("[==] Remoting Deliverer Server Register-ing processors . ");
     this.server.registerProcessor(REGISTER_COMMAND_VALUE,new RegisterProcessor(),null);
     this.server.registerProcessor(SHUTDOWN_COMMAND_VALUE,new ShutdownProcessor(),null);
-    this.server.registerProcessor(REQUEST_DELIVERER_VALUE,new DelivererProcessor(true),null);
+    this.server.registerProcessor(REQUEST_DELIVERER_VALUE,new DelivererMessageProcessor(true),null);
     this.server.registerProcessor(REVOKE_DELIVERER_VALUE,new RevokeDelivererProcessor(),null);
     this.server.registerProcessor(FETCH_CLIENT_DELIVERER_MESSAGES_VALUE,new MessageProcessor(),null);
 

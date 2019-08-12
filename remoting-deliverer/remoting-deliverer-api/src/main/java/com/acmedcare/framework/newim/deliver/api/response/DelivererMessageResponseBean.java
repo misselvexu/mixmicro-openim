@@ -10,7 +10,7 @@ import lombok.*;
 import java.io.Serializable;
 
 /**
- * {@link PostDelivererMessageResponseBean}
+ * {@link DelivererMessageResponseBean}
  *
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version ${project.version} - 2019-08-02.
@@ -19,7 +19,7 @@ import java.io.Serializable;
 @Setter
 @Builder
 @NoArgsConstructor
-public class PostDelivererMessageResponseBean implements Serializable {
+public class DelivererMessageResponseBean implements Serializable {
 
   
 

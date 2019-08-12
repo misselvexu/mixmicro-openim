@@ -102,6 +102,8 @@ public class ConnectorInstance {
 
     private Channel channel;
 
+    @Builder.Default private long timestamp = System.currentTimeMillis();
+
     @Override
     public boolean equals(Object o) {
       if (this == o) {

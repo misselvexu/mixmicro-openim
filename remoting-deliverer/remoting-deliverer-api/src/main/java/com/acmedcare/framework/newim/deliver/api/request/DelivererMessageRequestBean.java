@@ -11,7 +11,7 @@ import lombok.*;
 import java.io.Serializable;
 
 /**
- * {@link PostDelivererMessageRequestBean}
+ * {@link DelivererMessageRequestBean}
  *
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version ${project.version} - 2019-08-02.
@@ -21,7 +21,7 @@ import java.io.Serializable;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostDelivererMessageRequestBean implements Serializable {
+public class DelivererMessageRequestBean implements Serializable {
 
   /** 时间戳 */
   @Builder.Default private long timestamp = System.currentTimeMillis();

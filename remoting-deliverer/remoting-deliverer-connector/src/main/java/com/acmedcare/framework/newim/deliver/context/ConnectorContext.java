@@ -18,6 +18,7 @@ import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.Environment;
@@ -40,7 +41,7 @@ public class ConnectorContext {
 
   // ===== Defined Properties ======
 
-  public static final AttributeKey<? extends ConnectorInstance> CONNECTOR_REMOTING_ATTRIBUTE_KEY = AttributeKey.valueOf("CONNECTOR_REMOTING_INSTANCE_KEY");
+  public static final AttributeKey<ConnectorInstance.ConnectorClientInstance> CONNECTOR_REMOTING_ATTRIBUTE_KEY = AttributeKey.valueOf("CONNECTOR_REMOTING_INSTANCE_KEY");
 
   private static final String DELIVERER_API_DEFAULT_EXTENSION_NAME = "default";
 
@@ -130,26 +131,41 @@ public class ConnectorContext {
 
         ConnectorInstance.ConnectorServerInstance serverInstance = (ConnectorInstance.ConnectorServerInstance) instance;
 
-        // TODO release
+        ConnectorConnection connection = serverConnections.get(serverInstance);
 
+        if(connection != null) {
+
+          try{
+            connection.disconnect();
+          } catch (Exception e) {
+            log.warn("[==] Deliverer Context , server instance:[{}] connection:[{}] -> disconnect exception :{} " , serverInstance , connection ,e.getMessage());
+          } finally{
+            connection.release();
+          }
+        }
+      }
+
+      if (instance instanceof ConnectorInstance.ConnectorClientInstance) {
+
+        ConnectorInstance.ConnectorClientInstance clientInstance = (ConnectorInstance.ConnectorClientInstance) instance;
+
+        boolean removed = session.get(CLIENT).remove(clientInstance);
+
+        log.info("[==] Deliverer Context , released connector instance: {} , result: {}" , clientInstance,removed);
       }
     }
   }
 
   // ===== Common Methods ======
 
-  public static @Nullable <T> T parseChannel(
-      @NonNull ChannelHandlerContext context,
-      @NonNull AttributeKey<?> key,
-      @NonNull Class<T> clazz) {
+  public static @Nullable <T> T parseChannel(@NonNull ChannelHandlerContext context, @NonNull AttributeKey<?> key, @NonNull Class<T> clazz) {
     if (context != null) {
       return parseChannel(context.channel(), key, clazz);
     }
     return null;
   }
 
-  public static <T> T parseChannel(
-      @NonNull Channel channel, @NonNull AttributeKey<?> key, @NonNull Class<T> clazz) {
+  public static <T> T parseChannel(@NonNull Channel channel, @NonNull AttributeKey<?> key, @NonNull Class<T> clazz) {
     try {
       if (channel != null) {
         if (key != null) {
@@ -163,6 +179,8 @@ public class ConnectorContext {
     }
     return null;
   }
+
+  //  ===== Bean Private Constructor Defined  =====
 
   private static class InstanceHolder {
     private static final ConnectorContext CONNECTOR_CONTEXT = new ConnectorContext();
@@ -196,6 +214,16 @@ public class ConnectorContext {
           RemotingDelivererApi remotingDelivererApi = extensionClass.getExtInstance();
           log.info("[==] SPI Extension Bean: {} is init-ed.", remotingDelivererApi);
         });
+  }
+
+  // ===== Spring Bean Factory =====
+
+  public <T> T getBean(String name, Class<T> clazz) throws BeansException {
+    return this.context.getBean(name,clazz);
+  }
+
+  public <T> T getBean(Class<T> clazz) throws BeansException {
+    return this.context.getBean(clazz);
   }
 
   // ===== SPI Factory Operations ======
