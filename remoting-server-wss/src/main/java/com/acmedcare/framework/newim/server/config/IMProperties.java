@@ -122,7 +122,7 @@ public class IMProperties implements EnvironmentAware, InitializingBean {
     }
 
     if (this.port <= 0) {
-      this.port = Integer.valueOf(System.getenv(ENV_PORT));
+      this.port = Integer.parseInt(System.getenv(ENV_PORT));
       if (this.port <= 0) {
         this.port = DEFAULT_IM_PORT;
       }
