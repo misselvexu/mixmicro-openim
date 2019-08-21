@@ -2,6 +2,8 @@ package com.acmedcare.tiffany.framework.remoting.jlib;
 
 import android.util.Log;
 
+import javax.annotation.Nullable;
+
 /**
  * Acmedcare SDK Logger Utils
  *
@@ -17,7 +19,7 @@ public class AcmedcareLogger {
     return System.getProperty(NON_ANDROID_FLAG) == null;
   }
 
-  public static void i(String tag, String message) {
+  public static void i(@Nullable String tag, String message) {
     if (isAndroid()) {
       Log.i(SDK_LOG_TAG, message);
     } else {

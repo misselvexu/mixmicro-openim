@@ -5,13 +5,18 @@
 
 package com.acmedcare.framework.newim.deliver.services;
 
+import com.acmedcare.framework.kits.Assert;
+import com.acmedcare.framework.newim.DelivererMessage;
 import com.acmedcare.framework.newim.Message;
+import com.acmedcare.framework.newim.deliver.api.bean.DelivererMessageBean;
 import com.acmedcare.framework.newim.deliver.api.request.TimedDelivererMessageRequestBean;
 import com.acmedcare.framework.newim.storage.api.DelivererRepository;
+import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -43,7 +48,24 @@ public class DelivererService {
    */
   public void postDelivererMessage(boolean half, String namespace, String passportId, Message.MessageType messageType, byte[] message) {
 
-    // todo
+    Message originMessage = JSON.parseObject(message, Message.class);
+
+    Assert.notNull(originMessage, "deliverer service post message payload must not be null .");
+
+    log.info("[==] Deliverer Service post message : {} ,{} ,{} ,{}, {}" , half, namespace, passportId, messageType, originMessage.getMid());
+
+    DelivererMessage delivererMessage = DelivererMessage.builder()
+        .namespace(namespace)
+        .mid(originMessage.getMid())
+        .delivererStatus(half ? DelivererMessage.DelivererStatus.HALF : DelivererMessage.DelivererStatus.READY)
+        .delivererType(DelivererMessage.DelivererType.OFFLINE)
+        .messageType(messageType)
+        .payload(message)
+        .receivers(new String[]{passportId})
+        .delivererTime(new Date())
+        .build();
+
+    this.delivererRepository.savePostedDelivererMessage(delivererMessage);
 
   }
 
@@ -53,15 +75,41 @@ public class DelivererService {
    * @param messageId message id
    */
   public void revokerDelivererMessage(String passportId, Long messageId) {
-    // todo
+
+    this.delivererRepository.revokerDelivererMessage(passportId,messageId);
+
   }
 
   /**
    * 客户端处理服务端分发的定时投递消息到终端客户端
    * @param messages 消息列表
    */
-  public void distributeDelivererMessage(List<TimedDelivererMessageRequestBean.TimedMessage> messages) {
+  public void postTimerDelivererMessage(List<TimedDelivererMessageRequestBean.TimedMessage> messages) {
+
     // todo
+
+  }
+
+  /**
+   * 获取需要投递的消息
+   * @param namespace 名称空间
+   * @param passportId 通行证编号
+   * @param messageType 消息类型
+   * @return 列表
+   */
+  public List<DelivererMessageBean> fetchDelivererMessages(String namespace, String passportId, Message.MessageType messageType) {
+    return this.delivererRepository.fetchDelivererMessages(namespace,passportId,messageType);
+  }
+
+  /**
+   * 确认Ack消息
+   * @param namespace 名称空间
+   * @param passportId 通行证编号
+   * @param messageId 消息编号
+   */
+  public void commitDelivererAckMessage(String namespace, String passportId, String messageId) {
+
+    this.delivererRepository.commitDelivererAckMessage(namespace,passportId,messageId);
 
   }
 }

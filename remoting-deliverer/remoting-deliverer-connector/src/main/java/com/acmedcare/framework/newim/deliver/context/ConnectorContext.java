@@ -8,6 +8,7 @@ package com.acmedcare.framework.newim.deliver.context;
 import com.acmedcare.framework.kits.lang.NonNull;
 import com.acmedcare.framework.kits.lang.Nullable;
 import com.acmedcare.framework.newim.deliver.api.RemotingDelivererApi;
+import com.acmedcare.framework.newim.deliver.api.exception.NoAvailableDelivererServerInstanceException;
 import com.acmedcare.framework.newim.spi.ExtensionLoader;
 import com.acmedcare.framework.newim.spi.ExtensionLoaderFactory;
 import com.google.common.collect.Lists;
@@ -34,7 +35,7 @@ import static com.acmedcare.framework.newim.deliver.context.ConnectorInstance.Ty
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version ${project.version} - 2019-07-29.
  */
-@SuppressWarnings({"unchecked", "ConstantConditions"})
+@SuppressWarnings({"unchecked", "ConstantConditions", "unused"})
 public class ConnectorContext {
 
   private static final Logger log = LoggerFactory.getLogger(ConnectorContext.class);
@@ -114,6 +115,20 @@ public class ConnectorContext {
 
   public ConnectorConnection getConnection(ConnectorInstance.ConnectorServerInstance instance) {
     return serverConnections.get(instance);
+  }
+
+  /**
+   * Get Available Deliverer Server Instance From cache
+   * @return instance of {@link ConnectorConnection}
+   * @throws NoAvailableDelivererServerInstanceException maybe thrown no-available-deliverer-server-instance exception
+   */
+  public ConnectorConnection getAvailableConnection() throws NoAvailableDelivererServerInstanceException {
+    for(Map.Entry<ConnectorInstance.ConnectorServerInstance, ConnectorConnection> entry : serverConnections.entrySet()) {
+      if(entry.getValue().isRunning()) {
+        return entry.getValue();
+      }
+    }
+    throw new NoAvailableDelivererServerInstanceException();
   }
 
   /**

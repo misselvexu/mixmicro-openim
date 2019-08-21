@@ -83,6 +83,12 @@ public class RemotingClientRegisterAuthProcessor extends AbstractNormalRequestPr
       // set session info
       channelHandlerContext.channel().attr(PRINCIPAL_KEY).set(remotePrincipal);
 
+      // @since 2.3.0 异步提交拉取消息请求
+      imSession.fetchDelivererMessage(
+          authHeader.getNamespace(),
+          principal.getPassportUid().toString(),
+          channelHandlerContext.channel());
+
       // return success
       response.setBody(BizResult.SUCCESS.bytes());
 

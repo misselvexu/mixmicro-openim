@@ -48,7 +48,7 @@ public class TimedDeliveryMessageProcessor extends AbstractProcessor {
         Assert.notNull(bean,"Timed deliverer message bean must not be null .");
 
         // process
-        this.delivererService.distributeDelivererMessage(bean.getMessages());
+        this.delivererService.postTimerDelivererMessage(bean.getMessages());
 
         // succeed
         defaultResponse.setBody(BizResult.SUCCESS.bytes());

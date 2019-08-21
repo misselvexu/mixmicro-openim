@@ -1,15 +1,17 @@
 package com.acmedcare.tiffany.framework.remoting.jlib.biz.bean;
 
+import com.acmedcare.tiffany.framework.remoting.jlib.Constants;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
-import java.io.Serializable;
-import java.nio.charset.Charset;
-import java.util.Date;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.io.Serializable;
+import java.nio.charset.Charset;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Base Message
@@ -26,11 +28,21 @@ public class Message implements Serializable {
   public static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
 
   private static final long serialVersionUID = 1213375068246340023L;
+
+  private String namespace = Constants.DEFAULT_NAMESPACE;
+
   /** Message Id */
   private Long mid;
 
   /** message innerType */
   private InnerType innerType = InnerType.NORMAL;
+
+  /**
+   * 消息Tag标识
+   *
+   * @since 2.3.0
+   */
+  private String tag = "default";
 
   /** message sender */
   private String sender;
@@ -133,12 +145,6 @@ public class Message implements Serializable {
 
     private static final long serialVersionUID = 1620489599567755440L;
 
-    /**
-     * 设备列表
-     *
-     * <p>不指定设备列表,默认推送所有的设备
-     */
-    private List<String> deviceIds;
   }
 
   @Getter

@@ -33,4 +33,7 @@ public final class DelivererCommand {
 
   /** 定时投递消息 */
   public static final short TIMED_DELIVERY_MESSAGE_COMMAND_VALUE = 0x15;
+
+  /** 确认投递消息Ack */
+  public static final short DELIVERER_CLIENT_ACK_DELIVERER_VALUE = 0x16;
 }

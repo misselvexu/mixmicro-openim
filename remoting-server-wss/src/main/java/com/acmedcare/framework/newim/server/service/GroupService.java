@@ -55,4 +55,8 @@ public class GroupService {
     }
     return members;
   }
+
+  public Group queryGroupDetail(String groupId, String namespace) {
+    return this.groupRepository.queryGroup(namespace, groupId);
+  }
 }

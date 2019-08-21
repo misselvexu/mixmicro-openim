@@ -6,11 +6,8 @@
 package com.acmedcare.framework.newim;
 
 import com.acmedcare.framework.newim.storage.IMStorageCollections;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
@@ -24,13 +21,17 @@ import java.util.Date;
  */
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @Document(value = IMStorageCollections.DELIVERER_MESSAGE)
 @CompoundIndex(
     unique = true,
     name = "deliverer_message_record_compound_index",
     def = "{'mid': 1, 'delivererSource': -1, 'delivererType': 1}")
 public class DelivererMessage implements Serializable {
+
+  private String namespace;
 
   /** 消息编号 */
   private Long mid;
@@ -39,19 +40,48 @@ public class DelivererMessage implements Serializable {
   private Message.MessageType messageType;
 
   /** 投递时间 */
-  private Date delivererTime;
+  @Builder.Default private Date delivererTime = new Date();
 
   /** 投递来源，服务器节点 */
-  private String delivererSource;
+  @Builder.Default private String delivererSource = "default";
 
   /** 投递类型 */
-  private DelivererType delivererType;
+  @Builder.Default private DelivererType delivererType = DelivererType.OFFLINE;
 
-  @DBRef
-  private Message message;
+  /** 接收人 */
+  private String[] receivers;
 
+  /** 消息体 */
+  private byte[] payload;
 
-  // ===== eXtenstion Defined ======
+  @Builder.Default private DelivererStatus delivererStatus = DelivererStatus.READY;
+
+  /** 投递时间 */
+  private Date deliveringTime;
+
+  /** 已投递时间 */
+  private Date deliveredTime;
+
+  // ===== eXtension Defined ======
+
+  /** 投递状态 */
+  public enum DelivererStatus {
+
+    /** 取消状态 */
+    CANCEL,
+
+    /** 初始半状态 */
+    HALF,
+
+    /** 待投递状态 */
+    READY,
+
+    /** 投递中 */
+    DELIVERING,
+
+    /** 已投递 */
+    DELIVERED,
+  }
 
   /** 投递类型 */
   public enum DelivererType {

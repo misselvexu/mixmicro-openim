@@ -29,6 +29,7 @@ public class ShutdownProcessor implements NettyRequestProcessor {
    */
   @Override
   public RemotingCommand processRequest(ChannelHandlerContext ctx, RemotingCommand request) throws Exception {
+    // todo
     return null;
   }
 

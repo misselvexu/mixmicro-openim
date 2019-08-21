@@ -24,7 +24,7 @@ public abstract class AcmedcareEvent {
    *       Validation!
    * </ul>
    *
-   * @return
+   * @return instance of {@link Event}
    */
   public abstract Event eventType();
 
@@ -37,6 +37,8 @@ public abstract class AcmedcareEvent {
 
   /** System Event */
   public enum SystemEvent implements Event {
+
+    /** 初始化完成事件 */
     SDK_INIT,
 
     RE_CONNECT_FAILED,
@@ -54,10 +56,18 @@ public abstract class AcmedcareEvent {
     // 推送消息已读状态返回事件
     PUSH_MESSAGE_READ_STATUS_RESPONSE,
 
-    // 拉取会话列表
+    /**
+     * 拉取会话列表
+     *
+     * @deprecated 3.0版本中将删除该事件
+     */
     PULL_SESSION_LIST_RESPONSE,
 
-    // 拉取具体的会话的状态信息
+    /**
+     * 拉取具体的会话的状态信息
+     *
+     * @deprecated 3.0版本中将删除该事件
+     */
     PULL_SESSION_STATUS_RESPONSE,
 
     // 拉取群组列表返回值事件
@@ -68,6 +78,13 @@ public abstract class AcmedcareEvent {
 
     // 服务端推送消息事件
     SERVER_PUSH_MESSAGE,
+
+    /**
+     * 服务端消息通知
+     *
+     * @since 2.3.0
+     */
+    SERVER_NOTIFY_MESSAGE
   }
 
   public interface Event {}

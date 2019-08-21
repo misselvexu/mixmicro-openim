@@ -5,6 +5,8 @@
 
 package com.acmedcare.framework.newim.deliver.connector.server;
 
+import com.acmedcare.framework.newim.deliver.connector.server.executor.TimedDelivererMessageExecutor;
+import com.acmedcare.framework.newim.deliver.services.DelivererService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -20,6 +22,10 @@ public class DelivererServerMarkerConfiguration {
 
   public static final String DELIVERER_SERVER_INITIALIZER_BEAN_NAME = "serverInitializer";
 
+  public static final String TIMED_DELIVERER_MESSAGE_EXECUTOR_BEAN_NAME = "timedDelivererMessageExecutor";
+
+  // =====
+
   @Bean(
       initMethod = "init",
       destroyMethod = "shutdown",
@@ -27,5 +33,14 @@ public class DelivererServerMarkerConfiguration {
   @ConditionalOnMissingBean(DelivererServerInitializer.class)
   DelivererServerInitializer serverInitializer(DelivererServerProperties properties) {
     return new DelivererServerInitializer(properties);
+  }
+
+  @Bean(
+      initMethod = "init",
+      destroyMethod = "destroy",
+      name = TIMED_DELIVERER_MESSAGE_EXECUTOR_BEAN_NAME)
+  @ConditionalOnMissingBean(TimedDelivererMessageExecutor.class)
+  TimedDelivererMessageExecutor timedDelivererMessageExecutor(DelivererService delivererService) {
+    return new TimedDelivererMessageExecutor(delivererService);
   }
 }

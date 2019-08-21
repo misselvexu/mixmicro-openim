@@ -22,6 +22,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class DefaultDelivererProperties implements Serializable {
 
+  private static final long serialVersionUID = 1051938584868442541L;
+
   /**
    * Remoting Call Request Timeout , Default: 5000 ms
    *

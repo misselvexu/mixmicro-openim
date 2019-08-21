@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Biz BizResult
@@ -56,7 +56,7 @@ public class BizResult<T> implements Serializable {
    * @return bytes array
    */
   public byte[] bytes() {
-    return json().getBytes(Charset.forName("UTF-8"));
+    return json().getBytes(StandardCharsets.UTF_8);
   }
 
   /**

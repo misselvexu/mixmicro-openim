@@ -7,8 +7,11 @@ package com.acmedcare.framework.newim.client;
  * @version ${project.version} - 29/11/2018.
  */
 public enum MessageContentType {
+
+  /** JSON */
   APPLICATION_JSON("application/json"),
 
+  /** Normal */
   TEXT_PLAIN("text/plain");
 
   String contentType;

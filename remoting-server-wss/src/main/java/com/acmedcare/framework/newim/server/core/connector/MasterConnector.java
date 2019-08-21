@@ -9,7 +9,6 @@ import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.InstanceNode;
 import com.acmedcare.framework.newim.InstanceNode.NodeType;
 import com.acmedcare.framework.newim.InstanceType;
-import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand;
 import com.acmedcare.framework.newim.protocol.request.ClusterPushSessionDataBody;
 import com.acmedcare.framework.newim.protocol.request.ClusterPushSessionDataHeader;
@@ -423,28 +422,6 @@ public class MasterConnector {
     instance.setNettyClientConfig(config);
     instance.setNettyRemotingSocketClient(client);
     return instance;
-  }
-
-  /**
-   * 转发投递服务器
-   *
-   * @param half 是否是预转发,投递服务器需要进行内存预判操作，防止重复投递
-   * @param namespace namespace
-   * @param passportId passport Id
-   * @param messageType message type
-   * @param message message content bytes
-   * @since 2.3.0
-   */
-  public void postDelivererMessage(
-      boolean half,
-      String namespace,
-      String passportId,
-      Message.MessageType messageType,
-      byte[] message) {
-
-    // TODO 发投递请求
-
-
   }
 
   /**

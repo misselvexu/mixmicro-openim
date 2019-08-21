@@ -19,7 +19,9 @@ import org.apache.commons.lang3.StringUtils;
 @Getter
 @Setter
 public class PushMessageReadStatusHeader implements CommandCustomHeader {
+
   private String namespace = MessageConstants.DEFAULT_NAMESPACE;
+
   @CFNotNull private String passportId;
 
   /**

@@ -17,6 +17,9 @@ public interface IMStorageCollections {
   /** 群组 */
   String GROUP = "im_group";
 
+  /** 账号 */
+  String ACCOUNT = "im_account";
+
   /** 主题 */
   String TOPIC = "mq_topic";
 

@@ -9,6 +9,8 @@ import com.acmedcare.framework.newim.Message.MessageType;
 import com.acmedcare.framework.newim.SessionBean;
 import com.acmedcare.framework.newim.client.MessageAttribute;
 import com.acmedcare.framework.newim.client.bean.Member;
+import com.acmedcare.framework.newim.deliver.api.bean.DelivererMessageBean;
+import com.acmedcare.framework.newim.deliver.connector.client.executor.DelivererMessageExecutor;
 import com.acmedcare.framework.newim.protocol.Command.ClusterClientCommand;
 import com.acmedcare.framework.newim.protocol.Command.Retriable;
 import com.acmedcare.framework.newim.protocol.request.ClusterForwardMessageHeader;
@@ -31,8 +33,12 @@ import com.google.common.eventbus.AsyncEventBus;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import lombok.Getter;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.nio.charset.StandardCharsets;
@@ -43,6 +49,7 @@ import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 
+import static com.acmedcare.framework.newim.deliver.connector.client.DelivererClientMarkerConfiguration.POST_QUEUE_DELIVERER_MESSAGE_EXECUTOR_BEAN_NAME;
 import static com.acmedcare.framework.newim.server.ClusterLogger.imServerLog;
 import static com.acmedcare.framework.newim.server.ClusterLogger.masterClusterLog;
 
@@ -53,13 +60,15 @@ import static com.acmedcare.framework.newim.server.ClusterLogger.masterClusterLo
  * @version ${project.version} - 12/11/2018.
  */
 @ThreadSafe
-public class IMSession implements InitializingBean, DisposableBean {
+public class IMSession implements InitializingBean, DisposableBean, ApplicationContextAware {
 
   private static final long DIFF_PERIOD = 2 * 60 * 1000;
 
   private final IMProperties imProperties;
 
   private MasterConnector masterConnector;
+
+  private DelivererMessageExecutor delivererMessageExecutor;
 
   /**
    * 设备->远程连接(TCPs)
@@ -321,6 +330,35 @@ public class IMSession implements InitializingBean, DisposableBean {
     }
   }
 
+  private void doSendMessageToChannel(Channel channel, MessageType messageType, byte[] message) {
+
+    if (channel != null && channel.isWritable()) {
+
+      ServerPushMessageHeader serverPushMessageHeader = new ServerPushMessageHeader();
+      serverPushMessageHeader.setMessageType(messageType.name());
+      // build new request command
+      RemotingCommand command =
+          RemotingCommand.createRequestCommand(
+              ClusterClientCommand.SERVER_PUSH_MESSAGE, serverPushMessageHeader);
+      command.setBody(message);
+
+      // send
+      channel
+          .writeAndFlush(command)
+          .addListener(
+              (ChannelFutureListener)
+                  future -> {
+                    if (future.isSuccess()) {
+                      if (imServerLog.isDebugEnabled()) {
+                        imServerLog.debug(
+                            "[IM-SESSION-SEND] 消息请求发送成功; Channel:{}",
+                            RemotingHelper.parseChannelRemoteAddr(channel));
+                      }
+                    }
+                  });
+    }
+  }
+
   /**
    * 转发投递服务器
    *
@@ -342,8 +380,71 @@ public class IMSession implements InitializingBean, DisposableBean {
     AsyncRuntimeExecutor.getAsyncThreadPool()
         .execute(
             () ->
-                IMSession.this.masterConnector.postDelivererMessage(
+                IMSession.this.delivererMessageExecutor.submitDelivererMessage(
                     half, namespace, passportId, messageType, message));
+  }
+
+  /**
+   * 处理客户端的消息Ack响应请求
+   *
+   * @param namespace 名称空间
+   * @param messageId 消息编号
+   * @param passportId 客户端编号
+   */
+  public void processClientAck(String namespace, String messageId, String passportId) {
+    imServerLog.info(
+        "[IM-SESSION-DELIVERER] 确认消息Ack到投递服务器,{},{}, 客户端:{}", namespace, messageId, passportId);
+    AsyncRuntimeExecutor.getAsyncThreadPool()
+        .execute(
+            () ->
+                IMSession.this.delivererMessageExecutor.commitDelivererMessage(
+                    namespace, messageId, passportId));
+  }
+
+  /**
+   * 拉取客户端投递消息（离线）列表
+   *
+   * @param namespace 名称空间
+   * @param passportId 通行证
+   * @param channel 远程连接通道
+   */
+  public void fetchDelivererMessage(String namespace, String passportId, Channel channel) {
+
+    imServerLog.info(
+        "[IM-SESSION-DELIVERER] 拉取客户端待投递的消息,{}, 客户端:{}-{}", namespace, passportId, channel);
+    AsyncRuntimeExecutor.getAsyncThreadPool()
+        .execute(
+            () -> {
+              imServerLog.info("[IM-SESSION-DELIVERER] 拉取客户端单聊投递消息，{}, {}", namespace, passportId);
+              List<DelivererMessageBean> singleMessageBeans =
+                  IMSession.this.delivererMessageExecutor.fetchClientDelivererMessage(
+                      namespace, passportId, MessageType.SINGLE);
+
+              for (DelivererMessageBean singleMessageBean : singleMessageBeans) {
+                try {
+                  doSendMessageToChannel(
+                      channel, singleMessageBean.getMessageType(), singleMessageBean.getMessage());
+                } catch (Exception ignored) {
+                }
+              }
+            });
+
+    AsyncRuntimeExecutor.getAsyncThreadPool()
+        .execute(
+            () -> {
+              imServerLog.info("[IM-SESSION-DELIVERER] 拉取客户端群组投递消息，{}, {}", namespace, passportId);
+              List<DelivererMessageBean> groupMessageBeans =
+                  IMSession.this.delivererMessageExecutor.fetchClientDelivererMessage(
+                      namespace, passportId, MessageType.GROUP);
+
+              for (DelivererMessageBean groupMessageBean : groupMessageBeans) {
+                try {
+                  doSendMessageToChannel(
+                      channel, groupMessageBean.getMessageType(), groupMessageBean.getMessage());
+                } catch (Exception ignored) {
+                }
+              }
+            });
   }
 
   /**
@@ -541,5 +642,34 @@ public class IMSession implements InitializingBean, DisposableBean {
 
   public void bindMasterConnector(MasterConnector masterConnector) {
     this.masterConnector = masterConnector;
+  }
+
+  /**
+   * Set the ApplicationContext that this object runs in. Normally this call will be used to
+   * initialize the object.
+   *
+   * <p>Invoked after population of normal bean properties but before an init callback such as
+   * {@link InitializingBean#afterPropertiesSet()} or a custom init-method. Invoked after {@link
+   * org.springframework.context.ResourceLoaderAware#setResourceLoader}, {@link
+   * org.springframework.context.ApplicationEventPublisherAware#setApplicationEventPublisher} and
+   * {@link org.springframework.context.MessageSourceAware}, if applicable.
+   *
+   * @param applicationContext the ApplicationContext object to be used by this object
+   * @throws org.springframework.context.ApplicationContextException in case of context
+   *     initialization errors
+   * @throws BeansException if thrown by application context methods
+   * @see BeanInitializationException
+   */
+  @Override
+  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+
+    if (applicationContext.containsBean(POST_QUEUE_DELIVERER_MESSAGE_EXECUTOR_BEAN_NAME)) {
+      this.delivererMessageExecutor =
+          applicationContext.getBean(
+              POST_QUEUE_DELIVERER_MESSAGE_EXECUTOR_BEAN_NAME, DelivererMessageExecutor.class);
+
+      imServerLog.info(
+          "[==] inject deliverer message api instance: {}", this.delivererMessageExecutor);
+    }
   }
 }

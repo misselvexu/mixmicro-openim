@@ -61,6 +61,27 @@ public final class RemotingParameters {
 
   @Getter @Default private String jksPassword = DEFAULT_JKS_PD;
 
+  /**
+   * is ack enabled
+   *
+   * @since 2.3.0
+   */
+  @Getter @Default private boolean enabledAck = true;
+
+  /**
+   * ack retry times
+   *
+   * @since 2.3.0
+   */
+  @Getter @Default private int ackRetryMaxTimes = 3;
+
+  /**
+   * ack retry period
+   *
+   * @since 2.3.0
+   */
+  @Getter @Default private long ackRetryPeriod = 3000;
+
   public boolean validate() {
 
     if (enableSSL) {
@@ -68,8 +89,7 @@ public final class RemotingParameters {
         InputStream stream = null;
         try {
           // load default
-          stream =
-              RemotingParameters.class.getResourceAsStream("/META-INF/keystore.jks");
+          stream = RemotingParameters.class.getResourceAsStream("/META-INF/keystore.jks");
 
           byte[] buffer = new byte[stream.available()];
           stream.read(buffer);
@@ -85,7 +105,7 @@ public final class RemotingParameters {
           this.jksPassword = DEFAULT_JKS_PD;
         } catch (Exception e) {
           RemotingLogger.warn(null, "load default jks failed.(ignore)");
-        } finally{
+        } finally {
           if (stream != null) {
             try {
               stream.close();

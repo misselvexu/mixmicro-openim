@@ -29,6 +29,8 @@ import java.util.List;
 @ConfigurationProperties(prefix = "remoting.deliverer.client")
 public class DelivererClientProperties extends DefaultDelivererProperties {
 
+  private static final long serialVersionUID = -5026059123829689693L;
+
   /**
    * Remoting Deliverer Server Address List, Like: xx.xx.xx.xx:14110,xx.xx.xx.xxx:14110
    *
@@ -56,4 +58,26 @@ public class DelivererClientProperties extends DefaultDelivererProperties {
    * <p>default: 3 times
    */
   private int maxHeartbeatFailedTimes = 3;
+
+  /**
+   * Submit Request Fast Failed Enabled , default: true
+   *
+   * <p>
+   */
+  private boolean postRequestFastFailEnabled = false;
+
+  /** fast fail max retry times , default: 3 */
+  private int maxFastFailedRetryTimes = 3;
+
+  /** Fast fail retry delay time, default: 10 s */
+  private int fastFailRetryDelay = 1000 * 10;
+
+  /**
+   * Post Queue Capacity ,default: 2048
+   *
+   * <p>
+   */
+  private int postQueueCapacity = 2048;
+
+  private int postQueueThreadNum = 5;
 }

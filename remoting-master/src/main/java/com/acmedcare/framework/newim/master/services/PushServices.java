@@ -1,7 +1,7 @@
 package com.acmedcare.framework.newim.master.services;
 
+import com.acmedcare.framework.newim.client.bean.request.PushMessageRequest;
 import com.acmedcare.framework.newim.storage.api.MessageRepository;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -21,19 +21,8 @@ public class PushServices {
     this.messageRepository = messageRepository;
   }
 
-  public void sendNotice(
-      boolean useTimer,
-      String timerExpression,
-      String appName,
-      String content,
-      String action,
-      String title,
-      String ext,
-      List<String> deviceIds) {
-    //
+
+  public void send(PushMessageRequest request) {
 
   }
-
-  // TODO 推送逻辑
-
 }

@@ -16,6 +16,7 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 import java.util.concurrent.*;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 
+import static com.acmedcare.framework.newim.protocol.Command.ClusterClientCommand.CLIENT_QUERY_GROUP_INFO;
 import static com.acmedcare.framework.newim.server.ClusterLogger.imServerLog;
 import static com.acmedcare.framework.newim.server.ClusterLogger.innerReplicaServerLog;
 
@@ -247,6 +248,12 @@ public class NewIMServerBootstrap {
     imServer.registerProcessor(
         ClusterClientCommand.CLIENT_PULL_GROUP_MEMBERS,
         new RemotingClientPullGroupMembersProcessor(imSession, groupService),
+        null);
+
+    // @since 2.3.0
+    imServer.registerProcessor(
+        CLIENT_QUERY_GROUP_INFO,
+        new RemotingClientPullGroupDetailProcessor(imSession, groupService),
         null);
 
     imServer.registerProcessor(

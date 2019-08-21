@@ -23,6 +23,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class DelivererMessageRequestBean implements Serializable {
 
+  private static final long serialVersionUID = 3879854064426725649L;
+
   /** 时间戳 */
   @Builder.Default private long timestamp = System.currentTimeMillis();
 

@@ -218,6 +218,12 @@ public final class Command {
     public static final int CLIENT_PULL_GROUP_MEMBERS = 0x40010;
 
     /**
+     * 客户端拉取群详情
+     * @since 2.3.0
+     */
+    public static final int CLIENT_QUERY_GROUP_INFO = 0x40011;
+
+    /**
      * 服务端推送消息
      *
      * <pre>

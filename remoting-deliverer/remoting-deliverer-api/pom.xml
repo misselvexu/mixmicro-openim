@@ -54,6 +54,11 @@
         </dependency>
 
         <dependency>
+            <groupId>com.acmedcare.framework.kits</groupId>
+            <artifactId>retry-kit</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.acmedcare.tiffany.framework</groupId>
             <artifactId>remoting-default-2x</artifactId>
             <scope>test</scope>

@@ -14,6 +14,9 @@ import com.acmedcare.framework.newim.deliver.api.header.RegistryHeader;
 import com.acmedcare.framework.newim.deliver.api.request.RegistryRequestBean;
 import com.acmedcare.framework.newim.deliver.context.processor.TimedDeliveryMessageProcessor;
 import com.acmedcare.tiffany.framework.remoting.ChannelEventListener;
+import com.acmedcare.tiffany.framework.remoting.exception.RemotingConnectException;
+import com.acmedcare.tiffany.framework.remoting.exception.RemotingSendRequestException;
+import com.acmedcare.tiffany.framework.remoting.exception.RemotingTimeoutException;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyClientConfig;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketClient;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
@@ -47,6 +50,8 @@ public class ConnectorConnection implements Serializable {
 
   private static final Logger log = LoggerFactory.getLogger(ConnectorConnection.class);
 
+  private static final long serialVersionUID = -8772199045444566217L;
+
   private ConnectorInstance.ConnectorServerInstance serverInstance;
 
   @Builder(toBuilder = true)
@@ -72,6 +77,12 @@ public class ConnectorConnection implements Serializable {
   private NettyClientConfig config;
 
   // ===== Operations ======
+
+  public RemotingCommand execute(RemotingCommand remotingCommand, long timeoutMillis)
+      throws InterruptedException, RemotingTimeoutException, RemotingSendRequestException,
+          RemotingConnectException {
+    return this.client.invokeSync(serverInstance.getServerAddr(), remotingCommand, timeoutMillis);
+  }
 
   /**
    * Client connect remoting server instance
@@ -154,6 +165,14 @@ public class ConnectorConnection implements Serializable {
     } catch (Exception e) {
       throw new RemotingDelivererException(e);
     }
+  }
+
+  /**
+   * Return Server Running Status
+   * @return true /false
+   */
+  public boolean isRunning() {
+    return connecting;
   }
 
   private void doConnect() {
