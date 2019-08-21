@@ -61,7 +61,7 @@ public class DelivererService {
         .delivererType(DelivererMessage.DelivererType.OFFLINE)
         .messageType(messageType)
         .payload(message)
-        .receivers(new String[]{passportId})
+        .receiver(passportId)
         .delivererTime(new Date())
         .build();
 

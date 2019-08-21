@@ -140,7 +140,6 @@ public class Message implements Serializable {
   @Getter
   @Setter
   @NoArgsConstructor
-  @AllArgsConstructor
   public static class PushMessage extends QosMessage {
 
     private static final long serialVersionUID = 1620489599567755440L;

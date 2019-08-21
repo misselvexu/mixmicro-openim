@@ -8,10 +8,13 @@ package com.acmedcare.framework.newim;
 import com.acmedcare.framework.newim.storage.IMStorageCollections;
 import lombok.*;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * {@link DelivererMessage}
@@ -28,8 +31,13 @@ import java.util.Date;
 @CompoundIndex(
     unique = true,
     name = "deliverer_message_record_compound_index",
-    def = "{'mid': 1, 'delivererSource': -1, 'delivererType': 1}")
+    def = "{'mid': 1, 'namespace': 1, 'delivererType': 1, 'receiver': 1}")
 public class DelivererMessage implements Serializable {
+
+  private static final long serialVersionUID = 8751252674787722435L;
+
+  @Indexed(unique = true)
+  @Builder.Default private String uuid = UUID.randomUUID().toString();
 
   private String namespace;
 
@@ -49,7 +57,7 @@ public class DelivererMessage implements Serializable {
   @Builder.Default private DelivererType delivererType = DelivererType.OFFLINE;
 
   /** 接收人 */
-  private String[] receivers;
+  private String receiver;
 
   /** 消息体 */
   private byte[] payload;
@@ -61,6 +69,28 @@ public class DelivererMessage implements Serializable {
 
   /** 已投递时间 */
   private Date deliveredTime;
+
+  private String ukey;
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    DelivererMessage that = (DelivererMessage) o;
+    return namespace.equals(that.namespace) &&
+        mid.equals(that.mid) &&
+        messageType == that.messageType &&
+        receiver.equals(that.receiver);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(namespace, mid, messageType, receiver);
+  }
 
   // ===== eXtension Defined ======
 

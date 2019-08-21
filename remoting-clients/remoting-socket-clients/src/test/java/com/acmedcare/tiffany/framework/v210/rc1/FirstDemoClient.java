@@ -1,5 +1,7 @@
 package com.acmedcare.tiffany.framework.v210.rc1;
 
+import com.acmedcare.nas.api.entity.UploadEntity;
+import com.acmedcare.nas.client.NasProperties;
 import com.acmedcare.tiffany.framework.remoting.android.core.xlnio.XLMRRemotingClient;
 import com.acmedcare.tiffany.framework.remoting.jlib.AcmedcareLogger;
 import com.acmedcare.tiffany.framework.remoting.jlib.AcmedcareRemoting;
@@ -43,9 +45,9 @@ public class FirstDemoClient {
 
     System.setProperty(AcmedcareLogger.NON_ANDROID_FLAG, "true");
 
-    //    NasProperties nasProperties = new NasProperties();
-    //    nasProperties.setServerAddrs(Lists.<String>newArrayList("192.168.1.226:18848"));
-    //    nasProperties.setHttps(false);
+        NasProperties nasProperties = new NasProperties();
+        nasProperties.setServerAddrs(Lists.<String>newArrayList("39.100.125.0:18848"));
+        nasProperties.setHttps(false);
 
     RemotingParameters temp =
         RemotingParameters.builder()
@@ -59,6 +61,15 @@ public class FirstDemoClient {
                   @Override
                   public void onFailed(int code, String message) {
                     System.out.println("授权失败,Code=" + code + ", 错误:" + message);
+
+                    UploadEntity uploadEntity =
+                        AcmedcareRemoting.getInstance()
+                            .executor()
+                            .nasClient()
+                            .upload(
+                                "desktop", "jpg", "/Users/misselvexu/Documents/desktop.jpg", null);
+
+                    System.out.println(uploadEntity.getPublicUrl());
                   }
                 })
             //            .enableSSL(true)
@@ -68,7 +79,7 @@ public class FirstDemoClient {
             // "/Users/misselvexu/Documents/acmedcare.gitlab.com/Acmedcare-NewIM/remoting-certs/client/keystore.jks"))
             //            .jksPassword("1qaz2wsx")
             .username(KnownParams.passport)
-            //            .nasProperties(nasProperties)
+            .nasProperties(nasProperties)
             .accessToken(KnownParams.accessToken)
             .areaNo(KnownParams.areaNo)
             .orgId(KnownParams.orgId)
@@ -80,7 +91,7 @@ public class FirstDemoClient {
                   @Override
                   public List<RemotingAddress> remotingAddressList() {
                     return Lists.newArrayList(
-                        new RemotingAddress(false, "39.100.67.34", 13110, false));
+                        new RemotingAddress(false, "39.100.125.0", 13110, false));
                   }
                 })
             .build();
