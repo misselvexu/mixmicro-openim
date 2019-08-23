@@ -81,6 +81,7 @@ public final class Command {
 
     /** Master服务器推送消息 */
     public static final int MASTER_PUSH_MESSAGES = 0x20005;
+
     /**
      * WebSocket Client And Cluster Command
      * <li>
@@ -88,7 +89,10 @@ public final class Command {
     public static final int MASTER_NOTICE_CLIENT_CHANNELS = 0x20006;
 
     /** cluster 拉取其他的备份节点 */
-    public static final int CLUSTER_PULL_REPLICAS = 0x20007;
+    public static final int IM_SERVER_PULL_REPLICAS = 0x20007;
+
+    /** 投递服务器可用节点列表拉取请求 */
+    public static final int DELIVERER_SERVER_PULL_REPLICAS = 0x20009;
 
     /** cluster 转发信息 */
     public static final int CLUSTER_FORWARD_MESSAGES = 0x20008;
@@ -214,6 +218,12 @@ public final class Command {
     public static final int CLIENT_PULL_GROUP_MEMBERS = 0x40010;
 
     /**
+     * 客户端拉取群详情
+     * @since 2.3.0
+     */
+    public static final int CLIENT_QUERY_GROUP_INFO = 0x40011;
+
+    /**
      * 服务端推送消息
      *
      * <pre>
@@ -230,5 +240,12 @@ public final class Command {
      * </pre>
      */
     public static final int SERVER_PUSH_FOCUS_LOGOUT = 0x41002;
+
+    /**
+     * 客户端收到消息反馈Ack
+     *
+     * @since 2.2.3
+     */
+    public static final int CLIENT_RECEIVED_MESSAGE_ACK = 0x41003;
   }
 }

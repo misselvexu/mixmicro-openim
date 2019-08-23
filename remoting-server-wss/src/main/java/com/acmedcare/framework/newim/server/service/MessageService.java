@@ -78,9 +78,11 @@ public class MessageService {
       // check group receivers
       List<String> memberIds =
           this.groupRepository.queryGroupMemberIds(message.getNamespace(), groupMessage.getGroup());
-      memberIds.remove(message.getSender()); // 排除发送者本身
+      // 排除发送者本身
+      memberIds.remove(message.getSender());
       groupMessage.setReceivers(memberIds);
-      groupMessage.setUnReadSize(memberIds.size() - 1 < 0 ? 0 : memberIds.size() - 1); // 排除发送者本身
+      // 排除发送者本身
+      groupMessage.setUnReadSize(Math.max(memberIds.size() - 1, 0));
 
       if(!Message.InnerType.COMMAND.equals(message.getInnerType())) {
         this.messageRepository.saveMessage(groupMessage);

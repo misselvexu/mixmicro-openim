@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 
@@ -28,7 +29,7 @@ import java.util.List;
 @AllArgsConstructor
 public class Message implements Serializable {
 
-  public static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
+  public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
   private static final long serialVersionUID = 1213375068246340023L;
 
@@ -140,9 +141,6 @@ public class Message implements Serializable {
 
     @Indexed(name = "group_query_index")
     private String group;
-
-    // fix: add group bean instance
-    private Group groupBean;
 
     private List<String> receivers;
     /** 未读人数 */

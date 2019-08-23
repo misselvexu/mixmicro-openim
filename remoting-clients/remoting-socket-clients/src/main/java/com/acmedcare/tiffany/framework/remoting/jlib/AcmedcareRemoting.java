@@ -52,27 +52,21 @@ import static com.acmedcare.tiffany.framework.remoting.jlib.biz.BizCode.CLIENT_H
  * @version alpha - 26/07/2018.
  */
 public final class AcmedcareRemoting implements Serializable {
+
   @Deprecated private static final String TAG = AcmedcareRemoting.class.getSimpleName();
 
   private static final String DEFAULT_APP_ID = "Acmedcare#Client#SDK$ID";
   private static final String DEFAULT_APP_KEY = "Acmedcare#Client#SDK$KET";
   private static final AcmedcareRemoting INSTANCE = InstanceHolder.INSTANCE;
   private static final long serialVersionUID = -9029081624617687982L;
-  private static int reConnectRetryTimes = 5; // 5 time
-  private static long reConnectPeriod = 8; // 8 s
-  /** Init Flag */
+  private static int reConnectRetryTimes = 5;
+  private static long reConnectPeriod = 8;
   private static volatile boolean inited = false;
-
   private static volatile boolean shutdowned = false;
-
   private static volatile boolean focusLogout = false;
-
   private static AtomicBoolean initedOnce = new AtomicBoolean(false);
-  /** Running Flag */
   private static volatile boolean running = false;
-
   private static AtomicBoolean runOnce = new AtomicBoolean(false);
-  /** Connection Flag */
   @Getter private static volatile boolean connecting = false;
 
   private static AsyncEventBus eventBus;
@@ -81,13 +75,14 @@ public final class AcmedcareRemoting implements Serializable {
   private static RemotingParameters parameters;
   @Getter private static XLMRRemotingClient remotingClient;
   @Getter private static List<String> addresses = Lists.newArrayList();
-  @Getter private static NasProperties nasProperties; // acmedcare nas config
+  @Getter private static NasProperties nasProperties;
   @Getter private volatile String currentLoginName;
   private long delay;
   /** Biz Executor Api */
   private BizExecutor bizExecutor;
 
   @Getter @Setter private String currentRemotingAddress;
+
   private RemotingConnectListener listener;
   /** Heartbeat config */
   @Deprecated private ScheduledExecutorService heartbeatExecutor;
@@ -446,7 +441,7 @@ public final class AcmedcareRemoting implements Serializable {
 
     // register processor
     AcmedcareRemoting.remotingClient.registerProcessor(
-        BizCode.SERVER_PUSH_MESSAGE, new ServerPushMessageProcessor(this), null);
+        BizCode.SERVER_PUSH_MESSAGE, new ServerPushMessageProcessor(this,AcmedcareRemoting.parameters), null);
 
     // register focus logout processor
     AcmedcareRemoting.remotingClient.registerProcessor(

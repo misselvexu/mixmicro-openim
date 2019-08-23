@@ -9,11 +9,7 @@ import com.acmedcare.tiffany.framework.remoting.android.core.exception.RemotingT
 import com.acmedcare.tiffany.framework.remoting.android.core.exception.RemotingTooMuchRequestException;
 import com.acmedcare.tiffany.framework.remoting.android.core.protocol.RemotingCommand;
 import com.acmedcare.tiffany.framework.remoting.android.core.xlnio.XLMRResponseFuture;
-import com.acmedcare.tiffany.framework.remoting.jlib.AcmedcareLogger;
-import com.acmedcare.tiffany.framework.remoting.jlib.AcmedcareRemoting;
-import com.acmedcare.tiffany.framework.remoting.jlib.AsyncRuntimeExecutor;
-import com.acmedcare.tiffany.framework.remoting.jlib.BizExecutor;
-import com.acmedcare.tiffany.framework.remoting.jlib.Constants;
+import com.acmedcare.tiffany.framework.remoting.jlib.*;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.BizCode;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.BizResult;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Group;
@@ -22,32 +18,15 @@ import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message.CustomMediaPayloadWithExt;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message.InnerType;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.bean.Message.MediaPayload;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.AuthHeader;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.AuthRequest;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.JoinOrLeaveGroupHeader;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.JoinOrLeaveGroupRequest;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.OperateType;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullGroupHeader;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullGroupMembersHeader;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullGroupMembersOnlineStatusHeader;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullGroupMembersOnlineStatusRequest;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullGroupMembersRequest;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullGroupMessageReadStatusHeader;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullGroupMessageReadStatusRequest;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullMessageHeader;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullMessageRequest;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullOwnerGroupListRequest;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PushMessageHeader;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PushMessageReadStatusRequest;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PushMessageRequest;
+import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.*;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PushMessageRequest.Callback;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PushMessageStatusHeader;
 import com.acmedcare.tiffany.framework.remoting.jlib.biz.response.GroupMessageReadStatusResponse;
 import com.acmedcare.tiffany.framework.remoting.jlib.events.AcmedcareEvent;
 import com.acmedcare.tiffany.framework.remoting.jlib.exception.BizException;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
+
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -923,6 +902,77 @@ public class JREBizExectuor extends BizExecutor {
                     } catch (Exception e) {
                       AcmedcareLogger.e(
                           JREBizExectuor.class.getSimpleName(), e, "拉取群组在线人员列表返回值解析异常");
+                    }
+                  }
+                }
+              });
+    } catch (InterruptedException
+        | RemotingConnectException
+        | RemotingTimeoutException
+        | RemotingTooMuchRequestException
+        | RemotingSendRequestException e) {
+
+      AcmedcareLogger.e(JREBizExectuor.class.getSimpleName(), e, "拉取群组在线人员列表请求失败");
+      throw new BizException(e);
+    }
+  }
+
+  @Override
+  public void queryGroupDetail(
+      PullGroupDetailRequest request, final PullGroupDetailRequest.Callback callback)
+      throws BizException {
+    PullGroupDetailHeader header =
+        PullGroupDetailHeader.builder()
+            .namespace(
+                request.getNamespace() == null
+                    ? Constants.DEFAULT_NAMESPACE
+                    : request.getNamespace())
+            .groupId(request.getGroupId())
+            .build();
+
+    AcmedcareLogger.i(this.getClass().getSimpleName(), "拉取群组详情请求头:" + JSON.toJSONString(header));
+
+    RemotingCommand command =
+        RemotingCommand.createRequestCommand(BizCode.CLIENT_QUERY_GROUP_INFO, header);
+
+    try {
+      AcmedcareRemoting.getRemotingClient()
+          .invokeAsync(
+              this.remotingAddress(),
+              command,
+              requestTimeout,
+              new InvokeCallback() {
+                @Override
+                public void operationComplete(XLMRResponseFuture xlmrResponseFuture) {
+                  if (xlmrResponseFuture.isSendRequestOK()) {
+
+                    try {
+                      RemotingCommand response = xlmrResponseFuture.getResponseCommand();
+                      if (response != null) {
+
+                        BizResult bizResult =
+                            BizResult.fromBytes(response.getBody(), BizResult.class);
+                        AcmedcareLogger.i(
+                            this.getClass().getSimpleName(), "拉取群组详情操作返回值:" + bizResult.json());
+
+                        if (bizResult.getCode() == 0) {
+                          // success
+                          if (callback != null) {
+                            Group group =
+                                JSON.parseObject(
+                                    JSON.toJSONString(bizResult.getData()), Group.class);
+                            callback.onSuccess(group);
+                          }
+                        } else {
+                          if (callback != null) {
+                            callback.onFailed(
+                                bizResult.getCode(), bizResult.getException().getMessage());
+                          }
+                        }
+                      }
+
+                    } catch (Exception e) {
+                      AcmedcareLogger.e(JREBizExectuor.class.getSimpleName(), e, "拉取群组详情返回值解析异常");
                     }
                   }
                 }

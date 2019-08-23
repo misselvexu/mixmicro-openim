@@ -29,14 +29,14 @@ public class MasterEndpointClientTest {
   @Before
   public void init() {
     this.masterEndpointClient =
-        new MasterEndpointClient(Lists.newArrayList("192.168.1.227:13110"), false);
+        new MasterEndpointClient(Lists.newArrayList("192.168.1.151:13110","192.168.1.152:13110"), false);
   }
 
   @Test
   public void testCreateNewGroup() {
 
     NewGroupRequest request = new NewGroupRequest();
-    request.setGroupId("gid-20181122");
+    request.setGroupId("gid-20181122-1");
     request.setGroupName("测试默认分组");
     request.setGroupBizTag("CMFZ");
     request.setGroupExt("~");
@@ -47,7 +47,7 @@ public class MasterEndpointClientTest {
   @Test
   public void queryGroupMemberList() {
 
-    List<Member> members = this.masterEndpointClient.queryGroupMemberList("gid-20181122","DEFAULT");
+    List<Member> members = this.masterEndpointClient.queryGroupMemberList("gid-20181122-1","DEFAULT");
     System.out.println(JSON.toJSONString(members));
     Assert.assertNotNull(members);
 
@@ -57,7 +57,7 @@ public class MasterEndpointClientTest {
   public void testJoinGroup() {
 
     AddGroupMembersRequest request = new AddGroupMembersRequest();
-    request.setGroupId("EXPERT309413180961026");
+    request.setGroupId("gid-20181122-1");
     request.setMembers(
         Lists.newArrayList(
             Member.builder().memberId(3837142362366977L).memberName("7669用户").build(),

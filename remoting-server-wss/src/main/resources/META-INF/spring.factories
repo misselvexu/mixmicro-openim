@@ -1,0 +1,3 @@
+org.springframework.context.ApplicationListener=\
+  com.acmedcare.framework.newim.server.listener.ApplicationStartedListener
+

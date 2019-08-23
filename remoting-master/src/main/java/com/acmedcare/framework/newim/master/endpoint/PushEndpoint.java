@@ -1,21 +1,20 @@
 package com.acmedcare.framework.newim.master.endpoint;
 
-import static com.acmedcare.framework.newim.MasterLogger.endpointLog;
-
 import com.acmedcare.framework.exception.defined.InvalidRequestParamException;
 import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.BizResult.ExceptionWrapper;
-import com.acmedcare.framework.newim.client.bean.request.PushNoticeRequest;
+import com.acmedcare.framework.newim.client.bean.request.PushMessageRequest;
 import com.acmedcare.framework.newim.master.services.PushServices;
 import com.acmedcare.framework.newim.storage.exception.StorageException;
 import com.alibaba.fastjson.JSON;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import static com.acmedcare.framework.newim.MasterLogger.endpointLog;
 
 /**
  * Push Endpoint
@@ -35,23 +34,12 @@ public class PushEndpoint {
   }
 
   @PostMapping(value = "/notice")
-  ResponseEntity<?> pushNotice(PushNoticeRequest request) {
+  ResponseEntity<?> push(PushMessageRequest request) {
     try {
+
       endpointLog.info("推送通知请求参数: {}", JSON.toJSONString(request));
 
-      if (StringUtils.isAnyBlank(request.getContent(), request.getTitle(), request.getAppName())) {
-        throw new InvalidRequestParamException("推送通知的参数[content,title,appName]不能为空");
-      }
-
-      this.pushServices.sendNotice(
-          request.isUseTimer(),
-          request.getTimerExpression(),
-          request.getAppName(),
-          request.getContent(),
-          request.getAction(),
-          request.getTitle(),
-          request.getExt(),
-          request.getDeviceIds());
+      this.pushServices.send(request);
 
       return ResponseEntity.ok().build();
     } catch (InvalidRequestParamException | StorageException e) {

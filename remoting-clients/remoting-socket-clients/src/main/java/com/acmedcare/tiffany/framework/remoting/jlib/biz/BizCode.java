@@ -22,7 +22,7 @@ public class BizCode {
    */
   @Deprecated public static final int HEARTBEAT = 0x1001;
 
-  /** 客户端捂手操作 */
+  /** 客户端握手操作 */
   public static final int CLIENT_HANDSHAKE = -0x40000;
 
   /** 客户端连接授权操作请求 */
@@ -109,6 +109,13 @@ public class BizCode {
   public static final int CLIENT_PULL_GROUP_MEMBERS = 0x40010;
 
   /**
+   * 客户端拉取群详情
+   *
+   * @since 2.3.0
+   */
+  public static final int CLIENT_QUERY_GROUP_INFO = 0x40011;
+
+  /**
    * 服务端推送消息
    *
    * <pre>
@@ -125,4 +132,11 @@ public class BizCode {
    * </pre>
    */
   public static final int SERVER_PUSH_FOCUS_LOGOUT = 0x41002;
+
+  /**
+   * 客户端上报接收消息的Ack回执
+   *
+   * @since 2.3.0
+   */
+  public static final int CLIENT_RECEIVED_MESSAGE_ACK = 0x41003;
 }

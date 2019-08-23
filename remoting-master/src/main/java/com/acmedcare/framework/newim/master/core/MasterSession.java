@@ -1,9 +1,11 @@
 package com.acmedcare.framework.newim.master.core;
 
+import com.acmedcare.framework.kits.lang.Nullable;
 import com.acmedcare.framework.kits.thread.DefaultThreadFactory;
 import com.acmedcare.framework.kits.thread.ThreadKit;
 import com.acmedcare.framework.newim.*;
 import com.acmedcare.framework.newim.client.MessageAttribute;
+import com.acmedcare.framework.newim.master.exception.InvalidInstanceTypeException;
 import com.acmedcare.framework.newim.protocol.Command.MasterClusterCommand;
 import com.acmedcare.framework.newim.protocol.request.ClusterPushSessionDataBody;
 import com.acmedcare.framework.newim.protocol.request.ClusterRegisterBody.WssInstance;
@@ -17,9 +19,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 import java.util.Map;
@@ -71,6 +71,13 @@ public class MasterSession {
     private static Map<String, RemoteClusterClientInstance> clusterClientInstances =
         Maps.newConcurrentMap();
 
+    /**
+     * 投递服务器列表
+     *
+     * <p>
+     */
+    private static Map<String, DelivererInstance> delivererInstances = Maps.newConcurrentMap();
+
     private static Map<String, Map<String, WssInstance>> clusterWssServerInstance =
         Maps.newConcurrentMap();
     private ScheduledExecutorService notifierExecutor;
@@ -118,19 +125,30 @@ public class MasterSession {
             if (remoteClusterClientInstance.getInstanceType().equals(instanceType)
                 // add zone flag
                 && zone.equalsIgnoreCase(remoteClusterClientInstance.getZone())) {
-              result.add(s);
+              result.add(remoteClusterClientInstance.getExportAddress());
             }
           });
 
       return result;
     }
 
-    public Set<String> clusterReplicaList(InstanceType instanceType) {
+    Set<String> clusterReplicaList(InstanceType instanceType) {
       Set<String> replicas = Sets.newHashSet();
       clusterClientInstances.forEach(
           (s, remoteClusterClientInstance) -> {
             if (remoteClusterClientInstance.getInstanceType().equals(instanceType)) {
               replicas.add(remoteClusterClientInstance.getClusterReplicaAddress());
+            }
+          });
+      return replicas;
+    }
+
+    Set<String> delivererReplicaList(InstanceType instanceType) {
+      Set<String> replicas = Sets.newHashSet();
+      delivererInstances.forEach(
+          (s, delivererInstance) -> {
+            if (delivererInstance.getInstanceType().equals(instanceType)) {
+              replicas.add(s);
             }
           });
       return replicas;
@@ -148,57 +166,136 @@ public class MasterSession {
       return result;
     }
 
-    public void registerClusterInstance(
+    /**
+     * Register Remoting Node Instance
+     *
+     * @param remoteNode remote node instance , im | deliverer | mq ....
+     * @param remotingNodeReplicaAddress remote node's replica acceptor address (host:port) ,if
+     *     replica feature available.
+     * @throws InvalidInstanceTypeException maybe throws invalid instance exception
+     */
+    void registerNodeInstance(
         InstanceNode remoteNode,
-        String clusterAddress,
-        String clusterReplicaAddress,
-        List<WssInstance> wssNodes,
-        Channel channel) {
+        String remotingAddress,
+        @Nullable String exportAddress,
+        @Nullable String remotingNodeReplicaAddress,
+        @Nullable List<WssInstance> wssNodes,
+        Channel channel)
+        throws InvalidInstanceTypeException {
 
       InstanceType instanceType = remoteNode.getInstanceType();
 
-      RemoteClusterClientInstance original =
-          clusterClientInstances.put(
-              clusterAddress,
-              RemoteClusterClientInstance.builder()
-                  .instanceType(instanceType)
-                  .clusterReplicaAddress(clusterReplicaAddress)
-                  .clusterClientChannel(channel)
-                  .zone(remoteNode.getZone())
-                  .build());
+      // 根据不同类型进行缓存
+      switch (instanceType) {
+        case DELIVERER: // 投递服务器
+          DelivererInstance originalDelivererInstance =
+              delivererInstances.put(
+                  remotingAddress,
+                  DelivererInstance.builder()
+                      .delivererChannel(channel)
+                      .instanceNode(remoteNode)
+                      .instanceType(remoteNode.getInstanceType())
+                      .build());
 
-      if (wssNodes != null && !wssNodes.isEmpty()) {
-        // process wss
-        Map<String, WssInstance> temp = Maps.newHashMap();
-        for (WssInstance wssNode : wssNodes) {
-          temp.put(wssNode.getWssName(), wssNode);
-        }
-        clusterWssServerInstance.put(clusterAddress, temp);
-      }
+          if (originalDelivererInstance != null) {
+            masterClusterAcceptorLog.info(
+                "Deliverer Node :{} registered, Auto-release original old instance",
+                remotingAddress);
+            // close
+            try {
+              originalDelivererInstance.getDelivererChannel().close();
+            } catch (Exception ignore) {
+            }
+          }
 
-      if (original != null) {
-        masterClusterAcceptorLog.info(
-            "Cluster:{} registered, Auto-release original old instance", clusterAddress);
-        // close
-        try {
-          original.getClusterClientChannel().close();
-        } catch (Exception ignore) {
-        }
+          break;
+
+        case MQ_SERVER: // 消息队列服务器
+          // ignore
+          break;
+
+        case DEFAULT: // IM通讯服务器
+          // cached
+          RemoteClusterClientInstance original =
+              clusterClientInstances.put(
+                  remotingAddress,
+                  RemoteClusterClientInstance.builder()
+                      .instanceType(instanceType)
+                      .exportAddress(exportAddress)
+                      .clusterReplicaAddress(remotingNodeReplicaAddress)
+                      .clusterClientChannel(channel)
+                      .zone(remoteNode.getZone())
+                      .build());
+
+          if (wssNodes != null && !wssNodes.isEmpty()) {
+            // process wss
+            Map<String, WssInstance> temp = Maps.newHashMap();
+            for (WssInstance wssNode : wssNodes) {
+              temp.put(wssNode.getWssName(), wssNode);
+            }
+            clusterWssServerInstance.put(remotingAddress, temp);
+          }
+
+          if (original != null) {
+            masterClusterAcceptorLog.info(
+                "Cluster:{} registered, Auto-release original old instance", remotingAddress);
+            // close
+            try {
+              original.getClusterClientChannel().close();
+            } catch (Exception ignore) {
+            }
+          }
+          break;
+
+        default:
+          // IGNORE
+          throw new InvalidInstanceTypeException("无效的节点类型:" + instanceType.name());
       }
     }
 
-    public void revokeClusterInstance(String clusterAddress) {
-      RemoteClusterClientInstance preInstance = clusterClientInstances.remove(clusterAddress);
-      if (preInstance != null) {
-        masterClusterAcceptorLog.info("Revoke Cluster:{}", clusterAddress);
-        // close
-        try {
-          preInstance.getClusterClientChannel().close();
-        } catch (Exception ignore) {
+    void revokeClusterInstance(InstanceType type, String remotingAddress) {
+
+      if (type != null) {
+        switch (type) {
+          case DEFAULT:
+            RemoteClusterClientInstance preInstance =
+                clusterClientInstances.remove(remotingAddress);
+            if (preInstance != null) {
+              masterClusterAcceptorLog.info("Revoke Cluster:{}", remotingAddress);
+              // close
+              try {
+                preInstance.getClusterClientChannel().close();
+              } catch (Exception ignore) {
+              }
+            }
+
+            clusterWssServerInstance.remove(remotingAddress);
+          case DELIVERER:
+            DelivererInstance instance = delivererInstances.remove(remotingAddress);
+            if (instance != null) {
+              masterClusterAcceptorLog.info("Ready Revoke Deliverer:{}", remotingAddress);
+              try {
+                instance
+                    .getDelivererChannel()
+                    .close()
+                    .addListener(
+                        future -> {
+                          if (future.isSuccess() || future.isDone()) {
+                            masterClusterAcceptorLog.info(
+                                "Revoke Deliverer:{} Closed .", remotingAddress);
+                          }
+                        });
+              } catch (Exception ignore) {
+              }
+            }
+
+            break;
+          case MQ_SERVER:
+          case MASTER:
+          default:
+            break;
         }
       }
-
-      clusterWssServerInstance.remove(clusterAddress);
     }
 
     public void merge(InstanceNode node, ClusterPushSessionDataBody data) {
@@ -436,7 +533,7 @@ public class MasterSession {
           });
     }
 
-    public void registerServerInstance(MasterClusterAcceptorServer masterClusterAcceptorServer) {
+    public void bindServerInstance(MasterClusterAcceptorServer masterClusterAcceptorServer) {
       this.masterClusterAcceptorServer = masterClusterAcceptorServer;
     }
   }
@@ -458,6 +555,22 @@ public class MasterSession {
 
     private String clusterReplicaAddress;
 
+    private String exportAddress;
+
     @Builder.Default private String zone = "default";
+  }
+
+  @Getter
+  @Setter
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class DelivererInstance {
+
+    private InstanceType instanceType;
+
+    private Channel delivererChannel;
+
+    private InstanceNode instanceNode;
   }
 }

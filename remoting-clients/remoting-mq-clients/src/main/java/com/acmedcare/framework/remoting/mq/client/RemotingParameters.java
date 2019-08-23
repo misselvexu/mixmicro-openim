@@ -6,6 +6,7 @@ import com.acmedcare.tiffany.framework.remoting.android.utils.RemotingLogger;
 import com.google.common.base.Strings;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -58,9 +59,10 @@ public final class RemotingParameters {
 
     if (enableSSL) {
       if (jksFile == null || !jksFile.exists()) {
+        InputStream stream = null;
         try {
           // load default
-          InputStream stream =
+          stream =
               RemotingParameters.class.getResourceAsStream("/META-INF/mq-keystore.jks");
 
           byte[] buffer = new byte[stream.available()];
@@ -77,6 +79,13 @@ public final class RemotingParameters {
           this.jksPassword = DEFAULT_JKS_PD;
         } catch (Exception e) {
           RemotingLogger.warn(null, "load default jks failed.(ignore)");
+        } finally {
+          if(stream != null) {
+            try {
+              stream.close();
+            } catch (IOException ignored) {
+            }
+          }
         }
       }
     }

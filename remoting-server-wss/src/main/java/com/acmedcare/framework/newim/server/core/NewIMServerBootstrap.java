@@ -1,22 +1,9 @@
 package com.acmedcare.framework.newim.server.core;
 
-import static com.acmedcare.framework.newim.server.ClusterLogger.imServerLog;
-import static com.acmedcare.framework.newim.server.ClusterLogger.innerReplicaServerLog;
-
 import com.acmedcare.framework.newim.protocol.Command.ClusterClientCommand;
 import com.acmedcare.framework.newim.protocol.Command.ClusterWithClusterCommand;
 import com.acmedcare.framework.newim.server.config.IMProperties;
-import com.acmedcare.framework.newim.server.processor.ClusterForwardMessageRequestProcessor;
-import com.acmedcare.framework.newim.server.processor.DefaultIMProcessor;
-import com.acmedcare.framework.newim.server.processor.RemotingClientJoinOrLeaveGroupProcessor;
-import com.acmedcare.framework.newim.server.processor.RemotingClientPullGroupMembersOnlineStatusProcessor;
-import com.acmedcare.framework.newim.server.processor.RemotingClientPullGroupMembersProcessor;
-import com.acmedcare.framework.newim.server.processor.RemotingClientPullGroupMessageReadStatusProcessor;
-import com.acmedcare.framework.newim.server.processor.RemotingClientPullGroupProcessor;
-import com.acmedcare.framework.newim.server.processor.RemotingClientPullMessageProcessor;
-import com.acmedcare.framework.newim.server.processor.RemotingClientPushMessageProcessor;
-import com.acmedcare.framework.newim.server.processor.RemotingClientPushMessageReadStatusProcessor;
-import com.acmedcare.framework.newim.server.processor.RemotingClientRegisterAuthProcessor;
+import com.acmedcare.framework.newim.server.processor.*;
 import com.acmedcare.framework.newim.server.service.GroupService;
 import com.acmedcare.framework.newim.server.service.MessageService;
 import com.acmedcare.framework.newim.server.service.RemotingAuthService;
@@ -25,12 +12,13 @@ import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketServer;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyServerConfig;
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
+
+import java.util.concurrent.*;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
-import java.util.concurrent.TimeUnit;
+
+import static com.acmedcare.framework.newim.protocol.Command.ClusterClientCommand.CLIENT_QUERY_GROUP_INFO;
+import static com.acmedcare.framework.newim.server.ClusterLogger.imServerLog;
+import static com.acmedcare.framework.newim.server.ClusterLogger.innerReplicaServerLog;
 
 /**
  * New IM Server Bootstrap Class
@@ -253,13 +241,24 @@ public class NewIMServerBootstrap {
     // @since 2.2.0
     imServer.registerProcessor(
         ClusterClientCommand.CLIENT_PULL_GROUP_MEMBERS_ONLINE_STATUS,
-        new RemotingClientPullGroupMembersOnlineStatusProcessor(groupService,imSession),
+        new RemotingClientPullGroupMembersOnlineStatusProcessor(groupService, imSession),
         null);
 
     // @since 2.2.0
     imServer.registerProcessor(
         ClusterClientCommand.CLIENT_PULL_GROUP_MEMBERS,
         new RemotingClientPullGroupMembersProcessor(imSession, groupService),
+        null);
+
+    // @since 2.3.0
+    imServer.registerProcessor(
+        CLIENT_QUERY_GROUP_INFO,
+        new RemotingClientPullGroupDetailProcessor(imSession, groupService),
+        null);
+
+    imServer.registerProcessor(
+        ClusterClientCommand.CLIENT_RECEIVED_MESSAGE_ACK,
+        new RemotingClientAckProcessor(imSession, messageService),
         null);
 
     // start imServer

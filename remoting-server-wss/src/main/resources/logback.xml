@@ -230,6 +230,11 @@
         <level value="DEBUG"/>
     </logger>
 
+    <logger name="com.acmedcare.framework.newim.deliver">
+        <appender-ref ref="CONSOLE"/>
+        <level value="DEBUG"/>
+    </logger>
+
     <root>
         <level value="DEBUG"/>
         <appender-ref ref="rootFile"/>

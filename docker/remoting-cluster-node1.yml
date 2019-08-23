@@ -1,0 +1,79 @@
+version: "2.4"
+
+networks:
+  docker-br0:
+    external: true
+
+services:
+
+  #------------------------------------------------------------------------------------------
+  ## Master服务
+  remoting-master-server:
+
+    # 镜像
+    image: docker.apiacmed.com/library/remoting-master:2.3.0-RC1
+
+    # 系统环境变量设置
+    environment:
+      - IM_ROLE=MASTER
+
+    # 容器名称
+    container_name: remoting-master-cluster-node-1
+
+    ports:
+      - 13110:13110
+      - 13111:13111
+
+    # 路径映射
+    volumes:
+      - /tmp/logs/remoting-master:/remoting-master/logs:rw
+
+    # 域名HOST配置
+    extra_hosts:
+      - node1.mongodb.acmedcare.com:172.172.0.103
+      - node2.mongodb.acmedcare.com:172.172.0.104
+      - node3.mongodb.acmedcare.com:172.172.0.105
+
+    networks:
+      docker-br0:
+        ipv4_address: 172.172.1.155
+
+  #------------------------------------------------------------------------------------------
+  ## Cluster服务
+  remoting-cluster-server:
+
+    image: docker.apiacmed.com/library/remoting-server-wss:2.3.0-RC1
+
+    container_name: remoting-cluster-wss-node-1
+
+    volumes:
+      - /tmp/logs/remoting-cluster:/remoting-server-wss/logs:rw
+
+    # 域名HOST配置
+    extra_hosts:
+      - gateway.acmedcare.com:172.172.1.108
+      - node1.mongodb.acmedcare.com:172.172.0.103
+      - node2.mongodb.acmedcare.com:172.172.0.104
+      - node3.mongodb.acmedcare.com:172.172.0.105
+
+    ports:
+      - 43111:43111
+      - 23111:23111
+      - 33111:33111
+      - 8888:8888
+
+    environment:
+      - EXPORT_HOST=192.168.1.166                                     # 客户端TCP通讯IP,通过Nginx流量转发
+      - IM_PORT=23111                                                 # 客户端TCP通讯端口
+      - NEWIM_MASTER_ADDR=172.172.0.155:13111,172.172.1.155:13111     # Master 主服务器地址
+      - WSS_HOST=192.168.1.151                                        # 宿主机151地址
+      - WSS_PORT=8888                                                 # WebSocket地址
+
+    depends_on:
+      - remoting-master-server
+
+    networks:
+      docker-br0:
+        ipv4_address: 172.172.1.160
+
+

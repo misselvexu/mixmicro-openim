@@ -2,19 +2,20 @@ package com.acmedcare.tiffany.framework.remoting.jlib;
 
 import com.acmedcare.nas.client.NasClient;
 import com.acmedcare.nas.client.NasClientFactory;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.AuthRequest;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.JoinOrLeaveGroupRequest;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullGroupMembersOnlineStatusRequest;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullGroupMembersRequest;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullGroupMessageReadStatusRequest;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullMessageRequest;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PullOwnerGroupListRequest;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PushMessageReadStatusRequest;
-import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.PushMessageRequest;
+import com.acmedcare.tiffany.framework.remoting.android.core.exception.RemotingConnectException;
+import com.acmedcare.tiffany.framework.remoting.android.core.exception.RemotingSendRequestException;
+import com.acmedcare.tiffany.framework.remoting.android.core.exception.RemotingTimeoutException;
+import com.acmedcare.tiffany.framework.remoting.android.core.protocol.RemotingCommand;
+import com.acmedcare.tiffany.framework.remoting.jlib.biz.BizCode;
+import com.acmedcare.tiffany.framework.remoting.jlib.biz.BizResult;
+import com.acmedcare.tiffany.framework.remoting.jlib.biz.request.*;
 import com.acmedcare.tiffany.framework.remoting.jlib.exception.BizException;
+import com.acmedcare.tiffany.framework.remoting.jlib.jre.JREBizExectuor;
+import com.alibaba.fastjson.JSON;
+
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Random;
-import javax.annotation.Nullable;
 
 /**
  * Biz Executor
@@ -177,4 +178,59 @@ public abstract class BizExecutor {
       PullGroupMembersOnlineStatusRequest request,
       PullGroupMembersOnlineStatusRequest.Callback callback)
       throws BizException;
+
+  /**
+   * 查询群组详情
+   *
+   * @param request 请求对象
+   * @param callback 回调
+   * @throws BizException exception
+   */
+  public abstract void queryGroupDetail(
+      PullGroupDetailRequest request, PullGroupDetailRequest.Callback callback) throws BizException;
+
+  /**
+   * 响应消息Ack消息
+   *
+   * @param namespace 名称空间
+   * @param finalReceivedMessageId 消息编号
+   * @param passportId 通行证编号
+   */
+  public final void ack0(String namespace, Long finalReceivedMessageId, Long passportId) {
+
+    ClientMessageAckHeader header =
+        ClientMessageAckHeader.builder()
+            .namespace(namespace)
+            .messageId(finalReceivedMessageId.toString())
+            .passportId(passportId.toString())
+            .build();
+
+    AcmedcareLogger.i(this.getClass().getSimpleName(), "客户端消息ACK请求头:" + JSON.toJSONString(header));
+
+    RemotingCommand command = RemotingCommand.createRequestCommand(BizCode.CLIENT_RECEIVED_MESSAGE_ACK, header);
+
+    try {
+      RemotingCommand response =
+          AcmedcareRemoting.getRemotingClient()
+              .invokeSync(this.remotingAddress(), command, requestTimeout);
+
+      if (response != null) {
+
+        BizResult bizResult = BizResult.fromBytes(response.getBody(), BizResult.class);
+        AcmedcareLogger.i(this.getClass().getSimpleName(), "客户端消息ACK返回值:" + bizResult.json());
+
+        if (bizResult.getCode() != 0) {
+          throw new BizException("客户端响应消息Ack失败");
+        }
+      }
+
+    } catch (InterruptedException
+        | RemotingConnectException
+        | RemotingTimeoutException
+        | RemotingSendRequestException e) {
+
+      AcmedcareLogger.e(JREBizExectuor.class.getSimpleName(), e, "客户端消息ACK请求失败");
+      throw new BizException(e);
+    }
+  }
 }

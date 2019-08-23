@@ -108,4 +108,14 @@ public class GroupServices {
   public List<Group> queryGroupList(String namespace, String groupBizType) {
     return this.groupRepository.queryGroupList(namespace, groupBizType);
   }
+
+  public Group queryGroup(String namespace, String groupId) {
+
+    Group group = this.groupRepository.queryGroup(namespace, groupId);
+
+    if (group == null) {
+      throw new StorageException("无效的群组ID");
+    }
+    return group;
+  }
 }

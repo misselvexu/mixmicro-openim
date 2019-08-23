@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 1999-2018 Acmedcare+ Holding Ltd.
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  -->
+
+<configuration>
+
+    <property name="log.context.name" value="newim-deliverer-server"/>
+    <property name="log.charset" value="UTF-8"/>
+    <property name="log.pattern" value="[%-5level] ${PID} %date --%thread-- [%logger] %msg %n"/>
+    <property name="FILE_LOG_PATTERN" value="[%-5level] ${PID} %date --%thread-- [%logger] %msg %n"/>
+
+    <!-- From Spring Boot Default Logger-->
+    <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}/}newim-deliverer-server-logs.log}"/>
+    <include resource="org/springframework/boot/logging/logback/file-appender.xml" />
+
+    <contextName>${log.context.name}</contextName>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder charset="${log.charset}">
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+    </appender>
+
+    <root>
+        <level value="INFO"/>
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE" />
+    </root>
+
+    <logger name="org.springframework.web" level="INFO"/>
+
+</configuration>

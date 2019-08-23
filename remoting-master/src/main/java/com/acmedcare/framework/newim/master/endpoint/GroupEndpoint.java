@@ -17,10 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -116,6 +113,42 @@ public class GroupEndpoint {
                   .build());
     } catch (Exception e) {
       endpointLog.error("update group failed", e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body(
+              BizResult.builder()
+                  .code(-1)
+                  .exception(
+                      ExceptionWrapper.builder().type(e.getClass()).message(e.getMessage()).build())
+                  .build());
+    }
+  }
+
+  @GetMapping(GROUP_INFO)
+  ResponseEntity queryGroupInfo(
+      @RequestParam String groupId,
+      @RequestParam(required = false, defaultValue = MessageConstants.DEFAULT_NAMESPACE)
+          String namespace) {
+
+    try {
+      endpointLog.info("remove group request params: {}", groupId);
+
+      if (StringUtils.isAnyBlank(groupId)) {
+        throw new InvalidRequestParamException("删除群组参数异常");
+      }
+
+      Group group = this.groupServices.queryGroup(namespace, groupId);
+
+      return ResponseEntity.ok(BizResult.builder().code(0).data(group).build());
+    } catch (InvalidRequestParamException | StorageException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body(
+              BizResult.builder()
+                  .code(-1)
+                  .exception(
+                      ExceptionWrapper.builder().type(e.getClass()).message(e.getMessage()).build())
+                  .build());
+    } catch (Exception e) {
+      endpointLog.error("query group detail failed", e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .body(
               BizResult.builder()

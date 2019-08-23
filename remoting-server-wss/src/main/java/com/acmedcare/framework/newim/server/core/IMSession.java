@@ -1,5 +1,6 @@
 package com.acmedcare.framework.newim.server.core;
 
+import com.acmedcare.framework.kits.executor.AsyncRuntimeExecutor;
 import com.acmedcare.framework.kits.jackson.JacksonKit;
 import com.acmedcare.framework.kits.thread.DefaultThreadFactory;
 import com.acmedcare.framework.kits.thread.ThreadKit;
@@ -8,11 +9,15 @@ import com.acmedcare.framework.newim.Message.MessageType;
 import com.acmedcare.framework.newim.SessionBean;
 import com.acmedcare.framework.newim.client.MessageAttribute;
 import com.acmedcare.framework.newim.client.bean.Member;
+import com.acmedcare.framework.newim.deliver.api.bean.DelivererMessageBean;
+import com.acmedcare.framework.newim.deliver.connector.client.executor.DelivererMessageExecutor;
 import com.acmedcare.framework.newim.protocol.Command.ClusterClientCommand;
 import com.acmedcare.framework.newim.protocol.Command.Retriable;
 import com.acmedcare.framework.newim.protocol.request.ClusterForwardMessageHeader;
+import com.acmedcare.framework.newim.server.config.IMProperties;
 import com.acmedcare.framework.newim.server.core.SessionContextConstants.RemotePrincipal;
 import com.acmedcare.framework.newim.server.core.connector.ClusterReplicaConnector;
+import com.acmedcare.framework.newim.server.core.connector.MasterConnector;
 import com.acmedcare.framework.newim.server.endpoint.WssSessionContext;
 import com.acmedcare.framework.newim.server.event.AbstractEventHandler;
 import com.acmedcare.framework.newim.server.processor.header.ServerPushMessageHeader;
@@ -32,6 +37,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +59,12 @@ public class IMSession implements InitializingBean, DisposableBean {
 
   private static final long DIFF_PERIOD = 2 * 60 * 1000;
 
+  private final IMProperties imProperties;
+
+  private MasterConnector masterConnector;
+
+  private DelivererMessageExecutor delivererMessageExecutor;
+
   /**
    * 设备->远程连接(TCPs)
    *
@@ -73,6 +85,8 @@ public class IMSession implements InitializingBean, DisposableBean {
 
   private static volatile long lastDiffTimestamp = System.currentTimeMillis();
   private static Semaphore diffQuerySemaphore = new Semaphore(1);
+
+  // Cached cluster session's connections
   private static Set<SessionBean> masterPassportSessions = Sets.newConcurrentHashSet();
   private static Set<SessionBean> masterDeviceSessions = Sets.newConcurrentHashSet();
 
@@ -104,6 +118,10 @@ public class IMSession implements InitializingBean, DisposableBean {
   private NettyRemotingSocketServer imServer;
   @Getter private ClusterReplicaConnector clusterReplicaConnector;
   private static WssSessionContext wssSessionContext;
+
+  public IMSession(IMProperties imProperties) {
+    this.imProperties = imProperties;
+  }
 
   public Set<SessionBean> getOnlinePassports() {
     return passportsTcpChannelContainer.keySet();
@@ -153,9 +171,11 @@ public class IMSession implements InitializingBean, DisposableBean {
       // yes
       Channel originChannel =
           devicesTcpChannelContainer.get(deviceSession).put(deviceType, channel);
-//      if (originChannel != null) {
-//        pushOfflineMessage(originChannel);
-//      }
+      if (imProperties.isEnableKickOff()) {
+        if (originChannel != null) {
+          pushOfflineMessage(originChannel);
+        }
+      }
     } else {
       // nop
       Map<String, Channel> channelMap = Maps.newHashMap();
@@ -174,13 +194,14 @@ public class IMSession implements InitializingBean, DisposableBean {
       // yes
       Channel originChannel =
           passportsTcpChannelContainer.get(passportSession).put(deviceType, channel);
-      if (originChannel != null) {
-        imServerLog.debug(
-            " == 通行证异地登录 {},剔除下线:{} ",
-            passportId,
-            RemotingHelper.parseChannelRemoteAddr(originChannel));
-
-        pushOfflineMessage(originChannel);
+      if (imProperties.isEnableKickOff()) {
+        if (originChannel != null) {
+          imServerLog.debug(
+              " == 通行证异地登录 {},剔除下线:{} ",
+              passportId,
+              RemotingHelper.parseChannelRemoteAddr(originChannel));
+          pushOfflineMessage(originChannel);
+        }
       }
     } else {
       // nop
@@ -252,15 +273,17 @@ public class IMSession implements InitializingBean, DisposableBean {
       ServerPushMessageHeader serverPushMessageHeader = new ServerPushMessageHeader();
       serverPushMessageHeader.setMessageType(messageType.name());
       if (channels.size() > 0) {
-        RemotingCommand command =
-            RemotingCommand.createRequestCommand(
-                ClusterClientCommand.SERVER_PUSH_MESSAGE, serverPushMessageHeader);
-        command.setBody(message);
-
         // foreach send
         for (Channel channel : channels) {
           try {
             if (channel != null && channel.isWritable()) {
+
+              // build new request command
+              RemotingCommand command =
+                  RemotingCommand.createRequestCommand(
+                      ClusterClientCommand.SERVER_PUSH_MESSAGE, serverPushMessageHeader);
+              command.setBody(message);
+
               // send
               channel
                   .writeAndFlush(command)
@@ -268,12 +291,16 @@ public class IMSession implements InitializingBean, DisposableBean {
                       (ChannelFutureListener)
                           future -> {
                             if (future.isSuccess()) {
-                              // TODO 根据客户端的消息类型进行结果回执
+                              // 成功输出到网络缓冲区，客户端是否成功接收到消息，需要等待客户端的Ack
                               if (imServerLog.isDebugEnabled()) {
                                 imServerLog.debug(
                                     "[IM-SESSION-SEND] 消息请求发送成功; Channel:{}",
                                     RemotingHelper.parseChannelRemoteAddr(channel));
                               }
+                            } else {
+                              // 请求发出失败，【转】投递服务器
+                              forwardToDelivererServer(
+                                  false, namespace, passportId, messageType, message);
                             }
                           });
             } else {
@@ -283,8 +310,136 @@ public class IMSession implements InitializingBean, DisposableBean {
             imServerLog.warn("[IM-SESSION-SEND] 发送消息给客户端:" + channel + "失败", e);
           }
         }
+      } else {
+        // 转发投递服务器
+        forwardToDelivererServer(false, namespace, passportId, messageType, message);
+      }
+    } else {
+      // 判断是否需要转投递服务器
+      if (masterPassportSessions.contains(sessionBean)) {
+        // 集群在线，此处【预转】到投递服务器
+        forwardToDelivererServer(true, namespace, passportId, messageType, message);
+      } else {
+        forwardToDelivererServer(false, namespace, passportId, messageType, message);
       }
     }
+  }
+
+  private void doSendMessageToChannel(Channel channel, MessageType messageType, byte[] message) {
+
+    if (channel != null && channel.isWritable()) {
+
+      ServerPushMessageHeader serverPushMessageHeader = new ServerPushMessageHeader();
+      serverPushMessageHeader.setMessageType(messageType.name());
+      // build new request command
+      RemotingCommand command =
+          RemotingCommand.createRequestCommand(
+              ClusterClientCommand.SERVER_PUSH_MESSAGE, serverPushMessageHeader);
+      command.setBody(message);
+
+      // send
+      channel
+          .writeAndFlush(command)
+          .addListener(
+              (ChannelFutureListener)
+                  future -> {
+                    if (future.isSuccess()) {
+                      if (imServerLog.isDebugEnabled()) {
+                        imServerLog.debug(
+                            "[IM-SESSION-SEND] 消息请求发送成功; Channel:{}",
+                            RemotingHelper.parseChannelRemoteAddr(channel));
+                      }
+                    }
+                  });
+    }
+  }
+
+  /**
+   * 转发投递服务器
+   *
+   * @param half 是否是预转发,投递服务器需要进行内存预判操作，防止重复投递
+   * @param namespace namespace
+   * @param passportId passport Id
+   * @param messageType message type
+   * @param message message content bytes
+   * @since 2.3.0
+   */
+  private void forwardToDelivererServer(
+      boolean half, String namespace, String passportId, MessageType messageType, byte[] message) {
+    imServerLog.info(
+        "[IM-SESSION-DELIVERER] 准备提交半状态消息到投递服务器,{},{},{},{}",
+        namespace,
+        passportId,
+        messageType,
+        new String(message, StandardCharsets.UTF_8));
+    AsyncRuntimeExecutor.getAsyncThreadPool()
+        .execute(
+            () ->
+                IMSession.this.delivererMessageExecutor.submitDelivererMessage(
+                    half, namespace, passportId, messageType, message));
+  }
+
+  /**
+   * 处理客户端的消息Ack响应请求
+   *
+   * @param namespace 名称空间
+   * @param messageId 消息编号
+   * @param passportId 客户端编号
+   */
+  public void processClientAck(String namespace, String messageId, String passportId) {
+    imServerLog.info(
+        "[IM-SESSION-DELIVERER] 确认消息Ack到投递服务器,{},{}, 客户端:{}", namespace, messageId, passportId);
+    AsyncRuntimeExecutor.getAsyncThreadPool()
+        .execute(
+            () ->
+                IMSession.this.delivererMessageExecutor.commitDelivererMessage(
+                    namespace, messageId, passportId));
+  }
+
+  /**
+   * 拉取客户端投递消息（离线）列表
+   *
+   * @param namespace 名称空间
+   * @param passportId 通行证
+   * @param channel 远程连接通道
+   */
+  public void fetchDelivererMessage(String namespace, String passportId, Channel channel) {
+
+    imServerLog.info(
+        "[IM-SESSION-DELIVERER] 拉取客户端待投递的消息,{}, 客户端:{}-{}", namespace, passportId, channel);
+    AsyncRuntimeExecutor.getAsyncThreadPool()
+        .execute(
+            () -> {
+              imServerLog.info("[IM-SESSION-DELIVERER] 拉取客户端单聊投递消息，{}, {}", namespace, passportId);
+              List<DelivererMessageBean> singleMessageBeans =
+                  IMSession.this.delivererMessageExecutor.fetchClientDelivererMessage(
+                      namespace, passportId, MessageType.SINGLE);
+
+              for (DelivererMessageBean singleMessageBean : singleMessageBeans) {
+                try {
+                  doSendMessageToChannel(
+                      channel, singleMessageBean.getMessageType(), singleMessageBean.getMessage());
+                } catch (Exception ignored) {
+                }
+              }
+            });
+
+    AsyncRuntimeExecutor.getAsyncThreadPool()
+        .execute(
+            () -> {
+              imServerLog.info("[IM-SESSION-DELIVERER] 拉取客户端群组投递消息，{}, {}", namespace, passportId);
+              List<DelivererMessageBean> groupMessageBeans =
+                  IMSession.this.delivererMessageExecutor.fetchClientDelivererMessage(
+                      namespace, passportId, MessageType.GROUP);
+
+              for (DelivererMessageBean groupMessageBean : groupMessageBeans) {
+                try {
+                  doSendMessageToChannel(
+                      channel, groupMessageBean.getMessageType(), groupMessageBean.getMessage());
+                } catch (Exception ignored) {
+                }
+              }
+            });
   }
 
   /**
@@ -329,6 +484,7 @@ public class IMSession implements InitializingBean, DisposableBean {
    */
   public void sendMessageToDevice(String deviceId, MessageType messageType, byte[] message) {
     // TODO 针对设备进行推送消息
+
   }
 
   public void registerClusterReplicasConnector(ClusterReplicaConnector clusterReplicaConnector) {
@@ -477,5 +633,13 @@ public class IMSession implements InitializingBean, DisposableBean {
             }
           });
     }
+  }
+
+  public void bindMasterConnector(MasterConnector masterConnector) {
+    this.masterConnector = masterConnector;
+  }
+
+  public void registerDelivererMessageExecutor(DelivererMessageExecutor delivererMessageExecutor) {
+    this.delivererMessageExecutor = delivererMessageExecutor;
   }
 }

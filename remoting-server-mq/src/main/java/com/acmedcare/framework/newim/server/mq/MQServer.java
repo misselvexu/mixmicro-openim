@@ -9,8 +9,8 @@ import com.acmedcare.framework.newim.Message.MessageType;
 import com.acmedcare.framework.newim.SessionBean;
 import com.acmedcare.framework.newim.server.IdService;
 import com.acmedcare.framework.newim.server.Server;
-import com.acmedcare.framework.newim.server.master.connector.MasterConnector;
-import com.acmedcare.framework.newim.server.master.connector.MasterConnectorHandler;
+import com.acmedcare.framework.newim.master.connector.DefaultMasterConnector;
+import com.acmedcare.framework.newim.master.connector.DefaultMasterConnectorHandler;
 import com.acmedcare.framework.newim.server.mq.processor.MQProcessor;
 import com.acmedcare.framework.newim.server.mq.service.MQService;
 import com.acmedcare.framework.newim.server.replica.NodeReplicaBeanFactory;
@@ -21,6 +21,10 @@ import com.acmedcare.tiffany.framework.remoting.netty.NettyServerConfig;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -29,9 +33,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * MQ Server
@@ -47,7 +48,7 @@ public class MQServer implements Server {
 
   @Autowired private MQServerProperties mqServerProperties;
   @Autowired private MQService mqService;
-  @Autowired private MasterConnector masterConnector;
+  @Autowired private DefaultMasterConnector defaultMasterConnector;
   @Autowired private NodeReplicaBeanFactory nodeReplicaBeanFactory;
   @Autowired private AorpClient aorpClient;
   @Autowired private DefaultMQReplicaService defaultMQReplicaService;
@@ -121,7 +122,7 @@ public class MQServer implements Server {
       logger.info("[MQServer] server started , on port: {}", config.getListenPort());
 
       logger.info("[MQServer] starting up master connector ");
-      masterConnector.startup(new MQServerMasterConnectorHandler());
+      defaultMasterConnector.startup(new MQServerMasterConnectorHandler());
 
     } else {
       logger.warn("[MQServer] mq server is startup-ed.");
@@ -157,7 +158,7 @@ public class MQServer implements Server {
     }
   }
 
-  private class MQServerMasterConnectorHandler implements MasterConnectorHandler {
+  private class MQServerMasterConnectorHandler implements DefaultMasterConnectorHandler {
 
     @Override
     public void processOnlineConnections(
@@ -180,20 +181,18 @@ public class MQServer implements Server {
     }
 
     @Override
-    public void onClusterReplicas(Set<String> clusterReplicas) {
+    public void onServerNodeReplicas(Set<String> clusterReplicas) {
       logger.info("Rvd Cluster Replicas Data : {}", clusterReplicas);
       context.refreshReplicas(clusterReplicas);
     }
 
     @Override
     public List<SessionBean> getOnlinePassports() {
-      System.out.println("获取在线用户");
       return Lists.newArrayList();
     }
 
     @Override
     public List<SessionBean> getOnlineDevices() {
-      System.out.println("获取在线设备");
       return Lists.newArrayList();
     }
 

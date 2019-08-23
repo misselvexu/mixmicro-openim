@@ -17,6 +17,9 @@ public interface IMStorageCollections {
   /** 群组 */
   String GROUP = "im_group";
 
+  /** 账号 */
+  String ACCOUNT = "im_account";
+
   /** 主题 */
   String TOPIC = "mq_topic";
 
@@ -28,4 +31,10 @@ public interface IMStorageCollections {
 
   /** 消息已读状态记录表 */
   String MESSAGE_READ_STATUS = "im_message_read_status";
+
+  /** 消息qos状态记录 */
+  String MESSAGE_QOS = "im_message_qos_record";
+
+  /** 投递消息记录表 */
+  String DELIVERER_MESSAGE = "im_deliverer_message_record";
 }

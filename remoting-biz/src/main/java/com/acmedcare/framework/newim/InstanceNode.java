@@ -21,7 +21,8 @@ public class InstanceNode implements Serializable {
 
   private static final long serialVersionUID = -4560765383064351784L;
   private String name;
-  private String host;
+  private String address;
+  private String exportAddress;
   /** @deprecated use {@link InstanceType} instead of */
   private NodeType nodeType;
 
@@ -31,8 +32,8 @@ public class InstanceNode implements Serializable {
 
   @Builder
   public InstanceNode(
-      String host, NodeType nodeType, String name, InstanceType instanceType, String zone) {
-    this.host = host;
+      String address, NodeType nodeType, String name, InstanceType instanceType, String zone) {
+    this.address = address;
     this.nodeType = nodeType;
     this.name = name;
     this.instanceType = instanceType;
@@ -56,28 +57,27 @@ public class InstanceNode implements Serializable {
       return false;
     }
     InstanceNode node = (InstanceNode) o;
-    return Objects.equals(getHost(), node.getHost())
+    return Objects.equals(getAddress(), node.getAddress())
         && (getNodeType() == node.getNodeType() || getInstanceType() == node.getInstanceType());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(getHost(), getNodeType(), getInstanceType());
+    return Objects.hash(getAddress(), getNodeType(), getInstanceType());
   }
 
   /** 节点类型 */
   public enum NodeType {
+    /** Master */
     MASTER,
+
+    /** Deliverer Server */
+    DELIVERER,
 
     DEFAULT,
 
-    /** @deprecated use {@link #DEFAULT} instead of */
-    CLUSTER,
-
-    /** @deprecated use {@link #DEFAULT_REPLICA} instead of */
-    REPLICA,
     DEFAULT_REPLICA,
-    WSS,
-    CLIENT
+
+    MQ_SERVER
   }
 }
