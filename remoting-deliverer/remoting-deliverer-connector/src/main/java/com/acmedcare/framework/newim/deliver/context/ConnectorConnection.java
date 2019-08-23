@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -184,8 +183,6 @@ public class ConnectorConnection implements Serializable {
       }
 
       log.info("[{}][==]Deliverer Connector ready to send handshake request .",serverInstance.getServerAddr());
-
-      CountDownLatch lock = new CountDownLatch(1);
 
       RemotingCommand handshakeRequest = RemotingCommand.createRequestCommand(HANDSHAKE_COMMAND_VALUE,null);
 

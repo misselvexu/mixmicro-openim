@@ -305,9 +305,13 @@ public class IMSession implements InitializingBean, DisposableBean {
                           });
             } else {
               imServerLog.warn("[IM-SESSION-SEND] 客户端:{} 链接异常", channel);
+              forwardToDelivererServer(
+                  false, namespace, passportId, messageType, message);
             }
           } catch (Exception e) {
             imServerLog.warn("[IM-SESSION-SEND] 发送消息给客户端:" + channel + "失败", e);
+            forwardToDelivererServer(
+                false, namespace, passportId, messageType, message);
           }
         }
       } else {

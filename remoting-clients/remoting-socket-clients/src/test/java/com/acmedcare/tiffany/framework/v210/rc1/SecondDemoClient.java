@@ -70,7 +70,7 @@ public class SecondDemoClient {
                   @Override
                   public List<RemotingAddress> remotingAddressList() {
                     return Lists.newArrayList(
-                        new RemotingAddress(false, "127.0.0.1", 13110, false));
+                        new RemotingAddress(false, "192.168.1.159", 13110, false));
                   }
                 })
             .build();
@@ -270,13 +270,13 @@ public class SecondDemoClient {
   private interface KnownParams {
 
     String accessToken =
-        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiI1NGY1NTZkYzE1MTQ0OTExOTg5MDIxNzIyMjc2ZGExMyIsImRhdCI6Ik4vQmtqTkJBelh1R1lyT1JNL245UURwajc1MExFOEtDWER1d0FKVzNvYmFrWS9iN3UrV25ZVmw3RElQZWJtOEsxaGpRZEtyZU82MXZHWk9kTXkyc1JFd0lZMzJFLzhEUnlTUkl3SzZmSTJOU1dMKytzYnJPdmpWZE9LUWNSZS9nODhmL0duaVRSVks3d2lmREpZcXh6YUlHOWZtMnpiQnc4bzl0R1k3Tm1jRT0iLCJpYXQiOjE1NjY0NDQwOTcxMTUsImV4cCI6MTU2NzA1Nzc3OTExNSwiYXVkIjpudWxsfQ.V3Uj_hi5y7fEPmPH-YIBAzuwUa2IdRZPSHDOMqMdffw25MnFud5evv5zgZK3XxSnHycgzNNcbEA9zDZL6b9dbHFXUNWuEAK-GFsjYFFb_RdIwlNzdqquF4-drMDX2UBbHb3Lyh8YxkcyDCjjQD_i-4mOSyNZuLRD3Ntcs7T8Eka6PDrXgV145AExckdPqjtEVp_4HfAYn1cNHm1IKJdw9jdgTkEqsP6zZFgdH8ADPfIMdpnTw_6OjoRjolEGSZPyHuQK1LxKn4izz1ouVGv_VWv1bnSUcbQ95wyK7YUvl3IfJCt9T6vZ03uKPi8KSPHhiMffbAwgMZ3JSfDS6CkrfQ";
+        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiJlZTkxZjZiNjRiZjg0NWUxYTdiMTM1ZGRiMDE0NGIwNiIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlIcXc5TDdUU0gwVmlLTWNXNUp3RVd0ZXc5Rk12SVFZcGZDMG5CUUhOamVucmMyYndheHNwMk93NXVkSGM1ZllTcGd0a2FxRkV6U29Uck41S0kyaHZKRW52L1RHV0hLeDdFdTJRNEs1V3JrZTZTMjNIaUdhWXdvQ29ua3ZuSlVjWGQxNzNwV3pFbmF0bz0iLCJpYXQiOjE1NjY1Mzk2MTE4OTAsImV4cCI6MTU2NzE1MzE4Mjg5MCwiYXVkIjpudWxsfQ.kTIy-hRdlL-lX0yGjskq6d8hHaEWdONk2j5bLDz76ievSonI_es9jkBJOAn3sVJxtk9j_QRzFnfiNjXrc5h_aOjZuYDR402YYlsrt1UjwrkeqBlR81fhj9wZUzY9FT5_l8h8Ht2_5x_Ie_TP6rh8rAq4DaEOBjq6Z-4mj6Id0784aIm8IlPJAJ4a2khrEduwRTg-CO3nCc1OD0dqh4YCXPz0E8LUBY4epUoVYo-MICnHKlUpBpE5E3QSRn4W-d34mhP1KT5-AOZIE5DQmfscPj1KUjZ0b0ZJetNgCGWfBetusNQIMkOF71VHfupiEBYTuvlV2q19ibxlTt7woQNVng";
 
     String areaNo = "320500";
 
     String orgId = "3910249034228736";
 
-    Long passportId = 1413572634953984L;
+    Long passportId = 3837142362366977L;
 
     String passport = "13910187666";
 
