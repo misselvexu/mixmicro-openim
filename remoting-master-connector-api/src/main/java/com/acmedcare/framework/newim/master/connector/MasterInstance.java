@@ -264,8 +264,8 @@ public abstract class MasterInstance {
                     this.properties.getConnectorRequestTimeout(),
                     b -> {
                       if (b) {
-                        if (logger.isDebugEnabled()) {
-                          logger.debug("master connector send heartbeat succeed.");
+                        if (logger.isInfoEnabled()) {
+                          logger.info("master connector send heartbeat succeed.");
                         }
                       }
                     });

@@ -5,8 +5,14 @@
 
 package com.acmedcare.framework.newim.master.connector;
 
+import com.acmedcare.framework.kits.lang.Nullable;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyClientConfig;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * {@link DelivererMasterConnector}
@@ -21,6 +27,10 @@ public class DelivererMasterConnector extends MasterConnector {
     super(properties, context);
   }
 
+  private static volatile AtomicBoolean startup = new AtomicBoolean(false);
+
+  private static final Logger logger = LoggerFactory.getLogger(DelivererMasterConnector.class);
+
   /**
    * Register Master Connector Event Processor
    *
@@ -28,9 +38,55 @@ public class DelivererMasterConnector extends MasterConnector {
    */
   @Override
   protected void registerEvent(MasterConnectorSubscriber subscriber) {
+    // empty
+  }
 
-    //
+  /**
+   * Start up Connector
+   *
+   * @param handler handler instance of {@link MasterConnectorHandler}
+   */
+  @Override
+  protected void doStartup(@Nullable MasterConnectorHandler handler) {
 
+    if (startup.compareAndSet(false, true)) {
+
+      // startup client connect
+      if (!defaultMasterInstances.isEmpty()) {
+        CountDownLatch latch = new CountDownLatch(defaultMasterInstances.size());
+        long start = System.currentTimeMillis();
+        for (MasterInstance masterInstance :
+            DelivererMasterConnector.this.defaultMasterInstances) {
+          try {
+            logger.info(
+                "\r\n >>>> Try starting up deliverer master connector - {}:{} ",
+                masterInstance.getHost(),
+                masterInstance.getPort());
+
+            masterInstance.startup(latch);
+
+          } catch (Exception e) {
+            logger.error(
+                "exception on connecting , self-thread will try daemon. - {}:{}",
+                masterInstance.getHost(),
+                masterInstance.getPort(),
+                e);
+          }
+        }
+
+        try {
+          latch.await();
+          logger.info(
+              "deliverer master connector(s) all executed startup ,Use Time :{} ms",
+              (System.currentTimeMillis() - start));
+        } catch (InterruptedException ignored) {
+        }
+
+        logger.info("deliverer master connector(s) service is started. ");
+      } else {
+        logger.warn("not config master server node(s) address.");
+      }
+    }
   }
 
   /**
@@ -45,8 +101,11 @@ public class DelivererMasterConnector extends MasterConnector {
   protected MasterInstance registerClientProcessor(
       String nodeAddress, NettyClientConfig config, NettyRemotingSocketClient client) {
 
-    
+    DelivererMasterInstance delivererMasterInstance =
+        DelivererMasterInstance.newInstance(nodeAddress);
+    delivererMasterInstance.registerClientInstance(
+        (DelivererMasterConnectorContext) context, masterConnectorProperties, config, client);
 
-    return null;
+    return delivererMasterInstance;
   }
 }

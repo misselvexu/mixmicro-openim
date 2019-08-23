@@ -3,6 +3,7 @@ package com.acmedcare.framework.newim.server;
 import com.acmedcare.framework.boot.snowflake.EnableSnowflake;
 import com.acmedcare.framework.boot.snowflake.Snowflake;
 import com.acmedcare.framework.boot.web.socket.standard.ServerEndpointExporter;
+import com.acmedcare.framework.newim.deliver.connector.EnableDelivererConnector;
 import com.acmedcare.framework.newim.deliver.connector.client.DelivererClientInitializer;
 import com.acmedcare.framework.newim.server.core.NewIMServerBootstrap;
 import com.acmedcare.framework.newim.server.core.connector.ClusterReplicaConnector;
@@ -27,6 +28,7 @@ import static com.acmedcare.framework.newim.server.ClusterLogger.startLog;
  */
 @SpringBootApplication
 @ComponentScan("com.acmedcare.framework.newim")
+@EnableDelivererConnector(enabledClient = true)
 public class RemotingWssServer {
 
   /** Spring Context Instance of {@link org.springframework.context.ApplicationContext} */

@@ -11,8 +11,8 @@ import com.acmedcare.framework.newim.deliver.api.RemotingDelivererApi;
 import com.acmedcare.framework.newim.deliver.api.exception.NoAvailableDelivererServerInstanceException;
 import com.acmedcare.framework.newim.spi.ExtensionLoader;
 import com.acmedcare.framework.newim.spi.ExtensionLoaderFactory;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.Attribute;
@@ -24,8 +24,8 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.Environment;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.acmedcare.framework.newim.deliver.context.ConnectorInstance.Type.CLIENT;
 
@@ -44,7 +44,7 @@ public class ConnectorContext {
 
   public static final AttributeKey<ConnectorInstance.ConnectorClientInstance> CONNECTOR_REMOTING_ATTRIBUTE_KEY = AttributeKey.valueOf("CONNECTOR_REMOTING_INSTANCE_KEY");
 
-  private static final String DELIVERER_API_DEFAULT_EXTENSION_NAME = "default";
+  private static final String DELIVERER_API_DEFAULT_EXTENSION_NAME = "normal";
 
   private ExtensionLoader<RemotingDelivererApi> remotingDelivererApiExtensionLoader;
 
@@ -61,7 +61,7 @@ public class ConnectorContext {
    *    CLIENT             Key:ConnectorClientInstanceA   ->  Channel Instance
    * </pre>
    */
-  private Map<ConnectorInstance.Type, List<ConnectorInstance>> session = Maps.newConcurrentMap();
+  private Map<ConnectorInstance.Type, Set<ConnectorInstance>> session = Maps.newConcurrentMap();
 
   /**
    * Server Connection Instance
@@ -83,8 +83,8 @@ public class ConnectorContext {
 
         ConnectorInstance.ConnectorClientInstance clientInstance = (ConnectorInstance.ConnectorClientInstance) instance;
 
-        if(session.containsKey(CLIENT)) {
-          session.put(CLIENT, Lists.newArrayList(clientInstance));
+        if(!session.containsKey(CLIENT)) {
+          session.put(CLIENT, Sets.newHashSet(clientInstance));
         } else {
           if(!session.get(CLIENT).add(clientInstance)){
             log.warn("[==] Deliverer Context , register connector client instance failed , instance: {}" ,instance);

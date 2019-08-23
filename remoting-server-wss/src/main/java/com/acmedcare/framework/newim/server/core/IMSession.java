@@ -33,12 +33,8 @@ import com.google.common.eventbus.AsyncEventBus;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import lombok.Getter;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.nio.charset.StandardCharsets;
@@ -49,7 +45,6 @@ import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 
-import static com.acmedcare.framework.newim.deliver.connector.client.DelivererClientMarkerConfiguration.POST_QUEUE_DELIVERER_MESSAGE_EXECUTOR_BEAN_NAME;
 import static com.acmedcare.framework.newim.server.ClusterLogger.imServerLog;
 import static com.acmedcare.framework.newim.server.ClusterLogger.masterClusterLog;
 
@@ -60,7 +55,7 @@ import static com.acmedcare.framework.newim.server.ClusterLogger.masterClusterLo
  * @version ${project.version} - 12/11/2018.
  */
 @ThreadSafe
-public class IMSession implements InitializingBean, DisposableBean, ApplicationContextAware {
+public class IMSession implements InitializingBean, DisposableBean {
 
   private static final long DIFF_PERIOD = 2 * 60 * 1000;
 
@@ -644,32 +639,7 @@ public class IMSession implements InitializingBean, DisposableBean, ApplicationC
     this.masterConnector = masterConnector;
   }
 
-  /**
-   * Set the ApplicationContext that this object runs in. Normally this call will be used to
-   * initialize the object.
-   *
-   * <p>Invoked after population of normal bean properties but before an init callback such as
-   * {@link InitializingBean#afterPropertiesSet()} or a custom init-method. Invoked after {@link
-   * org.springframework.context.ResourceLoaderAware#setResourceLoader}, {@link
-   * org.springframework.context.ApplicationEventPublisherAware#setApplicationEventPublisher} and
-   * {@link org.springframework.context.MessageSourceAware}, if applicable.
-   *
-   * @param applicationContext the ApplicationContext object to be used by this object
-   * @throws org.springframework.context.ApplicationContextException in case of context
-   *     initialization errors
-   * @throws BeansException if thrown by application context methods
-   * @see BeanInitializationException
-   */
-  @Override
-  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-
-    if (applicationContext.containsBean(POST_QUEUE_DELIVERER_MESSAGE_EXECUTOR_BEAN_NAME)) {
-      this.delivererMessageExecutor =
-          applicationContext.getBean(
-              POST_QUEUE_DELIVERER_MESSAGE_EXECUTOR_BEAN_NAME, DelivererMessageExecutor.class);
-
-      imServerLog.info(
-          "[==] inject deliverer message api instance: {}", this.delivererMessageExecutor);
-    }
+  public void registerDelivererMessageExecutor(DelivererMessageExecutor delivererMessageExecutor) {
+    this.delivererMessageExecutor = delivererMessageExecutor;
   }
 }

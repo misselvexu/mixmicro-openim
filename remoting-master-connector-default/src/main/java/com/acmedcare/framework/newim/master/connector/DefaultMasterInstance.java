@@ -65,11 +65,8 @@ public final class DefaultMasterInstance extends MasterInstance {
 
     ClusterRegisterHeader header = new ClusterRegisterHeader();
     header.setNodeServerType(this.properties.getConnectorType().name());
-    header.setNodeServerHost(
-        this.properties.getConnectorHost() + ":" + this.properties.getConnectorPort());
-    header.setNodeServerAddress(
-        this.properties.getConnectorHost() + ":" + this.properties.getConnectorReplicaPort());
-
+    header.setNodeServerAddress(this.properties.getConnectorHost() + ":" + this.properties.getConnectorPort());
+    header.setRemotingNodeReplicaAddress(this.properties.getConnectorHost() + ":" + this.properties.getConnectorReplicaPort());
     header.setHasWssEndpoints(buildRegisterBody(this.properties, this.context) != null);
 
     return header;

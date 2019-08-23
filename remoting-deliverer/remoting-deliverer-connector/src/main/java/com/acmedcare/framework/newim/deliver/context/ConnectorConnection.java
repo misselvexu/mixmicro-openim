@@ -22,6 +22,7 @@ import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketClient;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingSysRequestCode;
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import lombok.AccessLevel;
@@ -31,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -99,7 +101,7 @@ public class ConnectorConnection implements Serializable {
           // build
           this.config = new NettyClientConfig();
           this.config.setUseTLS(this.serverInstance.isSsl());
-          this.config.setEnableHeartbeat(this.serverInstance.isHeartbeat());
+          this.config.setEnableHeartbeat(!this.serverInstance.isHeartbeat());
           // config other properties is not already exported for custom value.
         }
 
@@ -137,15 +139,13 @@ public class ConnectorConnection implements Serializable {
 
         this.client.registerProcessor(TIMED_DELIVERY_MESSAGE_COMMAND_VALUE, new TimedDeliveryMessageProcessor(), null);
 
+        this.client.updateNameServerAddressList(Lists.newArrayList(serverInstance.getServerAddr()));
+
         this.client.start();
 
         if(connectExecutor == null) {
           this.connectExecutor = new ScheduledThreadPoolExecutor(1, new DefaultThreadFactory(serverInstance.getServerAddr().concat("-connect-thread")));
         }
-
-        // ===== startup async connect ======
-        doConnect();
-        // ===== end =====
 
         // ===== startup schedule time thread =====
         connectExecutor.scheduleWithFixedDelay(this::doConnect,1000,this.serverInstance.getConnectDelay(), TimeUnit.MILLISECONDS);
@@ -176,6 +176,7 @@ public class ConnectorConnection implements Serializable {
   }
 
   private void doConnect() {
+
     try{
 
       if(connecting) {
@@ -184,21 +185,21 @@ public class ConnectorConnection implements Serializable {
 
       log.info("[{}][==]Deliverer Connector ready to send handshake request .",serverInstance.getServerAddr());
 
+      CountDownLatch lock = new CountDownLatch(1);
+
       RemotingCommand handshakeRequest = RemotingCommand.createRequestCommand(HANDSHAKE_COMMAND_VALUE,null);
 
-      this.client.invokeOneway(
-          serverInstance.getServerAddr(),
-          handshakeRequest,
-          this.serverInstance.getRequestTimeout(),
-          // send request to network result.
-          isSendOk -> {
-            if (isSendOk) {
-              doRegister();
-            } else {
-              // sleep sts, wait next time delay
-              ThreadKit.sleep(this.serverInstance.getConnectDelay());
-            }
-          });
+      RemotingCommand response = this.client.invokeSync(serverInstance.getServerAddr(), handshakeRequest, this.serverInstance.getRequestTimeout());
+
+      if(response != null) {
+        BizResult bizResult = JSON.parseObject(response.getBody(),BizResult.class);
+        if(bizResult.getCode() == 0) {
+          doRegister();
+          return;
+        }
+      }
+
+      ThreadKit.sleep(this.serverInstance.getConnectDelay());
 
     } catch (Exception e) {
       e.printStackTrace();

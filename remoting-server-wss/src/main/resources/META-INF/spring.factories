@@ -1,4 +1,3 @@
 org.springframework.context.ApplicationListener=\
-  com.acmedcare.framework.newim.env.core.AwaitingNonWebApplicationListener,\
-  com.acmedcare.framework.newim.DelivererBootstrap.DelivererApplicationContextListener
+  com.acmedcare.framework.newim.server.listener.ApplicationStartedListener
 

@@ -81,6 +81,7 @@ public class RegisterProcessor implements NettyRequestProcessor {
         defaultResponse.setBody(BizResult.SUCCESS.bytes());
 
       } else {
+
         // empty request body
         defaultResponse.setBody(
             BizResult.builder()
@@ -91,6 +92,9 @@ public class RegisterProcessor implements NettyRequestProcessor {
       }
 
     } catch (Exception e) {
+
+      e.printStackTrace();
+
       defaultResponse.setBody(
           BizResult.builder()
               .code(-1)

@@ -4,24 +4,24 @@
 # Run with:
 #
 # 151:
-#   docker run -p 43111:43111 -p 23111:23111 -p 33111:33111 -p 8888:8888 --net docker-br0 --ip 172.172.1.160 --env WSS_HOST=192.168.1.151 --env NEWIM_MASTER_ADDR=172.172.0.155:13111,172.172.1.155:13111 --env WSS_PORT=8888 --add-host gateway.acmedcare.com:172.172.1.108 --add-host node1.mongodb.acmedcare.com:172.172.0.103 --add-host node2.mongodb.acmedcare.com:172.172.0.104 --add-host node3.mongodb.acmedcare.com:172.172.0.105 -d -v /tmp/logs/remoting-server-wss:/remoting-server-wss/logs --name remoting-server-wss docker.apiacmed.com/library/remoting-server-wss:2.3.0.BUILD-SNAPSHOT
+#   docker run -p 43111:43111 -p 23111:23111 -p 33111:33111 -p 8888:8888 --net docker-br0 --ip 172.172.1.160 --env WSS_HOST=192.168.1.151 --env NEWIM_MASTER_ADDR=172.172.0.155:13111,172.172.1.155:13111 --env WSS_PORT=8888 --add-host gateway.acmedcare.com:172.172.1.108 --add-host node1.mongodb.acmedcare.com:172.172.0.103 --add-host node2.mongodb.acmedcare.com:172.172.0.104 --add-host node3.mongodb.acmedcare.com:172.172.0.105 -d -v /tmp/logs/remoting-server-wss:/remoting-server-wss/logs --name remoting-server-wss docker.apiacmed.com/library/remoting-server-wss:2.3.0-RC1
 #
 # 152:
-#   docker run -p 43111:43111 -p 23111:23111 -p 33111:33111 -p 8888:8888 --net docker-br0 --ip 172.172.0.160 --env WSS_HOST=192.168.1.152 --env NEWIM_MASTER_ADDR=172.172.0.155:13111,172.172.1.155:13111 --env WSS_PORT=8888 --add-host gateway.acmedcare.com:172.172.1.108 --add-host node1.mongodb.acmedcare.com:172.172.0.103 --add-host node2.mongodb.acmedcare.com:172.172.0.104 --add-host node3.mongodb.acmedcare.com:172.172.0.105 -d -v /tmp/logs/remoting-server-wss:/remoting-server-wss/logs --name remoting-server-wss docker.apiacmed.com/library/remoting-server-wss:2.3.0.BUILD-SNAPSHOT
+#   docker run -p 43111:43111 -p 23111:23111 -p 33111:33111 -p 8888:8888 --net docker-br0 --ip 172.172.0.160 --env WSS_HOST=192.168.1.152 --env NEWIM_MASTER_ADDR=172.172.0.155:13111,172.172.1.155:13111 --env WSS_PORT=8888 --add-host gateway.acmedcare.com:172.172.1.108 --add-host node1.mongodb.acmedcare.com:172.172.0.103 --add-host node2.mongodb.acmedcare.com:172.172.0.104 --add-host node3.mongodb.acmedcare.com:172.172.0.105 -d -v /tmp/logs/remoting-server-wss:/remoting-server-wss/logs --name remoting-server-wss docker.apiacmed.com/library/remoting-server-wss:2.3.0-RC1
 #
 #
 #===================
 #
 # 151:
-#   docker run -p 43111:43111 -p 23111:23111 -p 33111:33111 -p 8888:8888 --net docker-br0 --ip 172.172.1.160 --env WSS_HOST=192.168.1.151 --env EXPORT_HOST=192.168.1.166 --env IM_PORT=23111 --env NEWIM_MASTER_ADDR=172.172.0.155:13111,172.172.1.155:13111 --env WSS_PORT=8888 --add-host gateway.acmedcare.com:172.172.1.108 --add-host node1.mongodb.acmedcare.com:172.172.0.103 --add-host node2.mongodb.acmedcare.com:172.172.0.104 --add-host node3.mongodb.acmedcare.com:172.172.0.105 -d -v /tmp/logs/remoting-server-wss:/remoting-server-wss/logs --name remoting-server-wss docker.apiacmed.com/library/remoting-server-wss:2.3.0.BUILD-SNAPSHOT
+#   docker run -p 43111:43111 -p 23111:23111 -p 33111:33111 -p 8888:8888 --net docker-br0 --ip 172.172.1.160 --env WSS_HOST=192.168.1.151 --env EXPORT_HOST=192.168.1.166 --env IM_PORT=23111 --env NEWIM_MASTER_ADDR=172.172.0.155:13111,172.172.1.155:13111 --env NEWIM_DELIVERER_ADDR=172.172.1.166:14110 --env WSS_PORT=8888 --add-host gateway.acmedcare.com:172.172.1.108 --add-host node1.mongodb.acmedcare.com:172.172.0.103 --add-host node2.mongodb.acmedcare.com:172.172.0.104 --add-host node3.mongodb.acmedcare.com:172.172.0.105 -d -v /tmp/logs/remoting-server-wss:/remoting-server-wss/logs --name remoting-server-wss docker.apiacmed.com/library/remoting-server-wss:2.3.0-RC1
 #
 # 152:
-#   docker run -p 43111:43111 -p 23121:23121 -p 33111:33111 -p 8888:8888 --net docker-br0 --ip 172.172.0.160 --env WSS_HOST=192.168.1.152 --env EXPORT_HOST=192.168.1.166 --env IM_PORT=23121 --env NEWIM_MASTER_ADDR=172.172.0.155:13111,172.172.1.155:13111 --env WSS_PORT=8888 --add-host gateway.acmedcare.com:172.172.1.108 --add-host node1.mongodb.acmedcare.com:172.172.0.103 --add-host node2.mongodb.acmedcare.com:172.172.0.104 --add-host node3.mongodb.acmedcare.com:172.172.0.105 -d -v /tmp/logs/remoting-server-wss:/remoting-server-wss/logs --name remoting-server-wss docker.apiacmed.com/library/remoting-server-wss:2.3.0.BUILD-SNAPSHOT
+#   docker run -p 43111:43111 -p 23121:23121 -p 33111:33111 -p 8888:8888 --net docker-br0 --ip 172.172.0.160 --env WSS_HOST=192.168.1.152 --env EXPORT_HOST=192.168.1.166 --env IM_PORT=23121 --env NEWIM_MASTER_ADDR=172.172.0.155:13111,172.172.1.155:13111 --env NEWIM_DELIVERER_ADDR=172.172.1.166:14110 --env WSS_PORT=8888 --add-host gateway.acmedcare.com:172.172.1.108 --add-host node1.mongodb.acmedcare.com:172.172.0.103 --add-host node2.mongodb.acmedcare.com:172.172.0.104 --add-host node3.mongodb.acmedcare.com:172.172.0.105 -d -v /tmp/logs/remoting-server-wss:/remoting-server-wss/logs --name remoting-server-wss docker.apiacmed.com/library/remoting-server-wss:2.3.0-RC1
 #
 FROM docker.apiacmed.com/env/openjdk-acmed:8-jre-alpine
 MAINTAINER Elve.Xu <iskp.me@gmail.com>
 
-ENV VERSION 2.3.0.BUILD-SNAPSHOT
+ENV VERSION 2.3.0-RC1
 
 RUN echo "http://mirrors.aliyun.com/alpine/v3.6/main" > /etc/apk/repositories \
     && echo "http://mirrors.aliyun.com/alpine/v3.6/community" >> /etc/apk/repositories \

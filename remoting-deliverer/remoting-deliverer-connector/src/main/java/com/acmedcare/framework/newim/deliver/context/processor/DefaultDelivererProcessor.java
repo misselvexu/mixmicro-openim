@@ -5,11 +5,14 @@
 
 package com.acmedcare.framework.newim.deliver.context.processor;
 
+import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRequestProcessor;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static com.acmedcare.framework.newim.deliver.api.DelivererCommand.HANDSHAKE_COMMAND_VALUE;
 
 /**
  * Default Processor
@@ -19,14 +22,29 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultDelivererProcessor implements NettyRequestProcessor {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultMasterProcessor.class);
+  private static final Logger log = LoggerFactory.getLogger(DefaultDelivererProcessor.class);
 
   @Override
   public RemotingCommand processRequest(
       ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand)
       throws Exception {
-    LOG.warn("[NEW-IM] Default processor code:{} executing", remotingCommand.getCode());
-    return RemotingCommand.createResponseCommand(remotingCommand.getCode(), "DEFAULT");
+
+    RemotingCommand response = RemotingCommand.createResponseCommand(remotingCommand.getCode(), "DEFAULT");
+
+    switch (remotingCommand.getCode()) {
+
+      case HANDSHAKE_COMMAND_VALUE:
+        log.info("[==] Received Deliverer Client handshake request ~");
+        response.setBody(BizResult.SUCCESS.bytes());
+        break;
+
+      default:
+
+        log.warn("[==] Default processor code:{} executing", remotingCommand.getCode());
+        break;
+    }
+
+    return response;
   }
 
   @Override

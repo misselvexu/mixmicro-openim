@@ -122,6 +122,7 @@ public class DelivererMessageExecutor {
                           this.delivererClientProperties.getFastFailRetryDelay(),
                           ChronoUnit.MILLIS))
                   .withMaxNumberOfTries(this.delivererClientProperties.getMaxFastFailedRetryTimes())
+                  .withExponentialBackoff()
                   .build();
 
           AsyncCallExecutor<Object> executor =
@@ -199,6 +200,7 @@ public class DelivererMessageExecutor {
                     this.delivererClientProperties.getFastFailRetryDelay(),
                     ChronoUnit.MILLIS))
             .withMaxNumberOfTries(this.delivererClientProperties.getMaxFastFailedRetryTimes())
+            .withExponentialBackoff()
             .build();
 
     AsyncCallExecutor<Object> executor =

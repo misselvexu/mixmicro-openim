@@ -29,6 +29,8 @@ import javax.validation.constraints.NotBlank;
 @ConfigurationProperties(prefix = "remoting.deliverer.server")
 public class DelivererServerProperties extends DefaultDelivererProperties {
 
+  private static final long serialVersionUID = -1113631365862971274L;
+
   /**
    * Deliverer Connector Server Host Address, Default: 0.0.0.0
    */

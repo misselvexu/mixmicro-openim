@@ -21,7 +21,7 @@ public class DelivererClientMarkerConfiguration {
 
   public static final String DELIVERER_CLIENT_INITIALIZER_BEAN_NAME = "clientInitializer";
 
-  public static final String POST_QUEUE_DELIVERER_MESSAGE_EXECUTOR_BEAN_NAME = "delivererMessagePostQueueExecutor";
+  public static final String POST_QUEUE_DELIVERER_MESSAGE_EXECUTOR_BEAN_NAME = "delivererMessageExecutor";
 
   @Bean(
       initMethod = "init",
@@ -37,7 +37,7 @@ public class DelivererClientMarkerConfiguration {
       destroyMethod = "destroy",
       name = POST_QUEUE_DELIVERER_MESSAGE_EXECUTOR_BEAN_NAME)
   @ConditionalOnMissingBean(DelivererMessageExecutor.class)
-  DelivererMessageExecutor delivererMessagePostQueueExecutor(DelivererClientProperties properties) {
+  DelivererMessageExecutor delivererMessageExecutor(DelivererClientProperties properties) {
     return new DelivererMessageExecutor(properties);
   }
 }

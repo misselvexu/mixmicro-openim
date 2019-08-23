@@ -8,6 +8,7 @@ package com.acmedcare.framework.newim;
 import com.acmedcare.framework.kits.Assert;
 import com.acmedcare.framework.newim.deliver.connector.EnableDelivererConnector;
 import com.acmedcare.framework.newim.deliver.connector.server.DelivererServerInitializer;
+import com.acmedcare.framework.newim.master.connector.DelivererMasterConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -20,6 +21,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
 
 import static com.acmedcare.framework.newim.deliver.connector.server.DelivererServerMarkerConfiguration.DELIVERER_SERVER_INITIALIZER_BEAN_NAME;
+import static com.acmedcare.framework.newim.master.connector.DelivererMasterConnectorAutoConfiguration.DELIVERER_MASTER_CONNECTOR_BEAN_NAME;
 
 /**
  * {@link DelivererBootstrap}
@@ -61,6 +63,14 @@ public class DelivererBootstrap {
       log.info("[==] Deliverer Server Initializer instance : {}", serverInitializer);
 
       serverInitializer.startup();
+
+      Assert.isTrue(applicationContext.containsBean(DELIVERER_MASTER_CONNECTOR_BEAN_NAME));
+
+      DelivererMasterConnector delivererMasterConnector = this.applicationContext.getBean(DELIVERER_MASTER_CONNECTOR_BEAN_NAME,DelivererMasterConnector.class);
+
+      log.info("[==] Deliverer Master Connector instance : {}", serverInitializer);
+
+      delivererMasterConnector.startup(null);
     }
 
     @Override

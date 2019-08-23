@@ -133,7 +133,8 @@ public abstract class MasterConnector {
    *
    * @param handler handler instance of {@link MasterConnectorHandler}
    */
-  protected void doStartup(@Nullable MasterConnectorHandler handler) {}
+  protected void doStartup(@Nullable MasterConnectorHandler handler) {
+  }
 
   /**
    * Destroy Method

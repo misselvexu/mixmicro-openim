@@ -12,6 +12,8 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
@@ -65,12 +67,12 @@ public class DelivererMessage implements Serializable {
   @Builder.Default private DelivererStatus delivererStatus = DelivererStatus.READY;
 
   /** 投递时间 */
-  private Date deliveringTime;
+  @Builder.Default private Date deliveringTime = Date.from(LocalDateTime.now().minusMinutes(5).atZone(ZoneId.systemDefault()).toInstant());
 
   /** 已投递时间 */
   private Date deliveredTime;
 
-  private String ukey;
+  @Builder.Default private String ukey = "";
 
   @Override
   public boolean equals(Object o) {

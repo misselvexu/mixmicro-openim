@@ -48,24 +48,24 @@ public class ClusterPushClientChannelsRequestProcessor implements NettyRequestPr
               .bytes());
       return response;
     }
-    masterClusterAcceptorLog.info("收到Cluster:{},上报数据请求", node.getHost());
+    masterClusterAcceptorLog.info("收到Cluster:{},上报数据请求", node.getAddress());
 
     try {
       ClusterPushSessionDataHeader header =
           (ClusterPushSessionDataHeader)
               remotingCommand.decodeCommandCustomHeader(ClusterPushSessionDataHeader.class);
 
-      Assert.notNull(header, "Cluster:" + node.getHost() + "请求上报数据请求头参数异常");
+      Assert.notNull(header, "Cluster:" + node.getAddress() + "请求上报数据请求头参数异常");
 
       byte[] body = remotingCommand.getBody();
       ClusterPushSessionDataBody data = JSON.parseObject(body, ClusterPushSessionDataBody.class);
 
       masterClusterAcceptorLog.info(
-          "Cluster: {} ,上报的数据内容:{} ", node.getHost(), JSON.toJSONString(data));
+          "Cluster: {} ,上报的数据内容:{} ", node.getAddress(), JSON.toJSONString(data));
 
       masterClusterSession.merge(node, data);
 
-      masterClusterAcceptorLog.info("Cluster:{},同步数据完成", node.getHost());
+      masterClusterAcceptorLog.info("Cluster:{},同步数据完成", node.getAddress());
 
       response.setBody(BizResult.SUCCESS.bytes());
 

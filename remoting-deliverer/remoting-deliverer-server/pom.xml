@@ -9,13 +9,13 @@
     <parent>
         <artifactId>remoting-deliverer</artifactId>
         <groupId>com.acmedcare.microservices.im</groupId>
-        <version>2.3.0.BUILD-SNAPSHOT</version>
+        <version>2.3.0-RC1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>remoting-deliverer-server</artifactId>
-    <version>2.3.0.BUILD-SNAPSHOT</version>
+    <version>2.3.0-RC1</version>
     <packaging>jar</packaging>
 
     <name>Acmedcare+ Remoting NewIM Deliverer Server Module :: ${project.version}</name>
@@ -155,5 +155,67 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+
+    <build>
+
+        <extensions>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>1.4.0.Final</version>
+            </extension>
+        </extensions>
+
+        <plugins>
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.4.13</version>
+                <configuration>
+                    <imageName>docker.apiacmed.com/library/${project.artifactId}:${project.version}</imageName>
+                    <dockerDirectory>src/main/docker</dockerDirectory>
+                    <resources>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <directory>${project.build.directory}</directory>
+                            <include>*.zip</include>
+                        </resource>
+                        <resource>
+                            <targetPath>/certs</targetPath>
+                            <directory>${base.dir}/../../remoting-certs</directory>
+                            <include>*/**</include>
+                        </resource>
+                    </resources>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>${project.artifactId}-${project.version}</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <descriptors>
+                                <descriptor>src/assembly/assembly-descriptor.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

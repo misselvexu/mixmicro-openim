@@ -5,6 +5,7 @@
 
 package com.acmedcare.framework.newim.deliver.connector.server;
 
+import com.acmedcare.framework.kits.thread.ThreadKit;
 import com.acmedcare.framework.newim.deliver.api.DefaultDelivererProperties;
 import com.acmedcare.framework.newim.deliver.api.DelivererInitializer;
 import com.acmedcare.framework.newim.deliver.api.context.event.DelivererServerInitedEvent;
@@ -21,9 +22,14 @@ import com.acmedcare.tiffany.framework.remoting.common.RemotingUtil;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketServer;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyServerConfig;
 import io.netty.channel.Channel;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.acmedcare.framework.newim.deliver.api.DelivererCommand.*;
@@ -46,6 +52,16 @@ public class DelivererServerInitializer extends DelivererInitializer {
   private AtomicBoolean started = new AtomicBoolean(false);
 
   private NettyServerConfig config;
+
+  private ExecutorService defaultExecutor =
+      new ThreadPoolExecutor(
+          Runtime.getRuntime().availableProcessors(),
+          Runtime.getRuntime().availableProcessors(),
+          0,
+          TimeUnit.MILLISECONDS,
+          new LinkedBlockingQueue<>(64),
+          new DefaultThreadFactory("new-im-netty-default-processor-executor-"),
+          new ThreadPoolExecutor.CallerRunsPolicy());
 
   protected DelivererServerInitializer(DefaultDelivererProperties properties) {
     super(properties);
@@ -107,8 +123,11 @@ public class DelivererServerInitializer extends DelivererInitializer {
     this.server.registerProcessor(FETCH_CLIENT_DELIVERER_MESSAGES_VALUE,new MessageProcessor(),null);
     this.server.registerProcessor(DELIVERER_CLIENT_ACK_DELIVERER_VALUE,new AckProcessor(),null);
 
+    // default processor
+    this.server.registerDefaultProcessor(new DefaultDelivererProcessor(),defaultExecutor);
+
     // publish init-ed event
-    this.publisher.publishEvent(new DelivererServerInitedEvent(null));
+    this.publisher.publishEvent(new DelivererServerInitedEvent(this));
   }
 
   @Override
@@ -125,7 +144,11 @@ public class DelivererServerInitializer extends DelivererInitializer {
     log.info("[==] Deliverer Server Initializer - invoked shutdown method .");
     if (started.compareAndSet(true, false)) {
       this.server.shutdown();
-      this.publisher.publishEvent(new DelivererServerStopedEvent(null));
+      this.publisher.publishEvent(new DelivererServerStopedEvent(this));
+
+      if(defaultExecutor != null) {
+        ThreadKit.gracefulShutdown(defaultExecutor,5,5,TimeUnit.SECONDS);
+      }
     }
   }
 }

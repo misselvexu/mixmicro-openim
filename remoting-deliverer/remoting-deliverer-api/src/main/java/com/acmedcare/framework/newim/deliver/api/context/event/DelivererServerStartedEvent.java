@@ -16,6 +16,8 @@ import org.springframework.context.ApplicationEvent;
  */
 public class DelivererServerStartedEvent extends ApplicationEvent {
 
+  private static final long serialVersionUID = 5739886646812610007L;
+
   private final RemotingSocketServer server;
   /**
    * Create a new ApplicationEvent.

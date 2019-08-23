@@ -10,6 +10,7 @@ import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
@@ -30,6 +31,9 @@ import java.util.List;
 public class DelivererClientProperties extends DefaultDelivererProperties {
 
   private static final long serialVersionUID = -5026059123829689693L;
+
+  @Value("${spring.application.name}")
+  private String serviceId;
 
   /**
    * Remoting Deliverer Server Address List, Like: xx.xx.xx.xx:14110,xx.xx.xx.xxx:14110

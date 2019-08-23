@@ -72,7 +72,7 @@ public class MasterConnector {
     this.imSession = imSession;
     this.localImNode =
         InstanceNode.builder()
-            .host(imProperties.getHost() + ":" + imProperties.getClusterPort())
+            .address(imProperties.getHost() + ":" + imProperties.getClusterPort())
             .nodeType(NodeType.DEFAULT_REPLICA)
             .build();
 
@@ -97,8 +97,8 @@ public class MasterConnector {
       startupRollingPullCluster();
       masterClusterLog.info("Startup schedule rolling push channels thread.");
       startupRollingPushChannels();
-      masterClusterLog.info("Startup schedule rolling pull deliverer server list thread.");
-      startupRollingPullDeliverer();
+//      masterClusterLog.info("Startup schedule rolling pull deliverer server list thread.");
+//      startupRollingPullDeliverer();
     }
   }
 
@@ -150,7 +150,7 @@ public class MasterConnector {
                             remoteMasterConnectorInstance
                                 .getNettyRemotingSocketClient()
                                 .invokeSync(
-                                    remoteMasterConnectorInstance.getMasterNode().getHost(),
+                                    remoteMasterConnectorInstance.getMasterNode().getAddress(),
                                     requestCommand,
                                     3000);
 
@@ -173,7 +173,7 @@ public class MasterConnector {
                       } catch (Exception e) {
                         masterClusterLog.error(
                             "cluster push remoting channels timer execute failed with request :{} ,will try next",
-                            remoteMasterConnectorInstance.getMasterNode().getHost(),
+                            remoteMasterConnectorInstance.getMasterNode().getAddress(),
                             e);
                       } finally {
                         countDownLatch.countDown();
@@ -205,7 +205,7 @@ public class MasterConnector {
               int index = indexRandom.nextInt(remoteMasterConnectorInstances.size());
               instance = remoteMasterConnectorInstances.get(index);
               if (instance.isConnecting()) {
-                server = instance.getMasterNode().getHost();
+                server = instance.getMasterNode().getAddress();
                 break;
               }
             }
@@ -234,7 +234,7 @@ public class MasterConnector {
                               JSON.toJSONString(imServerNodes));
                         }
 
-                        imServerNodes.remove(localImNode.getHost());
+                        imServerNodes.remove(localImNode.getAddress());
 
                         if (imServerNodes.size() > 0) {
                           Event refreshEvent =
@@ -278,7 +278,7 @@ public class MasterConnector {
               int index = indexRandom.nextInt(remoteMasterConnectorInstances.size());
               instance = remoteMasterConnectorInstances.get(index);
               if (instance.isConnecting()) {
-                server = instance.getMasterNode().getHost();
+                server = instance.getMasterNode().getAddress();
                 break;
               }
             }
@@ -476,7 +476,7 @@ public class MasterConnector {
               } catch (Throwable e) {
                 masterClusterLog.warn(
                     "Connect to master server:{} failed, wait next time connect..",
-                    masterNode.getHost());
+                    masterNode.getAddress());
                 connectTimes.incrementAndGet();
               }
             },
@@ -500,11 +500,11 @@ public class MasterConnector {
 
     private void handshake() throws Exception {
       CountDownLatch count = new CountDownLatch(1);
-      masterClusterLog.info("send handshake request to server :{} ", masterNode.getHost());
+      masterClusterLog.info("send handshake request to server :{} ", masterNode.getAddress());
       RemotingCommand handshakeRequest =
           RemotingCommand.createRequestCommand(MasterClusterCommand.CLUSTER_HANDSHAKE, null);
       nettyRemotingSocketClient.invokeOneway(
-          masterNode.getHost(),
+          masterNode.getAddress(),
           handshakeRequest,
           2000,
           b -> {
@@ -541,25 +541,25 @@ public class MasterConnector {
 
     void register(IMProperties imProperties) throws Exception {
       ClusterRegisterHeader header = new ClusterRegisterHeader();
-      header.setNodeServerHost(localNode.getHost());
+      header.setNodeServerAddress(localNode.getAddress());
       header.setHasWssEndpoints(true);
-      header.setNodeServerAddress(imProperties.getHost() + ":" + imProperties.getClusterPort());
+      header.setRemotingNodeReplicaAddress(imProperties.getHost() + ":" + imProperties.getClusterPort());
       header.setNodeServerExportHost(imProperties.getExportHost() + ":" + imProperties.getPort());
 
       // send register command
-      masterClusterLog.info("send register request to server :{} ", masterNode.getHost());
+      masterClusterLog.info("send register request to server :{} ", masterNode.getAddress());
 
       RemotingCommand registerRequest =
           RemotingCommand.createRequestCommand(MasterClusterCommand.CLUSTER_REGISTER, header);
 
       registerRequest.setBody(JSON.toJSONBytes(imProperties.loadWssEndpoints()));
       RemotingCommand response =
-          nettyRemotingSocketClient.invokeSync(masterNode.getHost(), registerRequest, 3000);
+          nettyRemotingSocketClient.invokeSync(masterNode.getAddress(), registerRequest, 3000);
 
       Assert.notNull(response, "register response must not be null.");
       BizResult bizResult = JSON.parseObject(response.getBody(), BizResult.class);
       if (bizResult != null && bizResult.getCode() == 0) {
-        masterClusterLog.info("Master-Cluster-Client:{} register succeed. ", masterNode.getHost());
+        masterClusterLog.info("Master-Cluster-Client:{} register succeed. ", masterNode.getAddress());
 
         connecting = true;
         // reset connect params
@@ -584,7 +584,7 @@ public class MasterConnector {
               try {
                 if (connecting) {
                   nettyRemotingSocketClient.invokeOneway(
-                      masterNode.getHost(),
+                      masterNode.getAddress(),
                       heartbeat,
                       heartbeatTimeoutMillis,
                       b -> {

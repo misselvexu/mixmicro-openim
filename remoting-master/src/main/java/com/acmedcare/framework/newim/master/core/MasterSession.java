@@ -1,5 +1,6 @@
 package com.acmedcare.framework.newim.master.core;
 
+import com.acmedcare.framework.kits.lang.Nullable;
 import com.acmedcare.framework.kits.thread.DefaultThreadFactory;
 import com.acmedcare.framework.kits.thread.ThreadKit;
 import com.acmedcare.framework.newim.*;
@@ -176,9 +177,9 @@ public class MasterSession {
     void registerNodeInstance(
         InstanceNode remoteNode,
         String remotingAddress,
-        String exportAddress,
-        String remotingNodeReplicaAddress,
-        List<WssInstance> wssNodes,
+        @Nullable String exportAddress,
+        @Nullable String remotingNodeReplicaAddress,
+        @Nullable List<WssInstance> wssNodes,
         Channel channel)
         throws InvalidInstanceTypeException {
 

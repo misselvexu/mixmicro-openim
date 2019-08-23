@@ -1,6 +1,6 @@
 #!/bin/bash
-SERVICE_NAME=remoting-master
-SERVICE_VERSION=2.3.0.BUILD-SNAPSHOT
+SERVICE_NAME=remoting-deliverer-server
+SERVICE_VERSION=2.3.0-RC1
 # Copyright 2014-2019 Acmedcare+ Group Holding Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -92,4 +92,4 @@ fi
 
 
 nohup ${JAVA} ${JAVA_OPT} > ${BASE_DIR}/logs/start.log 2>&1 &
-echo "Acmedcare+ Remoting-Wss Server is starting，you can check the ${BASE_DIR}/logs/start.log"
+echo "Acmedcare+ Remoting-Deliverer Server is starting，you can check the ${BASE_DIR}/logs/start.log"

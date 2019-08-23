@@ -1,7 +1,5 @@
 package com.acmedcare.framework.newim.server.core.connector;
 
-import static com.acmedcare.framework.newim.server.ClusterLogger.clusterReplicaLog;
-
 import com.acmedcare.framework.kits.executor.RetriableThreadExecutor;
 import com.acmedcare.framework.kits.executor.RetriableThreadExecutor.ExecutorCallback;
 import com.acmedcare.framework.kits.executor.RetriableThreadExecutor.RetriableAttribute;
@@ -29,17 +27,15 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
 import io.netty.util.HashedWheelTimer;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.*;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
+
+import static com.acmedcare.framework.newim.server.ClusterLogger.clusterReplicaLog;
 
 /**
  * Cluster Replica Connector
@@ -96,50 +92,52 @@ public class ClusterReplicaConnector {
           @Override
           public void execute(Event<List<String>> event) {
 
-            clusterReplicaLog.info("Received a refresh event :{}", event);
-            upgradeReplicaServerAddressLocker.lock();
-            try {
-              List<String> addresses = event.data();
-              if (addresses != null && addresses.size() > 0) {
-                clusterReplicaLog.info(
-                    "Find some defaultReplica servers,ready to connect them: {}",
-                    JSON.toJSONString(addresses));
+            if(event instanceof Event.FetchNewClusterReplicaServerEvent) {
+              clusterReplicaLog.info("Received a refresh event :{}", event);
+              upgradeReplicaServerAddressLocker.lock();
+              try {
+                List<String> addresses = event.data();
+                if (addresses != null && addresses.size() > 0) {
+                  clusterReplicaLog.info(
+                      "Find some defaultReplica servers,ready to connect them: {}",
+                      JSON.toJSONString(addresses));
 
-                for (String address : addresses) {
-                  if (!replicaServerInstancesMap.containsKey(address)) {
-                    //
-                    clusterReplicaLog.info("Find new defaultReplica server,ready to connect {}", address);
+                  for (String address : addresses) {
+                    if (!replicaServerInstancesMap.containsKey(address)) {
+                      //
+                      clusterReplicaLog.info("Find new defaultReplica server,ready to connect {}", address);
 
-                    String name = "[Connector:" + address + "]";
-                    RetriableAttribute retriableAttribute =
-                        new RetriableAttribute(1, 5000, TimeUnit.MILLISECONDS);
-                    RetriableThreadExecutor<NettyRemotingSocketClient> executor =
-                        new RetriableThreadExecutor<>(
-                            name,
-                            () -> startupReplicaRemotingClient(address),
-                            retriableAttribute,
-                            new ExecutorCallback<NettyRemotingSocketClient>() {
-                              @Override
-                              public void onCompleted(NettyRemotingSocketClient result) {
-                                clusterReplicaLog.info("new defaultReplica:{} connect succeed.", address);
-                              }
+                      String name = "[Connector:" + address + "]";
+                      RetriableAttribute retriableAttribute =
+                          new RetriableAttribute(1, 5000, TimeUnit.MILLISECONDS);
+                      RetriableThreadExecutor<NettyRemotingSocketClient> executor =
+                          new RetriableThreadExecutor<>(
+                              name,
+                              () -> startupReplicaRemotingClient(address),
+                              retriableAttribute,
+                              new ExecutorCallback<NettyRemotingSocketClient>() {
+                                @Override
+                                public void onCompleted(NettyRemotingSocketClient result) {
+                                  clusterReplicaLog.info("new defaultReplica:{} connect succeed.", address);
+                                }
 
-                              @Override
-                              public void onFailed(String message) {
-                                clusterReplicaLog.warn(
-                                    "a new defaultReplica server :{} ,connect failed", address);
-                              }
-                            });
+                                @Override
+                                public void onFailed(String message) {
+                                  clusterReplicaLog.warn(
+                                      "a new defaultReplica server :{} ,connect failed", address);
+                                }
+                              });
 
-                    executor.execute();
+                      executor.execute();
+                    }
                   }
+                } else {
+                  clusterReplicaLog.warn("Received refresh event data is empty.");
                 }
-              } else {
-                clusterReplicaLog.warn("Received refresh event data is empty.");
-              }
 
-            } finally {
-              upgradeReplicaServerAddressLocker.unlock();
+              } finally {
+                upgradeReplicaServerAddressLocker.unlock();
+              }
             }
           }
         };

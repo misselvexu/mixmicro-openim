@@ -1,1 +1,1 @@
-default=com.acmedcare.framework.newim.deliver.api.DefaultDelivererApi
+normal=com.acmedcare.framework.newim.deliver.api.DefaultDelivererApi

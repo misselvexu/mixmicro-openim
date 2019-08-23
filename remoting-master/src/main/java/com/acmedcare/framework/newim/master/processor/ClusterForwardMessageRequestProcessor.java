@@ -53,14 +53,14 @@ public class ClusterForwardMessageRequestProcessor implements NettyRequestProces
       return response;
     }
 
-    masterClusterAcceptorLog.info("收到Cluster:{},转发数据请求", instanceNode.getHost());
+    masterClusterAcceptorLog.info("收到Cluster:{},转发数据请求", instanceNode.getAddress());
 
     try {
       ClusterForwardMessageHeader header =
           (ClusterForwardMessageHeader)
               remotingCommand.decodeCommandCustomHeader(ClusterForwardMessageHeader.class);
 
-      Assert.notNull(header, "Cluster:" + instanceNode.getHost() + "请求上报数据请求头参数异常");
+      Assert.notNull(header, "Cluster:" + instanceNode.getAddress() + "请求上报数据请求头参数异常");
 
       byte[] message = remotingCommand.getBody();
       masterClusterAcceptorLog.info(
@@ -78,7 +78,7 @@ public class ClusterForwardMessageRequestProcessor implements NettyRequestProces
                   .qos(singleMessage.isQos())
                   .retryPeriod(singleMessage.getRetryPeriod())
                   .build();
-          masterClusterSession.distributeMessage(attribute, singleMessage, instanceNode.getHost());
+          masterClusterSession.distributeMessage(attribute, singleMessage, instanceNode.getAddress());
           break;
         case GROUP:
           GroupMessage groupMessage = JSON.parseObject(message, GroupMessage.class);
@@ -90,22 +90,22 @@ public class ClusterForwardMessageRequestProcessor implements NettyRequestProces
                   .qos(groupMessage.isQos())
                   .retryPeriod(groupMessage.getRetryPeriod())
                   .build();
-          masterClusterSession.distributeMessage(attribute, groupMessage, instanceNode.getHost());
+          masterClusterSession.distributeMessage(attribute, groupMessage, instanceNode.getAddress());
           break;
 
         case MQ:
           MQMessage mqMessage = JSON.parseObject(message, MQMessage.class);
           attribute = MessageAttribute.builder().persistent(false).build();
           masterClusterAcceptorLog.info(
-              "接受服务器转发请求:{},{}", instanceNode.getHost(), mqMessage.toString());
-          masterClusterSession.distributeMessage(attribute, mqMessage, instanceNode.getHost());
+              "接受服务器转发请求:{},{}", instanceNode.getAddress(), mqMessage.toString());
+          masterClusterSession.distributeMessage(attribute, mqMessage, instanceNode.getAddress());
           break;
         default:
           masterClusterAcceptorLog.info("无效的消息类型:{}", header.decodeType());
           break;
       }
 
-      masterClusterAcceptorLog.info("Cluster:{},同步数据完成", instanceNode.getHost());
+      masterClusterAcceptorLog.info("Cluster:{},同步数据完成", instanceNode.getAddress());
 
       response.setBody(BizResult.SUCCESS.bytes());
 

@@ -54,6 +54,7 @@ public class DelivererClientInitializer extends DelivererInitializer {
           ConnectorInstance.ConnectorServerInstance instance =
               ConnectorInstance.ConnectorServerInstance.builder()
                   .serverAddr(addr)
+                  .application(this.delivererClientProperties.getServiceId())
                   .connectDelay(this.delivererClientProperties.getConnectDelay())
                   .heartbeat(this.delivererClientProperties.isHeartbeatEnabled())
                   .heartbeatPeriod(this.delivererClientProperties.getHeartbeatPeriod())

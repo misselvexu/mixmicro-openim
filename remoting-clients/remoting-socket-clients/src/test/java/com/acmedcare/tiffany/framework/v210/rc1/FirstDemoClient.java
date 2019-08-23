@@ -91,7 +91,7 @@ public class FirstDemoClient {
                   @Override
                   public List<RemotingAddress> remotingAddressList() {
                     return Lists.newArrayList(
-                        new RemotingAddress(false, "39.100.125.0", 13110, false));
+                        new RemotingAddress(false, "127.0.0.1", 13110, false));
                   }
                 })
             .build();
@@ -179,8 +179,8 @@ public class FirstDemoClient {
         }
 
         // 发送消息
-        // 单聊消息: sendMessage SINGLE 1354307746318592 hi
-        // 单聊消息: sendMessage SINGLE 1354307746318592 {"em_message_type":"em_zl_message","taskcode":"123"}
+        // 单聊消息: sendMessage SINGLE 1413572634953984 hi
+        // 单聊消息: sendMessage SINGLE 1413572634953984 {"em_message_type":"em_zl_message","taskcode":"123"}
         // 群消息: sendMessage GROUP gid-20181122 {"em_message_type":"em_zl_message","taskcode":"123"}
         if (inputArgs[0].equals("sendMessage")) {
 
@@ -601,13 +601,13 @@ public class FirstDemoClient {
   private interface KnownParams {
 
     String accessToken =
-        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiI0NWQ1NjE4MmVhOGQ0OGUxYTE1MzhiMDBhOGEyMDVjZiIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NjM4NTA1NjcyOTksImV4cCI6MTU2NDQ1OTY1NjI1MSwiYXVkIjpudWxsfQ.h_pqZFW5s9iCWEJD0SMofD9fckzXt-t3P887RfanMcs2KmA9kyewSk7rCfR9HcZHWn3EzkV56UWoDUjJYV4oTWQFrXkzpK3so0fWlBqaIRyum83XfzwEukDQCj9JpQaJQaCgnKDi_Uh8lLfN27GK-pNeA22sX_MYTA40AhutH-p7huX1qL1mcNZDjgHgPQUlZ8Q8doI7b1I1fPVk_3KKOqIzsdDp54SwAB93BVG2-JjguNBBQyDwQkwwYt2-blqXkeF-NIllq9gKv6N3KGxs9YK9G95AIZM7XgIegbfxfOS5jKRCtFYzW_rq7h0PCMjKgfo_T_moLjp8vLIgQTv0xQ";
+        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiIxNjFiMzllNjJiNDI0YjZjYWQxMzQzZDU2Njc3NGNiZSIsImRhdCI6Ik4vQmtqTkJBelh1R1lyT1JNL245UUVMVFBrdVpoOUtidWtER055cFRibW5BUkpobFB4VkROM2xvSDYvcnMrYjUweXZ2QVhtd2ZhL0labGVpdHZ2WENJNytMYkZIU2tORnhFbmU4a0xQYU5SMmFpMktlR2tvSTRNV0llYkZwaU1penhmVFNDeGVZQ0xodThJNGVqbU93bWc1VUhrZ29TdlAyNlBVaXdSbGJkZz0iLCJpYXQiOjE1NjY0NDQwMzU5MTksImV4cCI6MTU2NzA1NjUxMjkxOSwiYXVkIjpudWxsfQ.EJ0tfC-oWvcKNdT7WNWdtdfROayCyRvaDFLarayDvvm-fsF1NFiS7cU43qBcLxmYthBktMeMHyUApZK9WmZoTwYwqK-kM73uBBVfJffRzuIjVEycwqKbUU86P3ZT_5ckZzMcLv-Oe9RW9DXC7yHJoYXTpSxxrw1c6sE4MzbB7Vhcv-rZf6W9adkXPHCTGtpSFpTHDkkaf8BHDukntFyn1lTTYfc1MqLkTbiE6x0ix7p1dCV5TxFLyIb2DDqR6_uQbcIKmxqdxSJqbPAyNbHNLlpmdghjEYcRf32Lenuck3scSkwqu4FqjpzsTw5tzXDLJuZYctOiQYl89bHKZrjqig";
 
     String areaNo = "320500";
 
     String orgId = "3910249034228736";
 
-    Long passportId = 3837142362366976L;
+    Long passportId = 1413571607857408L;
 
     String passport = "13910187669";
 

@@ -140,54 +140,78 @@ public class DelivererRepositoryImpl implements DelivererRepository {
       List<String> selectedIds = Lists.newArrayList();
       messages.forEach(delivererMessage -> selectedIds.add(delivererMessage.getUuid()));
 
-      String ukey = UUID.randomUUID().toString();
+      if (selectedIds.size() > 0) {
+        String ukey = UUID.randomUUID().toString();
 
-      // update
-      Query uq =
-          new Query(
-              Criteria.where("uuid")
-                  .in(selectedIds.toArray())
-                  // only can be updated once
-                  .and("deliveringTime")
-                  .lte(Date.from(timeoutTime.atZone(ZoneId.systemDefault()).toInstant())));
+        // update
+        Query uq =
+            new Query(
+                Criteria.where("uuid")
+                    .in(selectedIds.toArray())
+                    // only can be updated once
+                    .and("deliveringTime")
+                    .lte(Date.from(timeoutTime.atZone(ZoneId.systemDefault()).toInstant())));
 
-      Update selectedUpdate = new Update();
-      selectedUpdate.set("delivererStatus", DELIVERING);
-      selectedUpdate.set("deliveringTime", new Date());
-      selectedUpdate.set("ukey",ukey);
+        Update selectedUpdate = new Update();
+        selectedUpdate.set("delivererStatus", DELIVERING);
+        selectedUpdate.set("deliveringTime", new Date());
+        selectedUpdate.set("ukey", ukey);
 
-      UpdateResult updateResult =
-          this.mongoTemplate.updateMulti(uq, selectedUpdate, DELIVERER_MESSAGE);
+        UpdateResult updateResult =
+            this.mongoTemplate.updateMulti(uq, selectedUpdate, DELIVERER_MESSAGE);
 
-      mongoLog.info("更新投递记录状态和时间，匹配行数:{} ,更新影响行数:{}", updateResult.getMatchedCount(), updateResult.getModifiedCount());
+        mongoLog.info(
+            "更新投递记录状态和时间，匹配行数:{} ,更新影响行数:{}",
+            updateResult.getMatchedCount(),
+            updateResult.getModifiedCount());
 
-      // re-query
-      Query mq = new Query(Criteria.where("uuid").in(selectedIds.toArray()).and("ukey").is(ukey));
+        // re-query
+        Query mq = new Query(Criteria.where("uuid").in(selectedIds.toArray()).and("ukey").is(ukey));
 
-      List<DelivererMessage> updatedMessages = this.mongoTemplate.find(mq, DelivererMessage.class, DELIVERER_MESSAGE);
+        List<DelivererMessage> updatedMessages =
+            this.mongoTemplate.find(mq, DelivererMessage.class, DELIVERER_MESSAGE);
 
-      mongoLog.info("查询待投递更新后的结果集:{}-{}-{},数量:{}", namespace,passportId,messageType,updatedMessages.size());
+        mongoLog.info(
+            "查询待投递更新后的结果集:{}-{}-{},数量:{}",
+            namespace,
+            passportId,
+            messageType,
+            updatedMessages.size());
 
-      // match
+        // match
 
-      List<DelivererMessageBean> list = Lists.newArrayList();
+        List<DelivererMessageBean> list = Lists.newArrayList();
 
-      messages.forEach(delivererMessage -> {
-        if(updatedMessages.contains(delivererMessage)) {
-          list.add(DelivererMessageBean.builder()
-              .half(delivererMessage.getDelivererStatus().equals(DelivererMessage.DelivererStatus.HALF))
-              .message(delivererMessage.getPayload())
-              .messageId(delivererMessage.getMid().toString())
-              .messageType(delivererMessage.getMessageType())
-              .namespace(delivererMessage.getNamespace())
-              .passportId(delivererMessage.getReceiver())
-              .build());
-        }
-      });
+        messages.forEach(
+            delivererMessage -> {
+              if (updatedMessages.contains(delivererMessage)) {
+                list.add(
+                    DelivererMessageBean.builder()
+                        .half(
+                            delivererMessage
+                                .getDelivererStatus()
+                                .equals(DelivererMessage.DelivererStatus.HALF))
+                        .message(delivererMessage.getPayload())
+                        .messageId(delivererMessage.getMid().toString())
+                        .messageType(delivererMessage.getMessageType())
+                        .namespace(delivererMessage.getNamespace())
+                        .passportId(delivererMessage.getReceiver())
+                        .build());
+              }
+            });
 
-      mongoLog.info("查询待投递最终结果集:{}-{}-{}, 数量:{}", namespace,passportId,messageType,updatedMessages.size());
+        mongoLog.info(
+            "查询待投递最终结果集:{}-{}-{}, 数量:{}",
+            namespace,
+            passportId,
+            messageType,
+            updatedMessages.size());
 
-      return list;
+        return list;
+      } else {
+
+        return Lists.newArrayList();
+      }
     } catch (Exception e) {
       throw new StorageException("查询待投递的消息列表异常", e);
     }
@@ -205,6 +229,7 @@ public class DelivererRepositoryImpl implements DelivererRepository {
 
     try {
 
+      mongoLog.info("确定投递记录状态参数:{},{},{}",namespace,passportId,messageId);
       Query query =
           new Query(
               Criteria.where("namespace")
@@ -212,7 +237,7 @@ public class DelivererRepositoryImpl implements DelivererRepository {
                   .and("receiver")
                   .is(passportId)
                   .and("mid")
-                  .is(messageId));
+                  .is(Long.parseLong(messageId)));
 
       Update update = new Update();
       update.set("delivererStatus", DELIVERED);

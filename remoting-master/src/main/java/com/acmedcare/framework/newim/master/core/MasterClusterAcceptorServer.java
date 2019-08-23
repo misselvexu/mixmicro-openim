@@ -85,7 +85,7 @@ public class MasterClusterAcceptorServer {
                 masterClusterAcceptorLog.info("cluster Remoting[{}] is closed", remoteAddr);
                 InstanceNode node = channel.attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).get();
                 // 移除本地副本实例
-                masterClusterSession.revokeClusterInstance(node.getInstanceType(),node.getHost());
+                masterClusterSession.revokeClusterInstance(node.getInstanceType(),node.getAddress());
               }
 
               @Override
@@ -139,12 +139,12 @@ public class MasterClusterAcceptorServer {
                     remotingCommand.decodeCommandCustomHeader(ClusterRegisterHeader.class);
             Assert.notNull(header, "cluster register header must not be null");
 
-            masterClusterAcceptorLog.info("cluster remote address:{}", header.getNodeServerHost());
+            masterClusterAcceptorLog.info("cluster remote address:{}", header.getNodeServerAddress());
 
             InstanceNode node = ctx.channel().attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).get();
 
             if (node == null) { // first register is always null.
-              node = header.defaultInstance();
+              node = header.buildInstance();
             }
 
             String exportAddress = header.getNodeServerExportHost();
@@ -159,9 +159,9 @@ public class MasterClusterAcceptorServer {
                 // register new remote client
                 masterClusterSession.registerNodeInstance(
                     node,
-                    node.getHost(),
+                    node.getAddress(),
                     exportAddress,
-                    header.getNodeServerAddress(),
+                    header.getRemotingNodeReplicaAddress(),
                     wssInstances,
                     ctx.channel());
 
@@ -170,16 +170,16 @@ public class MasterClusterAcceptorServer {
                 // register without wss endpoints.
                 masterClusterSession.registerNodeInstance(
                     node,
-                    node.getHost(),
+                    node.getAddress(),
                     exportAddress,
-                    header.getNodeServerAddress(),
+                    header.getRemotingNodeReplicaAddress(),
                     null,
                     ctx.channel());
               }
             } catch (InvalidInstanceTypeException e) {
               masterClusterAcceptorLog.warn(
                   "cluster remote:{} register failed , exception :{}",
-                  node.getHost(),
+                  node.getAddress(),
                   e.getMessage());
               response.setBody(
                   BizResult.builder()
@@ -197,7 +197,7 @@ public class MasterClusterAcceptorServer {
             ctx.channel().attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).set(node);
 
             masterClusterAcceptorLog.info(
-                "cluster remote:{} instance register succeed", node.getHost());
+                "cluster remote:{} instance register succeed", node.getAddress());
 
             response.setBody(BizResult.SUCCESS.bytes());
             return response;
@@ -237,10 +237,10 @@ public class MasterClusterAcceptorServer {
             InstanceNode node =
                 channelHandlerContext.channel().attr(CLUSTER_INSTANCE_NODE_ATTRIBUTE_KEY).get();
 
-            masterClusterSession.revokeClusterInstance(node.getInstanceType(),node.getHost());
+            masterClusterSession.revokeClusterInstance(node.getInstanceType(),node.getAddress());
 
             masterClusterAcceptorLog.info(
-                "cluster remote:{} instance revoke succeed", node.getHost());
+                "cluster remote:{} instance revoke succeed", node.getAddress());
 
             response.setBody(BizResult.SUCCESS.bytes());
             return response;

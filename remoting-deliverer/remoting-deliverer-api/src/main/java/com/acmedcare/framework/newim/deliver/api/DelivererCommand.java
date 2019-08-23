@@ -14,26 +14,26 @@ package com.acmedcare.framework.newim.deliver.api;
 public final class DelivererCommand {
 
   /** 握手协议 */
-  public static final short HANDSHAKE_COMMAND_VALUE = 0x09;
+  public static final int HANDSHAKE_COMMAND_VALUE = 0x09;
 
   /** 通讯节点注册协议 */
-  public static final short REGISTER_COMMAND_VALUE = 0x10;
+  public static final int REGISTER_COMMAND_VALUE = 0x10;
 
   /** 下线协议 */
-  public static final short SHUTDOWN_COMMAND_VALUE = 0x11;
+  public static final int SHUTDOWN_COMMAND_VALUE = 0x11;
 
   /** 申请投递 */
-  public static final short REQUEST_DELIVERER_VALUE = 0x12;
+  public static final int REQUEST_DELIVERER_VALUE = 0x12;
 
   /** 撤销投递请求 */
-  public static final short REVOKE_DELIVERER_VALUE = 0x13;
+  public static final int REVOKE_DELIVERER_VALUE = 0x13;
 
   /** 获取客户端待投递消息 */
-  public static final short FETCH_CLIENT_DELIVERER_MESSAGES_VALUE = 0x14;
+  public static final int FETCH_CLIENT_DELIVERER_MESSAGES_VALUE = 0x14;
 
   /** 定时投递消息 */
-  public static final short TIMED_DELIVERY_MESSAGE_COMMAND_VALUE = 0x15;
+  public static final int TIMED_DELIVERY_MESSAGE_COMMAND_VALUE = 0x15;
 
   /** 确认投递消息Ack */
-  public static final short DELIVERER_CLIENT_ACK_DELIVERER_VALUE = 0x16;
+  public static final int DELIVERER_CLIENT_ACK_DELIVERER_VALUE = 0x16;
 }

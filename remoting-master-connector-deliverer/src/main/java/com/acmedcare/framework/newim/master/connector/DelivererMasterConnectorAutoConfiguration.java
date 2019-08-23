@@ -21,12 +21,14 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties(MasterConnectorProperties.class)
 public class DelivererMasterConnectorAutoConfiguration {
 
+  public static final String DELIVERER_MASTER_CONNECTOR_BEAN_NAME = "delivererMasterConnector";
+
   @Bean
   DelivererMasterConnectorContext delivererMasterConnectorContext() {
     return new DelivererMasterConnectorContext();
   }
 
-  @Bean(initMethod = "init", destroyMethod = "destroy", name = "delivererMasterConnector")
+  @Bean(initMethod = "init", destroyMethod = "destroy", name = DELIVERER_MASTER_CONNECTOR_BEAN_NAME)
   public DelivererMasterConnector delivererMasterConnector(
       MasterConnectorProperties properties, DelivererMasterConnectorContext context) {
     return new DelivererMasterConnector(properties, context);

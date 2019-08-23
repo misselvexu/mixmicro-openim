@@ -33,7 +33,7 @@ import static com.acmedcare.framework.newim.deliver.api.DelivererCommand.*;
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version ${project.version} - 2019-07-29.
  */
-@Extension("default")
+@Extension("normal")
 public class DefaultDelivererApi implements RemotingDelivererApi {
 
   private static final Logger log = LoggerFactory.getLogger(DefaultDelivererApi.class);
@@ -61,7 +61,7 @@ public class DefaultDelivererApi implements RemotingDelivererApi {
       RemotingCommand command = RemotingCommand.createRequestCommand(REQUEST_DELIVERER_VALUE, header);
 
       DelivererMessageRequestBean bean = DelivererMessageRequestBean.builder().messageType(messageType)
-          .half(half).message(message).passportId(passportId).build();
+          .half(half).namespace(namespace).message(message).passportId(passportId).build();
 
       command.setBody(JSON.toJSONBytes(bean));
 
