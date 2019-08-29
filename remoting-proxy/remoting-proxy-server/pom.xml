@@ -10,13 +10,13 @@
     <parent>
         <artifactId>remoting-proxy</artifactId>
         <groupId>com.acmedcare.microservices.im</groupId>
-        <version>2.3.0-RC1</version>
+        <version>2.3.1.BUILD-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>remoting-proxy-server</artifactId>
-    <version>2.3.0-RC1</version>
+    <version>2.3.1.BUILD-SNAPSHOT</version>
 
     <name>Acmedcare+ Remoting WSS Server Proxy Support :: ${project.version}</name>
     <description>Remote Server Proxy</description>

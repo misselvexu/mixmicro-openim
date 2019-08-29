@@ -121,6 +121,8 @@ public class DelivererServerInitializer extends DelivererInitializer {
     this.server.registerProcessor(REQUEST_DELIVERER_VALUE,new DelivererMessageProcessor(true),null);
     this.server.registerProcessor(REVOKE_DELIVERER_VALUE,new RevokeDelivererProcessor(),null);
     this.server.registerProcessor(FETCH_CLIENT_DELIVERER_MESSAGES_VALUE,new MessageProcessor(),null);
+    // todo 限流分页查询请求
+//    this.server.registerProcessor(FETCH_CLIENT_DELIVERER_MESSAGES_COUNT_VALUE,new MessageProcessor(),null);
     this.server.registerProcessor(DELIVERER_CLIENT_ACK_DELIVERER_VALUE,new AckProcessor(),null);
 
     // default processor

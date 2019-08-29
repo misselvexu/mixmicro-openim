@@ -5,6 +5,7 @@
 
 package com.acmedcare.framework.newim.deliver.connector.server.executor;
 
+import com.acmedcare.framework.newim.deliver.connector.server.DelivererServerProperties;
 import com.acmedcare.framework.newim.deliver.services.DelivererService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +23,13 @@ public final class TimedDelivererMessageExecutor {
   /** Instance of {@link DelivererService} */
   private final DelivererService delivererService;
 
-  public TimedDelivererMessageExecutor(DelivererService delivererService) {
+  /** Instance of {@link DelivererServerProperties} */
+  private final DelivererServerProperties properties;
+
+  public TimedDelivererMessageExecutor(
+      DelivererService delivererService, DelivererServerProperties properties) {
     this.delivererService = delivererService;
+    this.properties = properties;
   }
 
   // ===== init & destroy methods =====

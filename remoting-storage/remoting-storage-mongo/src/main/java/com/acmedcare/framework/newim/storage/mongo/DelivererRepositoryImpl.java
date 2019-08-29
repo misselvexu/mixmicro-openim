@@ -13,6 +13,7 @@ import com.acmedcare.framework.newim.storage.exception.StorageException;
 import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 import com.mongodb.client.result.UpdateResult;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -132,6 +133,9 @@ public class DelivererRepositoryImpl implements DelivererRepository {
               .lte(Date.from(timeoutTime.atZone(ZoneId.systemDefault()).toInstant()));
 
       Query query = new Query(new Criteria().orOperator(readyCriteria, deliveringCriteria));
+
+      // delivererTime desc
+      query.with(Sort.by(Sort.Order.desc("delivererTime")));
 
       List<DelivererMessage> messages = this.mongoTemplate.find(query, DelivererMessage.class, DELIVERER_MESSAGE);
 

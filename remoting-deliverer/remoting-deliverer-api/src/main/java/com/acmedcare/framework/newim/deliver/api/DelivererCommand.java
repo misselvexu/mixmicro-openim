@@ -31,6 +31,13 @@ public final class DelivererCommand {
   /** 获取客户端待投递消息 */
   public static final int FETCH_CLIENT_DELIVERER_MESSAGES_VALUE = 0x14;
 
+  /**
+   * 获取客户端待投递的消息总数量
+   *
+   * @since 2.3.1
+   */
+  public static final int FETCH_CLIENT_DELIVERER_MESSAGES_COUNT_VALUE = 0x17;
+
   /** 定时投递消息 */
   public static final int TIMED_DELIVERY_MESSAGE_COMMAND_VALUE = 0x15;
 

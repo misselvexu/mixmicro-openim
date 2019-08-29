@@ -305,13 +305,11 @@ public class IMSession implements InitializingBean, DisposableBean {
                           });
             } else {
               imServerLog.warn("[IM-SESSION-SEND] 客户端:{} 链接异常", channel);
-              forwardToDelivererServer(
-                  false, namespace, passportId, messageType, message);
+              forwardToDelivererServer(false, namespace, passportId, messageType, message);
             }
           } catch (Exception e) {
             imServerLog.warn("[IM-SESSION-SEND] 发送消息给客户端:" + channel + "失败", e);
-            forwardToDelivererServer(
-                false, namespace, passportId, messageType, message);
+            forwardToDelivererServer(false, namespace, passportId, messageType, message);
           }
         }
       } else {
@@ -370,6 +368,12 @@ public class IMSession implements InitializingBean, DisposableBean {
    */
   private void forwardToDelivererServer(
       boolean half, String namespace, String passportId, MessageType messageType, byte[] message) {
+
+    Message originMessage = JSON.parseObject(message, Message.class);
+    if (Message.InnerType.COMMAND.equals(originMessage.getInnerType())) {
+      return;
+    }
+
     imServerLog.info(
         "[IM-SESSION-DELIVERER] 准备提交半状态消息到投递服务器,{},{},{},{}",
         namespace,
@@ -419,6 +423,7 @@ public class IMSession implements InitializingBean, DisposableBean {
                   IMSession.this.delivererMessageExecutor.fetchClientDelivererMessage(
                       namespace, passportId, MessageType.SINGLE);
 
+              // TODO 添加发送流控
               for (DelivererMessageBean singleMessageBean : singleMessageBeans) {
                 try {
                   doSendMessageToChannel(
@@ -436,6 +441,7 @@ public class IMSession implements InitializingBean, DisposableBean {
                   IMSession.this.delivererMessageExecutor.fetchClientDelivererMessage(
                       namespace, passportId, MessageType.GROUP);
 
+              // TODO 添加发送流控
               for (DelivererMessageBean groupMessageBean : groupMessageBeans) {
                 try {
                   doSendMessageToChannel(
