@@ -41,6 +41,9 @@ public class DelivererServerProperties extends DefaultDelivererProperties {
   @Max(65536)
   private int port = 14110;
 
+  /** Least Messages List's limit size ,default: 1000 */
+  private int fetchLeastMessagesLimitSize = 1000;
+
   /**
    * Deliverer Timer Config Properties
    *
@@ -64,16 +67,19 @@ public class DelivererServerProperties extends DefaultDelivererProperties {
      */
     private int batchRow = 50;
 
-    /** thread startup delay time(ms), default: 5000 */
-    private long threadDelay = 5000;
+    /** thread core size . default: 3 */
+    private int threadCoreSize = 3;
 
-    /** thread execute timed, peroid time(ms), default: 10000 */
-    private long threadPeriod = 10000;
+    /** thread startup init delay time(ms), default: 5000 */
+    private long threadInitDelay = 5000;
+
+    /** thread execute timed, delay time(ms), default: 10000 */
+    private long threadDelay = 6000;
 
     /** disorganize enable flag ,default is false */
     private boolean disorganizeEnabled = false;
 
     /** disorganize interval ,default: 5000 ms */
-    private long disorganizeInterval = 5000;
+    private int disorganizeInterval = 5000;
   }
 }

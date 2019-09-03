@@ -55,6 +55,11 @@
 
         <dependency>
             <groupId>com.acmedcare.framework.kits</groupId>
+            <artifactId>executor-kit</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.acmedcare.framework.kits</groupId>
             <artifactId>retry-kit</artifactId>
         </dependency>
 

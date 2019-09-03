@@ -44,7 +44,6 @@ public class NewIMServerBootstrap {
   private NettyServerConfig imServerConfig;
   private NettyRemotingSocketServer clusterServer;
   private NettyServerConfig clusterServerConfig;
-  private ClusterReplicaSession clusterReplicaSession;
   // ======================== Local Properties =============================//
 
   /** Default Executor */

@@ -138,6 +138,7 @@ public class ConnectorConnection implements Serializable {
 
         this.client.registerProcessor(TIMED_DELIVERY_MESSAGE_COMMAND_VALUE, new TimedDeliveryMessageProcessor(), null);
 
+
         this.client.updateNameServerAddressList(Lists.newArrayList(serverInstance.getServerAddr()));
 
         this.client.start();

@@ -45,6 +45,7 @@ public class DefaultDelivererApi implements RemotingDelivererApi {
       boolean half,
       String namespace,
       String passportId,
+      String clientType,
       Message.MessageType messageType,
       byte[] message)
       throws RemotingDelivererException {
@@ -61,7 +62,7 @@ public class DefaultDelivererApi implements RemotingDelivererApi {
       RemotingCommand command = RemotingCommand.createRequestCommand(REQUEST_DELIVERER_VALUE, header);
 
       DelivererMessageRequestBean bean = DelivererMessageRequestBean.builder().messageType(messageType)
-          .half(half).namespace(namespace).message(message).passportId(passportId).build();
+          .half(half).namespace(namespace).message(message).clientType(clientType).passportId(passportId).build();
 
       command.setBody(JSON.toJSONBytes(bean));
 

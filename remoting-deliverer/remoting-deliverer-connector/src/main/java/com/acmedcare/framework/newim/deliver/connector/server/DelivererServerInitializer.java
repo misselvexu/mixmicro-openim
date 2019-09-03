@@ -120,7 +120,7 @@ public class DelivererServerInitializer extends DelivererInitializer {
     this.server.registerProcessor(SHUTDOWN_COMMAND_VALUE,new ShutdownProcessor(),null);
     this.server.registerProcessor(REQUEST_DELIVERER_VALUE,new DelivererMessageProcessor(true),null);
     this.server.registerProcessor(REVOKE_DELIVERER_VALUE,new RevokeDelivererProcessor(),null);
-    this.server.registerProcessor(FETCH_CLIENT_DELIVERER_MESSAGES_VALUE,new MessageProcessor(),null);
+    this.server.registerProcessor(FETCH_CLIENT_DELIVERER_MESSAGES_VALUE,new MessageProcessor(properties),null);
     // todo 限流分页查询请求
 //    this.server.registerProcessor(FETCH_CLIENT_DELIVERER_MESSAGES_COUNT_VALUE,new MessageProcessor(),null);
     this.server.registerProcessor(DELIVERER_CLIENT_ACK_DELIVERER_VALUE,new AckProcessor(),null);
@@ -130,6 +130,8 @@ public class DelivererServerInitializer extends DelivererInitializer {
 
     // publish init-ed event
     this.publisher.publishEvent(new DelivererServerInitedEvent(this));
+
+    ConnectorContext.context().registerServerInstance(this.server,this.properties);
   }
 
   @Override

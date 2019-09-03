@@ -149,6 +149,7 @@ public class DelivererMessageExecutor {
         messageBean.isHalf(),
         messageBean.getNamespace(),
         messageBean.getPassportId(),
+        messageBean.getClientType(),
         messageBean.getMessageType(),
         messageBean.getMessage());
   }
@@ -163,6 +164,7 @@ public class DelivererMessageExecutor {
       boolean half,
       String namespace,
       String passportId,
+      String clientType,
       Message.MessageType messageType,
       byte[] message) {
     try {
@@ -176,6 +178,7 @@ public class DelivererMessageExecutor {
               .messageType(messageType)
               .namespace(namespace)
               .passportId(passportId)
+              .clientType(clientType)
               .messageId(originMessage.getMid().toString())
               .build());
 

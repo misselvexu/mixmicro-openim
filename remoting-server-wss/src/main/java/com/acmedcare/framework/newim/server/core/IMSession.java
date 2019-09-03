@@ -26,17 +26,22 @@ import com.acmedcare.tiffany.framework.remoting.common.RemotingUtil;
 import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketServer;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.alibaba.fastjson.JSON;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.eventbus.AsyncEventBus;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
+import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
@@ -58,11 +63,8 @@ import static com.acmedcare.framework.newim.server.ClusterLogger.masterClusterLo
 public class IMSession implements InitializingBean, DisposableBean {
 
   private static final long DIFF_PERIOD = 2 * 60 * 1000;
-
   private final IMProperties imProperties;
-
   private MasterConnector masterConnector;
-
   private DelivererMessageExecutor delivererMessageExecutor;
 
   /**
@@ -101,6 +103,7 @@ public class IMSession implements InitializingBean, DisposableBean {
    */
   private static Map<String, List<String>> passportsClusterConnectorMapping =
       Maps.newConcurrentMap();
+
   /** 发送消息线程池 */
   private static ExecutorService asyncExecutor =
       new ThreadPoolExecutor(
@@ -119,8 +122,45 @@ public class IMSession implements InitializingBean, DisposableBean {
   @Getter private ClusterReplicaConnector clusterReplicaConnector;
   private static WssSessionContext wssSessionContext;
 
+  // local caches
+
+  private final Cache<Long, CacheBean> unAckCacher;
+
   public IMSession(IMProperties imProperties) {
     this.imProperties = imProperties;
+
+    unAckCacher =
+        CacheBuilder.newBuilder()
+            .maximumSize(10 * 1000 * 10) // 最大缓存10W
+            .expireAfterWrite(this.imProperties.getAckWaitTime(), TimeUnit.SECONDS)
+            .removalListener(
+                notification -> {
+                  try {
+                    CacheBean cacheBean = (CacheBean) notification.getValue();
+                    if (!cacheBean.isAcked()) {
+                      forwardToDelivererServer(
+                          false,
+                          cacheBean.getNamespace(),
+                          cacheBean.getPassportId(),
+                          cacheBean.getMessageType(),
+                          cacheBean.getMessage());
+                    }
+                  } catch (Exception ignore) {
+                  }
+                })
+            .build();
+  }
+
+  @Data
+  @Builder
+  private static class CacheBean implements Serializable {
+    private static final long serialVersionUID = -5091388589367462042L;
+    @Builder.Default private boolean acked;
+    private Long mid;
+    private String passportId;
+    private String namespace;
+    private MessageType messageType;
+    private byte[] message;
   }
 
   public Set<SessionBean> getOnlinePassports() {
@@ -142,6 +182,7 @@ public class IMSession implements InitializingBean, DisposableBean {
    */
   @Override
   public void destroy() {
+    unAckCacher.invalidateAll();
     ThreadKit.gracefulShutdown(asyncExecutor, 10, 20, TimeUnit.SECONDS);
     ThreadKit.gracefulShutdown(cleaner, 10, 20, TimeUnit.SECONDS);
   }
@@ -231,7 +272,7 @@ public class IMSession implements InitializingBean, DisposableBean {
                         "[IM-BROADCAST-SEND] 发送下线指令完成; Channel: {}",
                         RemotingHelper.parseChannelRemoteAddr(channel));
                   }
-                  asyncExecutor.submit(
+                  asyncExecutor.execute(
                       () -> {
                         // 延迟2S关闭
                         ThreadKit.sleep(2000, TimeUnit.MILLISECONDS);
@@ -253,13 +294,12 @@ public class IMSession implements InitializingBean, DisposableBean {
   public void sendMessageToPassport(
       String namespace, String passportId, MessageType messageType, byte[] message) {
 
+    Message messageInstance = JSON.parseObject(message, Message.class);
     try {
       asyncExecutor.execute(
-          () -> {
-            Message messageInstance = JSON.parseObject(message, Message.class);
-            IMSession.wssSessionContext.sendMessageToPassports(
-                Lists.newArrayList(passportId), message);
-          });
+          () ->
+              IMSession.wssSessionContext.sendMessageToPassports(
+                  Lists.newArrayList(passportId), message));
 
       imServerLog.info("[TCP-WSS] 提交转发消息任务成功");
     } catch (Exception e) {
@@ -297,6 +337,17 @@ public class IMSession implements InitializingBean, DisposableBean {
                                     "[IM-SESSION-SEND] 消息请求发送成功; Channel:{}",
                                     RemotingHelper.parseChannelRemoteAddr(channel));
                               }
+
+                              unAckCacher.put(
+                                  messageInstance.getMid(),
+                                  CacheBean.builder()
+                                      .acked(false)
+                                      .message(message)
+                                      .messageType(messageType)
+                                      .mid(messageInstance.getMid())
+                                      .namespace(namespace)
+                                      .passportId(passportId)
+                                      .build());
                             } else {
                               // 请求发出失败，【转】投递服务器
                               forwardToDelivererServer(
@@ -384,7 +435,7 @@ public class IMSession implements InitializingBean, DisposableBean {
         .execute(
             () ->
                 IMSession.this.delivererMessageExecutor.submitDelivererMessage(
-                    half, namespace, passportId, messageType, message));
+                    half, namespace, passportId, "DEFAULT", messageType, message));
   }
 
   /**
@@ -395,8 +446,17 @@ public class IMSession implements InitializingBean, DisposableBean {
    * @param passportId 客户端编号
    */
   public void processClientAck(String namespace, String messageId, String passportId) {
-    imServerLog.info(
-        "[IM-SESSION-DELIVERER] 确认消息Ack到投递服务器,{},{}, 客户端:{}", namespace, messageId, passportId);
+
+    imServerLog.info("[IM-SESSION-DELIVERER] 确认消息Ack到投递服务器,{},{}, 客户端:{}", namespace, messageId, passportId);
+
+    CacheBean bean = unAckCacher.getIfPresent(Long.parseLong(messageId));
+    if (bean != null) {
+      bean.setAcked(true);
+      unAckCacher.put(Long.parseLong(messageId), bean);
+      unAckCacher.invalidate(Long.parseLong(messageId));
+      return;
+    }
+
     AsyncRuntimeExecutor.getAsyncThreadPool()
         .execute(
             () ->

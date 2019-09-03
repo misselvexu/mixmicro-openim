@@ -26,6 +26,8 @@ import java.util.Objects;
 @AllArgsConstructor
 public class TimedDelivererMessageRequestBean implements Serializable {
 
+  private static final long serialVersionUID = -5694977199066571172L;
+
   /** 时间戳 */
   @Builder.Default private long timestamp = System.currentTimeMillis();
 

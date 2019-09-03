@@ -11,7 +11,6 @@ import com.acmedcare.framework.newim.protocol.Command.Retriable;
 import com.acmedcare.framework.newim.protocol.RetriableRemotingCommand;
 import com.acmedcare.framework.newim.protocol.request.ClusterForwardMessageHeader;
 import com.acmedcare.framework.newim.server.config.IMProperties;
-import com.acmedcare.framework.newim.server.core.ClusterReplicaSession;
 import com.acmedcare.framework.newim.server.core.IMSession;
 import com.acmedcare.framework.newim.server.event.AbstractEventHandler;
 import com.acmedcare.framework.newim.server.event.Event;
@@ -59,8 +58,6 @@ public class ClusterReplicaConnector {
 
   private Map<String, ScheduledExecutorService> keepAliveExecutors = Maps.newConcurrentMap();
 
-  private ClusterReplicaSession clusterReplicaSession = new ClusterReplicaSession();
-
   private ExecutorService forwardMessageExecutor =
       new ThreadPoolExecutor(
           8,
@@ -92,7 +89,7 @@ public class ClusterReplicaConnector {
           @Override
           public void execute(Event<List<String>> event) {
 
-            if(event instanceof Event.FetchNewClusterReplicaServerEvent) {
+            if (event instanceof Event.FetchNewClusterReplicaServerEvent) {
               clusterReplicaLog.info("Received a refresh event :{}", event);
               upgradeReplicaServerAddressLocker.lock();
               try {
@@ -105,7 +102,8 @@ public class ClusterReplicaConnector {
                   for (String address : addresses) {
                     if (!replicaServerInstancesMap.containsKey(address)) {
                       //
-                      clusterReplicaLog.info("Find new defaultReplica server,ready to connect {}", address);
+                      clusterReplicaLog.info(
+                          "Find new defaultReplica server,ready to connect {}", address);
 
                       String name = "[Connector:" + address + "]";
                       RetriableAttribute retriableAttribute =
@@ -118,7 +116,8 @@ public class ClusterReplicaConnector {
                               new ExecutorCallback<NettyRemotingSocketClient>() {
                                 @Override
                                 public void onCompleted(NettyRemotingSocketClient result) {
-                                  clusterReplicaLog.info("new defaultReplica:{} connect succeed.", address);
+                                  clusterReplicaLog.info(
+                                      "new defaultReplica:{} connect succeed.", address);
                                 }
 
                                 @Override
@@ -226,7 +225,9 @@ public class ClusterReplicaConnector {
 
                 ScheduledThreadPoolExecutor executor =
                     new ScheduledThreadPoolExecutor(
-                        1, new DefaultThreadFactory("cluster-defaultReplica-connector-timer-" + address));
+                        1,
+                        new DefaultThreadFactory(
+                            "cluster-defaultReplica-connector-timer-" + address));
 
                 clusterReplicaLog.info(
                     "startup schedule thread for server:{} to keep-alive ", address);
@@ -436,8 +437,7 @@ public class ClusterReplicaConnector {
     imSession.unRegisterEventHandler();
 
     keepAliveExecutors.forEach(
-        (s, scheduledExecutorService) -> {
-          ThreadKit.gracefulShutdown(scheduledExecutorService, 10, 20, TimeUnit.SECONDS);
-        });
+        (s, scheduledExecutorService) ->
+            ThreadKit.gracefulShutdown(scheduledExecutorService, 10, 20, TimeUnit.SECONDS));
   }
 }

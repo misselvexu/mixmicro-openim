@@ -53,13 +53,15 @@ public class DelivererMessage implements Serializable {
   @Builder.Default private Date delivererTime = new Date();
 
   /** 投递来源，服务器节点 */
-  @Builder.Default private String delivererSource = "default";
+  @Builder.Default private String delivererSource = "DEFAULT";
 
   /** 投递类型 */
   @Builder.Default private DelivererType delivererType = DelivererType.OFFLINE;
 
   /** 接收人 */
   private String receiver;
+
+  @Builder.Default private String clientType = "DEFAULT";
 
   /** 消息体 */
   private byte[] payload;

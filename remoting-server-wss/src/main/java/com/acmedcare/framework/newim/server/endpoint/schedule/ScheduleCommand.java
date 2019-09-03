@@ -25,9 +25,6 @@ public enum ScheduleCommand {
   AUTH(0x30000, AuthRequest.class),
   PULL_ONLINE_SUB_ORGS(0x31001, PullOnlineSubOrgsRequest.class),
 
-  @Deprecated
-  PUSH_ORDER(0x31002, PushOrderRequest.class),
-
   WS_REGISTER(WebSocketClusterCommand.WS_REGISTER, RegisterRequest.class),
   WS_SHUTDOWN(WebSocketClusterCommand.WS_SHUTDOWN, DefaultRequest.class),
   WS_PUSH_MESSAGE(WebSocketClusterCommand.WS_PUSH_MESSAGE, PushMessageRequest.class),
