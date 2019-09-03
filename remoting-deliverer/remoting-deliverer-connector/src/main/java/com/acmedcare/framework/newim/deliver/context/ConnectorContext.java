@@ -14,6 +14,8 @@ import com.acmedcare.framework.newim.deliver.api.RemotingDelivererApi;
 import com.acmedcare.framework.newim.deliver.api.bean.DelivererMessageBean;
 import com.acmedcare.framework.newim.deliver.api.exception.NoAvailableDelivererServerInstanceException;
 import com.acmedcare.framework.newim.deliver.api.request.TimedDelivererMessageRequestBean;
+import com.acmedcare.framework.newim.deliver.connector.listener.DelivererConnectorListener;
+import com.acmedcare.framework.newim.deliver.connector.listener.event.DelivererEvent;
 import com.acmedcare.framework.newim.deliver.connector.server.DelivererServerProperties;
 import com.acmedcare.framework.newim.spi.ExtensionLoader;
 import com.acmedcare.framework.newim.spi.ExtensionLoaderFactory;
@@ -84,6 +86,15 @@ public class ConnectorContext {
    * </pre>
    */
   private Map<ConnectorInstance.ConnectorServerInstance, ConnectorConnection> serverConnections = Maps.newConcurrentMap();
+
+  /**
+   * Deliverer Connector Registered Event Listener(s)
+   *
+   * <pre>
+   *
+   * </pre>
+   */
+  private List<DelivererConnectorListener<Object>> connectorListeners = Lists.newLinkedList();
 
   // ===== Context Core =====
 
@@ -189,6 +200,24 @@ public class ConnectorContext {
         boolean removed = session.get(CLIENT).remove(clientInstance);
 
         log.info("[==] Deliverer Context , released connector instance: {} , result: {}" , clientInstance,removed);
+      }
+    }
+  }
+
+  /**
+   * Publish Event
+   * @param event event type
+   * @param payload event payload
+   * @see DelivererEvent
+   */
+  public void publishEvent(@NonNull DelivererEvent event, @Nullable Object payload) {
+    if(!connectorListeners.isEmpty() && event != null) {
+      for (DelivererConnectorListener<Object> connectorListener : connectorListeners) {
+        try{
+          connectorListener.invoke(event,payload);
+        } catch (Exception e) {
+          log.warn("[==] Deliverer Context publish event , real biz process execute failed. ",e);
+        }
       }
     }
   }
@@ -314,6 +343,10 @@ public class ConnectorContext {
   public void registerServerInstance(RemotingSocketServer server, DelivererServerProperties properties) {
     this.server = server;
     this.properties = properties;
+  }
+
+  public void registerConnectorListener(DelivererConnectorListener listener) {
+    this.connectorListeners.add(listener);
   }
 
   //  ===== Bean Private Constructor Defined  =====

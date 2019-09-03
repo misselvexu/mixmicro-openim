@@ -8,6 +8,7 @@ import com.acmedcare.framework.newim.deliver.connector.client.DelivererClientIni
 import com.acmedcare.framework.newim.server.core.NewIMServerBootstrap;
 import com.acmedcare.framework.newim.server.core.connector.ClusterReplicaConnector;
 import com.acmedcare.framework.newim.server.core.connector.MasterConnector;
+import com.acmedcare.framework.newim.server.listener.DelivererConnectorWssServerListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -28,7 +29,7 @@ import static com.acmedcare.framework.newim.server.ClusterLogger.startLog;
  */
 @SpringBootApplication
 @ComponentScan("com.acmedcare.framework.newim")
-@EnableDelivererConnector(enabledClient = true)
+@EnableDelivererConnector(enabledClient = true, listeners = {DelivererConnectorWssServerListener.class})
 public class RemotingWssServer {
 
   /** Spring Context Instance of {@link org.springframework.context.ApplicationContext} */

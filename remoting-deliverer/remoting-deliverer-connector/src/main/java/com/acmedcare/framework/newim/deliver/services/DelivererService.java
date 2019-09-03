@@ -10,6 +10,8 @@ import com.acmedcare.framework.newim.DelivererMessage;
 import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.deliver.api.bean.DelivererMessageBean;
 import com.acmedcare.framework.newim.deliver.api.request.TimedDelivererMessageRequestBean;
+import com.acmedcare.framework.newim.deliver.connector.listener.event.DelivererEvent;
+import com.acmedcare.framework.newim.deliver.context.ConnectorContext;
 import com.acmedcare.framework.newim.storage.api.DelivererRepository;
 import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
@@ -87,9 +89,7 @@ public class DelivererService {
    * @param messages 消息列表
    */
   public void postTimerDelivererMessage(List<TimedDelivererMessageRequestBean.TimedMessage> messages) {
-
-    // todo
-
+    ConnectorContext.context().publishEvent(DelivererEvent.TIMED_DELIVERER_MESSAGES_EVENT,messages);
   }
 
   /**

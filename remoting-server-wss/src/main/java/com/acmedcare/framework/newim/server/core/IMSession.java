@@ -293,8 +293,18 @@ public class IMSession implements InitializingBean, DisposableBean {
    */
   public void sendMessageToPassport(
       String namespace, String passportId, MessageType messageType, byte[] message) {
+    sendMessageToPassport(true, namespace, passportId, messageType, message);
+  }
+
+  public void sendMessageToPassport(
+      boolean enabledDeliverer,
+      String namespace,
+      String passportId,
+      MessageType messageType,
+      byte[] message) {
 
     Message messageInstance = JSON.parseObject(message, Message.class);
+
     try {
       asyncExecutor.execute(
           () ->
@@ -338,42 +348,54 @@ public class IMSession implements InitializingBean, DisposableBean {
                                     RemotingHelper.parseChannelRemoteAddr(channel));
                               }
 
-                              unAckCacher.put(
-                                  messageInstance.getMid(),
-                                  CacheBean.builder()
-                                      .acked(false)
-                                      .message(message)
-                                      .messageType(messageType)
-                                      .mid(messageInstance.getMid())
-                                      .namespace(namespace)
-                                      .passportId(passportId)
-                                      .build());
+                              if (enabledDeliverer) {
+                                unAckCacher.put(
+                                    messageInstance.getMid(),
+                                    CacheBean.builder()
+                                        .acked(false)
+                                        .message(message)
+                                        .messageType(messageType)
+                                        .mid(messageInstance.getMid())
+                                        .namespace(namespace)
+                                        .passportId(passportId)
+                                        .build());
+                              }
                             } else {
                               // 请求发出失败，【转】投递服务器
-                              forwardToDelivererServer(
-                                  false, namespace, passportId, messageType, message);
+                              if (enabledDeliverer) {
+                                forwardToDelivererServer(
+                                    false, namespace, passportId, messageType, message);
+                              }
                             }
                           });
             } else {
               imServerLog.warn("[IM-SESSION-SEND] 客户端:{} 链接异常", channel);
-              forwardToDelivererServer(false, namespace, passportId, messageType, message);
+              if (enabledDeliverer) {
+                forwardToDelivererServer(false, namespace, passportId, messageType, message);
+              }
             }
           } catch (Exception e) {
             imServerLog.warn("[IM-SESSION-SEND] 发送消息给客户端:" + channel + "失败", e);
-            forwardToDelivererServer(false, namespace, passportId, messageType, message);
+            if (enabledDeliverer) {
+              forwardToDelivererServer(false, namespace, passportId, messageType, message);
+            }
           }
         }
       } else {
         // 转发投递服务器
-        forwardToDelivererServer(false, namespace, passportId, messageType, message);
+        if (enabledDeliverer) {
+          forwardToDelivererServer(false, namespace, passportId, messageType, message);
+        }
       }
     } else {
       // 判断是否需要转投递服务器
-      if (masterPassportSessions.contains(sessionBean)) {
-        // 集群在线，此处【预转】到投递服务器
-        forwardToDelivererServer(true, namespace, passportId, messageType, message);
-      } else {
-        forwardToDelivererServer(false, namespace, passportId, messageType, message);
+      if (enabledDeliverer) {
+        if (masterPassportSessions.contains(sessionBean)) {
+          // 集群在线，此处【预转】到投递服务器
+          forwardToDelivererServer(true, namespace, passportId, messageType, message);
+        } else {
+          forwardToDelivererServer(false, namespace, passportId, messageType, message);
+        }
       }
     }
   }
@@ -447,7 +469,8 @@ public class IMSession implements InitializingBean, DisposableBean {
    */
   public void processClientAck(String namespace, String messageId, String passportId) {
 
-    imServerLog.info("[IM-SESSION-DELIVERER] 确认消息Ack到投递服务器,{},{}, 客户端:{}", namespace, messageId, passportId);
+    imServerLog.info(
+        "[IM-SESSION-DELIVERER] 确认消息Ack到投递服务器,{},{}, 客户端:{}", namespace, messageId, passportId);
 
     CacheBean bean = unAckCacher.getIfPresent(Long.parseLong(messageId));
     if (bean != null) {

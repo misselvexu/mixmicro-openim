@@ -5,6 +5,7 @@
 
 package com.acmedcare.framework.newim.deliver.connector;
 
+import com.acmedcare.framework.newim.deliver.connector.listener.DelivererConnectorListener;
 import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.*;
@@ -34,4 +35,11 @@ public @interface EnableDelivererConnector {
    * @return true /false
    */
   boolean enabledServer() default false;
+
+  /**
+   * Deliverer Connector Listeners List
+   *
+   * @return listeners instance of {@link DelivererConnectorListener}
+   */
+  Class<? extends DelivererConnectorListener>[] listeners() default {};
 }
