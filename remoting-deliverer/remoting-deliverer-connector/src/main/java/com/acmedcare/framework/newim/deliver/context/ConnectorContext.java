@@ -5,12 +5,24 @@
 
 package com.acmedcare.framework.newim.deliver.context;
 
+import com.acmedcare.framework.kits.Assert;
+import com.acmedcare.framework.kits.executor.AsyncRuntimeExecutor;
 import com.acmedcare.framework.kits.lang.NonNull;
 import com.acmedcare.framework.kits.lang.Nullable;
+import com.acmedcare.framework.newim.BizResult;
 import com.acmedcare.framework.newim.deliver.api.RemotingDelivererApi;
+import com.acmedcare.framework.newim.deliver.api.bean.DelivererMessageBean;
 import com.acmedcare.framework.newim.deliver.api.exception.NoAvailableDelivererServerInstanceException;
+import com.acmedcare.framework.newim.deliver.api.request.TimedDelivererMessageRequestBean;
+import com.acmedcare.framework.newim.deliver.connector.listener.DelivererConnectorListener;
+import com.acmedcare.framework.newim.deliver.connector.listener.event.DelivererEvent;
+import com.acmedcare.framework.newim.deliver.connector.server.DelivererServerProperties;
 import com.acmedcare.framework.newim.spi.ExtensionLoader;
 import com.acmedcare.framework.newim.spi.ExtensionLoaderFactory;
+import com.acmedcare.tiffany.framework.remoting.RemotingSocketServer;
+import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
+import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.netty.channel.Channel;
@@ -24,9 +36,11 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.Environment;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.acmedcare.framework.newim.deliver.api.DelivererCommand.TIMED_DELIVERY_MESSAGE_COMMAND_VALUE;
 import static com.acmedcare.framework.newim.deliver.context.ConnectorInstance.Type.CLIENT;
 
 /**
@@ -72,6 +86,15 @@ public class ConnectorContext {
    * </pre>
    */
   private Map<ConnectorInstance.ConnectorServerInstance, ConnectorConnection> serverConnections = Maps.newConcurrentMap();
+
+  /**
+   * Deliverer Connector Registered Event Listener(s)
+   *
+   * <pre>
+   *
+   * </pre>
+   */
+  private List<DelivererConnectorListener<Object>> connectorListeners = Lists.newLinkedList();
 
   // ===== Context Core =====
 
@@ -132,6 +155,16 @@ public class ConnectorContext {
   }
 
   /**
+   * Check Deliverer Server Context is available .
+   *
+   * @return true / false
+   */
+  public boolean isDelivererContextAvailable() {
+    Set<?> clients = this.session.get(CLIENT);
+    return this.server != null && clients != null && !clients.isEmpty();
+  }
+
+  /**
    * Release Deliverer Connector Instance
    *
    * @param instance instance of {@link ConnectorInstance}
@@ -171,6 +204,24 @@ public class ConnectorContext {
     }
   }
 
+  /**
+   * Publish Event
+   * @param event event type
+   * @param payload event payload
+   * @see DelivererEvent
+   */
+  public void publishEvent(@NonNull DelivererEvent event, @Nullable Object payload) {
+    if(!connectorListeners.isEmpty() && event != null) {
+      for (DelivererConnectorListener<Object> connectorListener : connectorListeners) {
+        try{
+          connectorListener.invoke(event,payload);
+        } catch (Exception e) {
+          log.warn("[==] Deliverer Context publish event , real biz process execute failed. ",e);
+        }
+      }
+    }
+  }
+
   // ===== Common Methods ======
 
   public static @Nullable <T> T parseChannel(@NonNull ChannelHandlerContext context, @NonNull AttributeKey<?> key, @NonNull Class<T> clazz) {
@@ -195,6 +246,109 @@ public class ConnectorContext {
     return null;
   }
 
+  /**
+   * Positive Deliverer Messages
+   *
+   * @param delivererMessages message's list
+   */
+  public void positiveDelivererMessages(List<DelivererMessageBean> delivererMessages) {
+
+    try{
+
+      Assert.notNull(this.server, "[==] Deliverer Context's server instance must not be NULL.");
+
+      if(session.containsKey(CLIENT)){
+
+        Set<?> connections = session.get(CLIENT);
+
+        if(!connections.isEmpty()) {
+
+          // async
+          AsyncRuntimeExecutor.getAsyncThreadPool().execute(()->{
+
+            // transform beans
+            List<TimedDelivererMessageRequestBean.TimedMessage> messages = Lists.newArrayList();
+            delivererMessages.forEach(delivererMessageBean -> {
+              TimedDelivererMessageRequestBean.TimedMessage message = TimedDelivererMessageRequestBean.TimedMessage.builder()
+                  .message(delivererMessageBean.getMessage())
+                  .messageId(delivererMessageBean.getMessageId())
+                  .messageType(delivererMessageBean.getMessageType())
+                  .namespace(delivererMessageBean.getNamespace())
+                  .passportId(delivererMessageBean.getPassportId())
+                  .build();
+              messages.add(message);
+            });
+
+            for (Object connection : connections) {
+
+              try{
+
+                if(connection instanceof ConnectorInstance.ConnectorClientInstance) {
+
+                  ConnectorInstance.ConnectorClientInstance clientInstance = (ConnectorInstance.ConnectorClientInstance) connection;
+
+                  RemotingCommand command = RemotingCommand.createRequestCommand(TIMED_DELIVERY_MESSAGE_COMMAND_VALUE,null);
+
+                  TimedDelivererMessageRequestBean bean = TimedDelivererMessageRequestBean.builder().messages(messages).build();
+
+                  command.setBody(JSON.toJSONBytes(bean));
+
+                  Channel channel = clientInstance.getChannel();
+
+                  ConnectorContext.this.server.invokeAsync(
+                      channel,
+                      command,
+                      ConnectorContext.this.properties.getRequestTimeout(),
+                      responseFuture -> {
+
+                        // response execute
+                        if(responseFuture.isSendRequestOK()) {
+
+                          RemotingCommand response = responseFuture.getResponseCommand();
+
+                          byte[] body = response.getBody();
+
+                          if(body != null) {
+                            BizResult bizResult = BizResult.fromBytes(body,BizResult.class);
+                            log.info("[==] Deliverer Context Timed Distribute Response,{} : {}" ,channel, bizResult.json());
+                          } else {
+                            log.warn("[==] Deliverer Context Timed Distribute, response,{} body is empty ." ,channel);
+                          }
+
+                        } else {
+                          log.warn("[==] Deliverer Context Timed Distribute, response,{} : {}" ,channel ,responseFuture.toString());
+                        }
+                  });
+
+                }
+
+              } catch (Exception e) {
+                log.warn("[==] Deliverer Context , positive distribute messages failed with exception ",e);
+              }
+            }
+          });
+        }
+      }
+    } catch (Exception e) {
+      log.warn("[==] Deliverer Context , positive distribute messages failed with exception ",e);
+    }
+
+  }
+
+  // ===== Deliverer Server Context Instance Defined =====
+
+  private RemotingSocketServer server;
+  private DelivererServerProperties properties;
+
+  public void registerServerInstance(RemotingSocketServer server, DelivererServerProperties properties) {
+    this.server = server;
+    this.properties = properties;
+  }
+
+  public void registerConnectorListener(DelivererConnectorListener listener) {
+    this.connectorListeners.add(listener);
+  }
+
   //  ===== Bean Private Constructor Defined  =====
 
   private static class InstanceHolder {
@@ -213,8 +367,7 @@ public class ConnectorContext {
   private BeanFactory beanFactory;
   private Environment environment;
 
-  public void registerApplicationContext(
-      ConfigurableApplicationContext context, BeanFactory beanFactory, Environment environment) {
+  public void registerApplicationContext(ConfigurableApplicationContext context, BeanFactory beanFactory, Environment environment) {
     this.context = context;
     this.beanFactory = beanFactory;
     this.environment = environment;

@@ -78,6 +78,7 @@ public class DelivererMessageProcessor implements NettyRequestProcessor {
             messageRequestBean.isHalf(),
             messageRequestBean.getNamespace(),
             messageRequestBean.getPassportId(),
+            messageRequestBean.getClientType(),
             messageRequestBean.getMessageType(),
             messageRequestBean.getMessage());
 

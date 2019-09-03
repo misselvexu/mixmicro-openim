@@ -27,6 +27,7 @@ public interface RemotingDelivererApi {
    * @param half 是否是预转发,投递服务器需要进行内存预判操作，防止重复投递
    * @param namespace namespace
    * @param passportId passport Id
+   * @param clientType  client type
    * @param messageType message type
    * @param message message content bytes
    * @throws RemotingDelivererException maybe thrown {@link RemotingDelivererException}
@@ -36,6 +37,7 @@ public interface RemotingDelivererApi {
       boolean half,
       String namespace,
       String passportId,
+      String clientType,
       Message.MessageType messageType,
       byte[] message)
       throws RemotingDelivererException;

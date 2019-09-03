@@ -40,10 +40,11 @@ public interface DelivererRepository {
    * @param namespace 名称空间
    * @param passportId 通行证
    * @param messageType 消息类型
+   * @param rowSize 行数
    * @return 消息列表
    */
   List<DelivererMessageBean> fetchDelivererMessages(
-      String namespace, String passportId, Message.MessageType messageType);
+      String namespace, String passportId, Message.MessageType messageType, int rowSize);
 
   /**
    * 确认投递消息Ack状态
@@ -53,4 +54,12 @@ public interface DelivererRepository {
    * @param messageId 消息id
    */
   void commitDelivererAckMessage(String namespace, String passportId, String messageId);
+
+  /**
+   * 查询待投递的消息列表
+   *
+   * @param rowSize 行数
+   * @return 消息列表
+   */
+  List<DelivererMessageBean> fetchDelivererMessages(int rowSize);
 }

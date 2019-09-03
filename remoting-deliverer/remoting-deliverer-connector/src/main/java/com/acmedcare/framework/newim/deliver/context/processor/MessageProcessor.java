@@ -12,6 +12,7 @@ import com.acmedcare.framework.newim.deliver.api.exception.RemotingDelivererExce
 import com.acmedcare.framework.newim.deliver.api.header.MessageHeader;
 import com.acmedcare.framework.newim.deliver.api.request.MessageRequestBean;
 import com.acmedcare.framework.newim.deliver.api.response.MessageResponseBean;
+import com.acmedcare.framework.newim.deliver.connector.server.DelivererServerProperties;
 import com.acmedcare.tiffany.framework.remoting.common.RemotingHelper;
 import com.acmedcare.tiffany.framework.remoting.protocol.RemotingCommand;
 import com.alibaba.fastjson.JSON;
@@ -31,6 +32,12 @@ import java.util.Optional;
 public class MessageProcessor extends AbstractProcessor {
 
   private static final Logger log = LoggerFactory.getLogger(MessageProcessor.class);
+
+  private final DelivererServerProperties properties;
+
+  public MessageProcessor(DelivererServerProperties properties) {
+    this.properties = properties;
+  }
 
   /**
    * Process Request
@@ -64,7 +71,12 @@ public class MessageProcessor extends AbstractProcessor {
 
         Assert.notNull(bean,"deliverer message list request body must not be null.");
 
-        List<DelivererMessageBean> messages = this.delivererService.fetchDelivererMessages(bean.getNamespace(),bean.getPassportId(),bean.getMessageType());
+        List<DelivererMessageBean> messages =
+            this.delivererService.fetchDelivererMessages(
+                bean.getNamespace(),
+                bean.getPassportId(),
+                bean.getMessageType(),
+                this.properties.getFetchLeastMessagesLimitSize());
 
         MessageResponseBean responseBean = MessageResponseBean.builder().messages(messages).build();
 

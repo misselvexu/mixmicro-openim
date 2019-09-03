@@ -5,6 +5,8 @@
 
 package com.acmedcare.framework.newim.deliver.api;
 
+import com.google.common.annotations.Beta;
+
 /**
  * {@link DelivererCommand}
  *
@@ -31,9 +33,23 @@ public final class DelivererCommand {
   /** 获取客户端待投递消息 */
   public static final int FETCH_CLIENT_DELIVERER_MESSAGES_VALUE = 0x14;
 
+  /**
+   * 获取客户端待投递的消息总数量
+   *
+   * @since 2.3.1
+   */
+  @Beta public static final int FETCH_CLIENT_DELIVERER_MESSAGES_COUNT_VALUE = 0x17;
+
   /** 定时投递消息 */
   public static final int TIMED_DELIVERY_MESSAGE_COMMAND_VALUE = 0x15;
 
   /** 确认投递消息Ack */
   public static final int DELIVERER_CLIENT_ACK_DELIVERER_VALUE = 0x16;
+
+  /**
+   * 投递服务器分发消息
+   *
+   * @since 2.3.1
+   */
+  public static final int DELIVERER_SERVER_DISTRIBUTE_MESSAGES = 0x18;
 }

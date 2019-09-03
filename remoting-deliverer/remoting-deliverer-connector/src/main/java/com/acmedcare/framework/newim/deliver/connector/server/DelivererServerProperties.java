@@ -10,11 +10,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import java.io.Serializable;
 
 /**
  * {@link DelivererServerProperties}
@@ -31,17 +33,53 @@ public class DelivererServerProperties extends DefaultDelivererProperties {
 
   private static final long serialVersionUID = -1113631365862971274L;
 
-  /**
-   * Deliverer Connector Server Host Address, Default: 0.0.0.0
-   */
-  @NotBlank
-  private String host = "0.0.0.0";
+  /** Deliverer Connector Server Host Address, Default: 0.0.0.0 */
+  @NotBlank private String host = "0.0.0.0";
 
-  /**
-   * Deliverer Connector Server Port , Default: 14110
-   */
+  /** Deliverer Connector Server Port , Default: 14110 */
   @Min(0)
   @Max(65536)
   private int port = 14110;
 
+  /** Least Messages List's limit size ,default: 1000 */
+  private int fetchLeastMessagesLimitSize = 1000;
+
+  /**
+   * Deliverer Timer Config Properties
+   *
+   * @see DelivererTimedProperties
+   */
+  @NestedConfigurationProperty private DelivererTimedProperties timer;
+
+  @Getter
+  @Setter
+  @NoArgsConstructor
+  public static class DelivererTimedProperties implements Serializable {
+
+    private static final long serialVersionUID = 1380876216311196413L;
+
+    private boolean enabled = true;
+
+    /**
+     * Batch Fetch Row Size ,Default: 50
+     *
+     * <p>
+     */
+    private int batchRow = 50;
+
+    /** thread core size . default: 3 */
+    private int threadCoreSize = 3;
+
+    /** thread startup init delay time(ms), default: 5000 */
+    private long threadInitDelay = 5000;
+
+    /** thread execute timed, delay time(ms), default: 10000 */
+    private long threadDelay = 6000;
+
+    /** disorganize enable flag ,default is false */
+    private boolean disorganizeEnabled = false;
+
+    /** disorganize interval ,default: 5000 ms */
+    private int disorganizeInterval = 5000;
+  }
 }

@@ -7,7 +7,7 @@ services:
   remoting-master-server:
 
     # 镜像
-    image: docker.apiacmed.com/library/remoting-master:2.3.0-RC1
+    image: docker.apiacmed.com/library/remoting-master:2.3.1.BUILD-SNAPSHOT
 
     # 系统环境变量设置
     environment:
@@ -38,7 +38,7 @@ services:
   ## Cluster服务
   remoting-cluster-server:
 
-    image: docker.apiacmed.com/library/remoting-server-wss:2.3.0-RC1
+    image: docker.apiacmed.com/library/remoting-server-wss:2.3.1.BUILD-SNAPSHOT
 
     container_name: remoting-cluster-standalone
 

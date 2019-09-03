@@ -29,17 +29,17 @@ public class MasterEndpointClientTest {
   @Before
   public void init() {
     this.masterEndpointClient =
-        new MasterEndpointClient(Lists.newArrayList("192.168.1.151:13110","192.168.1.152:13110"), false);
+        new MasterEndpointClient(Lists.newArrayList("39.100.67.34:13110"), false);
   }
 
   @Test
   public void testCreateNewGroup() {
 
     NewGroupRequest request = new NewGroupRequest();
-    request.setGroupId("gid-20181122-1");
-    request.setGroupName("测试默认分组");
-    request.setGroupBizTag("CMFZ");
-    request.setGroupExt("~");
+    request.setGroupId("EXPERT359817676148994");
+    request.setGroupName("微急救群");
+    request.setGroupBizTag("");
+    request.setGroupExt("");
     request.setGroupOwner("misselvexu");
     this.masterEndpointClient.createNewGroup(request);
   }
@@ -47,7 +47,7 @@ public class MasterEndpointClientTest {
   @Test
   public void queryGroupMemberList() {
 
-    List<Member> members = this.masterEndpointClient.queryGroupMemberList("gid-20181122-1","DEFAULT");
+    List<Member> members = this.masterEndpointClient.queryGroupMemberList("EXPERT359817676148994","DEFAULT");
     System.out.println(JSON.toJSONString(members));
     Assert.assertNotNull(members);
 
@@ -57,11 +57,10 @@ public class MasterEndpointClientTest {
   public void testJoinGroup() {
 
     AddGroupMembersRequest request = new AddGroupMembersRequest();
-    request.setGroupId("gid-20181122-1");
+    request.setGroupId("EXPERT359817676148994");
     request.setMembers(
         Lists.newArrayList(
-            Member.builder().memberId(3837142362366977L).memberName("7669用户").build(),
-            Member.builder().memberId(3837142362366976L).memberName("7666用户").build()));
+            Member.builder().memberId(1405282155989248L).memberName("wyjdd").memberUserName("wyjdd").build()));
     masterEndpointClient.joinGroup(request);
   }
 
@@ -118,7 +117,7 @@ public class MasterEndpointClientTest {
     this.masterEndpointClient.sendGroupMessage(
         MessageBizType.NORMAL,
         "JUNIT-TEST",
-        "gid-20181122",
+        "EXPERT359817676148994",
         "{\"name\":\"misselvexu\"}",
         MessageContentType.APPLICATION_JSON,
         null);

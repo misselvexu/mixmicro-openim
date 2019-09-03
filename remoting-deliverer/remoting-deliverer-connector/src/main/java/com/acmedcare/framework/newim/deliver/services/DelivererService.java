@@ -10,6 +10,8 @@ import com.acmedcare.framework.newim.DelivererMessage;
 import com.acmedcare.framework.newim.Message;
 import com.acmedcare.framework.newim.deliver.api.bean.DelivererMessageBean;
 import com.acmedcare.framework.newim.deliver.api.request.TimedDelivererMessageRequestBean;
+import com.acmedcare.framework.newim.deliver.connector.listener.event.DelivererEvent;
+import com.acmedcare.framework.newim.deliver.context.ConnectorContext;
 import com.acmedcare.framework.newim.storage.api.DelivererRepository;
 import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
@@ -43,10 +45,11 @@ public class DelivererService {
    * @param half half message flag
    * @param namespace message namespace
    * @param passportId password id
+   * @param clientType client type
    * @param messageType message type
    * @param message message payload
    */
-  public void postDelivererMessage(boolean half, String namespace, String passportId, Message.MessageType messageType, byte[] message) {
+  public void postDelivererMessage(boolean half, String namespace, String passportId, String clientType, Message.MessageType messageType, byte[] message) {
 
     Message originMessage = JSON.parseObject(message, Message.class);
 
@@ -62,6 +65,7 @@ public class DelivererService {
         .messageType(messageType)
         .payload(message)
         .receiver(passportId)
+        .clientType(clientType)
         .delivererTime(new Date())
         .build();
 
@@ -85,9 +89,7 @@ public class DelivererService {
    * @param messages 消息列表
    */
   public void postTimerDelivererMessage(List<TimedDelivererMessageRequestBean.TimedMessage> messages) {
-
-    // todo
-
+    ConnectorContext.context().publishEvent(DelivererEvent.TIMED_DELIVERER_MESSAGES_EVENT,messages);
   }
 
   /**
@@ -95,10 +97,20 @@ public class DelivererService {
    * @param namespace 名称空间
    * @param passportId 通行证编号
    * @param messageType 消息类型
+   * @param rowSize 行数
    * @return 列表
    */
-  public List<DelivererMessageBean> fetchDelivererMessages(String namespace, String passportId, Message.MessageType messageType) {
-    return this.delivererRepository.fetchDelivererMessages(namespace,passportId,messageType);
+  public List<DelivererMessageBean> fetchDelivererMessages(String namespace, String passportId, Message.MessageType messageType, int rowSize) {
+    return this.delivererRepository.fetchDelivererMessages(namespace,passportId,messageType,rowSize);
+  }
+
+  /**
+   * 获取需要投递的消息
+   * @param rowSize 行数
+   * @return 列表
+   */
+  public List<DelivererMessageBean> fetchDelivererMessages(int rowSize) {
+    return this.delivererRepository.fetchDelivererMessages(rowSize);
   }
 
   /**
@@ -112,4 +124,5 @@ public class DelivererService {
     this.delivererRepository.commitDelivererAckMessage(namespace,passportId,messageId);
 
   }
+
 }

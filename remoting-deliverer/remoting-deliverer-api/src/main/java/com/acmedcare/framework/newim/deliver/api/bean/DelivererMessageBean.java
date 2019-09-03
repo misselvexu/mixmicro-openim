@@ -34,6 +34,8 @@ public class DelivererMessageBean implements Serializable {
   /** 接收人通行证标识 */
   private String passportId;
 
+  @Builder.Default private String clientType = "DEFAULT";
+
   /** 消息标识 */
   private String messageId;
 

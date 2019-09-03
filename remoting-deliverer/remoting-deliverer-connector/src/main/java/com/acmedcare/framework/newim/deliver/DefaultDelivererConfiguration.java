@@ -46,7 +46,7 @@ public class DefaultDelivererConfiguration
   /**
    * Set the {@code Environment} that this component runs in.
    *
-   * @param environment
+   * @param environment env instance
    */
   @Override
   public void setEnvironment(Environment environment) {

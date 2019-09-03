@@ -191,12 +191,6 @@ public class ScheduleSysWssEndpoint extends WssAdapter {
         new PullOnlineSubOrgsRequestProcessor((ScheduleSysContext) wssSessionContext),
         null);
 
-    // 推送订单
-    this.registerProcessor(
-        ScheduleCommand.PUSH_ORDER.getBizCode(),
-        new PushOrderProcessor((ScheduleSysContext) wssSessionContext),
-        null);
-
     // 发送消息
     this.registerProcessor(
         ScheduleCommand.WS_PUSH_MESSAGE.getBizCode(),

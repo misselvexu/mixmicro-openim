@@ -18,7 +18,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version ${project.version} - 2019-07-29.
  */
-@EnableDelivererConnector(enabledServer = false, enabledClient = true)
+@EnableDelivererConnector(enabledServer = false, enabledClient = false , listeners = SimpleDelivererConnectorListener.class)
 public class EnableAnnotationTester {
 
   public static void main(String[] args) {

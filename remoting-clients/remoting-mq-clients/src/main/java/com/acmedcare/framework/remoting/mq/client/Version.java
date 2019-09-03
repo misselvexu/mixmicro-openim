@@ -8,6 +8,6 @@ package com.acmedcare.framework.remoting.mq.client;
  */
 public final class Version {
   public static String get() {
-    return "2.3.0-RC1";
+    return "2.3.1.BUILD-SNAPSHOT";
   }
 }

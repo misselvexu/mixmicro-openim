@@ -62,6 +62,8 @@ public class IMProperties implements EnvironmentAware, InitializingBean {
   /** 是否开启剔除客户端下线 */
   private boolean enableKickOff = false;
 
+  private long ackWaitTime = 10;
+
   private Environment environment;
 
   /**
