@@ -17,7 +17,7 @@
 - 新增WebSocket消息Ack机制
 - 新增客户端接入类型`clientType`
 
-## 2.3.1.BUILD-SNAPSHOT
+## 2.3.0-RC1
 
 ### 缺陷修复
 

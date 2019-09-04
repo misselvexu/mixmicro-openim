@@ -7,7 +7,7 @@
 FROM openjdk:8-jre-alpine
 MAINTAINER Elve.Xu <iskp.me@gmail.com>
 
-ENV VERSION 2.3.1.BUILD-SNAPSHOT
+ENV VERSION 2.3.1-RC1
 
 RUN echo "http://mirrors.aliyun.com/alpine/v3.6/main" > /etc/apk/repositories \
     && echo "http://mirrors.aliyun.com/alpine/v3.6/community" >> /etc/apk/repositories \
