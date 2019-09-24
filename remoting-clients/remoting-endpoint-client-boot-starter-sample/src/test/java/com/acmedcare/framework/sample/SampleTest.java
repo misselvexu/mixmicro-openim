@@ -1,5 +1,8 @@
 package com.acmedcare.framework.sample;
 
+import com.acmedcare.framework.newim.client.MessageAttribute;
+import com.acmedcare.framework.newim.client.MessageBizType;
+import com.acmedcare.framework.newim.client.MessageContentType;
 import com.acmedcare.framework.newim.master.endpoint.client.MasterEndpointClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,6 +24,12 @@ public class SampleTest {
 
   @Test
   public void test() {
-    this.masterEndpointClient.removeGroup("ss");
+    this.masterEndpointClient.sendGroupMessage(
+        MessageBizType.NORMAL,
+        "me",
+        "EXPERT351707096506624",
+        "sss",
+        MessageContentType.TEXT_PLAIN,
+        MessageAttribute.builder().build());
   }
 }

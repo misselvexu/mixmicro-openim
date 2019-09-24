@@ -91,7 +91,7 @@ public class FirstDemoClient {
                   @Override
                   public List<RemotingAddress> remotingAddressList() {
                     return Lists.newArrayList(
-                        new RemotingAddress(false, "192.168.1.159", 13110, false));
+                        new RemotingAddress(false, "39.100.125.0", 13110, false));
                   }
                 })
             .build();
@@ -181,7 +181,7 @@ public class FirstDemoClient {
         // 发送消息
         // 单聊消息: sendMessage SINGLE 3837142362366977 hi
         // 单聊消息: sendMessage SINGLE 3837142362366977 {"em_message_type":"em_zl_message","taskcode":"123"}
-        // 群消息: sendMessage GROUP gid-20181122 {"em_message_type":"em_zl_message","taskcode":"123"}
+        // 群消息: sendMessage GROUP EXPERT351707096506624 {"em_message_type":"em_zl_message","taskcode":"123"}
         if (inputArgs[0].equals("sendMessage")) {
 
           if ("SINGLE".equals(inputArgs[1])) {
@@ -209,8 +209,7 @@ public class FirstDemoClient {
         }
 
         // 单聊消息: sendMediaMessage SINGLE 3837142362366977 /Users/ive/git-acmedcare/Acmedcare-NewIM/COMMAND.md
-        // 群消息: sendMediaMessage GROUP gid-20181122
-        // /Users/ive/git-acmedcare/Acmedcare-NewIM/COMMAND.md
+        // 群消息: sendMediaMessage GROUP EXPERT351707096506624 /Users/ive/git-acmedcare/Acmedcare-NewIM/COMMAND.md
         if (inputArgs[0].equals("sendMediaMessage")) {
 
           if ("SINGLE".equals(inputArgs[1])) {
@@ -601,13 +600,13 @@ public class FirstDemoClient {
   private interface KnownParams {
 
     String accessToken =
-        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiIzMDM5M2I5ZjMyYjM0NzQxYWFkODU0Y2Y2OWM3ZTdiYSIsImRhdCI6Ik4vQmtqTkJBelh0Y04rZDdKRExrVU5OOWNXU2JQWDlId29hV0RYN1B1UElzZ1BSMlNvbS9JK09kWWpWK0hJS0pwWG9ja2Vvb1o3eVZ4a0YydnZweDJtTHA1YVJrOE5FanZrZyszbU8rZXczNmpoaEFkQ1YvVFhhTWNKQ1lqZDhCd1YrMW13T1pVdjJPVzhGZ2tPOERKVmo5bWhKeDMxZ0tIMUdPdmowanA4ST0iLCJpYXQiOjE1NjY1Mzk1NzE1NzQsImV4cCI6MTU2NzE1MDg5NzU3NCwiYXVkIjpudWxsfQ.kPzS-ewPjrpig6pOEtP7dCWkq8XaUSb3vSYAGfB5TFENY4OPdq-DwTtYHroI3S2KZMig-0Iqpnzx0W8TuFmIf424AtKV41QZCGGazVhllks-BQKvKiFtswK7sEJ9flR0TdWzKjhX5YEZa6CY3HLqy-jT9RGUAKemIR3Yav1kWzC8ovIcB-JnI9ny7-WuC30DfPpguoYLmHTDpq7PmeUEdMtsDtW4atlXMYWxS7g8W3u65nJd5LiKwXxLK2-aWO4N1wFv31B5Vj1eSlZ6bZKbWFJOIJn-8zY29AgnAOjUA_lTWsg6zN6H-BO2rSVQ_4ojqU28bH9SLZQr1zCVNM96hg";
+        "eyJhbGciOiJSUzI1NiJ9.eyJfaWQiOiIzYjMxMDcyYmNhYTM0ZGQ3OTcwODU1OTFkNTA1NWI4NyIsImRhdCI6Ik4vQmtqTkJBelh1R1lyT1JNL245UURpWkhUSWkwTDhwZXU2VURDVzhkOWpqRkFhbjBORGJ2cU5yNU14TGh5aWF0NHlsZFhtRnZ6bVpnVXo2bXd2MlNKeFNWM3pISWlSUTV6TEsvNm9BZEY5djJGcEZnZEpXc2s2S2JnRzhkN1FXRXpxVWN1cVQvSWd2L0ZJRE1OSUk0dGJIL21zampCTmdvTUIzTlhJMW1rST0iLCJpYXQiOjE1NjgxOTkzNjc3MTEsImV4cCI6MTU2ODgwNzU3NDcxMSwiYXVkIjpudWxsfQ.MFDXwTNqVBVD0p7_IlMISp5tQBRcy_dGRKd9YHaVQvcs7ed_Bx3uYoGm8uc95Ke1Kw0PqmqIrWeyfXSQ8JW3w185ijbqPX_S9cZuI0CQHjNsZez8PVSplAxMew3ZXfKGpCeybI43PsKrNOi2VNIiveEd_dRfuw0SlpJi4Ahu_h-pUBbwkCv5BGRrXcKrIervXz8REebWxWdsygYEYrVXZfR841RCyfOjrDg1s87iMfhXAo74tYr9Hv1rlMqc3287ewFJxRyyUwgo3TAp0S0f-H-qYP6f7DlwuPC878byMATGXpTB4PB0mVspisp_DrX9j14Ox3KKEUq91nerNXtTfQ";
 
     String areaNo = "320500";
 
     String orgId = "3910249034228736";
 
-    Long passportId = 3837142362366976L;
+    Long passportId = 1442330990807296L;
 
     String passport = "13910187669";
 

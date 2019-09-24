@@ -29,14 +29,14 @@ public class MasterEndpointClientTest {
   @Before
   public void init() {
     this.masterEndpointClient =
-        new MasterEndpointClient(Lists.newArrayList("39.100.67.34:13110"), false);
+        new MasterEndpointClient(Lists.newArrayList("39.100.125.0:13110"), false);
   }
 
   @Test
   public void testCreateNewGroup() {
 
     NewGroupRequest request = new NewGroupRequest();
-    request.setGroupId("EXPERT359817676148994");
+    request.setGroupId("EXPERT351707096506624");
     request.setGroupName("微急救群");
     request.setGroupBizTag("");
     request.setGroupExt("");
@@ -47,7 +47,7 @@ public class MasterEndpointClientTest {
   @Test
   public void queryGroupMemberList() {
 
-    List<Member> members = this.masterEndpointClient.queryGroupMemberList("EXPERT359817676148994","DEFAULT");
+    List<Member> members = this.masterEndpointClient.queryGroupMemberList("EXPERT351707096506624","DEFAULT");
     System.out.println(JSON.toJSONString(members));
     Assert.assertNotNull(members);
 
