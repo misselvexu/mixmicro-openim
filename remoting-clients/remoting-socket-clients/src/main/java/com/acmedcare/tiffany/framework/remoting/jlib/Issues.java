@@ -8,5 +8,5 @@ package com.acmedcare.tiffany.framework.remoting.jlib;
  */
 public interface Issues {
   String URL =
-      "http://115.29.47.72:8082/acmedback/Acmedcare-NewIM/blob/2.1.x/remoting-clients/remoting-socket-clients/README.md";
+      "http://git.acmedcare.com:8082/acmedback/Acmedcare-NewIM/blob/2.1.x/remoting-clients/remoting-socket-clients/README.md";
 }

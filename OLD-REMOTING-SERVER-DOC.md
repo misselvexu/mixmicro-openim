@@ -6,7 +6,7 @@ Acmedcare Bass System IM Server & Develop Client SDK Support.
 
 ```bash
     # clone source code
-    git clone git@115.29.47.72:acmedback/acmedcare-im.git
+    git clone git@git.acmedcare.com:acmedback/acmedcare-im.git
     cd acmedcare-im
     # run package
     mvn clean package
@@ -60,14 +60,14 @@ Acmedcare Bass System IM Server & Develop Client SDK Support.
 * JDK 1.7+
 * Android Studio 3.0+ [`optional`]
 
-> Android SDK Source [Acmedcare Gitlab](http://115.29.47.72:8082/acmedback/tiffany-quantum/tree/Oceania.SR1/remoting-android-library-jre-core)
+> Android SDK Source [Acmedcare Gitlab](http://git.acmedcare.com:8082/acmedback/tiffany-quantum/tree/Oceania.SR1/remoting-android-library-jre-core)
 
 
 ##### Android SDK Dependencies
 
 | 依赖库名 | 地址 | 版本 |
 | --- | --- | --- |
-| remoting-android-jarlib-nio | [Acmedcare Gitlab](http://115.29.47.72:8082/acmedback/tiffany-quantum/tree/Oceania.SR1/remoting-android-jarlib-nio) | Oceania.SR1 |
+| remoting-android-jarlib-nio | [Acmedcare Gitlab](http://git.acmedcare.com:8082/acmedback/tiffany-quantum/tree/Oceania.SR1/remoting-android-jarlib-nio) | Oceania.SR1 |
 | fastjson | - | 1.1.68.android |
 | slf4j | - | 1.7.25 |
 
@@ -83,6 +83,6 @@ Acmedcare Bass System IM Server & Develop Client SDK Support.
 
 | 依赖库名 | 地址 | 版本 |
 | --- | --- | --- |
-| tiffany-quantum | [Acmedcare Gitlab](http://115.29.47.72:8082/acmedback/tiffany-quantum) | Oceania.SR1 |
+| tiffany-quantum | [Acmedcare Gitlab](http://git.acmedcare.com:8082/acmedback/tiffany-quantum) | Oceania.SR1 |
 
 
