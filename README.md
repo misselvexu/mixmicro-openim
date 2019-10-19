@@ -1,6 +1,6 @@
-# 🥳 Acmedcare+ NewIM System
+# 🥳 Acmedcare+ OpenIM System
 ---
-Acmedcare NewIM System is a distributed messaging and streaming platform with low latency, high performance and reliability, trillion-level capacity and flexible scalability
+Acmedcare＋ OpenIM System is a distributed messaging and streaming platform with low latency, high performance and reliability, trillion-level capacity and flexible scalability
 
 It offers a variety of features:
 
