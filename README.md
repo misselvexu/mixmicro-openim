@@ -1,4 +1,4 @@
-# 🥳 Acmedcare+ OpenIM System
+# 🥳 Acmedcare+ OpenIM
 ---
 Acmedcare OpenIM is a distributed messaging and streaming platform with low latency, high performance and reliability, trillion-level capacity and flexible scalability
 
