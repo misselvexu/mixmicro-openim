@@ -215,3 +215,8 @@ docker run -p 43111:43111 -p 23111:23111 -p 33111:33111 -p 8888:8888 \
 
 ## Artifacts
 > building
+
+
+## Thanks
+
+<img src="doc/jetbrains.png" width="10%" height="10%" />
