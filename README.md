@@ -179,8 +179,8 @@ docker run -p 43111:43111 -p 23111:23111 -p 33111:33111 -p 8888:8888 \
 - Building
 
 ```bash
-  git clone http://git.acmedcare.com:8082/acmedback/Acmedcare-NewIM.git
-  cd Acmedcare-NewIM
+  git clone https://www.github.com/miss Elve I/Acmedcare-OpenIM.git
+  cd Acmedcare-OpenIM
   mvn clean install -DskipTests=true
 ```
 
