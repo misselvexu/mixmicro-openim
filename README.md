@@ -43,7 +43,7 @@ Naming server , support client load-balance ,query & execute endpoints;
 
 - Protocol Support
 
-    * [ ] R-UDP
+    * [x] R-UDP
 
 - Develop Kit
     * [x] JDK SDK Kit
@@ -211,10 +211,6 @@ docker run -p 43111:43111 -p 23111:23111 -p 33111:33111 -p 8888:8888 \
   sh bin/startup.sh -e dev -p test
 
 ```
-
-
-## Artifacts
-> building
 
 ## Plans
 
