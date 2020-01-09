@@ -1,6 +1,6 @@
 # 🥳 Acmedcare+ OpenIM
 ---
-Acmedcare OpenIM is a distributed messaging and streaming platform with low latency, high performance and reliability, trillion-level capacity and flexible scalability
+Acmedcare+ OpenIM is a distributed messaging and streaming platform with low latency, high performance and reliability, trillion-level capacity and flexible scalability.
 
 It offers a variety of features:
 
@@ -11,12 +11,12 @@ It offers a variety of features:
 - [x] Lightning-fast batch message exchange system
 - [x] Efficient pull&push consumption model
 - [x] Docker images for isolated testing and cloud isolated clusters
-- [ ] Scheduled message delivery
-- [ ] Log collection for streaming
-- [ ] Big data integration
+- [x] Scheduled message delivery
+- [x] Log collection for streaming
+- [x] Big data integration
 - [x] Reliable FIFO and strict ordered messaging in the same queue
 - [x] Million-level message accumulation capacity in a single queue
-- [ ] Feature-rich administrative dashboard for configuration, metrics and monitoring
+- [x] Feature-rich administrative dashboard for configuration, metrics and monitoring
 
 ## RoadMap
 
