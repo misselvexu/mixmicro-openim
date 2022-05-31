@@ -20,10 +20,6 @@ It offers a variety of features:
 
 ## RoadMap
 
-### Architecture
-
-<img src="doc/architecture.jpg"/>
-
 ### Master Server
 Naming server , support client load-balance ,query & execute endpoints; 
 
