@@ -7,6 +7,10 @@ package com.acmedcare.framework.newim;
  * @version v1.0 - 09/08/2018.
  */
 public enum Status {
+
+  /** Enabled Status Defined */
   ENABLED,
+  
+  /** Disabled Status Defined */
   DISABLED
 }

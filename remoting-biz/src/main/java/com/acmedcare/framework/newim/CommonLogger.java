@@ -10,6 +10,5 @@ import org.slf4j.LoggerFactory;
  * @version ${project.version} - 21/11/2018.
  */
 public class CommonLogger {
-  public static final Logger mongoLog =
-      LoggerFactory.getLogger("com.acmedcare.framework.newim.mongoLog");
+  public static final Logger mongoLog = LoggerFactory.getLogger("com.acmedcare.framework.newim.mongoLog");
 }

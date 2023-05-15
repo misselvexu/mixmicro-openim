@@ -74,6 +74,21 @@ public class BizResult<T> implements Serializable {
     return JSON.parseObject(json, clazz);
   }
 
+    /**
+   * Parse object from json string
+   *
+   * @param json json string
+   * @param clazz target class innerType
+   * @param <O> Class
+   * @return Object
+   */
+  public static <O> O fromJSON0(String json, Class<O> clazz) {
+    if (json == null || json.trim().length() <= 0 || clazz == null) {
+      return null;
+    }
+    return JSON.parseObject(json, clazz);
+  }
+
   /**
    * Parse object from json string bytes
    *
@@ -83,6 +98,21 @@ public class BizResult<T> implements Serializable {
    * @return Object
    */
   public static <O> O fromBytes(byte[] bytes, Class<O> clazz) {
+    if (bytes == null || bytes.length <= 0 || clazz == null) {
+      return null;
+    }
+    return JSON.parseObject(bytes, clazz);
+  }
+
+  /**
+   * Parse object from json string bytes
+   *
+   * @param bytes json string bytes
+   * @param clazz target class innerType
+   * @param <O> Class
+   * @return Object
+   */
+  public static <O> O fromBytes0(byte[] bytes, Class<O> clazz) {
     if (bytes == null || bytes.length <= 0 || clazz == null) {
       return null;
     }

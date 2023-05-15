@@ -31,6 +31,7 @@ public class MasterConnectorSubscriber extends Subscriber {
   @Override
   public void onEvent(Event event) {
     // empty implement
+    
   }
 
 }

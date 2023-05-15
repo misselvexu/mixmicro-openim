@@ -38,7 +38,8 @@ public final class DelivererCommand {
    *
    * @since 2.3.1
    */
-  @Beta public static final int FETCH_CLIENT_DELIVERER_MESSAGES_COUNT_VALUE = 0x17;
+  @Beta 
+  public static final int FETCH_CLIENT_DELIVERER_MESSAGES_COUNT_VALUE = 0x17;
 
   /** 定时投递消息 */
   public static final int TIMED_DELIVERY_MESSAGE_COMMAND_VALUE = 0x15;

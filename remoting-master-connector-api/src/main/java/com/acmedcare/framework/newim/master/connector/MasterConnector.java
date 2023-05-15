@@ -134,6 +134,7 @@ public abstract class MasterConnector {
    * @param handler handler instance of {@link MasterConnectorHandler}
    */
   protected void doStartup(@Nullable MasterConnectorHandler handler) {
+    logger.info("master connector is starting up ...");
   }
 
   /**

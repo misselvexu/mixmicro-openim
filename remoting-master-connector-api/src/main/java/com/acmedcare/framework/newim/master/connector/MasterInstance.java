@@ -54,11 +54,13 @@ public abstract class MasterInstance {
   /** Master Port */
   @Getter private int port;
 
-  @Getter protected NettyRemotingSocketClient client;
+  @Getter 
+  protected NettyRemotingSocketClient client;
   protected NettyClientConfig config;
   protected MasterConnectorContext context;
   protected MasterConnectorProperties properties;
-  @Getter private volatile boolean connected = false;
+  @Getter 
+  private volatile boolean connected = false;
 
   protected MasterInstance(String host, int port) {
     this.host = host;
@@ -111,12 +113,10 @@ public abstract class MasterInstance {
                       ThreadKit.sleep(
                           this.properties.getConnectionRetryDelayInterval() * connectTimes.get(),
                           TimeUnit.SECONDS);
-                      doConnect();
+                      doConnect0();
                     } // ok
                   } catch (Throwable e) {
-                    logger.warn(
-                        "Connect to master server:{} failed, wait next time connect..",
-                        serverAddress());
+                    logger.warn("Connect to master server:{} failed, wait next time connect..", serverAddress());
                     connectTimes.incrementAndGet();
                   }
                 },
@@ -136,9 +136,9 @@ public abstract class MasterInstance {
     }
   }
 
-  private void doConnect() {
+  private void doConnect0() {
     try {
-      handshake();
+      handshake0();
     } catch (Exception e) {
       logger.error("Master-Cluster-Client connect exception", e);
     }
@@ -148,7 +148,7 @@ public abstract class MasterInstance {
     connectTimes.set(1);
   }
 
-  private void handshake() throws Exception {
+  private void handshake0() throws Exception {
     CountDownLatch count = new CountDownLatch(1);
     logger.info("send handshake request to server :{} ", serverAddress());
     RemotingCommand handshakeRequest =

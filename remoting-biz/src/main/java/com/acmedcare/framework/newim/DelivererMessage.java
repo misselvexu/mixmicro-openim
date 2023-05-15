@@ -127,6 +127,9 @@ public class DelivererMessage implements Serializable {
     XNETWAORK,
 
     /** 手动投递 */
-    MANUAL
+    MANUAL,
+
+    /** 其他情况 */
+    OTHER
   }
 }
