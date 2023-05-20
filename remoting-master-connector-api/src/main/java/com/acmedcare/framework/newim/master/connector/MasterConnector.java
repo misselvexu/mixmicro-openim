@@ -156,5 +156,7 @@ public abstract class MasterConnector {
    *
    * <p>
    */
-  protected void doDestroy() {}
+  protected void doDestroy() {
+    logger.info("master connector is destroy ...");
+  }
 }
