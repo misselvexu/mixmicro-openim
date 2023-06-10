@@ -15,8 +15,7 @@ import org.springframework.context.ApplicationListener;
  */
 public class RemotingServiceStartupListener implements ApplicationListener<ApplicationReadyEvent> {
 
-  private static final Logger logger =
-      LoggerFactory.getLogger(RemotingServiceStartupListener.class);
+  private static final Logger logger = LoggerFactory.getLogger(RemotingServiceStartupListener.class);
   private static volatile AtomicBoolean loaded = new AtomicBoolean(false);
 
   @Override
@@ -33,12 +32,13 @@ public class RemotingServiceStartupListener implements ApplicationListener<Appli
       ServerServiceFactory.instances()
           .forEach(
               server -> {
+                try {
+                  // startup server
+                  server.startup();
 
-                // startup server
-                server.startup();
-
-                // register shutdown hook
-                Runtime.getRuntime().addShutdownHook(new Thread(server::shutdown));
+                  // register shutdown hook
+                  Runtime.getRuntime().addShutdownHook(new Thread(server::shutdown));
+                } catch (Exception ignore) {}
               });
     }
   }
