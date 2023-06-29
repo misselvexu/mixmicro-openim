@@ -34,6 +34,6 @@ public class IMServer implements Server {
    */
   @Override
   public void shutdown() {
-
+    System.out.println("default server shutdown method invoked .");
   }
 }
