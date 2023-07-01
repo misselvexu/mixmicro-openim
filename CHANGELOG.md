@@ -1,6 +1,6 @@
 # Release Logs
 
-## 2.3.1-RC1
+## 2.3.2-BUILD.SNAPSHOT
 
 ### 缺陷修复
 

@@ -6,10 +6,10 @@
 #=========================
 #
 # 151:
-#   docker run -p 14110:14110 --net docker-br0 --ip 172.172.1.166 --env DELIVERER_HOST=172.172.1.166 --env DELIVERER_PORT=14110 --env NEWIM_MASTER_ADDR=172.172.0.155:13111,172.172.1.155:13111 --add-host node1.mongodb.acmedcare.com:172.172.0.103 --add-host node2.mongodb.acmedcare.com:172.172.0.104 --add-host node3.mongodb.acmedcare.com:172.172.0.105 -d -v /tmp/logs/remoting-deliverer-server:/remoting-deliverer-server/logs --name remoting-deliverer-server docker.apiacmed.com/library/remoting-deliverer-server:2.3.1-RC1
+#   docker run -p 14110:14110 --net docker-br0 --ip 172.172.1.166 --env DELIVERER_HOST=172.172.1.166 --env DELIVERER_PORT=14110 --env NEWIM_MASTER_ADDR=172.172.0.155:13111,172.172.1.155:13111 --add-host node1.mongodb.acmedcare.com:172.172.0.103 --add-host node2.mongodb.acmedcare.com:172.172.0.104 --add-host node3.mongodb.acmedcare.com:172.172.0.105 -d -v /tmp/logs/remoting-deliverer-server:/remoting-deliverer-server/logs --name remoting-deliverer-server docker.apiacmed.com/library/remoting-deliverer-server:2.3.2-BUILD.SNAPSHOT
 #
 # 152:
-#   docker run -p 14110:14110 --net docker-br0 --ip 172.172.0.166 --env DELIVERER_HOST=172.172.0.166 --env DELIVERER_PORT=14110 --env NEWIM_MASTER_ADDR=172.172.0.155:13111,172.172.1.155:13111 --add-host node1.mongodb.acmedcare.com:172.172.0.103 --add-host node2.mongodb.acmedcare.com:172.172.0.104 --add-host node3.mongodb.acmedcare.com:172.172.0.105 -d -v /tmp/logs/remoting-deliverer-server:/remoting-deliverer-server/logs --name remoting-deliverer-server docker.apiacmed.com/library/remoting-deliverer-server:2.3.1-RC1
+#   docker run -p 14110:14110 --net docker-br0 --ip 172.172.0.166 --env DELIVERER_HOST=172.172.0.166 --env DELIVERER_PORT=14110 --env NEWIM_MASTER_ADDR=172.172.0.155:13111,172.172.1.155:13111 --add-host node1.mongodb.acmedcare.com:172.172.0.103 --add-host node2.mongodb.acmedcare.com:172.172.0.104 --add-host node3.mongodb.acmedcare.com:172.172.0.105 -d -v /tmp/logs/remoting-deliverer-server:/remoting-deliverer-server/logs --name remoting-deliverer-server docker.apiacmed.com/library/remoting-deliverer-server:2.3.2-BUILD.SNAPSHOT
 #
 
 #docker run -p 14110:14110 \
@@ -21,12 +21,12 @@
 #    --add-host node2.mongodb.acmedcare.com:172.172.0.104 \
 #    --add-host node3.mongodb.acmedcare.com:172.172.0.105 \
 #    -d -v /tmp/logs/remoting-deliverer-server:/remoting-deliverer-server/logs \
-#    --name remoting-deliverer-server docker.apiacmed.com/library/remoting-deliverer-server:2.3.1-RC1
+#    --name remoting-deliverer-server docker.apiacmed.com/library/remoting-deliverer-server:2.3.2-BUILD.SNAPSHOT
 
 FROM docker.apiacmed.com/env/openjdk-acmed:8-jre-alpine
 MAINTAINER Elve.Xu <iskp.me@gmail.com>
 
-ENV VERSION 2.3.1-RC1
+ENV VERSION 2.3.2-BUILD.SNAPSHOT
 
 RUN echo "http://mirrors.aliyun.com/alpine/v3.6/main" > /etc/apk/repositories \
     && echo "http://mirrors.aliyun.com/alpine/v3.6/community" >> /etc/apk/repositories \

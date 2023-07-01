@@ -105,8 +105,8 @@ The MySQL v1 component currently is only tested with MySQL 5.6-7. It is designed
 - Pull `Master` & `Cluster` images
 
 ```bash
-docker pull docker.apiacmed.com/library/remoting-master:2.3.1-RC1
-docker pull docker.apiacmed.com/library/remoting-server-wss:2.3.1-RC1
+docker pull docker.apiacmed.com/library/remoting-master:2.3.2-BUILD.SNAPSHOT
+docker pull docker.apiacmed.com/library/remoting-server-wss:2.3.2-BUILD.SNAPSHOT
 
 ```
 
@@ -124,7 +124,7 @@ docker run -p 13111:13111 -p 13110:13110 \
     --add-host node2.mongodb.acmedcare.com:172.172.0.104 \ 
     --add-host node3.mongodb.acmedcare.com:172.172.0.105 \ 
     -d -v /tmp/logs/remoting-master:/remoting-master/logs \ 
-    --name remoting-master docker.apiacmed.com/library/remoting-master:2.3.1-RC1
+    --name remoting-master docker.apiacmed.com/library/remoting-master:2.3.2-BUILD.SNAPSHOT
 
 # 启动 Cluster
 
@@ -138,7 +138,7 @@ docker run -p 43111:43111 -p 23111:23111 -p 33111:33111 -p 8888:8888 \
     --add-host node2.mongodb.acmedcare.com:172.172.0.104 \
     --add-host node3.mongodb.acmedcare.com:172.172.0.105 \ 
     -d -v /tmp/logs/remoting-server-wss:/remoting-server-wss/logs \ 
-    --name remoting-server-wss docker.apiacmed.com/library/remoting-server-wss:2.3.1-RC1
+    --name remoting-server-wss docker.apiacmed.com/library/remoting-server-wss:2.3.2-BUILD.SNAPSHOT
 ```
 
 > 192.168.1.152
@@ -151,7 +151,7 @@ docker run -p 13111:13111 -p 13110:13110 \
     --add-host node2.mongodb.acmedcare.com:172.172.0.104 \ 
     --add-host node3.mongodb.acmedcare.com:172.172.0.105 \ 
     -d -v /tmp/logs/remoting-master:/remoting-master/logs \ 
-    --name remoting-master docker.apiacmed.com/library/remoting-master:2.3.1-RC1
+    --name remoting-master docker.apiacmed.com/library/remoting-master:2.3.2-BUILD.SNAPSHOT
 
 # 启动 Cluster
 
@@ -165,7 +165,7 @@ docker run -p 43111:43111 -p 23111:23111 -p 33111:33111 -p 8888:8888 \
     --add-host node2.mongodb.acmedcare.com:172.172.0.104 \
     --add-host node3.mongodb.acmedcare.com:172.172.0.105 \ 
     -d -v /tmp/logs/remoting-server-wss:/remoting-server-wss/logs \ 
-    --name remoting-server-wss docker.apiacmed.com/library/remoting-server-wss:2.3.1-RC1
+    --name remoting-server-wss docker.apiacmed.com/library/remoting-server-wss:2.3.2-BUILD.SNAPSHOT
 
 ```
 
