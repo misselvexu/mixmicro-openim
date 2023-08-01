@@ -9,7 +9,7 @@ package com.acmedcare.framework.newim.client;
 public enum MessageContentType {
 
   /** JSON */
-  APPLICATION_JSON("application/json"),
+  APPLICATION_JSON("application/json;charset=utf-8"),
 
   /** Normal */
   TEXT_PLAIN("text/plain");

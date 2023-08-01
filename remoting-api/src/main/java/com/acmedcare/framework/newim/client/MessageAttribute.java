@@ -16,6 +16,7 @@ import lombok.Setter;
 @Builder
 public class MessageAttribute {
 
+  /** Message Namespace Defined */
   @Default private String namespace = MessageConstants.DEFAULT_NAMESPACE;
   /** 质量保证 */
   @Default private boolean qos = false;

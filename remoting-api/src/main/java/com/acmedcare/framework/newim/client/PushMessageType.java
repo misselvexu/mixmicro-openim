@@ -13,6 +13,9 @@ package com.acmedcare.framework.newim.client;
  */
 public enum PushMessageType {
 
+  /** 默认类型 */
+  DEFAULT,
+
   /** 账号 */
   PASSPORT,
 
