@@ -1,6 +1,6 @@
-# 🥳 Acmedcare+ OpenIM
+# 🥳 Mixmicro OpenIM
 ---
-Acmedcare+ OpenIM is a distributed messaging and streaming platform with low latency, high performance and reliability, trillion-level capacity and flexible scalability.
+Mixmicro+ OpenIM is a distributed messaging and streaming platform with low latency, high performance and reliability, trillion-level capacity and flexible scalability.
 
 It offers a variety of features:
 
@@ -80,7 +80,7 @@ Document storage database;
   docker pull mongo
   
   # start container
-  docker run -p 27017:27017 -v /acmedcare/data/mongo:/data/db --name docker_mongodb -d mongo
+  docker run -p 27017:27017 -v /mixmicro/data/mongo:/data/db --name docker_mongodb -d mongo
   
 ```
 
@@ -88,7 +88,7 @@ Document storage database;
 
 ```bash
   # 创建数据目录
-  mkdir /acmedcare/replica-datas/cluster{1..3} -pv
+  mkdir /mixmicro/replica-datas/cluster{1..3} -pv
   ...
   ...
 
@@ -120,9 +120,9 @@ docker pull docker.apiacmed.com/library/remoting-server-wss:2.3.2-BUILD.SNAPSHOT
 # 启动 Master 
 docker run -p 13111:13111 -p 13110:13110 \ 
     --net docker-br0 --ip 172.172.1.155 \ 
-    --add-host node1.mongodb.acmedcare.com:172.172.0.103 \ 
-    --add-host node2.mongodb.acmedcare.com:172.172.0.104 \ 
-    --add-host node3.mongodb.acmedcare.com:172.172.0.105 \ 
+    --add-host node1.mongodb.mixmicro.com:172.172.0.103 \ 
+    --add-host node2.mongodb.mixmicro.com:172.172.0.104 \ 
+    --add-host node3.mongodb.mixmicro.com:172.172.0.105 \ 
     -d -v /tmp/logs/remoting-master:/remoting-master/logs \ 
     --name remoting-master docker.apiacmed.com/library/remoting-master:2.3.2-BUILD.SNAPSHOT
 
@@ -133,10 +133,10 @@ docker run -p 43111:43111 -p 23111:23111 -p 33111:33111 -p 8888:8888 \
     --env WSS_HOST=192.168.1.151 \ 
     --env NEWIM_MASTER_ADDR=172.172.0.155:13111,172.172.1.155:13111 \ 
     --env WSS_PORT=8888 \ 
-    --add-host gateway.acmedcare.com:172.172.1.108 \ 
-    --add-host node1.mongodb.acmedcare.com:172.172.0.103 \ 
-    --add-host node2.mongodb.acmedcare.com:172.172.0.104 \
-    --add-host node3.mongodb.acmedcare.com:172.172.0.105 \ 
+    --add-host gateway.mixmicro.com:172.172.1.108 \ 
+    --add-host node1.mongodb.mixmicro.com:172.172.0.103 \ 
+    --add-host node2.mongodb.mixmicro.com:172.172.0.104 \
+    --add-host node3.mongodb.mixmicro.com:172.172.0.105 \ 
     -d -v /tmp/logs/remoting-server-wss:/remoting-server-wss/logs \ 
     --name remoting-server-wss docker.apiacmed.com/library/remoting-server-wss:2.3.2-BUILD.SNAPSHOT
 ```
@@ -147,9 +147,9 @@ docker run -p 43111:43111 -p 23111:23111 -p 33111:33111 -p 8888:8888 \
 # 启动Master
 docker run -p 13111:13111 -p 13110:13110 \ 
     --net docker-br0 --ip 172.172.0.155 \ 
-    --add-host node1.mongodb.acmedcare.com:172.172.0.103 \ 
-    --add-host node2.mongodb.acmedcare.com:172.172.0.104 \ 
-    --add-host node3.mongodb.acmedcare.com:172.172.0.105 \ 
+    --add-host node1.mongodb.mixmicro.com:172.172.0.103 \ 
+    --add-host node2.mongodb.mixmicro.com:172.172.0.104 \ 
+    --add-host node3.mongodb.mixmicro.com:172.172.0.105 \ 
     -d -v /tmp/logs/remoting-master:/remoting-master/logs \ 
     --name remoting-master docker.apiacmed.com/library/remoting-master:2.3.2-BUILD.SNAPSHOT
 
@@ -160,10 +160,10 @@ docker run -p 43111:43111 -p 23111:23111 -p 33111:33111 -p 8888:8888 \
     --env WSS_HOST=192.168.1.151 \ 
     --env NEWIM_MASTER_ADDR=172.172.0.155:13111,172.172.1.155:13111 \ 
     --env WSS_PORT=8888 \ 
-    --add-host gateway.acmedcare.com:172.172.1.108 \ 
-    --add-host node1.mongodb.acmedcare.com:172.172.0.103 \ 
-    --add-host node2.mongodb.acmedcare.com:172.172.0.104 \
-    --add-host node3.mongodb.acmedcare.com:172.172.0.105 \ 
+    --add-host gateway.mixmicro.com:172.172.1.108 \ 
+    --add-host node1.mongodb.mixmicro.com:172.172.0.103 \ 
+    --add-host node2.mongodb.mixmicro.com:172.172.0.104 \
+    --add-host node3.mongodb.mixmicro.com:172.172.0.105 \ 
     -d -v /tmp/logs/remoting-server-wss:/remoting-server-wss/logs \ 
     --name remoting-server-wss docker.apiacmed.com/library/remoting-server-wss:2.3.2-BUILD.SNAPSHOT
 
@@ -175,8 +175,8 @@ docker run -p 43111:43111 -p 23111:23111 -p 33111:33111 -p 8888:8888 \
 - Building
 
 ```bash
-  git clone https://www.github.com/miss Elve I/Acmedcare-OpenIM.git
-  cd Acmedcare-OpenIM
+  git clone https://www.github.com/miss Elve I/Mixmicro-OpenIM.git
+  cd Mixmicro-OpenIM
   mvn clean install -DskipTests=true
 ```
 
@@ -213,6 +213,6 @@ docker run -p 43111:43111 -p 23111:23111 -p 33111:33111 -p 8888:8888 \
 
 ## Thanks
 
-<a href="https://www.jetbrains.com/?from=Acmedcare-OpenIM">
+<a href="https://www.jetbrains.com/?from=Mixmicro-OpenIM">
 <img src="doc/jetbrains.png" width="10%" height="10%" />
 </a>
