@@ -18,7 +18,9 @@ import com.acmedcare.tiffany.framework.remoting.netty.NettyRemotingSocketClient;
  */
 public class DelivererMasterInstance extends MasterInstance {
 
-
+  /**
+   * Protected Constructor For {@link DelivererMasterInstance}
+   */
   protected DelivererMasterInstance(String host, int port) {
     super(host, port);
   }
@@ -26,7 +28,7 @@ public class DelivererMasterInstance extends MasterInstance {
   /**
    * Create new master instance with address
    *
-   * @param nodeAddress address , like : 192.168.1.1:8080
+   * @param nodeAddress address , eg : 192.168.1.1:8080
    * @return a instance of {@link DelivererMasterInstance}
    */
   static DelivererMasterInstance newInstance(String nodeAddress) {
@@ -60,6 +62,7 @@ public class DelivererMasterInstance extends MasterInstance {
    */
   @Override
   protected Object buildRegisterBody(MasterConnectorProperties properties, MasterConnectorContext context) {
+    // Default implement
     return null;
   }
 

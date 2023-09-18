@@ -15,10 +15,13 @@ import com.acmedcare.framework.newim.sync.master.config.SyncServerProperties;
  */
 public class MasterSyncServer {
 
+  /**
+   * Instance of {@link SyncServerProperties}
+   */
   private final SyncServerProperties syncServerProperties;
 
   /**
-   * Constructor
+   * Constructor For Master Sync Server .
    *
    * @param syncServerProperties sync server properties
    */

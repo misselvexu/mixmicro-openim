@@ -17,4 +17,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @EnableConfigurationProperties(SyncServerProperties.class)
-public class SyncServerAutoConfiguration {}
+public class SyncServerAutoConfiguration {
+
+    
+}

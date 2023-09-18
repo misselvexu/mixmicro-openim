@@ -11,4 +11,6 @@ package com.acmedcare.framework.newim.server.im.service;
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version ${project.version} - 2019-01-04.
  */
-public class IMService {}
+public class IMService {
+    
+}

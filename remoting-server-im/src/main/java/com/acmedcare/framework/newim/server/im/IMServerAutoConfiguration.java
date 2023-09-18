@@ -9,4 +9,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
  * @version ${project.version} - 2018-12-13.
  */
 @EnableConfigurationProperties(IMServerProperties.class)
-public class IMServerAutoConfiguration {}
+public class IMServerAutoConfiguration {
+    
+}
