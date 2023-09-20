@@ -23,7 +23,9 @@ import lombok.Setter;
 public class DelivererMessageHeader implements CommandCustomHeader {
 
 
-
+  /**
+   * Request Headers Check Method.
+   */
   @Override
   public void checkFields() throws RemotingCommandException {}
 }

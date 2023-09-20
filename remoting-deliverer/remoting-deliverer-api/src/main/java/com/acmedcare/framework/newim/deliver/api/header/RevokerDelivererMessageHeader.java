@@ -23,10 +23,18 @@ import lombok.Setter;
 @NoArgsConstructor
 public class RevokerDelivererMessageHeader implements CommandCustomHeader {
 
+  /**
+   * Unique Message Id.
+   */
   @CFNotNull private Long messageId;
 
+  /**
+   * Dest Account Id.
+   */
   @CFNotNull private String passportId;
 
   @Override
-  public void checkFields() throws RemotingCommandException {}
+  public void checkFields() throws RemotingCommandException {
+
+  }
 }

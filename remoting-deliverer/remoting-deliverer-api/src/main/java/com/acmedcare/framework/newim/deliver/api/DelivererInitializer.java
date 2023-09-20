@@ -24,6 +24,9 @@ public abstract class DelivererInitializer implements ApplicationEventPublisherA
 
   protected final DefaultDelivererProperties properties;
 
+  /**
+   * Spring Event Publisher Instance of {@link ApplicationEventPublisher}
+   */
   protected ApplicationEventPublisher publisher;
 
   protected DelivererInitializer(DefaultDelivererProperties properties) {
