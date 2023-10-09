@@ -29,7 +29,6 @@ public class MasterEndpoint {
 
   private final MasterClusterAcceptorServer masterClusterAcceptorServer;
 
-  @Autowired
   public MasterEndpoint(MasterClusterAcceptorServer masterClusterAcceptorServer) {
     this.masterClusterAcceptorServer = masterClusterAcceptorServer;
   }

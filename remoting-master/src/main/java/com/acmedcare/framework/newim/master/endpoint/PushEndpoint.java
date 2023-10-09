@@ -28,7 +28,6 @@ public class PushEndpoint {
 
   private final PushServices pushServices;
 
-  @Autowired
   public PushEndpoint(PushServices pushServices) {
     this.pushServices = pushServices;
   }

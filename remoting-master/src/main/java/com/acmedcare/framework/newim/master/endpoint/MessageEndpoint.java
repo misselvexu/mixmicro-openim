@@ -33,7 +33,6 @@ public class MessageEndpoint {
 
   private final MessageServices messageServices;
 
-  @Autowired
   public MessageEndpoint(MessageServices messageServices) {
     this.messageServices = messageServices;
   }

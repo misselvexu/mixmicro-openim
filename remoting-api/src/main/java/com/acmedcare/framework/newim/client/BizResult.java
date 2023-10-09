@@ -14,9 +14,9 @@ import lombok.Setter;
  * @param <T> Biz BizResult
  * @author Elve.Xu
  */
-@NoArgsConstructor
 @Getter
 @Setter
+@NoArgsConstructor
 public class BizResult<T> implements Serializable {
 
   private static final long serialVersionUID = 5679006688557484274L;

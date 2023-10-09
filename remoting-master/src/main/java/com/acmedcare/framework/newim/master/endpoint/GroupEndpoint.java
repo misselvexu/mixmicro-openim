@@ -37,7 +37,6 @@ public class GroupEndpoint {
 
   private final GroupServices groupServices;
 
-  @Autowired
   public GroupEndpoint(GroupServices groupServices) {
     this.groupServices = groupServices;
   }
