@@ -216,7 +216,7 @@ public class DelivererRepositoryImpl implements DelivererRepository {
 
         return list;
       } else {
-
+        mongoLog.info("未查询到投递的数据结果集");
         return Lists.newArrayList();
       }
     } catch (Exception e) {
@@ -310,7 +310,7 @@ public class DelivererRepositoryImpl implements DelivererRepository {
 
         return list;
       } else {
-
+        mongoLog.info("[2]未查询到投递的数据结果集");
         return Lists.newArrayList();
       }
 

@@ -22,6 +22,7 @@ import java.io.InputStream;
 @Builder
 public final class RemotingParameters {
 
+  // WARN： password security risk
   private static final String DEFAULT_JKS_PD = "1qaz2wsx";
 
   @Getter private ServerAddressHandler serverAddressHandler;

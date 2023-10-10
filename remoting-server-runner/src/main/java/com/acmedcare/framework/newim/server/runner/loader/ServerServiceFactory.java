@@ -38,6 +38,7 @@ public class ServerServiceFactory {
           @Override
           public void onLoad(ExtensionClass<Server> extensionClass) {
             Server server = extensionClass.getExtInstance();
+            // Using spring autowired
             AutowiredAnnotationBeanPostProcessor processor =
                 beanFactory.getBean(AutowiredAnnotationBeanPostProcessor.class);
             processor.postProcessProperties(null, server, null);

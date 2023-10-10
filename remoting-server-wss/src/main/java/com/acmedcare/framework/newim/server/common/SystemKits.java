@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 
-/** @author Elve.Xu */
 public class SystemKits {
 
   private static final Logger log = LoggerFactory.getLogger(SystemKits.class);
