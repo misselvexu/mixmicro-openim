@@ -75,17 +75,21 @@ public class DelivererMasterConnector extends MasterConnector {
         }
 
         try {
+          // await until startup success .
           latch.await();
           logger.info(
               "deliverer master connector(s) all executed startup ,Use Time :{} ms",
               (System.currentTimeMillis() - start));
         } catch (InterruptedException ignored) {
+          // TODO process interrupt exception ...
         }
 
         logger.info("deliverer master connector(s) service is started. ");
       } else {
         logger.warn("not config master server node(s) address.");
       }
+    } else {
+      logger.warn("### deliverer server is already startup .");
     }
   }
 

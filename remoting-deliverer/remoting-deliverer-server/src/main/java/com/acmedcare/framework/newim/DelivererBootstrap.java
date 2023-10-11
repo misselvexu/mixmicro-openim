@@ -70,6 +70,7 @@ public class DelivererBootstrap {
 
       log.info("[==] Deliverer Master Connector instance : {}", serverInitializer);
 
+      // 
       delivererMasterConnector.startup(null);
     }
 
