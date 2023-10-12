@@ -21,6 +21,7 @@ public class TopicSubscribeMapping implements Serializable {
 
   private static final long serialVersionUID = 8358460897070268953L;
 
+  // Defined topic mappings 
   private List<TopicMapping> mappings;
 
   @Getter

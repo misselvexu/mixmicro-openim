@@ -118,24 +118,29 @@ public final class MQContext implements Context {
                   List<Channel> channels = MONITOR_SESSIONS.get(passportId);
                   if (channels != null && !channels.isEmpty()) {
                     for (Channel channel : channels) {
-                      if (channel != null && channel.isWritable()) {
-                        RemotingCommand pushRequest =
-                            RemotingCommand.createRequestCommand(Common.TOPIC_MESSAGE_PUSH, null);
-                        // set body
-                        pushRequest.setBody(mqMessage.bytes());
+                      // add exception cache process
+                      try {
+                        if (channel != null && channel.isWritable()) {
+                          RemotingCommand pushRequest =
+                              RemotingCommand.createRequestCommand(Common.TOPIC_MESSAGE_PUSH, null);
+                          // set body
+                          pushRequest.setBody(mqMessage.bytes());
 
-                        // write
-                        channel
-                            .writeAndFlush(pushRequest)
-                            .addListener(
-                                future -> {
-                                  if (!future.isDone()) {
-                                    logger.warn(
-                                        "broadcast mq message failed, {},{}",
-                                        mqMessage.getTopicId(),
-                                        passportId);
-                                  }
-                                });
+                          // write
+                          channel
+                              .writeAndFlush(pushRequest)
+                              .addListener(
+                                  future -> {
+                                    if (!future.isDone()) {
+                                      logger.warn(
+                                          "broadcast mq message failed, {},{}",
+                                          mqMessage.getTopicId(),
+                                          passportId);
+                                    }
+                                  });
+                        }
+                      } catch (Exception e) {
+                        // ignore exception
                       }
                     }
                   }

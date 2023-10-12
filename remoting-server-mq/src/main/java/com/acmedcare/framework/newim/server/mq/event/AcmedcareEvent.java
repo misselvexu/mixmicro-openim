@@ -52,7 +52,7 @@ public abstract class AcmedcareEvent {
     /** 取消订阅的通知时间 */
     ON_TOPIC_UB_SUBSCRIBE_EVENT,
 
-    /** 主题删除事件 */
+    /** 主题空订阅事件 */
     ON_TOPIC_EMPTY_SUBSCRIBED_EVENT,
 
     /** 主题删除事件 */
