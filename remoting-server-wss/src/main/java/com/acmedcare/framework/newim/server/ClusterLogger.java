@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version ${project.version} - 14/11/2018.
  */
-public class ClusterLogger {
+public final class ClusterLogger {
 
   /** Master Replica Logger */
   public static final Logger masterClusterLog =

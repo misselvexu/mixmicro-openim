@@ -20,7 +20,7 @@ import org.springframework.core.annotation.Order;
  * @version ${project.version} - 19/11/2018.
  */
 @Configuration
-public class ClusterServerAutoBootstrap {
+public final class ClusterServerAutoBootstrap {
 
   @Bean
   @Order(Ordered.HIGHEST_PRECEDENCE)

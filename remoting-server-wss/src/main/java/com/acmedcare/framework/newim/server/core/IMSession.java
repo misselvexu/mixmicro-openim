@@ -258,7 +258,7 @@ public class IMSession implements InitializingBean, DisposableBean {
    * @param channel 通道
    */
   private void pushOfflineMessage(Channel channel) {
-    if (channel != null && channel.isActive() & channel.isWritable()) {
+    if (channel != null && channel.isActive() && channel.isWritable()) {
       RemotingCommand command =
           RemotingCommand.createRequestCommand(ClusterClientCommand.SERVER_PUSH_FOCUS_LOGOUT, null);
       command.markOnewayRPC();
@@ -326,7 +326,7 @@ public class IMSession implements InitializingBean, DisposableBean {
         // foreach send
         for (Channel channel : channels) {
           try {
-            if (channel != null && channel.isWritable()) {
+            if (channel != null && channel.isActive() && channel.isWritable()) {
 
               // build new request command
               RemotingCommand command =
@@ -402,7 +402,7 @@ public class IMSession implements InitializingBean, DisposableBean {
 
   private void doSendMessageToChannel(Channel channel, MessageType messageType, byte[] message) {
 
-    if (channel != null && channel.isWritable()) {
+    if (channel != null && channel.isActive() && channel.isWritable()) {
 
       ServerPushMessageHeader serverPushMessageHeader = new ServerPushMessageHeader();
       serverPushMessageHeader.setMessageType(messageType.name());

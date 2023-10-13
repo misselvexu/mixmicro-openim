@@ -30,7 +30,7 @@ import static com.acmedcare.framework.newim.server.ClusterLogger.startLog;
 @SpringBootApplication
 @ComponentScan("com.acmedcare.framework.newim")
 @EnableDelivererConnector(enabledClient = true, listeners = {DelivererConnectorWssServerListener.class})
-public class RemotingWssServer {
+public final class RemotingWssServer {
 
   /** Spring Context Instance of {@link org.springframework.context.ApplicationContext} */
   private static ConfigurableApplicationContext context;
