@@ -24,7 +24,7 @@ public class DelivererMasterConnectorAutoConfiguration {
   public static final String DELIVERER_MASTER_CONNECTOR_BEAN_NAME = "delivererMasterConnector";
 
   @Bean
-  DelivererMasterConnectorContext delivererMasterConnectorContext() {
+  public DelivererMasterConnectorContext delivererMasterConnectorContext() {
     return new DelivererMasterConnectorContext();
   }
 

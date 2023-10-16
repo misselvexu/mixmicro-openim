@@ -29,6 +29,9 @@ public class PullClusterEvent implements Event {
    */
   private Set<String> clusterReplicas;
 
+  /**
+   * Default Constructor for {@link PullClusterEvent} .
+   */
   public PullClusterEvent(Set<String> clusterReplicas) {
     this.clusterReplicas = clusterReplicas;
   }
