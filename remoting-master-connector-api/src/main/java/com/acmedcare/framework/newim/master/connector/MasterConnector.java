@@ -67,7 +67,9 @@ public abstract class MasterConnector {
   protected abstract void registerEvent(MasterConnectorSubscriber subscriber);
 
   private MasterInstance newMasterInstance(String nodeAddress) {
+    // build new netty client
     NettyClientConfig config = new NettyClientConfig();
+    // build properties
     config.setUseTLS(this.masterConnectorProperties.isConnectorEnableTls());
     config.setClientChannelMaxIdleTimeSeconds(
         (int) this.masterConnectorProperties.getConnectorIdleTime());
@@ -75,6 +77,7 @@ public abstract class MasterConnector {
 
     ChannelEventListener listener = null;
 
+    // check listener instance
     if (!StringUtil.isNullOrEmpty(
         this.masterConnectorProperties.getConnectorChannelEventListener())) {
 
@@ -92,6 +95,7 @@ public abstract class MasterConnector {
     // build client
     NettyRemotingSocketClient client = new NettyRemotingSocketClient(config, listener);
 
+    // update address(s) list
     client.updateNameServerAddressList(Lists.newArrayList(nodeAddress));
 
     MasterInstance masterInstance = registerClientProcessor(nodeAddress, config, client);
