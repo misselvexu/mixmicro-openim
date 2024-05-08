@@ -138,7 +138,6 @@ public class ConnectorConnection implements Serializable {
 
         this.client.registerProcessor(TIMED_DELIVERY_MESSAGE_COMMAND_VALUE, new TimedDeliveryMessageProcessor(), null);
 
-
         this.client.updateNameServerAddressList(Lists.newArrayList(serverInstance.getServerAddr()));
 
         this.client.start();
@@ -232,6 +231,8 @@ public class ConnectorConnection implements Serializable {
           log.info("[{}][==]Deliverer Connector Client register succeed .",serverInstance.getServerAddr());
           // reset cached values
           requestFailedTimes.set(0);
+        } else {
+          log.warn("[{}][==]Deliverer Connector Client register failed, reponse code :{} .", result.getCode());
         }
 
       }

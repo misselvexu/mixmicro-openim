@@ -327,6 +327,8 @@ public class ConnectorContext {
               }
             }
           });
+        } else {
+          log.warn("[==] Deliverer Context , connection is empty ,ignore ");
         }
       }
     } catch (Exception e) {
