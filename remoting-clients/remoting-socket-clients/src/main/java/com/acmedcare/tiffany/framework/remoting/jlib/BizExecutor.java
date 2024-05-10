@@ -222,6 +222,8 @@ public abstract class BizExecutor {
         if (bizResult.getCode() != 0) {
           throw new BizException("客户端响应消息Ack失败");
         }
+      } else {
+        AcmedcareLogger.w(this.getClass().getSimpleName(), "客户端消息ACK请求响应体为空");
       }
 
     } catch (InterruptedException

@@ -46,7 +46,7 @@ public class RemotingClientAutoConfiguration {
 
     if (properties.getRemoteAddr() == null || properties.getRemoteAddr().trim().length() == 0) {
       throw new EndpointException(
-          "Master endpoint init failed, remoteAddr must not be null; config properties 'emoting.master.endpoint.remote-addr' in you application.properties file;");
+          "Master endpoint init failed, remoteAddr must not be null; config properties 'remoting.master.endpoint.remote-addr' in you application.properties file;");
     }
 
     MasterEndpointProperties masterEndpointProperties =
@@ -68,7 +68,7 @@ public class RemotingClientAutoConfiguration {
 
     if (properties.getRemoteAddr() == null || properties.getRemoteAddr().trim().length() == 0) {
       throw new EndpointException(
-          "Master endpoint init failed, remoteAddr must not be null; config properties 'emoting.master.endpoint.remote-addr' in you application.properties file;");
+          "Master endpoint init failed, remoteAddr must not be null; config properties 'remoting.master.endpoint.remote-addr' in you application.properties file;");
     }
 
     MasterEndpointProperties masterEndpointProperties =
@@ -82,7 +82,7 @@ public class RemotingClientAutoConfiguration {
     if (remotingNasClientServiceProperties.getRemoteAddr() == null
         || remotingNasClientServiceProperties.getRemoteAddr().trim().length() == 0) {
       throw new EndpointException(
-          "Master endpoint init failed, nas remoteAddr must not be null; config properties 'emoting.nas.endpoint.remote-addr' in you application.properties file;");
+          "Master endpoint init failed, nas remoteAddr must not be null; config properties 'remoting.nas.endpoint.remote-addr' in you application.properties file;");
     }
 
     NasProperties nasProperties = new NasProperties();
