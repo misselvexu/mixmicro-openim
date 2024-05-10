@@ -49,7 +49,6 @@ public class MessageServices {
 
   public void sendMessage(
       MessageAttribute attribute, String sender, String receiver, String type, String content) {
-
     // 1. build message
     SingleMessage singleMessage = new SingleMessage();
     singleMessage.setNamespace(attribute.getNamespace());
@@ -84,21 +83,25 @@ public class MessageServices {
     List<Message> messages = Lists.newArrayList();
 
     for (String receiver : receivers) {
-      // 1. build message
-      SingleMessage singleMessage = new SingleMessage();
-      singleMessage.setNamespace(attribute.getNamespace());
-      singleMessage.setReadFlag(false);
-      singleMessage.setReceiver(receiver);
-      singleMessage.setBody(content.getBytes());
-      singleMessage.setInnerType(InnerType.valueOf(type.toUpperCase()));
-      singleMessage.setMaxRetryTimes(attribute.getMaxRetryTimes());
-      singleMessage.setMessageType(MessageType.SINGLE);
-      singleMessage.setQos(attribute.isQos());
-      singleMessage.setMid(snowflake.nextId());
-      singleMessage.setRetryPeriod(attribute.getRetryPeriod());
-      singleMessage.setSender(sender);
-      singleMessage.setSendTimestamp(new Date());
-      messages.add(singleMessage);
+      try {
+        // 1. build message
+        SingleMessage singleMessage = new SingleMessage();
+        singleMessage.setNamespace(attribute.getNamespace());
+        singleMessage.setReadFlag(false);
+        singleMessage.setReceiver(receiver);
+        singleMessage.setBody(content.getBytes());
+        singleMessage.setInnerType(InnerType.valueOf(type.toUpperCase()));
+        singleMessage.setMaxRetryTimes(attribute.getMaxRetryTimes());
+        singleMessage.setMessageType(MessageType.SINGLE);
+        singleMessage.setQos(attribute.isQos());
+        singleMessage.setMid(snowflake.nextId());
+        singleMessage.setRetryPeriod(attribute.getRetryPeriod());
+        singleMessage.setSender(sender);
+        singleMessage.setSendTimestamp(new Date());
+        messages.add(singleMessage);
+      } catch (Exception ignore) {
+        endpointLog.warn("分发消息任务提交失败，发送者:{}, 接受者：{}", sender, receiver);
+      }
     }
     // 2. save
     Long[] result = this.messageRepository.batchSaveMessage(messages.toArray(new Message[0]));

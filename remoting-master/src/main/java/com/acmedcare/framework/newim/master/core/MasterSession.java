@@ -314,7 +314,11 @@ public class MasterSession {
     public void batchDistributeMessage(MessageAttribute attribute, Message... messages) {
       if (messages != null && messages.length > 0) {
         for (Message message : messages) {
-          distributeMessage(attribute, message);
+          try {
+            distributeMessage(attribute, message);
+          } catch (Exception e) {
+            masterClusterAcceptorLog.error(" batchDistributeMessage execute failed .");
+          }
         }
       }
     }
@@ -369,14 +373,13 @@ public class MasterSession {
                       BizResult bizResult =
                           RemotingSerializable.decode(response.getBody(), BizResult.class);
                       if (bizResult.getCode() == 0) {
-                        masterClusterAcceptorLog.info(
-                            "master distribute message to server:{} succeed.", address);
+                        masterClusterAcceptorLog.info("master distribute message to server:{} succeed.", address);
                       } else {
-                        // TODO failed
+                        masterClusterAcceptorLog.info(
+                            "master distribute message to server:{} failed, response code : {}", address, bizResult.getCode());
                       }
                     } else {
-                      // TODO failed
-
+                      masterClusterAcceptorLog.info("master distribute message to server failed .", address);
                     }
                   } catch (Exception e) {
                     masterClusterAcceptorLog.error(
