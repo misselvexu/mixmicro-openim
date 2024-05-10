@@ -38,7 +38,6 @@ import static com.acmedcare.framework.newim.storage.IMStorageCollections.DELIVER
  * @author <a href="mailto:iskp.me@gmail.com">Elve.Xu</a>
  * @version ${project.version} - 2019-08-12.
  */
-@Repository
 public class DelivererRepositoryImpl implements DelivererRepository {
 
   private final MongoTemplate mongoTemplate;

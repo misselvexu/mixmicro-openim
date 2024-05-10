@@ -267,7 +267,8 @@ public class GroupRepositoryImpl implements GroupRepository {
     List<GroupMemberRef> refs = queryGroupMembers(namespace, groupId);
     List<Member> members = Lists.newArrayList();
     for (GroupMemberRef ref : refs) {
-      members.add(
+      if (ref != null) {
+        members.add(
           Member.builder()
               .memberId(Long.parseLong(ref.getMemberId()))
               .memberName(ref.getMemberName())
@@ -275,6 +276,7 @@ public class GroupRepositoryImpl implements GroupRepository {
               .memberExt(ref.getMemberExt())
               .portrait(ref.getPortrait())
               .build());
+      }
     }
     return members;
   }
