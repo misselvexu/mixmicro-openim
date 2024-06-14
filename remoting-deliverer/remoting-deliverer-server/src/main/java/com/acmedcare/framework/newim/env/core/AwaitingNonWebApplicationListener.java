@@ -26,18 +26,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @version ${project.version} - 2018-12-12.
  */
 @SuppressWarnings({"AlibabaAvoidManuallyCreateThread"})
-public class AwaitingNonWebApplicationListener
-    implements ApplicationListener<ApplicationReadyEvent> {
-  private static final Logger logger =
-      LoggerFactory.getLogger(AwaitingNonWebApplicationListener.class);
+public class AwaitingNonWebApplicationListener implements ApplicationListener<ApplicationReadyEvent> {
+
+  private static final Logger logger = LoggerFactory.getLogger(AwaitingNonWebApplicationListener.class);
 
   private static final ExecutorService THREAD_POOL_EXECUTOR =
-      new ThreadPoolExecutor(
-          1,
-          1,
-          0L,
-          TimeUnit.MILLISECONDS,
-          new LinkedBlockingQueue<>(1),
+      new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(1),
           new DefaultThreadFactory("THREAD_POOL_EXECUTOR_POOL"));
 
   private static final AtomicBoolean SHUTDOWN_HOOK_REGISTERED = new AtomicBoolean(false);
@@ -49,6 +43,7 @@ public class AwaitingNonWebApplicationListener
 
     final SpringApplication springApplication = event.getSpringApplication();
 
+    // Check Application Type , if none , just return.
     if (!WebApplicationType.NONE.equals(springApplication.getWebApplicationType())) {
       return;
     }

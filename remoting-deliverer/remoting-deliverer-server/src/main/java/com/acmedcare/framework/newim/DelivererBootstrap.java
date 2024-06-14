@@ -46,8 +46,7 @@ public class DelivererBootstrap {
   public static class DelivererApplicationContextListener
       implements ApplicationListener<ApplicationStartedEvent>, ApplicationContextAware {
 
-    private static final Logger log =
-        LoggerFactory.getLogger(DelivererApplicationContextListener.class);
+    private static final Logger log = LoggerFactory.getLogger(DelivererApplicationContextListener.class);
 
     private ApplicationContext applicationContext;
 
@@ -56,6 +55,7 @@ public class DelivererBootstrap {
 
       Assert.isTrue(applicationContext.containsBean(DELIVERER_SERVER_INITIALIZER_BEAN_NAME));
 
+      // Fetch deliverer server initializer bean instance from IOC.
       DelivererServerInitializer serverInitializer =
           applicationContext.getBean(
               DELIVERER_SERVER_INITIALIZER_BEAN_NAME, DelivererServerInitializer.class);
