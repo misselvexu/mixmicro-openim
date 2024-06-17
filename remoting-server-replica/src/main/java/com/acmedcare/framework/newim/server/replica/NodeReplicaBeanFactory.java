@@ -108,27 +108,21 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
                               command.setBody(remotingEvent.getPayload());
 
                               try {
-                                connectorClient.client.invokeAsync(
-                                    address,
-                                    command,
-                                    5000,
+                                connectorClient.client.invokeAsync(address, command, 5000,
                                     responseFuture -> {
                                       if (responseFuture.isSendRequestOK()) {
-                                        logger.info(
-                                            "[REPLICA-POST-EVENT] forward event request is send ok.");
-                                        RemotingCommand response =
-                                            responseFuture.getResponseCommand();
+                                        logger.info("[REPLICA-POST-EVENT] forward event request is send ok.");
+                                        RemotingCommand response = responseFuture.getResponseCommand();
                                         if (response != null && response.getBody() != null) {
-                                          BizResult bizResult =
-                                              JSON.parseObject(response.getBody(), BizResult.class);
+                                          BizResult bizResult = JSON.parseObject(response.getBody(), BizResult.class);
                                           if (bizResult != null && bizResult.getCode() == 0) {
-                                            logger.info(
-                                                "[REPLICA-POST-EVENT] forward event is processed.");
+                                            logger.info("[REPLICA-POST-EVENT] forward event is processed.");
                                           } else {
-                                            logger.info(
-                                                "[REPLICA-POST-EVENT] forward event is processed.");
+                                            logger.info("[REPLICA-POST-EVENT] forward event is processed.");
                                           }
                                         }
+                                      } else. {
+                                        logger.warn("[REPLICA-POST-EVENT] forward event request is send failed .");
                                       }
                                     });
 

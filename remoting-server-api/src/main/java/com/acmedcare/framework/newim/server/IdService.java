@@ -9,7 +9,7 @@ package com.acmedcare.framework.newim.server;
 public interface IdService {
 
   /**
-   * Get Next Id
+   * Get Next New Id
    *
    * @return next unique id
    * @throws Exception exception

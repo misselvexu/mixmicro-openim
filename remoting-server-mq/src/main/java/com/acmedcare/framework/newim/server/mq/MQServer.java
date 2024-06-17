@@ -70,7 +70,7 @@ public class MQServer implements Server {
    */
   @Override
   public Server startup() {
-
+    // check startup status
     if (startup.compareAndSet(false, true)) {
       logger.info("[MQServer] ready to startup mq-server...");
       logger.info("Configuration: {}", JSON.toJSONString(mqServerProperties));
@@ -83,18 +83,13 @@ public class MQServer implements Server {
       config.setServerChannelMaxIdleTimeSeconds(mqServerProperties.getIdleTime());
       logger.info("[MQServer] build server config :{} ", config);
 
-      defaultProcessorExecutor =
-          new ThreadPoolExecutor(
-              corePoolSize,
-              maximumPoolSize,
-              5000L,
-              TimeUnit.MILLISECONDS,
+      defaultProcessorExecutor = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, 5000L, TimeUnit.MILLISECONDS,
               new LinkedBlockingQueue<>(),
               new DefaultThreadFactory("MQ-SERVER-DEFAULT-PROCESSOR-EXECUTOR-"),
               new CallerRunsPolicy());
-      logger.info(
-          "[MQServer] build server default processor executor :{} ", defaultProcessorExecutor);
+      logger.info("[MQServer] build server default processor executor :{} ", defaultProcessorExecutor);
 
+      // build new message server .
       server =
           new NettyRemotingSocketServer(
               config,
@@ -161,12 +156,8 @@ public class MQServer implements Server {
   private class MQServerMasterConnectorHandler implements DefaultMasterConnectorHandler {
 
     @Override
-    public void processOnlineConnections(
-        Set<SessionBean> passportsConnections, Set<SessionBean> devicesConnections) {
-      logger.info(
-          "Rvd Master Connections : {} , {}",
-          passportsConnections.size(),
-          devicesConnections.size());
+    public void processOnlineConnections(Set<SessionBean> passportsConnections, Set<SessionBean> devicesConnections) {
+      logger.info("Rvd Master Connections : {} , {}", passportsConnections.size(), devicesConnections.size());
     }
 
     @Override

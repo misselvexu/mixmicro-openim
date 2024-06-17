@@ -109,6 +109,7 @@ public final class MQContext implements Context {
 
   public void broadcastTopicMessages(List<TopicSubscribe> subscribes, MQMessage mqMessage) {
 
+    // Async broadcast messages to topic .
     AsyncRuntimeExecutor.getAsyncThreadPool()
         .execute(
             () -> {
@@ -121,21 +122,16 @@ public final class MQContext implements Context {
                       // add exception cache process
                       try {
                         if (channel != null && channel.isWritable()) {
-                          RemotingCommand pushRequest =
-                              RemotingCommand.createRequestCommand(Common.TOPIC_MESSAGE_PUSH, null);
+                          RemotingCommand pushRequest = RemotingCommand.createRequestCommand(Common.TOPIC_MESSAGE_PUSH, null);
                           // set body
                           pushRequest.setBody(mqMessage.bytes());
 
                           // write
-                          channel
-                              .writeAndFlush(pushRequest)
+                          channel.writeAndFlush(pushRequest)
                               .addListener(
                                   future -> {
                                     if (!future.isDone()) {
-                                      logger.warn(
-                                          "broadcast mq message failed, {},{}",
-                                          mqMessage.getTopicId(),
-                                          passportId);
+                                      logger.warn("broadcast mq message failed, {},{}", mqMessage.getTopicId(), passportId);
                                     }
                                   });
                         }
