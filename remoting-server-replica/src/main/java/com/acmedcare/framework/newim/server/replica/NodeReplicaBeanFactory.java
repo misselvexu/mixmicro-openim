@@ -185,19 +185,14 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
                                     5000,
                                     responseFuture -> {
                                       if (responseFuture.isSendRequestOK()) {
-                                        logger.info(
-                                            "[REPLICA-POST-MESSAGE] forward message request is send ok.");
-                                        RemotingCommand response =
-                                            responseFuture.getResponseCommand();
+                                        logger.info("[REPLICA-POST-MESSAGE] forward message request is send ok.");
+                                        RemotingCommand response = responseFuture.getResponseCommand();
                                         if (response != null && response.getBody() != null) {
-                                          BizResult bizResult =
-                                              JSON.parseObject(response.getBody(), BizResult.class);
+                                          BizResult bizResult = JSON.parseObject(response.getBody(), BizResult.class);
                                           if (bizResult != null && bizResult.getCode() == 0) {
-                                            logger.info(
-                                                "[REPLICA-POST-MESSAGE] forward message is processed.");
+                                            logger.info("[REPLICA-POST-MESSAGE] forward message is processed.");
                                           } else {
-                                            logger.info(
-                                                "[REPLICA-POST-MESSAGE] forward message is processed.");
+                                            logger.info("[REPLICA-POST-MESSAGE] forward message is processed.");
                                           }
                                         }
                                       }
@@ -275,8 +270,7 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
                 () ->
                     nodeReplicaConnectors.forEach(
                         (instanceType, nodeReplicaExecutor) -> {
-                          logger.info(
-                              "[REPLICA-FACTORY] ready to shutdown {} connector.", instanceType);
+                          logger.info("[REPLICA-FACTORY] ready to shutdown {} connector.", instanceType);
                           nodeReplicaExecutor.shutdown();
                         })));
   }
@@ -302,8 +296,7 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
       Thread startupThread =
           new Thread(
               () -> {
-                logger.info(
-                    "[REPLICA-SERVER-ACCEPTOR-STARTUP-THREAD] delay starting {} ms",
+                logger.info("[REPLICA-SERVER-ACCEPTOR-STARTUP-THREAD] delay starting {} ms",
                     replicaProperties.getStartupDelay());
                 // delay
                 ThreadKit.sleep(replicaProperties.getStartupDelay());
@@ -332,8 +325,7 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
                 new ChannelEventListener() {
                   @Override
                   public void onChannelConnect(String remotingAddress, Channel channel) {
-                    logger.info(
-                        "[REPLICA-ACCEPTOR] {} - {} is connected.", remotingAddress, channel);
+                    logger.info("[REPLICA-ACCEPTOR] {} - {} is connected.", remotingAddress, channel);
                   }
 
                   @Override
@@ -343,8 +335,7 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
 
                   @Override
                   public void onChannelException(String remotingAddress, Channel channel) {
-                    logger.info(
-                        "[REPLICA-ACCEPTOR] {} - {} is exception.", remotingAddress, channel);
+                    logger.info("[REPLICA-ACCEPTOR] {} - {} is exception.", remotingAddress, channel);
                   }
 
                   @Override
@@ -383,9 +374,7 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
       this.replicaProperties = replicaProperties;
       // startup schedule thread
       refreshService =
-          new ScheduledThreadPoolExecutor(
-              1,
-              new DefaultThreadFactory(
+          new ScheduledThreadPoolExecutor(1, new DefaultThreadFactory(
                   "REPLICAS-REFRESH-SERVICES-THREAD-" + nodeReplicaService.type().name()));
     }
 
@@ -420,9 +409,7 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
               }
             }
           },
-          replicaProperties.getStartupDelay(),
-          replicaProperties.getInstancesRefreshPeriod(),
-          TimeUnit.MILLISECONDS);
+          replicaProperties.getStartupDelay(), replicaProperties.getInstancesRefreshPeriod(), TimeUnit.MILLISECONDS);
 
       return this;
     }
@@ -489,10 +476,7 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
                     ThreadKit.sleep(CONNECT_RETRY_PERIOD * times, TimeUnit.SECONDS);
                   }
                 }
-              },
-              1,
-              10,
-              TimeUnit.SECONDS);
+              }, 1, 10, TimeUnit.SECONDS);
 
           // startup keepalive
           if (heartbeatExecutor == null) {
