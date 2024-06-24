@@ -15,6 +15,8 @@ import com.acmedcare.framework.newim.sync.master.config.SyncProperties;
  */
 public class SyncClient {
 
+  private final SyncProperties syncProperties;
+
   /**
    * Constructor
    *
@@ -23,6 +25,4 @@ public class SyncClient {
   public SyncClient(SyncProperties syncProperties) {
     this.syncProperties = syncProperties;
   }
-
-  private final SyncProperties syncProperties;
 }

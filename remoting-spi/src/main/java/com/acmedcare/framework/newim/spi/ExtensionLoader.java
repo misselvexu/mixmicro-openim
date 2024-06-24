@@ -32,8 +32,10 @@ public class ExtensionLoader<T> {
 
   /** 接口名字 */
   protected final String interfaceName;
+
   /** 加载监听器 */
   protected final ExtensionLoaderListener<T> listener;
+
   /** 扩展点是否单例 */
   protected final Extensible extensible;
 
@@ -64,15 +66,14 @@ public class ExtensionLoader<T> {
     Extensible extensible = interfaceClass.getAnnotation(Extensible.class);
     if (extensible == null) {
       throw new IllegalArgumentException(
-          "Error when load extensible interface "
-              + interfaceName
-              + ", must add annotation @Extensible.");
+          "Error when load extensible interface " + interfaceName + ", must add annotation @Extensible.");
     } else {
       this.extensible = extensible;
     }
 
     this.factory = extensible.singleton() ? new ConcurrentHashMap<String, T>() : null;
     this.all = new ConcurrentHashMap<>();
+    // load extension from local classpath.
     loadFromFile(EXTENSION_LOAD_PATH);
   }
 
@@ -104,15 +105,11 @@ public class ExtensionLoader<T> {
     try {
       ClassLoader classLoader = ClassLoaderUtils.getClassLoader(getClass());
 
+      // load extension from class loader
       loadFromClassLoader(classLoader, fullFileName);
     } catch (Throwable t) {
       if (LOGGER.isErrorEnabled()) {
-        LOGGER.error(
-            "Failed to load extension of extensible "
-                + interfaceName
-                + " from path:"
-                + fullFileName,
-            t);
+        LOGGER.error("Failed to load extension of extensible " + interfaceName + " from path:" + fullFileName, t);
       }
     }
   }
@@ -145,13 +142,7 @@ public class ExtensionLoader<T> {
         } catch (Throwable t) {
           if (LOGGER.isWarnEnabled()) {
             LOGGER.warn(
-                "Failed to load extension of extensible "
-                    + interfaceName
-                    + " from classloader: "
-                    + classLoader
-                    + " and file:"
-                    + url,
-                t);
+                "Failed to load extension of extensible " + interfaceName + " from classloader: " + classLoader + " and file:" + url, t);
           }
         } finally {
           if (reader != null) {
@@ -204,14 +195,10 @@ public class ExtensionLoader<T> {
     } catch (Throwable e) {
       if (LOGGER.isWarnEnabled()) {
         LOGGER.warn(
-            "Extension {} of extensible {} is disabled, cause by: {}",
-            className,
-            interfaceName,
-            ExceptionUtils.toShortString(e, 2));
+            "Extension {} of extensible {} is disabled, cause by: {}", className, interfaceName, ExceptionUtils.toShortString(e, 2));
       }
       if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug(
-            "Extension " + className + " of extensible " + interfaceName + " is disabled.", e);
+        LOGGER.debug("Extension " + className + " of extensible " + interfaceName + " is disabled.", e);
       }
       return;
     }
