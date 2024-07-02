@@ -248,8 +248,7 @@ public class DelivererRepositoryImpl implements DelivererRepository {
       List<DelivererMessage> messages =
           this.mongoTemplate.find(query, DelivererMessage.class, DELIVERER_MESSAGE);
 
-      mongoLog.info(
-          "[2]查询待投递的结果集,数量:{}", messages.size());
+      mongoLog.info("[2]查询待投递的结果集,数量:{}", messages.size());
 
       List<String> selectedIds = Lists.newArrayList();
       messages.forEach(delivererMessage -> selectedIds.add(delivererMessage.getUuid()));
@@ -348,12 +347,12 @@ public class DelivererRepositoryImpl implements DelivererRepository {
       UpdateResult updateResult = this.mongoTemplate.updateMulti(query, update, DELIVERER_MESSAGE);
 
       mongoLog.info(
-          "确定投递记录状态和时间，匹配行数:{} ,更新影响行数:{}",
+          "确定投递记录更新状态和时间，匹配行数:{} ,更新影响行数:{}",
           updateResult.getMatchedCount(),
           updateResult.getModifiedCount());
 
     } catch (Exception e) {
-      throw new StorageException("确认投递消息Ack状态异常", e);
+      throw new StorageException("确认投递消息Ack状态更新异常", e);
     }
   }
 }
