@@ -162,7 +162,7 @@ public class MessageRepositoryImpl implements MessageRepository {
         if (leastMessage != null) {
 
           mongoLog.info("查询群组历史消息,客户端最新的消息编号:{}", leastMessage.getMid());
-//          long innerTimestamp = leastMessage.getInnerTimestamp();
+
           Date tempDate = leastMessage.getSendTimestamp();
           messageQuery =
               new Query(
