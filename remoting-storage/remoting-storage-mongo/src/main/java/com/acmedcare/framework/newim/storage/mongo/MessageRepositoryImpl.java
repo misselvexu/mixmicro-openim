@@ -186,8 +186,7 @@ public class MessageRepositoryImpl implements MessageRepository {
       }
     }
 
-    List<GroupMessage> groupMessages =
-        this.mongoTemplate.find(messageQuery, GroupMessage.class, IM_MESSAGE);
+    List<GroupMessage> groupMessages = this.mongoTemplate.find(messageQuery, GroupMessage.class, IM_MESSAGE);
     mongoLog.info("查询群组的消息数量:{}", groupMessages.size());
 
     return groupMessages;
@@ -237,7 +236,6 @@ public class MessageRepositoryImpl implements MessageRepository {
         if (leastMessage != null) {
 
           mongoLog.info("查询历史消息,客户端最新的消息编号:{}", leastMessage.getMid());
-//          long innerTimestamp = leastMessage.getInnerTimestamp();
           Date tempDate = leastMessage.getSendTimestamp();
           messageQuery =
               new Query(
@@ -314,15 +312,13 @@ public class MessageRepositoryImpl implements MessageRepository {
       mongoTemplate.insert(messageReadStatus, MESSAGE_READ_STATUS);
 
       // update
-      Query query =
-          new Query(Criteria.where("group").is(groupId).and("sendTimestamp").lte(sendTimestamp));
+      Query query = new Query(Criteria.where("group").is(groupId).and("sendTimestamp").lte(sendTimestamp));
 
       Update update = new Update();
       update.inc("readedSize", 1);
       UpdateResult updateResult = mongoTemplate.updateMulti(query, update, IM_MESSAGE);
 
-      mongoLog.info(
-          "匹配行数:{} ,更新影响行数:{}", updateResult.getMatchedCount(), updateResult.getModifiedCount());
+      mongoLog.info("匹配行数:{} ,更新影响行数:{}", updateResult.getMatchedCount(), updateResult.getModifiedCount());
 
       if (updateResult.getModifiedCount() == 0) {
         throw new StorageException("更新消息主表已读数失败");
@@ -331,53 +327,6 @@ public class MessageRepositoryImpl implements MessageRepository {
     } catch (Exception e) {
       mongoLog.error("用户:{},更新群组:{},消息:{},已读数操作异常回滚", passportId, groupId, messageId, e);
     }
-
-    /*
-    mongoTemplate.setSessionSynchronization(ALWAYS);
-    transactionTemplate.execute(
-        new TransactionCallbackWithoutResult() {
-          @Override
-          protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
-            try {
-              MessageReadStatus messageReadStatus = new MessageReadStatus();
-              messageReadStatus.setGroupId(groupId);
-              messageReadStatus.setMemberId(Long.parseLong(passportId));
-              messageReadStatus.setMessageId(Long.parseLong(messageId));
-              messageReadStatus.setReadTimestamp(new Date());
-
-              // save
-              mongoTemplate.insert(messageReadStatus, MESSAGE_READ_STATUS);
-
-              // update
-              Query query =
-                  new Query(
-                      Criteria.where("group")
-                          .is(groupId)
-                          .and("innerTimestamp")
-                          .lte(innerTimestamp));
-
-              Update update = new Update();
-              update.inc("readedSize", 1);
-              UpdateResult updateResult = mongoTemplate.updateMulti(query, update, IM_MESSAGE);
-
-              mongoLog.info(
-                  "匹配行数:{} ,更新影响行数:{}",
-                  updateResult.getMatchedCount(),
-                  updateResult.getModifiedCount());
-
-              if (updateResult.getModifiedCount() == 0) {
-                throw new StorageException("更新消息主表已读数失败");
-              }
-
-            } catch (Exception e) {
-              mongoLog.error("用户:{},更新群组:{},消息:{},已读数操作异常回滚", passportId, groupId, messageId, e);
-              transactionStatus.setRollbackOnly();
-            } finally {
-              mongoTemplate.setSessionSynchronization(SessionSynchronization.ON_ACTUAL_TRANSACTION);
-            }
-          }
-        });
-        */
   }
 
   @Override
@@ -388,8 +337,7 @@ public class MessageRepositoryImpl implements MessageRepository {
       throw new StorageException("无效的单聊消息ID");
     }
 
-    Query query =
-        new Query(
+    Query query = new Query(
             Criteria.where("sender")
                 .is(sender)
                 .and("receiver")
@@ -434,9 +382,7 @@ public class MessageRepositoryImpl implements MessageRepository {
    */
   @Override
   public List<Long> queryGroupMessageReaders(String groupId, String messageId) {
-    Query query =
-        new Query(
-            Criteria.where("groupId").is(groupId).and("messageId").is(Long.parseLong(messageId)));
+    Query query = new Query(Criteria.where("groupId").is(groupId).and("messageId").is(Long.parseLong(messageId)));
     return mongoTemplate.findDistinct(query, "memberId", MESSAGE_READ_STATUS, Long.class);
   }
 }
