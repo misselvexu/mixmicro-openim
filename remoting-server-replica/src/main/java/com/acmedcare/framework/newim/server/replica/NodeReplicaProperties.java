@@ -21,6 +21,7 @@ public class NodeReplicaProperties {
   /** Base packages defined */
   @Deprecated private String basePackages = "com.acmedcare.framework";
 
+  /** Local Cache for replica properties */
   private Map<InstanceType, ReplicaProperties> replicas = Maps.newHashMap();
 
   @Data

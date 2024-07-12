@@ -214,9 +214,7 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
   @Override
   public void afterPropertiesSet() throws Exception {
     this.nodeReplicaProperties = beanFactory.getBean(NodeReplicaProperties.class);
-    logger.info(
-        "[REPLICA-FACTORY] found nodeReplicaProperties instance:{} from bean factory",
-        this.nodeReplicaProperties);
+    logger.info("[REPLICA-FACTORY] found nodeReplicaProperties instance:{} from bean factory", this.nodeReplicaProperties);
 
     Assert.notNull(this.nodeReplicaProperties);
 
@@ -529,15 +527,11 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
               2000,
               isSendOk -> {
                 if (!isSendOk) {
-                  logger.warn(
-                      "[REPLICA-CONNECTOR] remoting :{} heartbeat send failed ", remotingAddress);
+                  logger.warn("[REPLICA-CONNECTOR] remoting :{} heartbeat send failed ", remotingAddress);
                 }
               });
         } catch (RemotingTooMuchRequestException | InterruptedException e) {
-          logger.warn(
-              "[REPLICA-CONNECTOR] remoting :{} heartbeat send failed with exception ,try next round. ",
-              remotingAddress,
-              e);
+          logger.warn("[REPLICA-CONNECTOR] remoting :{} heartbeat send failed with exception ,try next round. ", remotingAddress, e);
         } catch (RemotingSendRequestException
             | RemotingConnectException
             | RemotingTimeoutException e) {
@@ -628,12 +622,9 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
             case ClusterWithClusterCommand.CLUSTER_FORWARD_MESSAGE:
               try {
                 ClusterForwardMessageHeader header =
-                    (ClusterForwardMessageHeader)
-                        remotingCommand.decodeCommandCustomHeader(
-                            ClusterForwardMessageHeader.class);
+                    (ClusterForwardMessageHeader) remotingCommand.decodeCommandCustomHeader(ClusterForwardMessageHeader.class);
 
-                com.acmedcare.framework.kits.Assert.notNull(
-                    header, "replica forward message header must not be null.");
+                com.acmedcare.framework.kits.Assert.notNull(header, "replica forward message header must not be null.");
 
                 MessageType messageType = header.decodeType();
                 byte[] messageByte = remotingCommand.getBody();

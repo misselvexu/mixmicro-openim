@@ -43,6 +43,7 @@ public interface NodeReplicaService {
    *     set period time
    */
   default List<NodeReplicaInstance> loadNodeInstances() throws NodeReplicaException {
+    // default implements
     return Lists.newArrayList();
   }
 
