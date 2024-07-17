@@ -229,9 +229,7 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
                 Class<?> aClass = Class.forName(replicaServiceClass);
                 nodeReplicaService = (NodeReplicaService) beanFactory.getBean(aClass);
 
-                Assert.notNull(
-                    nodeReplicaService,
-                    "[REPLICA-FACTORY] Class: " + replicaServiceClass + " must be inited.");
+                Assert.notNull(nodeReplicaService, "[REPLICA-FACTORY] Class: " + replicaServiceClass + " must be inited.");
 
                 if (!type.equals(nodeReplicaService.type())) {
                   logger.warn(
@@ -242,8 +240,7 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
                   return;
                 }
               } catch (Exception e) {
-                logger.error(
-                    "[REPLICA-FACTORY] NodeReplicaService class instance is not invalid.", e);
+                logger.error("[REPLICA-FACTORY] NodeReplicaService class instance is not invalid.", e);
                 return;
               }
 
@@ -455,8 +452,7 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
           logger.info("[REPLICA-CLIENT] 客户端已启动.");
 
           if (connectExecutor == null) {
-            connectExecutor =
-                new ScheduledThreadPoolExecutor(1, new DefaultThreadFactory("CONNECT-THREAD-"));
+            connectExecutor = new ScheduledThreadPoolExecutor(1, new DefaultThreadFactory("CONNECT-THREAD-"));
           }
 
           logger.info("[REPLICA-CLIENT] 启动远程连接线程池.");
@@ -468,9 +464,7 @@ public class NodeReplicaBeanFactory implements BeanFactoryAware, InitializingBea
                     handshake();
                   } catch (Exception e) {
                     int times = retryTimes.incrementAndGet();
-                    logger.warn(
-                        "[REPLICA-CONNECT-THREAD] handshake request failed , will try {} s later.",
-                        times * CONNECT_RETRY_PERIOD);
+                    logger.warn("[REPLICA-CONNECT-THREAD] handshake request failed , will try {} s later.", times * CONNECT_RETRY_PERIOD);
                     ThreadKit.sleep(CONNECT_RETRY_PERIOD * times, TimeUnit.SECONDS);
                   }
                 }
