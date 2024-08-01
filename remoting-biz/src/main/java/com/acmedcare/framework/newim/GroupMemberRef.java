@@ -34,7 +34,8 @@ public class GroupMemberRef implements Serializable {
   private String memberExt;
 
   @Builder
-  public GroupMemberRef(String groupId, String memberId, String memberName, String namespace, String memberUserName, String portrait, String memberExt) {
+  public GroupMemberRef(String groupId, String memberId, String memberName, String namespace, 
+    String memberUserName, String portrait, String memberExt) {
     this.groupId = groupId;
     this.memberId = memberId;
     this.memberName = memberName;

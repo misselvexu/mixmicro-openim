@@ -21,6 +21,7 @@ public class MasterNoticeSessionDataBody implements Serializable {
 
   /** 同步登陆的通行证数据 */
   private Set<SessionBean> passportsConnections = Sets.newHashSet();
+
   /** 同步登陆的设备数据 */
   private Set<SessionBean> devicesConnections = Sets.newHashSet();
 }

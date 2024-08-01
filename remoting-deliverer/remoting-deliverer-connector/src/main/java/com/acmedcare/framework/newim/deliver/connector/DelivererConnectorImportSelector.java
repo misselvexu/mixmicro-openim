@@ -142,8 +142,7 @@ public class DelivererConnectorImportSelector
     try {
       Class<?> instanceClass = ClassUtils.forName(instanceClassName, classLoader);
       if (!listenerClass.isAssignableFrom(instanceClass)) {
-        throw new IllegalArgumentException(
-            "[==] Class [" + instanceClassName + "] is not assignable to [" + listenerClass.getName() + "]");
+        throw new IllegalArgumentException("[==] Class [" + instanceClassName + "] is not assignable to [" + listenerClass.getName() + "]");
       }
       return (T) ReflectionUtils.accessibleConstructor(instanceClass).newInstance(this.beanFactory);
     }

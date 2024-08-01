@@ -28,7 +28,6 @@ public class ConnectorInstance {
   protected String application;
 
   public enum Type {
-    /** */
     SERVER,
     CLIENT
   }
