@@ -38,8 +38,7 @@ public class RaftClientService implements IdService {
 
   private void doInit() {
 
-    DistributedValue<Boolean> booleanDistributedValue =
-        atomixClient.<Boolean>getValue(ID_INITED_KEY).join();
+    DistributedValue<Boolean> booleanDistributedValue = atomixClient.<Boolean>getValue(ID_INITED_KEY).join();
     if (booleanDistributedValue.compareAndSet(false, true).join()) {
       try {
         if (inited.compareAndSet(false, true)) {

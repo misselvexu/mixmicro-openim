@@ -177,6 +177,7 @@ public final class MQContext implements Context {
                               (aLong, channels) -> {
                                 if (!channels.isEmpty()) {
                                   for (Channel channel : channels) {
+                                    // fix: need to fix exception catching
                                     if (channel != null && channel.isWritable()) {
                                       RemotingCommand command =
                                           RemotingCommand.createRequestCommand(
@@ -208,6 +209,7 @@ public final class MQContext implements Context {
                               (aLong, channels) -> {
                                 if (!channels.isEmpty()) {
                                   for (Channel channel : channels) {
+                                    // fix: need to fix exception catching
                                     if (channel != null && channel.isWritable()) {
                                       RemotingCommand command =
                                           RemotingCommand.createRequestCommand(
