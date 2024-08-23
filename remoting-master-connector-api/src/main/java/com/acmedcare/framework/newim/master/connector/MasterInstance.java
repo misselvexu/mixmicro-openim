@@ -185,6 +185,8 @@ public abstract class MasterInstance {
                     });
 
             retriableThreadExecutor.execute();
+          } else {
+            logger.warn("send handshake request failed, retry ? or exit ?");
           }
         });
 
@@ -222,6 +224,8 @@ public abstract class MasterInstance {
       if (this.properties.isHeartbeatEnabled()) {
         heartbeat();
       }
+    } else {
+      logger.warn("Master-Cluster-Client:{} register failed, retry ? or exit ? ", serverAddress());
     }
   }
 
@@ -269,6 +273,8 @@ public abstract class MasterInstance {
                         }
                       }
                     });
+              } else {
+                logger.warn("master connector send heartbeat failed, retry ? ");
               }
             } catch (InterruptedException
                 | RemotingTooMuchRequestException
