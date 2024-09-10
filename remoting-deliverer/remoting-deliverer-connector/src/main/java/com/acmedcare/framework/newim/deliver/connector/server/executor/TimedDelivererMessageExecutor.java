@@ -43,8 +43,7 @@ public final class TimedDelivererMessageExecutor {
 
   private Random disorganizeRandom = new Random();
 
-  public TimedDelivererMessageExecutor(
-      DelivererService delivererService, DelivererServerProperties properties) {
+  public TimedDelivererMessageExecutor(DelivererService delivererService, DelivererServerProperties properties) {
     this.delivererService = delivererService;
     this.properties = properties;
   }
@@ -74,7 +73,7 @@ public final class TimedDelivererMessageExecutor {
   private void execute() {
 
     try {
-
+      // check deliverer context is already warm-up.
       if(!ConnectorContext.context().isDelivererContextAvailable()){
         return;
       }

@@ -23,15 +23,13 @@ public class DelivererServerMarkerConfiguration {
 
   public static final String DELIVERER_SERVER_INITIALIZER_BEAN_NAME = "serverInitializer";
 
-  public static final String TIMED_DELIVERER_MESSAGE_EXECUTOR_BEAN_NAME =
-      "timedDelivererMessageExecutor";
+  public static final String TIMED_DELIVERER_MESSAGE_EXECUTOR_BEAN_NAME = "timedDelivererMessageExecutor";
 
   public static final String DELIVERER_SERVER_TIMED_ENABLED = "remoting.deliverer.server.timer";
 
   // =====
 
-  @Bean(
-      initMethod = "init",
+  @Bean(initMethod = "init",
       destroyMethod = "shutdown",
       name = DELIVERER_SERVER_INITIALIZER_BEAN_NAME)
   @ConditionalOnMissingBean(DelivererServerInitializer.class)
@@ -39,8 +37,7 @@ public class DelivererServerMarkerConfiguration {
     return new DelivererServerInitializer(properties);
   }
 
-  @Bean(
-      initMethod = "init",
+  @Bean(initMethod = "init",
       destroyMethod = "destroy",
       name = TIMED_DELIVERER_MESSAGE_EXECUTOR_BEAN_NAME)
   @ConditionalOnProperty(
