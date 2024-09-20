@@ -134,6 +134,8 @@ public final class MQContext implements Context {
                                       logger.warn("broadcast mq message failed, {},{}", mqMessage.getTopicId(), passportId);
                                     }
                                   });
+                        } else {
+                          logger.warn("broadcast mq message channel is null , ignore ?");
                         }
                       } catch (Exception e) {
                         // ignore exception
@@ -177,26 +179,33 @@ public final class MQContext implements Context {
                               (aLong, channels) -> {
                                 if (!channels.isEmpty()) {
                                   for (Channel channel : channels) {
-                                    // fix: need to fix exception catching
-                                    if (channel != null && channel.isWritable()) {
-                                      RemotingCommand command =
-                                          RemotingCommand.createRequestCommand(
-                                              ProducerClient.ON_TOPIC_UNSUBSCRIBE_EVENT, null);
-                                      command.setBody(event.data());
-                                      channel
-                                          .writeAndFlush(command)
-                                          .addListener(
-                                              (ChannelFutureListener)
-                                                  future -> {
-                                                    if (!future.isSuccess()) {
-                                                      logger.warn(
-                                                          "broadcast un-subscribe-event message failed, {},{}",
-                                                          aLong,
-                                                          event.data().toString());
-                                                    }
-                                                  });
+                                    try {
+                                      // fix: need to fix exception catching
+                                      if (channel != null && channel.isWritable()) {
+                                        RemotingCommand command =
+                                            RemotingCommand.createRequestCommand(
+                                                ProducerClient.ON_TOPIC_UNSUBSCRIBE_EVENT, null);
+                                        command.setBody(event.data());
+                                        channel
+                                            .writeAndFlush(command)
+                                            .addListener(
+                                                (ChannelFutureListener)
+                                                    future -> {
+                                                      if (!future.isSuccess()) {
+                                                        logger.warn(
+                                                            "broadcast un-subscribe-event message failed, {},{}",
+                                                            aLong,
+                                                            event.data().toString());
+                                                      }
+                                                    });
+                                      } else {
+                                        logger.warn("broadcast un-subscribe-event message channel is null , ignore ?");
+                                      }
+                                    } catch (Exception ignore) {
                                     }
                                   }
+                                } else {
+                                  logger.warn("broadcast un-subscribe-event message channels is empty , ignore ?");
                                 }
                               }));
               break;
@@ -227,8 +236,12 @@ public final class MQContext implements Context {
                                                           event.data().toString());
                                                     }
                                                   });
+                                    } else {
+                                      logger.warn("broadcast topic-empty-subscribe-event message channel is null , ignore ?");
                                     }
                                   }
+                                } else {
+                                  logger.warn("broadcast topic-empty-subscribe-event message channels is empty , ignore ?");
                                 }
                               }));
 
