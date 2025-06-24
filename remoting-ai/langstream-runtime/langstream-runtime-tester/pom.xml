@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright DataStax, Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>langstream-runtime</artifactId>
+    <groupId>ai.langstream</groupId>
+    <version>0.6.3-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>langstream-runtime-tester</artifactId>
+
+  <properties>
+    <docker.platforms>linux/amd64</docker.platforms>
+  </properties>
+
+
+  <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>langstream-api-gateway</artifactId>
+      <version>${project.version}</version>
+      <classifier>original</classifier>
+      <exclusions>
+        <!-- this are loaded from the .nar files -->
+        <exclusion>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>langstream-kafka-runtime</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>langstream-pulsar-runtime</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>langstream-pravega-runtime</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>langstream-codestorage-azure-blob-storage</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>langstream-webservice</artifactId>
+      <version>${project.version}</version>
+      <classifier>original</classifier>
+      <exclusions>
+        <exclusion>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>langstream-codestorage-azure-blob-storage</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>langstream-runtime-impl</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-server-mock</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ai.langstream</groupId>
+      <artifactId>langstream-k8s-common</artifactId>
+      <version>${project.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>ai.langstream</groupId>
+      <artifactId>langstream-k8s-deployer-api</artifactId>
+      <version>${project.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>ai.langstream</groupId>
+      <artifactId>langstream-k8s-deployer-core</artifactId>
+      <version>${project.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>docker</id>
+      <activation>
+        <property>
+          <name>docker</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>wagon-maven-plugin</artifactId>
+            <version>2.0.2</version>
+            <executions>
+              <execution>
+                <id>download-minio</id>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>download-single</goal>
+                </goals>
+                <configuration>
+                  <url>https://dl.min.io</url>
+                  <fromFile>server/minio/release/linux-amd64/minio</fromFile>
+                  <toDir>${project.build.directory}/minio</toDir>
+                  <skipIfExists>true</skipIfExists>
+                </configuration>
+              </execution>
+
+              <execution>
+                <id>download-herddb</id>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>download-single</goal>
+                </goals>
+                <configuration>
+                  <url>https://github.com</url>
+                  <fromFile>diennea/herddb/releases/download/v0.28.0/herddb-services-0.28.0.zip</fromFile>
+                  <toDir>${project.build.directory}/herddb</toDir>
+                  <skipIfExists>true</skipIfExists>
+                </configuration>
+              </execution>
+
+              <execution>
+                <id>download-kafka</id>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>download-single</goal>
+                </goals>
+                <configuration>
+                  <url>https://downloads.apache.org</url>
+                  <fromFile>kafka/3.5.2/kafka_2.13-3.5.2.tgz</fromFile>
+                  <toDir>${project.build.directory}/kafka</toDir>
+                  <skipIfExists>true</skipIfExists>
+                </configuration>
+              </execution>
+
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <verbose>true</verbose>
+              <images>
+                <image>
+                  <name>langstream/langstream-runtime-tester:latest-dev</name>
+                  <build>
+                    <dockerFile>${project.basedir}/src/main/docker/Dockerfile</dockerFile>
+                    <assembly>
+                      <descriptor>${project.basedir}/src/main/assemble/langstream-runtime-tester.xml</descriptor>
+                    </assembly>
+                    <buildx>
+                      <platforms>
+                        <!-- <platform>${docker.platforms}</platform>-->
+                      </platforms>
+                    </buildx>
+                  </build>
+                </image>
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>build</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

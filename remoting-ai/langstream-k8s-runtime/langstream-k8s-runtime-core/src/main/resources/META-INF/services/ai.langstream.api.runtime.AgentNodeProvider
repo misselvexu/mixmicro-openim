@@ -1,0 +1,14 @@
+ai.langstream.runtime.impl.k8s.agents.PythonCodeAgentProvider
+ai.langstream.runtime.impl.k8s.agents.KubernetesGenAIToolKitFunctionAgentProvider
+ai.langstream.runtime.impl.k8s.agents.ObjectStorageSourceAgentProvider
+ai.langstream.runtime.impl.k8s.agents.WebCrawlerSourceAgentProvider
+ai.langstream.runtime.impl.k8s.agents.TextProcessingAgentsProvider
+ai.langstream.runtime.impl.k8s.agents.KafkaConnectAgentsProvider
+ai.langstream.runtime.impl.k8s.agents.KubernetesCompositeAgentProvider
+ai.langstream.runtime.impl.k8s.agents.IdentityAgentProvider
+ai.langstream.runtime.impl.k8s.agents.QueryVectorDBAgentProvider
+ai.langstream.runtime.impl.k8s.agents.ReRankAgentProvider
+ai.langstream.runtime.impl.k8s.agents.FlowControlAgentsProvider
+ai.langstream.runtime.impl.k8s.agents.FlareControllerAgentProvider
+ai.langstream.runtime.impl.k8s.agents.HttpRequestAgentProvider
+ai.langstream.runtime.impl.k8s.agents.CamelSourceAgentProvider

@@ -1,0 +1,112 @@
+#
+#
+# Copyright DataStax, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+gateways:
+  - id: produce-input-no-auth
+    type: produce
+    topic: input-topic
+    parameters:
+      - sessionId
+    produce-options:
+      headers:
+        - key: langstream-client-session-id
+          value-from-parameters: sessionId
+  - id: consume-output-no-auth
+    type: consume
+    topic: output-topic
+    parameters:
+      - sessionId
+    consume-options:
+      filters:
+        headers:
+          - key: langstream-client-session-id
+            value-from-parameters: sessionId
+  - id: chat-no-auth
+    type: chat
+    chat-options:
+      headers:
+      - value-from-parameters: session-id
+      questions-topic: input-topic
+      answers-topic: output-topic
+
+  - id: produce-input-auth-google
+    type: produce
+    topic: input-topic
+    parameters:
+      - sessionId
+    authentication:
+      provider: google
+      allow-test-mode: true
+      configuration:
+        clientId: "${secrets.google.client-id}"
+    produce-options:
+      headers:
+        - key: langstream-client-user-id
+          value-from-authentication: subject
+        - key: langstream-client-session-id
+          value-from-parameters: sessionId
+
+  - id: consume-output-auth-google
+    type: consume
+    topic: output-topic
+    parameters:
+      - sessionId
+    authentication:
+      allow-test-mode: true
+      provider: google
+      configuration:
+        clientId: "${secrets.google.client-id}"
+    consume-options:
+      filters:
+        headers:
+          - key: langstream-client-user-id
+            value-from-authentication: subject
+          - key: langstream-client-session-id
+            value-from-parameters: sessionId
+
+  - id: produce-input-auth-github
+    type: produce
+    topic: input-topic
+    parameters:
+      - sessionId
+    authentication:
+      provider: github
+      configuration:
+        clientId: "${secrets.github.client-id}"
+    produce-options:
+      headers:
+        - key: langstream-client-user-id
+          value-from-authentication: login
+        - key: langstream-client-session-id
+          value-from-parameters: sessionId
+
+  - id: consume-output-auth-github
+    type: consume
+    topic: output-topic
+    parameters:
+      - sessionId
+    authentication:
+      provider: github
+      configuration:
+        clientId: "${secrets.github.client-id}"
+    consume-options:
+      filters:
+        headers:
+          - key: langstream-client-user-id
+            value-from-authentication: login
+          - key: langstream-client-session-id
+            value-from-parameters: sessionId

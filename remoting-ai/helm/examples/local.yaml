@@ -1,0 +1,47 @@
+controlPlane:
+  image:
+    pullPolicy: Never
+    repository: langstream/langstream-control-plane
+    tag: "latest-dev"
+  app:
+    config:
+      logging.level.ai.langstream.webservice: debug
+      application.storage.global.type: kubernetes
+      application.storage.apps.configuration.control-plane-url: http://langstream-control-plane.default.svc.cluster.local:8090
+
+deployer:
+  replicaCount: 1
+  image:
+    repository: langstream/langstream-deployer
+    pullPolicy: Never
+    tag: "latest-dev"
+  app:
+    config: {}
+
+runtime:
+  image: langstream/langstream-runtime:latest-dev
+  imagePullPolicy: Never
+
+client:
+  replicaCount: 1
+  image:
+    repository: langstream/langstream-cli
+    pullPolicy: Never
+    tag: "latest-dev"
+
+apiGateway:
+  image:
+    repository: langstream/langstream-api-gateway
+    pullPolicy: Never
+    tag: "latest-dev"
+  app:
+    config:
+      logging.level.ai.langstream.apigateway: debug
+
+
+codeStorage:
+  type: s3
+  configuration:
+    endpoint: http://minio.minio-dev.svc.cluster.local:9000
+    access-key: minioadmin
+    secret-key: minioadmin

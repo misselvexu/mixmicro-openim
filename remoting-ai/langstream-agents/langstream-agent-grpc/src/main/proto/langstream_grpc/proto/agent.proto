@@ -1,0 +1,123 @@
+/*
+ * Copyright DataStax, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+option java_package = "ai.langstream.agents.grpc";
+option java_multiple_files = true;
+
+import "google/protobuf/empty.proto";
+
+
+service AgentService {
+  rpc agent_info(google.protobuf.Empty) returns (InfoResponse) {}
+  rpc read(stream SourceRequest) returns (stream SourceResponse) {}
+  rpc process(stream ProcessorRequest) returns (stream ProcessorResponse) {}
+  rpc write(stream SinkRequest) returns (stream SinkResponse) {}
+  rpc get_topic_producer_records(stream TopicProducerWriteResult) returns (stream TopicProducerResponse) {}
+}
+
+message InfoResponse {
+  string json_info = 1;
+}
+
+message Value {
+  int32 schema_id = 1;
+  oneof type_oneof {
+    bytes bytes_value = 2;
+    bool boolean_value = 3;
+    string string_value = 4;
+    int32 byte_value = 5;
+    int32 short_value = 6;
+    int32 int_value = 7;
+    int64 long_value = 8;
+    float float_value = 9;
+    double double_value = 10;
+    string json_value = 11;
+    bytes avro_value = 12;
+  }
+}
+
+message Header {
+  string name = 1;
+  Value value = 2;
+}
+
+message Schema {
+  int32 schema_id = 1;
+  bytes value = 2;
+}
+
+message Record {
+  int64 record_id = 1;
+  optional Value key = 2;
+  optional Value value = 3;
+  repeated Header headers = 4;
+  string origin = 5;
+  optional int64 timestamp = 6;
+}
+
+message TopicProducerWriteResult {
+  int64 record_id = 1;
+  optional string error = 2;
+}
+
+message TopicProducerResponse {
+  string topic = 1;
+  Schema schema = 2;
+  Record record = 3;
+}
+
+message PermanentFailure {
+  int64 record_id = 1;
+  string error_message = 2;
+}
+
+message SourceRequest {
+  repeated int64 committed_records = 1;
+  PermanentFailure permanent_failure = 2;
+}
+
+message SourceResponse {
+  Schema schema = 1;
+  repeated Record records = 2;
+}
+
+
+message ProcessorRequest {
+  Schema schema = 1;
+  repeated Record records = 2;
+}
+
+message ProcessorResponse {
+  Schema schema = 1;
+  repeated ProcessorResult results = 2;
+}
+
+message ProcessorResult {
+  int64 record_id = 1;
+  optional string error = 2;
+  repeated Record records = 3;
+}
+
+message SinkRequest {
+  Schema schema = 1;
+  Record record = 2;
+}
+
+message SinkResponse {
+  int64 record_id = 1;
+  optional string error = 2;
+}

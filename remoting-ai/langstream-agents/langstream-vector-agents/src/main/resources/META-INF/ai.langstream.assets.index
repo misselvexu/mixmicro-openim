@@ -1,0 +1,8 @@
+cassandra-table
+cassandra-keyspace
+astra-keyspace
+milvus-collection
+jdbc-table
+solr-collection
+opensearch-index
+astra-collection

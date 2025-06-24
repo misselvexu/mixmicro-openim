@@ -1,0 +1,53 @@
+<!--
+
+    Copyright DataStax, Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html>
+<body>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+    function handleCredentialResponse(response) {
+        console.log("Encoded JWT ID token: " + response.credential);
+        document.getElementById("token").value = response.credential;
+    }
+    prepareButton = function () {
+
+        var clientId = document.getElementById("client-id").value;
+
+        google.accounts.id.initialize({
+            client_id: clientId,
+            callback: handleCredentialResponse
+        });
+        google.accounts.id.renderButton(
+            document.getElementById("buttonDiv"),
+            { theme: "outline", size: "large" }  // customization attributes
+        );
+        google.accounts.id.prompt(); // also display the One Tap dialog
+    }
+</script>
+
+<h1>Google Get Token</h1>
+
+<div>This simple web page allows you to get a token from Google. You can use this token to authenticate with the gateway.</div>
+
+GOOGLE CLIENT ID: <input id="client-id" name="google-client-id" value="" onchange="prepareButton()">
+
+<div id="buttonDiv"></div>
+
+<div>Your token will appear here:</div>
+<textarea id="token" cols="300" rows="50"></textarea>
+</body>
+</html>

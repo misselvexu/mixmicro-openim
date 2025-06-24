@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright DataStax, Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>ai.langstream</groupId>
+		<artifactId>langstream-ai</artifactId>
+		<version>0.6.3-SNAPSHOT</version>
+	</parent>
+	<groupId>ai.langstream</groupId>
+	<artifactId>langstream-api-gateway</artifactId>
+	<version>0.6.3-SNAPSHOT</version>
+	<name>LangStream - API Gateway</name>
+	<properties>
+		<java.version>17</java.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<springdoc-openapi-starter-webmvc.version>2.1.0</springdoc-openapi-starter-webmvc.version>
+  </properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>langstream-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>langstream-k8s-storage</artifactId>
+			<version>${project.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>langstream-kafka</artifactId>
+			<version>${project.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>langstream-pulsar</artifactId>
+			<version>${project.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>langstream-pulsar-runtime</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>langstream-pravega-runtime</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-websocket</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>${springdoc-openapi-starter-webmvc.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
+			<version>${springdoc-openapi-starter-webmvc.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>langstream-kafka-runtime</artifactId>
+			<version>${project.version}</version>
+			<classifier>tests</classifier>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>kafka</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>pulsar</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.github.tomakehurst</groupId>
+			<artifactId>wiremock</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>ai.langstream</groupId>
+			<artifactId>langstream-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>ai.langstream</groupId>
+			<artifactId>langstream-google-api-gateway-auth</artifactId>
+			<version>${project.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>ai.langstream</groupId>
+			<artifactId>langstream-github-api-gateway-auth</artifactId>
+			<version>${project.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>ai.langstream</groupId>
+			<artifactId>langstream-jwt-api-gateway-auth</artifactId>
+			<version>${project.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>ai.langstream</groupId>
+			<artifactId>langstream-http-api-gateway-auth</artifactId>
+			<version>${project.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>${basedir}/src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>config/*.properties</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>${basedir}/src/main/resources</directory>
+				<excludes>
+					<exclude>config/*.properties</exclude>
+				</excludes>
+			</resource>
+		</resources>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-maven-plugin</artifactId>
+					<version>${spring-boot.version}</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>repackage</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<mainClass>ai.langstream.apigateway.LangStreamApiGateway</mainClass>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<!-- main implementation for the TopicConnectionsRuntime-->
+								<artifactItem>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>langstream-kafka-runtime</artifactId>
+									<version>${project.version}</version>
+									<type>nar</type>
+									<classifier>nar</classifier>
+									<overWrite>false</overWrite>
+									<outputDirectory>${project.build.directory}/agents</outputDirectory>
+								</artifactItem>
+
+								<artifactItem>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>langstream-pulsar-runtime</artifactId>
+									<version>${project.version}</version>
+									<type>nar</type>
+									<classifier>nar</classifier>
+									<overWrite>false</overWrite>
+									<outputDirectory>${project.build.directory}/agents</outputDirectory>
+								</artifactItem>
+
+								<artifactItem>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>langstream-pravega-runtime</artifactId>
+									<version>${project.version}</version>
+									<type>nar</type>
+									<classifier>nar</classifier>
+									<overWrite>false</overWrite>
+									<outputDirectory>${project.build.directory}/agents</outputDirectory>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<phase>package</phase>
+						<configuration>
+							<classifier>original</classifier>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>jib-maven-plugin</artifactId>
+				<configuration>
+					<skip>false</skip>
+					<from>
+						<image>eclipse-temurin:17-jre-focal</image>
+						<platforms>
+							<platform>
+								<architecture>amd64</architecture>
+								<os>linux</os>
+							</platform>
+						</platforms>
+					</from>
+					<to>
+						<image>langstream/langstream-api-gateway:latest-dev</image>
+					</to>
+					<container>
+						<entrypoint>
+							<shell>bash</shell>
+							<option>-c</option>
+							<arg>/entrypoint.sh</arg>
+						</entrypoint>
+						<ports>
+							<port>8090</port>
+						</ports>
+						<environment>
+							<SPRING_OUTPUT_ANSI_ENABLED>ALWAYS</SPRING_OUTPUT_ANSI_ENABLED>
+						</environment>
+						<creationTime>USE_CURRENT_TIMESTAMP</creationTime>
+						<user>1000</user>
+						<labels>
+							<org.opencontainers.image.source>https://github.com/LangStream/langstream</org.opencontainers.image.source>
+							<org.opencontainers.image.licenses>Apache-2.0</org.opencontainers.image.licenses>
+						</labels>
+					</container>
+					<extraDirectories>
+						<paths>
+							<path>src/main/docker/jib</path>
+							<path>
+								<from>${project.build.directory}/agents</from>
+								<into>/app/agents</into>
+							</path>
+						</paths>
+						<permissions>
+							<permission>
+								<file>/entrypoint.sh</file>
+								<mode>755</mode>
+							</permission>
+						</permissions>
+					</extraDirectories>
+				</configuration>
+			</plugin>
+		</plugins>
+		<defaultGoal>spring-boot:run</defaultGoal>
+	</build>
+	<profiles>
+		<profile>
+			<id>docker</id>
+			<activation>
+				<property>
+					<name>docker</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+					<groupId>com.google.cloud.tools</groupId>
+					<artifactId>jib-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<goals>
+									<goal>dockerBuild</goal>
+								</goals>
+								<phase>package</phase>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+</project>
