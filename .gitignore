@@ -26,6 +26,7 @@ catalina.home_IS_UNDEFINED
 
 # temp ignore
 logs/
+aiproxy/
 *.doc
 *.log
 *.cache

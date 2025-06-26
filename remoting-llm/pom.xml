@@ -1,0 +1,444 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+  child.project.url.inherit.append.path="false">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.github.tjake</groupId>
+  <artifactId>jlama-parent</artifactId>
+  <version>${revision}</version>
+
+  <name>Jlama Parent</name>
+  <url>https://github.com/tjake/jlama</url>
+  <packaging>pom</packaging>
+
+  <description>Jlama: A modern LLM inference engine for Java</description>
+  <scm child.scm.connection.inherit.append.path="false"
+      child.scm.developerConnection.inherit.append.path="false"
+      child.scm.url.inherit.append.path="false">
+    <connection>scm:git:git://github.com/tjake/jlama.git</connection>
+    <developerConnection>scm:git:git@github.com:tjake/jlama.git</developerConnection>
+    <url>http://github.com/tjake/jlama/tree/main/</url>
+  </scm>
+  <issueManagement>
+    <system>github</system>
+    <url>http://github.com/tjake/jlama/issues</url>
+  </issueManagement>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <name>Jake Luciani</name>
+      <email>jake@apache.org</email>
+      <organization>Jlama</organization>
+      <organizationUrl>https://github.com/tjake/jlama</organizationUrl>
+    </developer>
+  </developers>
+  <!-- Build property abstractions: versions, etc -->
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.build.outputTimestamp>${git.commit.time}</project.build.outputTimestamp>
+    <revision>0.8.4</revision>
+
+    <slf4j-api.version>2.0.7</slf4j-api.version>
+    <logback.version>1.5.17</logback.version>
+    <osmaven.version>1.7.1</osmaven.version>
+    <jni.classifier>${os.detected.name}-${os.detected.arch}</jni.classifier>
+    <resteasy.version>6.2.7.Final</resteasy.version>
+    <spotless.version>2.43.0</spotless.version>
+    <junit.version>4.13.2</junit.version>
+    <assertj.version>3.21.0</assertj.version>
+    <junit-platform.version>1.9.2</junit-platform.version>
+    <junit-jupiter.version>5.9.2</junit-jupiter.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+        <version>${slf4j-api.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>${junit-jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <version>${junit-jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>${junit-jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.vintage</groupId>
+      <artifactId>junit-vintage-engine</artifactId>
+      <version>${junit-jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>${assertj.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <extensions>
+      <extension>
+        <groupId>kr.motd.maven</groupId>
+        <artifactId>os-maven-plugin</artifactId>
+        <version>${osmaven.version}</version>
+      </extension>
+    </extensions>
+      <plugins>
+        <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
+        <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.1.0</version>
+        </plugin>
+        <!-- default lifecycle, jar packaging: see https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
+        <plugin>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>3.0.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.8.0</version>
+
+                <!-- We compile with highest jdk to lowest supported target, this is the best compatibility -->
+                <configuration>
+
+                  <source>20</source>
+                  <target>20</target>
+                  <compilerArgs>
+                    <arg>--add-modules=jdk.incubator.vector</arg>
+                  </compilerArgs>
+                  <jdkToolchain>
+                    <version>22</version>
+                  </jdkToolchain>
+                </configuration>
+
+        </plugin>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>3.3.1</version>
+          <configuration>
+            <failIfNoSpecifiedTests>false</failIfNoSpecifiedTests>
+          </configuration>
+          <executions>
+            <execution>
+              <id>default-test</id>
+              <phase>test</phase>
+              <goals>
+                <goal>test</goal>
+              </goals>
+              <configuration>
+                <jdkToolchain>
+                    <version>20</version>
+                </jdkToolchain>
+                <forkCount>1</forkCount>
+                <argLine>
+                --add-modules=jdk.incubator.vector
+                --add-exports java.base/sun.nio.ch=ALL-UNNAMED
+                --enable-preview
+                --enable-native-access=ALL-UNNAMED
+                --add-exports java.base/jdk.internal.vm.vector=ALL-UNNAMED
+                -Djava.library.path=../jlama-native/target/native-lib-only
+                </argLine>
+              </configuration>
+            </execution>
+            <execution>
+              <id>jdk21-test</id>
+              <phase>test</phase>
+              <goals>
+                <goal>test</goal>
+              </goals>
+              <configuration>
+                <jdkToolchain>
+                  <version>21</version>
+                </jdkToolchain>
+                <forkCount>1</forkCount>
+                <argLine>
+                  --add-modules=jdk.incubator.vector
+                  --add-exports java.base/sun.nio.ch=ALL-UNNAMED
+                  --enable-preview
+                  --enable-native-access=ALL-UNNAMED
+                  --add-exports java.base/jdk.internal.vm.vector=ALL-UNNAMED
+                  -Djava.library.path=../jlama-native/target/native-lib-only
+                </argLine>
+              </configuration>
+            </execution>
+            <execution>
+              <id>jdk22-test</id>
+              <phase>test</phase>
+              <goals>
+                <goal>test</goal>
+              </goals>
+              <configuration>
+                <jdkToolchain>
+                  <version>22</version>
+                </jdkToolchain>
+                <forkCount>1</forkCount>
+                <argLine>
+                  --add-modules=jdk.incubator.vector
+                  --add-exports java.base/sun.nio.ch=ALL-UNNAMED
+                  --enable-preview
+                  --enable-native-access=ALL-UNNAMED
+                  --add-exports java.base/jdk.internal.vm.vector=ALL-UNNAMED
+                  -Djava.library.path=../jlama-native/target/native-lib-only
+                </argLine>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.4.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>2.5.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>2.8.2</version>
+        </plugin>
+        <!-- site lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#site_Lifecycle -->
+        <plugin>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.7.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>1.10</version>
+          <executions>
+            <execution>
+              <id>parse-version</id>
+              <goals>
+                <goal>parse-version</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>com.diffplug.spotless</groupId>
+          <artifactId>spotless-maven-plugin</artifactId>
+          <version>${spotless.version}</version>
+          <configuration>
+            <formats>
+              <!-- you can define as many formats as you want, each is independent -->
+              <format>
+                <!-- define the files to apply to -->
+                <includes>
+                  <include>.gitattributes</include>
+                  <include>.gitignore</include>
+                </includes>
+                <!-- define the steps to apply to those files -->
+                <trimTrailingWhitespace/>
+                <endWithNewline/>
+                <indent>
+                  <tabs>true</tabs>
+                  <spacesPerTab>4</spacesPerTab>
+                </indent>
+              </format>
+            </formats>
+            <!-- define a language-specific format -->
+            <java>
+              <!-- no need to specify files, inferred automatically, but you can if you want -->
+
+              <removeUnusedImports /> <!-- self-explanatory -->
+
+              <eclipse>
+                <file>conf/formatterConfig.xml</file>
+              </eclipse>
+
+              <!-- make sure every file has the following copyright header.
+                optionally, Spotless can set copyright years by digging
+                through git history (see "license" section below) -->
+              <licenseHeader>
+                <file>conf/license-header</file>
+              </licenseHeader>
+            </java>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>flatten-maven-plugin</artifactId>
+          <version>1.5.0</version>
+          <configuration>
+            <flattenMode>ossrh</flattenMode>
+            <pomElements>
+              <dependencies>resolve</dependencies>
+            </pomElements>
+          </configuration>
+          <executions>
+            <!-- enable flattening -->
+            <execution>
+              <id>flatten</id>
+              <phase>process-resources</phase>
+              <goals>
+                <goal>flatten</goal>
+              </goals>
+            </execution>
+            <!-- ensure proper cleanup -->
+            <execution>
+              <id>flatten.clean</id>
+              <phase>clean</phase>
+              <goals>
+                <goal>clean</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>io.github.git-commit-id</groupId>
+          <artifactId>git-commit-id-maven-plugin</artifactId>
+          <version>9.0.1</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>revision</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <dateFormatTimeZone>Etc/UTC</dateFormatTimeZone>
+            <skipPoms>false</skipPoms>
+            <generateGitPropertiesFile>true</generateGitPropertiesFile>
+            <generateGitPropertiesFilename>${project.build.outputDirectory}/META-INF/git.properties</generateGitPropertiesFilename>
+            <includeOnlyProperties>
+              <includeOnlyProperty>^git.commit.time$</includeOnlyProperty>
+              <includeOnlyProperty>^git.commit.id.abbrev$</includeOnlyProperty>
+              <includeOnlyProperty>^git.commit.id$</includeOnlyProperty>
+              <includeOnlyProperty>^git.dirty$</includeOnlyProperty>
+            </includeOnlyProperties>
+          </configuration>
+        </plugin>
+      </plugins>
+  </build>
+  <profiles>
+    <profile>
+      <id>allmodules</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <modules>
+          <module>jlama-core</module>
+          <module>jlama-native</module>
+          <module>jlama-net</module>
+          <module>jlama-cli</module>
+          <module>jlama-tests</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>release</id>
+      <properties>
+        <maven.install.skip>false</maven.install.skip>
+      </properties>
+      <modules>
+        <module>jlama-core</module>
+        <module>jlama-native</module>
+        <module>jlama-net</module>
+        <module>jlama-cli</module>
+      </modules>
+      <distributionManagement>
+        <snapshotRepository>
+          <id>ossrh</id>
+          <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+          <id>ossrh</id>
+          <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+      </distributionManagement>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>3.3.1</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.11.2</version>
+            <configuration>
+              <jdkToolchain>
+                <version>22</version>
+              </jdkToolchain>
+              <failOnError>false</failOnError>
+              <additionalJOptions>
+                <additionalJOption>--add-modules=jdk.incubator.vector</additionalJOption>
+              </additionalJOptions>
+              <release>22</release>
+            </configuration>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>1.5</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <configuration>
+                  <gpgArguments>
+                    <arg>--pinentry-mode</arg>
+                    <arg>loopback</arg>
+                  </gpgArguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.sonatype.plugins</groupId>
+            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <version>1.6.13</version>
+            <extensions>true</extensions>
+            <configuration>
+              <serverId>ossrh</serverId>
+              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+              <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
+              <autoReleaseAfterClose>false</autoReleaseAfterClose>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>
