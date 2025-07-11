@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+import io.a2a.spec.InternalError;
 import jakarta.enterprise.context.Dependent;
 
 import io.a2a.http.A2AHttpClient;
@@ -700,7 +701,6 @@ public class JSONRPCHandlerTest {
                 public void onSubscribe(Flow.Subscription subscription) {
                     subscriptionRef.set(subscription);
                     subscription.request(1);
-                    latch.countDown();
                 }
 
                 @Override
@@ -726,15 +726,6 @@ public class JSONRPCHandlerTest {
 
         assertTrue(latch.await(5, TimeUnit.SECONDS));
         subscriptionRef.get().cancel();
-        if (results.size() != 3) {
-            // TODO - this is very strange. The results array is synchronized, and the latch is counted down
-            //  AFTER adding items to the list. Still, I am seeing intermittently, but frequently that
-            //  the results list only has two items.
-            long end = System.currentTimeMillis() + 5000;
-            while (results.size() != 3 && System.currentTimeMillis() < end) {
-                Thread.sleep(1000);
-            }
-        }
         assertEquals(3, results.size());
         assertEquals(3, httpClient.tasks.size());
 
@@ -1105,7 +1096,6 @@ public class JSONRPCHandlerTest {
         SendMessageRequest request = new SendMessageRequest("1", new MessageSendParams(MESSAGE, null, null));
         SendMessageResponse response = handler.onMessageSend(request);
 
-        System.out.println(response);
         assertInstanceOf(InternalError.class, response.getError());
     }
 
