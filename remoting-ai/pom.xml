@@ -31,7 +31,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <pulsar.version>3.0.0</pulsar.version>
-    <kafka.version>3.5.0</kafka.version>
+    <kafka.version>3.9.1</kafka.version>
     <confluent.avro>7.4.0</confluent.avro>
     <!-- Must match version in pulsar -->
     <avro.version>1.10.2</avro.version>
