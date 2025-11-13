@@ -38,7 +38,7 @@
     <maven.compiler.target>17</maven.compiler.target>
     <quarkus-operator-sdk-bom.version>6.2.1</quarkus-operator-sdk-bom.version>
     <!--    override global okhttp3 v4 with v3, used by the k8s client -->
-    <okhttp.version>3.14.9</okhttp.version>
+    <okhttp.version>4.9.2</okhttp.version>
     <jsonassert.version>1.5.1</jsonassert.version>
   </properties>
 
