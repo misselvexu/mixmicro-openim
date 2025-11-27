@@ -33,7 +33,7 @@
     <appassembler-maven-plugin.version>1.10</appassembler-maven-plugin.version>
     <buildnumber-maven-plugin.version>1.4</buildnumber-maven-plugin.version>
 
-    <org.eclipse.jgit.version>6.7.0.202309050840-r</org.eclipse.jgit.version>
+    <org.eclipse.jgit.version>6.10.1.202505221210-r</org.eclipse.jgit.version>
     <undertow.version>2.1.0.Final</undertow.version>
   </properties>
   <dependencies>
