@@ -73,7 +73,7 @@
     <commons-codec.version>1.16.0</commons-codec.version>
     <commons-io.version>2.13.0</commons-io.version>
     <prometheus.version>0.16.0</prometheus.version>
-    <jetty.version>11.0.14</jetty.version>
+    <jetty.version>11.0.24</jetty.version>
     <license-maven-plugin.version>4.1</license-maven-plugin.version>
     <djl.version>0.24.0</djl.version>
     <pytorch.version>2.0.1</pytorch.version>
